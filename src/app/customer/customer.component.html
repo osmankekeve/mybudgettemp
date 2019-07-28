@@ -1,9 +1,108 @@
-<div class="card">
+<div class="card" *ngIf="selectedCustomer==undefined">
     <div class="card-header">
-        <h4 class="card-title">Customers</h4>
-
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Customer List</h5>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" placeholder="Customer Search.." />
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-outline-primary btn-block" (click)="btnNew_Click()">+New Customer</button>
+            </div>
+        </div>
     </div>
     <div class="card-body">
-
+        <div class="list-group">
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+            (click)="showSelectedCustomer(customer)"
+            *ngFor="let customer of customerList | async"><span class="text-dark">{{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
+        </div>
     </div>
+</div>
+<div class="card" *ngIf="selectedCustomer!=undefined">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-sm-9">
+                    <h4 class="card-title">{{selectedCustomer.name}}</h4>
+                </div>
+                <div class="col-sm-3">
+                    <button type="button" class="btn btn-sm btn-outline-primary btn-block" (click)="btnReturnList_Click()">Return List</button>
+                </div>
+            </div>
+    
+        </div>
+        <div class="card-body">
+            <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                <div class="form-row form-inline">
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="customerName">Customer Name</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="customerName" name="customerName" type="text" 
+                                [(ngModel)]="selectedCustomer.name" required>
+                            <div class="invalid-feedback">Please fill name field.</div>
+                        </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="customerCode">Code</label>
+                    </div>
+                    <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text" 
+                                [(ngModel)]="selectedCustomer.code"
+                                [ngModelOptions]="{standalone: true}">
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="phone1">Phone 1</label>
+                    </div>
+                    <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="phone1" name="phone1" type="text" 
+                                [(ngModel)]="selectedCustomer.phone1"
+                                [ngModelOptions]="{standalone: true}" required>
+                                <div class="invalid-feedback">Please fill phone 1 field.</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="phone2">Phone 2</label>
+                    </div>
+                    <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="phone2" name="phone2" type="text" 
+                                [(ngModel)]="selectedCustomer.phone2"
+                                [ngModelOptions]="{standalone: true}">
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="eMail">E Mail</label>
+                    </div>
+                    <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="eMail" name="eMail" type="email" 
+                                [(ngModel)]="selectedCustomer.email"
+                                [ngModelOptions]="{standalone: true}">
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="owner">Owner</label>
+                    </div>
+                    <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="owner" name="owner" type="text" 
+                                [(ngModel)]="selectedCustomer.owner"
+                                [ngModelOptions]="{standalone: true}" required>
+                                <div class="invalid-feedback">Please fill owner field.</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="address">Address</label>
+                    </div>
+                    <div class="col-sm-9">
+                            <input class="form-control form-control-sm" id="address" name="address" type="text" 
+                                [(ngModel)]="selectedCustomer.address">
+                    </div>
+                </div>
+            </form>
+    
+        </div>
+        <div class="card-footer">
+            <div class="col-sm-3 float-right">
+                <button type="button" class="btn btn-sm btn-outline-success btn-block" (click)="btnSave_Click()">Save</button>
+            </div>
+            <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
+                <button type="button" class="btn btn-sm btn-outline-danger btn-block" (click)="btnRemove_Click()">Remove</button>
+            </div>
+
+        </div>
 </div>
