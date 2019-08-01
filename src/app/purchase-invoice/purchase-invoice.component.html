@@ -1,0 +1,88 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Purchase Invoice List</h5>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" placeholder="Invoice Search.." />
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-outline-primary btn-block" (click)="btnNew_Click()">+New
+                    Invoice</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                (click)="showSelectedRecord(item)"
+                *ngFor="let item of mainList$ | async; index as i; trackBy: primaryKey">
+                <span class="text-dark">{{i}}-{{item.data.receiptNo}} - {{item.customerName}}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-9">
+                <h4 class="card-title">{{selectedRecord.primaryKey}}</h4>
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-block"
+                    (click)="btnReturnList_Click()">Return List</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated">
+            <div class="form-row form-inline">
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="receiptNo">Receipt No</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text"
+                        [(ngModel)]="selectedRecord.receiptNo" required>
+                    <div class="invalid-feedback">Please fill receipt no field.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="totalPrice">Total Price</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="text"
+                        [(ngModel)]="selectedRecord.totalPrice">
+                    <div class="invalid-feedback">Please fill total price field.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="totalPriceWithTax">Total Price With Tax</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
+                        type="text" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
+                    <div class="invalid-feedback">Please fill total price with tax field.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="description">Description</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="description" name="description" type="text"
+                        [(ngModel)]="selectedRecord.description">
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="card-footer">
+        <div class="col-sm-3 float-right">
+            <button type="button" class="btn btn-sm btn-outline-success btn-block"
+                (click)="btnSave_Click()">Save</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+            <button type="button" class="btn btn-sm btn-outline-danger btn-block"
+                (click)="btnRemove_Click()">Remove</button>
+        </div>
+
+    </div>
+</div>

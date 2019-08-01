@@ -16,7 +16,7 @@
         <div class="list-group">
             <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
             (click)="showSelectedCustomer(customer)"
-            *ngFor="let customer of customerList | async"><span class="text-dark">{{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
+            *ngFor="let customer of customerList | async; index as i; trackBy: primaryKey"><span class="text-dark">{{i}}-{{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
         </div>
     </div>
 </div>
@@ -48,16 +48,14 @@
                     </div>
                     <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text" 
-                                [(ngModel)]="selectedCustomer.code"
-                                [ngModelOptions]="{standalone: true}">
+                                [(ngModel)]="selectedCustomer.code">
                     </div>
                     <div class="col-sm-3">
                         <label class="col-form-label float-left" for="phone1">Phone 1</label>
                     </div>
                     <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="phone1" name="phone1" type="text" 
-                                [(ngModel)]="selectedCustomer.phone1"
-                                [ngModelOptions]="{standalone: true}" required>
+                                [(ngModel)]="selectedCustomer.phone1" required>
                                 <div class="invalid-feedback">Please fill phone 1 field.</div>
                     </div>
                     <div class="col-sm-3">
@@ -65,24 +63,21 @@
                     </div>
                     <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="phone2" name="phone2" type="text" 
-                                [(ngModel)]="selectedCustomer.phone2"
-                                [ngModelOptions]="{standalone: true}">
+                                [(ngModel)]="selectedCustomer.phone2">
                     </div>
                     <div class="col-sm-3">
                         <label class="col-form-label float-left" for="eMail">E Mail</label>
                     </div>
                     <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="eMail" name="eMail" type="email" 
-                                [(ngModel)]="selectedCustomer.email"
-                                [ngModelOptions]="{standalone: true}">
+                                [(ngModel)]="selectedCustomer.email">
                     </div>
                     <div class="col-sm-3">
                         <label class="col-form-label float-left" for="owner">Owner</label>
                     </div>
                     <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="owner" name="owner" type="text" 
-                                [(ngModel)]="selectedCustomer.owner"
-                                [ngModelOptions]="{standalone: true}" required>
+                                [(ngModel)]="selectedCustomer.owner" required>
                                 <div class="invalid-feedback">Please fill owner field.</div>
                     </div>
                     <div class="col-sm-3">

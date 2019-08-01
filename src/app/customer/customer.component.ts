@@ -3,7 +3,6 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../../app/services/customer.service'
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer',
@@ -25,6 +24,7 @@ export class CustomerComponent implements OnInit {
   }
 
   populateCustomerList() : void {
+    this.customerList = undefined;
     this.customerList = this.customerService.getAllItems();
 
   }
@@ -45,10 +45,10 @@ export class CustomerComponent implements OnInit {
     if (this.selectedCustomer.primaryKey == undefined) {
       this.selectedCustomer.primaryKey ="";
       this.customerService.addItem(this.selectedCustomer);
-      this.selectedCustomer = undefined;
     } else {
-
+      this.customerService.updateItem(this.selectedCustomer);
     }
+    this.selectedCustomer = undefined;
   }
 
   btnRemove_Click(): void {

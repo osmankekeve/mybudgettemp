@@ -14,21 +14,11 @@ export class CustomerService {
   customerDoc : AngularFirestoreDocument<CustomerModel>;
 
   constructor(public db: AngularFirestore) { 
-    this.customerCollection = db.collection<CustomerModel>('tblCustomer',ref=> ref.orderBy('name','asc'));
-
-    this.customers = this.customerCollection.snapshotChanges().pipe(
-      map((actions:any) => actions.map(a => {
-        const data = a.payload.doc.data() as CustomerModel;
-        data.primaryKey = a.payload.doc.id;
-        let id = a.payload.doc.id;
-        return { id, ...data };
-      }))
-    );
-    this.customerCollection.stateChanges
   }
 
   getAllItems() : Observable<CustomerModel[]>{
-    return this.customers;
+    this.customerCollection = this.db.collection<CustomerModel>('tblCustomer');
+    return this.customerCollection.valueChanges({ idField : 'primaryKey'});
   }
 
   addItem(_customer : CustomerModel){
@@ -37,6 +27,10 @@ export class CustomerService {
 
   removeItem(_customer : CustomerModel){
     this.db.collection("tblCustomer").doc(_customer.primaryKey).delete();
+  }
+
+  updateItem(_customer : CustomerModel){
+    this.db.collection("tblCustomer").doc(_customer.primaryKey).update(_customer);
   }
 
 }
