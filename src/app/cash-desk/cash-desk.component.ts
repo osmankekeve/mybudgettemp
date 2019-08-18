@@ -5,22 +5,20 @@ import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { CashDeskService } from '../services/cash-desk.service';
 
 @Component({
-  selector: 'app-sales-invoice',
-  templateUrl: './sales-invoice.component.html',
-  styleUrls: ['./sales-invoice.component.css']
+  selector: 'app-cash-desk',
+  templateUrl: './cash-desk.component.html',
+  styleUrls: ['./cash-desk.component.css']
 })
-export class SalesInvoiceComponent implements OnInit {
-  mainList$: Observable<SalesInvoiceModel[]>;
-  collection : AngularFirestoreCollection<SalesInvoiceModel>;
-  selectedRecord : SalesInvoiceModel;
-  selectedRecordSubItems:{
-    customerName:string,
-    invoiceType:string
-  }
+export class CashDeskComponent implements OnInit {
+  mainList$: Observable<CashDeskModel[]>;
+  collection : AngularFirestoreCollection<CashDeskModel>;
+  selectedRecord : CashDeskModel;
 
-  constructor(public service: SalesInvoiceService, public db :AngularFirestore) { }
+  constructor(public service: CashDeskService, public db :AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -33,17 +31,11 @@ export class SalesInvoiceComponent implements OnInit {
 
   populateList() : void {
     this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList$ = this.service.getAllItems();
   }
 
   showSelectedRecord(_record: any): void {
-    this.selectedRecord = _record.data as SalesInvoiceModel;
-    this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
-    this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
-    this.selectedRecordSubItems = {
-      customerName : _record.customerName,
-      invoiceType : this.selectedRecord.type == 'sales' ?  'Sales Invoice': 'Return Invoice'
-    }
+    this.selectedRecord = _record as CashDeskModel;
     console.log(this.selectedRecord);
   }
 
@@ -56,8 +48,6 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.totalPrice = this.selectedRecord.totalPrice * -1;
-    this.selectedRecord.totalPriceWithTax = this.selectedRecord.totalPriceWithTax * -1;
     if (this.selectedRecord.primaryKey == undefined) {
       this.selectedRecord.primaryKey ="";
       this.service.addItem(this.selectedRecord);
@@ -73,7 +63,7 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey:undefined, customerCode:'', receiptNo:'', type:'', description:'', totalPrice:0, totalPriceWithTax:0};
+    this.selectedRecord = {primaryKey:undefined, name:'', description:'', userPrimaryKey:''};
   }
 
 }

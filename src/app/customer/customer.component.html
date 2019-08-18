@@ -16,7 +16,7 @@
         <div class="list-group">
             <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
             (click)="showSelectedCustomer(customer)"
-            *ngFor="let customer of customerList | async; index as i; trackBy: primaryKey"><span class="text-dark">{{i}}-{{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
+            *ngFor="let customer of customerList | async; index as i; trackBy: primaryKey"><span class="text-dark">{{i+1}}) {{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
         </div>
     </div>
 </div>
@@ -89,7 +89,79 @@
                     </div>
                 </div>
             </form>
-    
+            <div id="panel-navigator" *ngIf="selectedCustomer.primaryKey!=undefined">
+
+                <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header card-header-warning card-header-icon">
+                                    <div class="card-icon">
+                                        <img src="../../assets/images/sales_invoice.png" width="50px">
+                                    </div>
+                                    <p class="card-category">Sales Invoice</p>
+                                    <h3 class="card-title">{{siAmount}} <small>TL</small></h3>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="stats">
+                                        <a class="float-right">Show Data >></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header card-header-danger card-header-icon">
+                                    <div class="card-icon">
+                                        <img src="../../assets/images/collection.png" width="50px">
+                                    </div>
+                                    <p class="card-category">Collection</p>
+                                    <h3 class="card-title">{{colAmount}} <small>TL</small></h3>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="stats">
+                                        <a class="float-right">Show Data</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                
+                <div class="row mt-4">
+                        <div class="col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header card-header-success card-header-icon">
+                                    <div class="card-icon">
+                                        <img src="../../assets/images/purchase_invoice.png" width="50px">
+                                    </div>
+                                    <p class="card-category">Purchase Invoice</p>
+                                    <h3 class="card-title">{{purchaseInvoiceAmount}} <small>TL</small></h3>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="stats">
+                                            <a class="float-right">Show Data</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header card-header-info card-header-icon">
+                                    <div class="card-icon">
+                                        <img src="../../assets/images/payment.png" width="50px">
+                                    </div>
+                                    <p class="card-category">Payment</p>
+                                    <h3 class="card-title">{{payAmount}} <small>TL</small></h3>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="stats">
+                                            <a class="float-right">Show Data</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+            </div>
         </div>
         <div class="card-footer">
             <div class="col-sm-3 float-right">

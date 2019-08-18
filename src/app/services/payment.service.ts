@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { PaymentModel } from '../models/payment-model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PurchaseInvoiceService {
-  listCollection: AngularFirestoreCollection<PurchaseInvoiceModel>;
-  mainList$: Observable<PurchaseInvoiceModel[]>;
+export class PaymentService {
+  listCollection: AngularFirestoreCollection<PaymentModel>;
+  mainList$: Observable<PaymentModel[]>;
   listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
 
@@ -19,37 +19,37 @@ export class PurchaseInvoiceService {
 
   }
 
-  getAllItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>('tblPurchaseInvoice');
+  getAllItems(): Observable<PaymentModel[]> {
+    this.listCollection = this.db.collection<PaymentModel>('tblPayment');
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
 
-  getCustomerItems(customerCode: string): Observable<PurchaseInvoiceModel[]> {
+  getCustomerItems(customerCode: string): Observable<PaymentModel[]> {
     // valueChanges gercek zamanli guncelleme
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>
-    ('tblPurchaseInvoice', ref => ref.where('customerCode', '==', customerCode));
+    this.listCollection = this.db.collection<PaymentModel>
+    ('tblPayment', ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
 
-  addItem(record: PurchaseInvoiceModel) {
+  addItem(record: PaymentModel) {
     this.listCollection.add(record);
   }
 
-  removeItem(record: PurchaseInvoiceModel) {
-    this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).delete();
+  removeItem(record: PaymentModel) {
+    this.db.collection('tblPayment').doc(record.primaryKey).delete();
   }
 
-  updateItem(record: PurchaseInvoiceModel) {
-    this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).update(record);
+  updateItem(record: PaymentModel) {
+    this.db.collection('tblPayment').doc(record.primaryKey).update(record);
   }
 
-  getItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice');
+  getItems(): Observable<PaymentModel[]> {
+    this.listCollection = this.db.collection('tblPayment');
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
-        const data = change.payload.doc.data() as PurchaseInvoiceModel;
+        const data = change.payload.doc.data() as PaymentModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges().pipe(map( (customer: CustomerModel) => {
             return Object.assign({data, customerName: customer.name}); }));
@@ -59,5 +59,4 @@ export class PurchaseInvoiceService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
-
 }

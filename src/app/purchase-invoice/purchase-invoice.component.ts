@@ -13,6 +13,10 @@ export class PurchaseInvoiceComponent implements OnInit {
   mainList$: Observable<PurchaseInvoiceModel[]>;
   collection : AngularFirestoreCollection<PurchaseInvoiceModel>;
   selectedRecord : PurchaseInvoiceModel;
+  selectedRecordSubItems:{
+    customerName:string,
+    invoiceType:string
+  }
 
   constructor(public service: PurchaseInvoiceService, public db :AngularFirestore) { }
 
@@ -28,16 +32,17 @@ export class PurchaseInvoiceComponent implements OnInit {
   populateList() : void {
     this.mainList$ = undefined;
     this.mainList$ = this.service.getItems();
-    this.service.getItems().forEach(value => {
-      console.log(value);
-    });
-
-
   }
 
   showSelectedRecord(_record: any): void {
     this.selectedRecord = _record.data as PurchaseInvoiceModel;
-    console.log(_record);
+    this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
+    this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
+    this.selectedRecordSubItems = {
+      customerName : _record.customerName,
+      invoiceType : this.selectedRecord.type == 'purchase' ?  'Purchase Invoice': 'Return Invoice'
+    }
+    console.log(this.selectedRecord);
   }
 
   btnReturnList_Click(): void {
@@ -49,6 +54,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   btnSave_Click(): void {
+    this.selectedRecord.totalPrice = this.selectedRecord.totalPrice * -1;
+    this.selectedRecord.totalPriceWithTax = this.selectedRecord.totalPriceWithTax * -1;
     if (this.selectedRecord.primaryKey == undefined) {
       this.selectedRecord.primaryKey ="";
       this.service.addItem(this.selectedRecord);

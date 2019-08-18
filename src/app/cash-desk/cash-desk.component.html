@@ -1,0 +1,82 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header bg-danger text-light">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Cash Desk List</h5>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" class="form-control form-control-sm" placeholder="Invoice Search.." />
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-light btn-sm btn-block" (click)="btnNew_Click()">+New
+                    Invoice</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="list-group">
+                <div class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-4">Name</div>
+        
+                        </div>
+                </div>
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                (click)="showSelectedRecord(item)"
+                *ngFor="let item of mainList$ | async; index as i; trackBy: primaryKey">
+                <div class="row">
+                    <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}})</span> {{item.name}}</div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-9">
+                <h5 class="card-title">Cash Desk Detail</h5>
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-sm btn-outline-primary btn-block"
+                    (click)="btnReturnList_Click()">Return List</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated">
+            <div class="form-row form-inline">
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="cashDeskName">Cash Desk Name</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
+                        [(ngModel)]="selectedRecord.name" required>
+                    <div class="invalid-feedback">Please fill name field.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="description">Description</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm" id="description" name="description" type="text"
+                        [(ngModel)]="selectedRecord.description">
+                    <div class="invalid-feedback">Please fill description field.</div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="card-footer">
+        <div class="col-sm-3 float-right">
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                (click)="btnSave_Click()">Save</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                (click)="btnRemove_Click()">Remove</button>
+        </div>
+
+    </div>
+</div>
