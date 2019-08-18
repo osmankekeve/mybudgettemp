@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
+        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
                 <div class="list-group-item">
                         <div class="row">
                             <div class="col-sm-4">Name</div>
@@ -23,13 +23,18 @@
                 </div>
             <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                 (click)="showSelectedRecord(item)"
-                *ngFor="let item of mainList$ | async; index as i; trackBy: primaryKey">
+                *ngFor="let item of mainList; index as i; trackBy: primaryKey">
                 <div class="row">
                     <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}})</span> {{item.name}}</div>
 
                 </div>
             </div>
         </div>
+        <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+        </ng-template>  
     </div>
 </div>
 <div class="card" *ngIf="selectedRecord!=undefined">

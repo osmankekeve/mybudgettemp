@@ -1,8 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
-import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
 
@@ -11,16 +9,16 @@ import { SalesInvoiceService } from '../services/sales-invoice.service';
   templateUrl: './sales-invoice.component.html',
   styleUrls: ['./sales-invoice.component.css']
 })
-export class SalesInvoiceComponent implements OnInit {
+export class SalesInvoiceComponent implements OnInit, OnDestroy {
   mainList$: Observable<SalesInvoiceModel[]>;
-  collection : AngularFirestoreCollection<SalesInvoiceModel>;
-  selectedRecord : SalesInvoiceModel;
-  selectedRecordSubItems:{
-    customerName:string,
-    invoiceType:string
-  }
+  collection: AngularFirestoreCollection<SalesInvoiceModel>;
+  selectedRecord: SalesInvoiceModel;
+  selectedRecordSubItems: {
+    customerName: string,
+    invoiceType: string
+  };
 
-  constructor(public service: SalesInvoiceService, public db :AngularFirestore) { }
+  constructor(public service: SalesInvoiceService, public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -31,20 +29,19 @@ export class SalesInvoiceComponent implements OnInit {
     this.mainList$.subscribe();
   }
 
-  populateList() : void {
+  populateList(): void {
     this.mainList$ = undefined;
     this.mainList$ = this.service.getItems();
   }
 
-  showSelectedRecord(_record: any): void {
-    this.selectedRecord = _record.data as SalesInvoiceModel;
+  showSelectedRecord(record: any): void {
+    this.selectedRecord = record.data as SalesInvoiceModel;
     this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
     this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
     this.selectedRecordSubItems = {
-      customerName : _record.customerName,
-      invoiceType : this.selectedRecord.type == 'sales' ?  'Sales Invoice': 'Return Invoice'
-    }
-    console.log(this.selectedRecord);
+      customerName : record.customerName,
+      invoiceType : this.selectedRecord.type === 'sales' ?  'Sales Invoice' : 'Return Invoice'
+    };
   }
 
   btnReturnList_Click(): void {
@@ -58,8 +55,8 @@ export class SalesInvoiceComponent implements OnInit {
   btnSave_Click(): void {
     this.selectedRecord.totalPrice = this.selectedRecord.totalPrice * -1;
     this.selectedRecord.totalPriceWithTax = this.selectedRecord.totalPriceWithTax * -1;
-    if (this.selectedRecord.primaryKey == undefined) {
-      this.selectedRecord.primaryKey ="";
+    if (this.selectedRecord.primaryKey === undefined) {
+      this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord);
     } else {
       this.service.updateItem(this.selectedRecord);
@@ -73,7 +70,8 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey:undefined, customerCode:'', receiptNo:'', type:'', description:'', totalPrice:0, totalPriceWithTax:0};
+    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '',
+    description: '', totalPrice: 0, totalPriceWithTax: 0};
   }
 
 }

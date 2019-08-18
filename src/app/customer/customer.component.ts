@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerModel } from '../models/customer-model';
-import { CustomerService } from '../../app/services/customer.service'
+import { CustomerService } from '../../app/services/customer.service';
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
@@ -19,8 +19,7 @@ import { PaymentModel } from '../models/payment-model';
 })
 
 export class CustomerComponent implements OnInit {
-  customerList: Observable<CustomerModel[]>;
-  customerCollection: AngularFirestoreCollection<CustomerModel>;
+  mainList$: Observable<CustomerModel[]>;
   selectedCustomer: CustomerModel;
 
   purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
@@ -43,8 +42,8 @@ export class CustomerComponent implements OnInit {
   }
 
   populateCustomerList(): void {
-    this.customerList = undefined;
-    this.customerList = this.customerService.getAllItems();
+    this.mainList$ = undefined;
+    this.mainList$ = this.customerService.getAllItems();
 
   }
 

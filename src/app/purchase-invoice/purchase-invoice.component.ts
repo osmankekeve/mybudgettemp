@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
@@ -9,16 +9,17 @@ import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
   templateUrl: './purchase-invoice.component.html',
   styleUrls: ['./purchase-invoice.component.css']
 })
-export class PurchaseInvoiceComponent implements OnInit {
+export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   mainList$: Observable<PurchaseInvoiceModel[]>;
-  collection : AngularFirestoreCollection<PurchaseInvoiceModel>;
-  selectedRecord : PurchaseInvoiceModel;
-  selectedRecordSubItems:{
-    customerName:string,
-    invoiceType:string
-  }
+  collection: AngularFirestoreCollection<PurchaseInvoiceModel>;
+  selectedRecord: PurchaseInvoiceModel;
+  selectedRecordSubItems: {
+    customerName: string,
+    invoiceType: string
+  };
+  mainListLength = 0;
 
-  constructor(public service: PurchaseInvoiceService, public db :AngularFirestore) { }
+  constructor(public service: PurchaseInvoiceService, public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -29,20 +30,19 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.mainList$.subscribe();
   }
 
-  populateList() : void {
+  populateList(): void {
     this.mainList$ = undefined;
     this.mainList$ = this.service.getItems();
   }
 
-  showSelectedRecord(_record: any): void {
-    this.selectedRecord = _record.data as PurchaseInvoiceModel;
+  showSelectedRecord(record: any): void {
+    this.selectedRecord = record.data as PurchaseInvoiceModel;
     this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
     this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
     this.selectedRecordSubItems = {
-      customerName : _record.customerName,
-      invoiceType : this.selectedRecord.type == 'purchase' ?  'Purchase Invoice': 'Return Invoice'
-    }
-    console.log(this.selectedRecord);
+      customerName : record.customerName,
+      invoiceType : this.selectedRecord.type === 'purchase' ?  'Purchase Invoice' : 'Return Invoice'
+    };
   }
 
   btnReturnList_Click(): void {
@@ -56,8 +56,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   btnSave_Click(): void {
     this.selectedRecord.totalPrice = this.selectedRecord.totalPrice * -1;
     this.selectedRecord.totalPriceWithTax = this.selectedRecord.totalPriceWithTax * -1;
-    if (this.selectedRecord.primaryKey == undefined) {
-      this.selectedRecord.primaryKey ="";
+    if (this.selectedRecord.primaryKey === undefined) {
+      this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord);
     } else {
       this.service.updateItem(this.selectedRecord);
@@ -71,7 +71,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey:undefined, customerCode:'', receiptNo:'', type:'', description:'', totalPrice:0, totalPriceWithTax:0};
+    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '',
+    description: '', totalPrice: 0, totalPriceWithTax: 0};
   }
 
 }

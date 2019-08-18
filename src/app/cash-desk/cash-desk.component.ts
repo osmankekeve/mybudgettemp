@@ -1,10 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
-import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
-import { SalesInvoiceModel } from '../models/sales-invoice-model';
-import { SalesInvoiceService } from '../services/sales-invoice.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 
@@ -13,12 +9,12 @@ import { CashDeskService } from '../services/cash-desk.service';
   templateUrl: './cash-desk.component.html',
   styleUrls: ['./cash-desk.component.css']
 })
-export class CashDeskComponent implements OnInit {
+export class CashDeskComponent implements OnInit, OnDestroy {
   mainList$: Observable<CashDeskModel[]>;
-  collection : AngularFirestoreCollection<CashDeskModel>;
-  selectedRecord : CashDeskModel;
+  collection: AngularFirestoreCollection<CashDeskModel>;
+  selectedRecord: CashDeskModel;
 
-  constructor(public service: CashDeskService, public db :AngularFirestore) { }
+  constructor(public service: CashDeskService, public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -29,14 +25,13 @@ export class CashDeskComponent implements OnInit {
     this.mainList$.subscribe();
   }
 
-  populateList() : void {
+  populateList(): void {
     this.mainList$ = undefined;
     this.mainList$ = this.service.getAllItems();
   }
 
-  showSelectedRecord(_record: any): void {
-    this.selectedRecord = _record as CashDeskModel;
-    console.log(this.selectedRecord);
+  showSelectedRecord(record: any): void {
+    this.selectedRecord = record as CashDeskModel;
   }
 
   btnReturnList_Click(): void {
@@ -48,8 +43,8 @@ export class CashDeskComponent implements OnInit {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey == undefined) {
-      this.selectedRecord.primaryKey ="";
+    if (this.selectedRecord.primaryKey === undefined) {
+      this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord);
     } else {
       this.service.updateItem(this.selectedRecord);
@@ -63,7 +58,7 @@ export class CashDeskComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey:undefined, name:'', description:'', userPrimaryKey:''};
+    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: ''};
   }
 
 }
