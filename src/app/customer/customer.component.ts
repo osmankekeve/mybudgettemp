@@ -21,6 +21,7 @@ import { PaymentModel } from '../models/payment-model';
 export class CustomerComponent implements OnInit {
   mainList$: Observable<CustomerModel[]>;
   selectedCustomer: CustomerModel;
+  newSalesInvoice: SalesInvoiceModel;
 
   purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
   purchaseInvoiceAmount: any;
@@ -30,6 +31,7 @@ export class CustomerComponent implements OnInit {
   colAmount: any;
   payList$: Observable<PaymentModel[]>;
   payAmount: any;
+  openedPanel: string;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService,
@@ -37,11 +39,13 @@ export class CustomerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.openedPanel = 'dashboard';
     this.populateCustomerList();
     this.selectedCustomer = undefined;
   }
 
   populateCustomerList(): void {
+    this.openedPanel = 'dashboard';
     this.mainList$ = undefined;
     this.mainList$ = this.customerService.getAllItems();
 
@@ -112,6 +116,25 @@ export class CustomerComponent implements OnInit {
 
   clearSelectedCustomer(): void {
     this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: ''};
+  }
+
+  btnOpenSubPanel_Click(panel: string): void {
+    this.openedPanel = panel;
+    if (this.openedPanel === 'salesInvoice') {
+      this.newSalesInvoice.customerCode = this.selectedCustomer.primaryKey;
+      this.newSalesInvoice.userPrimaryKey = this.selectedCustomer.userPrimaryKey;
+
+    } else if (this.openedPanel === 'collection') {
+
+    } else if (this.openedPanel === 'purchaseInvoice') {
+
+    } else if (this.openedPanel === 'payment') {
+
+    } else if (this.openedPanel === 'edit') {
+
+    } else {
+
+    }
   }
 
 }

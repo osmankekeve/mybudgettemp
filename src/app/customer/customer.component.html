@@ -5,10 +5,10 @@
                 <h5 class="card-title">Customer List</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control" placeholder="Customer Search.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Customer Search.." />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-outline-primary btn-block" (click)="btnNew_Click()">+New Customer</button>
+                <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnNew_Click()">+New Customer</button>
             </div>
         </div>
     </div>
@@ -32,149 +32,244 @@
                     <h4 class="card-title">{{selectedCustomer.name}}</h4>
                 </div>
                 <div class="col-sm-3">
-                    <button type="button" class="btn btn-sm btn-outline-primary btn-block" (click)="btnReturnList_Click()">Return List</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'">Return List</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'">Return Main Panel</button>
                 </div>
             </div>
+        </div>
+        <div *ngIf="openedPanel=='dashboard'">
+                <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
+                    <div class="row">
+                        <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Name</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.name}}</label>        
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Owner</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.owner}}</label>        
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">E-Mail</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.eMail}}</label>        
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Phone 1</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone1}}</label>        
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Phone 2</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone2}}</label>        
+                                </div>
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Address</label>
+                                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.address}}</label>        
+                                </div>
+                                <button type="button" class="btn btn-sm btn-primary" 
+                                (click)="btnOpenSubPanel_Click('edit')">Edit Customer</button>    
+                        </div>
+                        <div class="col-sm-6">
+                                <div id="panel-navigator">
+                                    <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="card card-stats">
+                                                    <div class="card-header card-header-warning card-header-icon">
+                                                        <div class="card-icon">
+                                                            <img src="../../assets/images/sales_invoice.png" width="30px">
+                                                        </div>
+                                                        <p class="card-category">Sales Invoice</p>
+                                                        <h3 class="card-title">{{siAmount | number}} <small>TL</small></h3>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <div class="stats">
+                                                            <a class="float-right text-button" (click)="btnOpenSubPanel_Click('salesInvoice')">New Record >></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 mt-1">
+                                                <div class="card card-stats">
+                                                    <div class="card-header card-header-danger card-header-icon">
+                                                        <div class="card-icon">
+                                                            <img src="../../assets/images/collection.png" width="30px">
+                                                        </div>
+                                                        <p class="card-category">Collection</p>
+                                                        <h3 class="card-title">{{colAmount | number}} <small>TL</small></h3>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <div class="stats">
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('collection')">New Record >></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 mt-1">
+                                                <div class="card card-stats">
+                                                    <div class="card-header card-header-success card-header-icon">
+                                                        <div class="card-icon">
+                                                            <img src="../../assets/images/purchase_invoice.png" width="30px">
+                                                        </div>
+                                                        <p class="card-category">Purchase Invoice</p>
+                                                        <h3 class="card-title">{{purchaseInvoiceAmount | number}} <small>TL</small></h3>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <div class="stats">
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('purchaseInvoice')">New Record >></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 mt-1">
+                                                <div class="card card-stats">
+                                                    <div class="card-header card-header-info card-header-icon">
+                                                        <div class="card-icon">
+                                                            <img src="../../assets/images/payment.png" width="30px">
+                                                        </div>
+                                                        <p class="card-category">Payment</p>
+                                                        <h3 class="card-title">{{payAmount | number}} <small>TL</small></h3>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <div class="stats">
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('payment')">New Record >></a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                    
+                                </div>
+                        </div>
+
+                    </div>
+                </div>
+        </div>
+        <div *ngIf="openedPanel=='salesInvoice'">
+            <div class="card-body">
+                <div class="form-row">
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="type">Invoice Type</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <select class="form-control form-control-sm" [(ngModel)]="newSalesInvoice.type">
+                                <option [value]="sales">Sales</option>
+                                <option [value]="return">Return</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="receiptNo">Voucher No</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text" 
+                                [(ngModel)]="newSalesInvoice.receiptNo" required>
+                            <div class="invalid-feedback">Please fill receipt no field.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="totalPrice">Total Price</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" 
+                                [(ngModel)]="newSalesInvoice.totalPrice" required>
+                            <div class="invalid-feedback">Please fill total price field.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="totalPrice">Total Price (+KDV)</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" 
+                                [(ngModel)]="newSalesInvoice.totalPriceWithTax" required>
+                            <div class="invalid-feedback">Please fill total price with tax field.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="description">Description</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="form-control form-control-sm" id="description" name="description" type="text" 
+                                [(ngModel)]="newSalesInvoice.description" required>
+                            <div class="invalid-feedback">Please fill description field.</div>
+                        </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div *ngIf="openedPanel=='collection'">
+                Collection
+        </div>
+        <div *ngIf="openedPanel=='purchaseInvoice'">
+                purchaseInvoice
+        </div>
+        <div *ngIf="openedPanel=='payment'">
+                payment
+        </div>
+        <div *ngIf="openedPanel=='edit'">
+            <div class="card-body">
+                    <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                        <div class="form-row form-inline">
+                                <div class="col-sm-3">
+                                    <label class="col-form-label float-left" for="customerName">Customer Name</label>
+                                </div>
+                                <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="customerName" name="customerName" type="text" 
+                                        [(ngModel)]="selectedCustomer.name" required>
+                                    <div class="invalid-feedback">Please fill name field.</div>
+                                </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="customerCode">Code</label>
+                            </div>
+                            <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text" 
+                                        [(ngModel)]="selectedCustomer.code">
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="phone1">Phone 1</label>
+                            </div>
+                            <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="phone1" name="phone1" type="text" 
+                                        [(ngModel)]="selectedCustomer.phone1" required>
+                                        <div class="invalid-feedback">Please fill phone 1 field.</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="phone2">Phone 2</label>
+                            </div>
+                            <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="phone2" name="phone2" type="text" 
+                                        [(ngModel)]="selectedCustomer.phone2">
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="eMail">E Mail</label>
+                            </div>
+                            <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="eMail" name="eMail" type="email" 
+                                        [(ngModel)]="selectedCustomer.email">
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="owner">Owner</label>
+                            </div>
+                            <div class="col-sm-3">
+                                    <input class="form-control form-control-sm" id="owner" name="owner" type="text" 
+                                        [(ngModel)]="selectedCustomer.owner" required>
+                                        <div class="invalid-feedback">Please fill owner field.</div>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="address">Address</label>
+                            </div>
+                            <div class="col-sm-9">
+                                    <input class="form-control form-control-sm" id="address" name="address" type="text" 
+                                        [(ngModel)]="selectedCustomer.address">
+                            </div>
+                        </div>
+                    </form>
+
+            </div>
+            <div class="card-footer">
+                <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
+                    <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Remove</button>
+                </div>
+                <div class="col-sm-3 float-right">
+                    <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Save</button>
+                </div>
     
-        </div>
-        <div class="card-body">
-            <form (ngSubmit)="btnSave_Click()" class="was-validated">
-                <div class="form-row form-inline">
-                        <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="customerName">Customer Name</label>
-                        </div>
-                        <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="customerName" name="customerName" type="text" 
-                                [(ngModel)]="selectedCustomer.name" required>
-                            <div class="invalid-feedback">Please fill name field.</div>
-                        </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="customerCode">Code</label>
-                    </div>
-                    <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text" 
-                                [(ngModel)]="selectedCustomer.code">
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="phone1">Phone 1</label>
-                    </div>
-                    <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="phone1" name="phone1" type="text" 
-                                [(ngModel)]="selectedCustomer.phone1" required>
-                                <div class="invalid-feedback">Please fill phone 1 field.</div>
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="phone2">Phone 2</label>
-                    </div>
-                    <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="phone2" name="phone2" type="text" 
-                                [(ngModel)]="selectedCustomer.phone2">
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="eMail">E Mail</label>
-                    </div>
-                    <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="eMail" name="eMail" type="email" 
-                                [(ngModel)]="selectedCustomer.email">
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="owner">Owner</label>
-                    </div>
-                    <div class="col-sm-3">
-                            <input class="form-control form-control-sm" id="owner" name="owner" type="text" 
-                                [(ngModel)]="selectedCustomer.owner" required>
-                                <div class="invalid-feedback">Please fill owner field.</div>
-                    </div>
-                    <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="address">Address</label>
-                    </div>
-                    <div class="col-sm-9">
-                            <input class="form-control form-control-sm" id="address" name="address" type="text" 
-                                [(ngModel)]="selectedCustomer.address">
-                    </div>
-                </div>
-            </form>
-            <div id="panel-navigator" *ngIf="selectedCustomer.primaryKey!=undefined">
-
-                <div class="row mt-4">
-                        <div class="col-sm-6">
-                            <div class="card card-stats">
-                                <div class="card-header card-header-warning card-header-icon">
-                                    <div class="card-icon">
-                                        <img src="../../assets/images/sales_invoice.png" width="50px">
-                                    </div>
-                                    <p class="card-category">Sales Invoice</p>
-                                    <h3 class="card-title">{{siAmount}} <small>TL</small></h3>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                        <a class="float-right">Show Data >></a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="card card-stats">
-                                <div class="card-header card-header-danger card-header-icon">
-                                    <div class="card-icon">
-                                        <img src="../../assets/images/collection.png" width="50px">
-                                    </div>
-                                    <p class="card-category">Collection</p>
-                                    <h3 class="card-title">{{colAmount}} <small>TL</small></h3>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                        <a class="float-right">Show Data</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </div>
+            </div>
                 
-                <div class="row mt-4">
-                        <div class="col-sm-6">
-                            <div class="card card-stats">
-                                <div class="card-header card-header-success card-header-icon">
-                                    <div class="card-icon">
-                                        <img src="../../assets/images/purchase_invoice.png" width="50px">
-                                    </div>
-                                    <p class="card-category">Purchase Invoice</p>
-                                    <h3 class="card-title">{{purchaseInvoiceAmount}} <small>TL</small></h3>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                            <a class="float-right">Show Data</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="card card-stats">
-                                <div class="card-header card-header-info card-header-icon">
-                                    <div class="card-icon">
-                                        <img src="../../assets/images/payment.png" width="50px">
-                                    </div>
-                                    <p class="card-category">Payment</p>
-                                    <h3 class="card-title">{{payAmount}} <small>TL</small></h3>
-                                </div>
-                                <div class="card-footer">
-                                    <div class="stats">
-                                            <a class="float-right">Show Data</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="card-footer">
-            <div class="col-sm-3 float-right">
-                <button type="button" class="btn btn-sm btn-outline-success btn-block" (click)="btnSave_Click()">Save</button>
-            </div>
-            <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
-                <button type="button" class="btn btn-sm btn-outline-danger btn-block" (click)="btnRemove_Click()">Remove</button>
-            </div>
-
         </div>
 </div>

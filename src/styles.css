@@ -2,3 +2,9 @@
 .cursor-pointer{
     cursor: pointer;
 }
+
+.text-button:hover {
+    cursor: pointer;
+    text-decoration: underline !important;
+    color: #212529 !important;
+}

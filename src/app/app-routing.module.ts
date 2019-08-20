@@ -9,16 +9,18 @@ import { SalesInvoiceComponent } from './sales-invoice/sales-invoice.component';
 import { CashDeskComponent } from './cash-desk/cash-desk.component';
 import { CollectionComponent } from './collection/collection.component';
 import { PaymentComponent } from './payment/payment.component';
+import { DashoardComponent } from './dashboard/dashboard.component';
 
 
 const routes: Routes = [
-  {path: '', redirectTo: '/home', pathMatch: 'full'},
+  {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
   {path: 'customer', component: CustomerComponent, pathMatch: 'full'},
   {path: 'purchaseInvoice', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'sales-invoice', component: SalesInvoiceComponent, pathMatch: 'full'},
   {path: 'cash-desk', component: CashDeskComponent, pathMatch: 'full'},
   {path: 'collection', component: CollectionComponent, pathMatch: 'full'},
   {path: 'payment', component: PaymentComponent, pathMatch: 'full'},
+  {path: 'dashboard', component: DashoardComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -37,7 +39,8 @@ export const routingComponents = [
   SalesInvoiceComponent,
   CashDeskComponent,
   CollectionComponent,
-  PaymentComponent
+  PaymentComponent,
+  DashoardComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.
