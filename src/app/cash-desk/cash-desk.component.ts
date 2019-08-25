@@ -3,6 +3,8 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { Observable } from 'rxjs/internal/Observable';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
+import { AccountTransactionModel } from '../models/account-transaction-model';
+import { AccountTransactionService } from '../services/account-transaction-service';
 
 @Component({
   selector: 'app-cash-desk',
@@ -12,9 +14,13 @@ import { CashDeskService } from '../services/cash-desk.service';
 export class CashDeskComponent implements OnInit, OnDestroy {
   mainList$: Observable<CashDeskModel[]>;
   collection: AngularFirestoreCollection<CashDeskModel>;
+  transactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CashDeskModel;
+  openedPanel: any;
 
-  constructor(public service: CashDeskService, public db: AngularFirestore) { }
+  constructor(public service: CashDeskService,
+              public atService: AccountTransactionService,
+              public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -23,6 +29,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mainList$.subscribe();
+    this.transactionList$.subscribe();
   }
 
   populateList(): void {
@@ -31,11 +38,16 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
+    this.openedPanel = 'mainPanel';
     this.selectedRecord = record as CashDeskModel;
   }
 
   btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
+    if (this.openedPanel === 'mainPanel') {
+      this.selectedRecord = undefined;
+    } else {
+      this.openedPanel = 'mainPanel';
+    }
   }
 
   btnNew_Click(): void {
@@ -59,6 +71,12 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: ''};
+  }
+
+  onClickShowTransactionReport(): void {
+    this.openedPanel = 'transactionReport';
+    this.transactionList$ = undefined;
+    this.transactionList$ = this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey);
   }
 
 }

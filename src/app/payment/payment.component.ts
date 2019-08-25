@@ -3,14 +3,20 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { Observable } from 'rxjs/internal/Observable';
 import { PaymentModel } from '../models/payment-model';
 import { PaymentService } from '../services/payment.service';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { CashDeskService } from '../services/cash-desk.service';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css']
 })
-export class PaymentComponent implements OnInit {
+export class PaymentComponent implements OnInit, OnDestroy {
   mainList$: Observable<PaymentModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
+  customerList$: Observable<CustomerModel[]>;
   collection: AngularFirestoreCollection<PaymentModel>;
   selectedRecord: PaymentModel;
   selectedRecordSubItems: {
@@ -18,14 +24,18 @@ export class PaymentComponent implements OnInit {
     typeTr: string
   };
 
-  constructor(public service: PaymentService, public db: AngularFirestore) { }
+  constructor(public service: PaymentService,
+              public cdService: CashDeskService,
+              public cService: CustomerService,
+              public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
     this.selectedRecord = undefined;
+    this.cashDeskList$ = this.cdService.getAllItems();
+    this.customerList$ = this.cService.getAllItems();
   }
 
-  // tslint:disable-next-line: use-lifecycle-interface
   ngOnDestroy(): void {
     this.mainList$.subscribe();
   }
@@ -67,7 +77,8 @@ export class PaymentComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '', description: '', amount: 0};
+    this.selectedRecord = {primaryKey: undefined, customerCode: '', cashDeskPrimaryKey: '', receiptNo: '',
+    type: '', description: ''};
   }
 
 }

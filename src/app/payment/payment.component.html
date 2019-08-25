@@ -57,25 +57,38 @@
 
     </div>
     <div class="card-body">
-        <form (ngSubmit)="btnSave_Click()" class="was-validated">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
             <div class="form-row form-inline">
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="customerName">Customer Name</label>
                 </div>
                 <div class="col-sm-9">
-                    <label class="col-form-label float-left font-weight-bold" for="customerName">{{selectedRecordSubItems.customerName}}</label>
+                        <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required 
+                        [(ngModel)]="selectedRecord.customerCode">
+                            <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Please select customer.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="typeTr">Collection Type</label>
+                    <label class="col-form-label float-left" for="typeTr">Payment Type</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left text-success" for="typeTr">{{selectedRecordSubItems.typeTr}}</label>
+                        <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.type" id="type" name="type" required>
+                                <option value="cash">Cash</option>
+                                <option value="creditCard">Credit Card</option>
+                                <option value="pNote">Pnote</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Please select payment type.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">Record Date</label>
+                    <label class="col-form-label float-left" for="cashDeskPrimaryKey">Cash Desk</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
+                    <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
+                    [(ngModel)]="selectedRecord.cashDeskPrimaryKey">
+                        <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Please select cash desk.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="receiptNo">Receipt No</label>
@@ -83,21 +96,27 @@
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text"
                         [(ngModel)]="selectedRecord.receiptNo" required>
-                    <div class="invalid-feedback">Please fill receipt no field.</div>
+                    <div class="invalid-feedback invalid-inpput-info">Please fill receipt no field.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="totalPrice">Total Price</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="amount" name="amount" type="text"
-                        [(ngModel)]="selectedRecord.amount" required>
-                    <div class="invalid-feedback">Please fill amount field.</div>
+                    <input class="form-control form-control-sm" id="amount" name="amount" type="text" required
+                        [(ngModel)]="selectedRecord.amount">
+                    <div class="invalid-feedback invalid-inpput-info">Please fill amount field.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="insertDate">Record Date</label>
+                </div>
+                <div class="col-sm-9">
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="description">Description</label>
                 </div>
-                <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="description" name="description" type="text"
+                <div class="col-sm-9">
+                    <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
                         [(ngModel)]="selectedRecord.description">
                 </div>
             </div>
@@ -106,11 +125,12 @@
     </div>
     <div class="card-footer">
         <div class="col-sm-3 float-right">
-            <button type="button" class="btn btn-sm btn-outline-success btn-block"
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                [disabled]="!f.valid"
                 (click)="btnSave_Click()">Save</button>
         </div>
         <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
-            <button type="button" class="btn btn-sm btn-outline-danger btn-block"
+            <button type="button" class="btn btn-sm btn-danger btn-block"
                 (click)="btnRemove_Click()">Remove</button>
         </div>
 

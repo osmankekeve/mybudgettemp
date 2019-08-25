@@ -9,9 +9,9 @@ import { Chart } from 'chart.js';
 })
 export class DashoardComponent implements OnInit, OnDestroy {
 
-  LineChart = [];
-  BarChart = [];
-  PieChart = [];
+  LineChart: any;
+  BarChart: any;
+  PieChart: any;
 
 
   constructor(public db: AngularFirestore) { }

@@ -5,11 +5,11 @@
                 <h5 class="card-title">Cash Desk List</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Invoice Search.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Cash Desk Search.." />
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-light btn-sm btn-block" (click)="btnNew_Click()">+New
-                    Invoice</button>
+                    Cash Desk</button>
             </div>
         </div>
     </div>
@@ -45,35 +45,85 @@
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-sm btn-outline-primary btn-block"
-                    (click)="btnReturnList_Click()">Return List</button>
+                    (click)="btnReturnList_Click()">Return</button>
             </div>
         </div>
 
     </div>
     <div class="card-body">
-        <form (ngSubmit)="btnSave_Click()" class="was-validated">
-            <div class="form-row form-inline">
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="cashDeskName">Cash Desk Name</label>
-                </div>
-                <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
-                        [(ngModel)]="selectedRecord.name" required>
-                    <div class="invalid-feedback">Please fill name field.</div>
-                </div>
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="description">Description</label>
-                </div>
-                <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="description" name="description" type="text"
-                        [(ngModel)]="selectedRecord.description">
-                    <div class="invalid-feedback">Please fill description field.</div>
-                </div>
-            </div>
-        </form>
+        <div *ngIf="openedPanel=='mainPanel'">
+                <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="row form-inline">
+                                    <div class="col-sm-6">
+                                        <label class="col-form-label float-left" for="cashDeskName">Cash Desk Name</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
+                                            [(ngModel)]="selectedRecord.name" required>
+                                        <div class="invalid-feedback">Please fill name field.</div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="col-form-label float-left" for="description">Description</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control form-control-sm" id="description" name="description" type="text"
+                                            [(ngModel)]="selectedRecord.description">
+                                        <div class="invalid-feedback">Please fill description field.</div>
+                                    </div>
+                            </div>
 
+                        </div>
+                        <div class="col-sm-6">
+                                <div class="pl-3 pt-1 pr-3">
+                                        <div class="row border p-2 border-right-radius cursor-pointer"
+                                        (click)="onClickShowTransactionReport()">
+                                            <div class="col-sm-2">
+                                                <img src="../../assets/images/report_icon_2.png" width="45px">
+                                            </div>
+                                            <div class="col-sm-10">
+                                                <div class="text-dark">Kasa Hareket Raporu</div>
+                                                <small class="text-muted">Kasaya ait hareketleri raporlar</small>
+                                            </div>
+                                    </div>
+                                </div>
+
+                        </div>
+                    </div>
+                </form>
+
+        </div>
+        <div *ngIf="openedPanel=='transactionReport'">
+                <div class="list-group" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                        <div class="list-group-item">
+                                <div class="row">
+                                    <div class="col-sm-3">Transaction Type</div>
+                                    <div class="col-sm-3">ReceiptNo</div>
+                                    <div class="col-sm-3">Amount</div>
+                                    <div class="col-sm-3">Date</div>
+                
+                                </div>
+                        </div>
+                    <div class="list-group-item list-group-item-action list-group-item-light"
+                        *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                        <div class="row">
+                            <div class="col-sm-3">{{item.transactionType}}</div>
+                            <div class="col-sm-3">{{item.receiptNo}}</div>
+                            <div class="col-sm-3">{{item.amount}}</div>
+                            <div class="col-sm-3">{{item.insertDate | date: 'yyyy-MM-dd'}}</div>        
+                        </div>
+                    </div>
+                </div>
+                <ng-template #elseBlock>
+                    <div class="card bg-danger text-white">
+                      <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                    </div>
+                </ng-template>  
+
+        </div>
     </div>
-    <div class="card-footer">
+    <div class="card-footer" *ngIf="openedPanel=='mainPanel'">
         <div class="col-sm-3 float-right">
             <button type="button" class="btn btn-sm btn-success btn-block"
                 (click)="btnSave_Click()">Save</button>

@@ -8,3 +8,14 @@
     text-decoration: underline !important;
     color: #212529 !important;
 }
+
+.border-right-radius {
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+.invalid-inpput-info {
+    margin-top: -25px !important;
+    position: absolute;
+    margin-left: 5px;
+    width: auto !important;
+}
