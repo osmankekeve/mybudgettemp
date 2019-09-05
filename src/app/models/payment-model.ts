@@ -1,4 +1,4 @@
-export interface PaymentModel {
+export class PaymentModel {
     primaryKey?: string;
     userPrimaryKey?: string;
     type?: string; // cash, creditCard, pNote
@@ -7,5 +7,5 @@ export interface PaymentModel {
     cashDeskPrimaryKey?: string;
     amount?: number;
     description?: string;
-    insertDate?: Date;
+    insertDate?: number;
 }

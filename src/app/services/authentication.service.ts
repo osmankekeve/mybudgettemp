@@ -46,4 +46,10 @@ export class AuthenticationService {
     async  loginWithGoogle() {
       return await this.angularFireAuth.auth.signInWithPopup(new auth.GoogleAuthProvider());
     }
+
+    public getUid(): string {
+      const user = JSON.parse(localStorage.getItem('user'));
+      return user.uid;
+
+    }
 }

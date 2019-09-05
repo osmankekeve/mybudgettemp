@@ -7,6 +7,9 @@ import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionModel } from '../models/account-transaction-model';
 
 @Component({
   selector: 'app-payment',
@@ -19,15 +22,18 @@ export class PaymentComponent implements OnInit, OnDestroy {
   customerList$: Observable<CustomerModel[]>;
   collection: AngularFirestoreCollection<PaymentModel>;
   selectedRecord: PaymentModel;
+  selested: PaymentModel;
   selectedRecordSubItems: {
     customerName: string,
     typeTr: string
   };
 
-  constructor(public service: PaymentService,
+  constructor(public authServis: AuthenticationService,
+              public service: PaymentService,
               public cdService: CashDeskService,
               public cService: CustomerService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore,
+              public atService: AccountTransactionService) { }
 
   ngOnInit() {
     this.populateList();
@@ -62,23 +68,69 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
+    const data = this.selectedRecord;
     if (this.selectedRecord.primaryKey === undefined) {
+      const newId = this.db.createId();
       this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord);
+      this.db.collection('tblPayment').doc(newId).set(this.selectedRecord).then(() => {
+        const trans = {
+          primaryKey: '',
+          userPrimaryKey: data.userPrimaryKey,
+          receiptNo: data.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'payment',
+          parentPrimaryKey: data.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+          amount: data.amount * -1,
+          amountType: 'debit',
+          insertDate: data.insertDate,
+        };
+        this.db.collection('tblAccountTransaction').add(trans).then(() => {
+        });
+      });
+
     } else {
-      this.service.updateItem(this.selectedRecord);
+      this.service.updateItem(this.selectedRecord).then(() => {
+        console.log('payment has been updated.');
+        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+        ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            const trans = {
+              receiptNo: data.receiptNo,
+              cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+              amount: data.amount * -1,
+            };
+            this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              console.log('transaction has been updated.');
+            });
+
+          });
+        });
+      });
     }
     this.selectedRecord = undefined;
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord);
-    this.selectedRecord = undefined;
+    this.service.removeItem(this.selectedRecord).then(() => {
+      console.log('paymeny has been removed.');
+      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.selectedRecord = undefined;
+              console.log('transaction has been removed.');
+            });
+
+          });
+        });
+    });
   }
 
   clearSelectedRecord(): void {
     this.selectedRecord = {primaryKey: undefined, customerCode: '', cashDeskPrimaryKey: '', receiptNo: '',
-    type: '', description: ''};
+    type: '', description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
   }
 
 }

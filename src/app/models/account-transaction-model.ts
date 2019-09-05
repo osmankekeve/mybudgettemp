@@ -1,4 +1,4 @@
-export interface AccountTransactionModel {
+export class AccountTransactionModel {
     primaryKey?: string;
     userPrimaryKey?: string;
     receiptNo?: string;
@@ -9,5 +9,5 @@ export interface AccountTransactionModel {
     cashDeskPrimaryKey?: string;
     amount?: number;
     amountType?: string;
-    insertDate?: Date;
+    insertDate?: number;
 }
