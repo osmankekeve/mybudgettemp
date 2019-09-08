@@ -3,6 +3,11 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { Observable } from 'rxjs/internal/Observable';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { AccountTransactionModel } from '../models/account-transaction-model';
+import { AccountTransactionService } from '../services/account-transaction-service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -11,18 +16,23 @@ import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 })
 export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   mainList$: Observable<PurchaseInvoiceModel[]>;
-  collection: AngularFirestoreCollection<PurchaseInvoiceModel>;
+  customerList$: Observable<CustomerModel[]>;
   selectedRecord: PurchaseInvoiceModel;
   selectedRecordSubItems: {
     customerName: string,
     invoiceType: string
   };
-  mainListLength = 0;
+  isRecordHasTransacton = false;
 
-  constructor(public service: PurchaseInvoiceService, public db: AngularFirestore) { }
+  constructor(public authServis: AuthenticationService,
+              public service: PurchaseInvoiceService,
+              public cService: CustomerService,
+              public atService: AccountTransactionService,
+              public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
+    this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
   }
 
@@ -43,6 +53,15 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       customerName : record.customerName,
       invoiceType : this.selectedRecord.type === 'purchase' ?  'Purchase Invoice' : 'Return Invoice'
     };
+    this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
+    .subscribe(list => {
+      if (list.length > 0) {
+        this.isRecordHasTransacton = true;
+
+      } else {
+        this.isRecordHasTransacton = false;
+      }
+    });
   }
 
   btnReturnList_Click(): void {
@@ -54,25 +73,70 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.totalPrice = this.selectedRecord.totalPrice * -1;
-    this.selectedRecord.totalPriceWithTax = this.selectedRecord.totalPriceWithTax * -1;
+    const data = this.selectedRecord;
     if (this.selectedRecord.primaryKey === undefined) {
+      const newId = this.db.createId();
       this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord);
+      this.service.setItem(this.selectedRecord, newId).then(() => {
+        console.log('invoice insert');
+        const trans = {
+          primaryKey: '',
+          userPrimaryKey: data.userPrimaryKey,
+          receiptNo: data.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'purchaseInvoice',
+          parentPrimaryKey: data.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: '-1',
+          amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
+          amountType: this.selectedRecord.type === 'purchase' ? 'credit' : 'debit',
+          insertDate: data.insertDate,
+        };
+        this.db.collection('tblAccountTransaction').add(trans).then(() => {
+          console.log('transaction insert');
+          this.selectedRecord = undefined;
+        }).catch(err => console.error(err));
+      }).catch(err => console.error(err));
+
     } else {
-      this.service.updateItem(this.selectedRecord);
+      this.service.updateItem(this.selectedRecord).then(() => {
+        console.log('purchase invoice has been updated.');
+        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+        ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            const trans = {
+              receiptNo: data.receiptNo,
+              amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
+            };
+            this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.selectedRecord = undefined;
+              console.log('transaction has been updated.');
+            }).catch(err => console.error(err));
+          });
+        });
+      }).catch(err => console.error(err));
     }
-    this.selectedRecord = undefined;
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord);
-    this.selectedRecord = undefined;
+    this.service.removeItem(this.selectedRecord).then(() => {
+      console.log('invoice has been removed.');
+      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.selectedRecord = undefined;
+              console.log('transaction has been removed.');
+            }).catch(err => console.error(err));
+          });
+        });
+    }).catch(err => console.error(err));
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '',
-    description: '', totalPrice: 0, totalPriceWithTax: 0};
+    this.isRecordHasTransacton = false;
+    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
+    description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
   }
 
 }

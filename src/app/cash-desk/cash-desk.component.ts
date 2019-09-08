@@ -29,7 +29,6 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.mainList$.subscribe();
-    this.transactionList$.subscribe();
   }
 
   populateList(): void {

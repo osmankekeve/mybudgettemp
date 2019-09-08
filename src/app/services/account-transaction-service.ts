@@ -23,6 +23,13 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
+  getRecordTransactionItems(primaryKey: string): Observable<AccountTransactionModel[]> {
+    this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName,
+      ref => ref.where('transactionPrimaryKey', '==', primaryKey));
+    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    return this.mainList$;
+  }
+
   addItem(record: AccountTransactionModel) {
     this.listCollection.add(record);
   }
@@ -35,18 +42,21 @@ export class AccountTransactionService {
     this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
-  getCashDeskTransactions(cashDeskPrimaryKey: string): Observable<AccountTransactionModel[]> {
+  getCashDeskTransactions(cashDeskPrimaryKey: string): Observable < AccountTransactionModel[] > {
     this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref.where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey));
+    (this.tableName, ref => ref.where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey).orderBy('insertDate'));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
 
-  getRecordTransaction(parentPrimaryKey: string): Observable<AccountTransactionModel[]> {
-    this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref.where('parentPrimaryKey', '==', parentPrimaryKey));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
+  isRecordHasTransaction(primaryKey: string): boolean {
+    this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
+    .get().subscribe(list => {
+      if (list.size > 0) {
+        return true;
+      }
+    });
+    return false;
   }
 
   getNewPaymentTransactionItem(): AccountTransactionModel {

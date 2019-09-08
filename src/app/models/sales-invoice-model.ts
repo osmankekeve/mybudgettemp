@@ -7,5 +7,5 @@ export interface SalesInvoiceModel {
     description?: string;
     totalPrice?: number;
     totalPriceWithTax?: number;
-    insertDate?: Date;
+    insertDate?: number;
 }

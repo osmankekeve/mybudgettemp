@@ -33,20 +33,24 @@ export class PurchaseInvoiceService {
     return this.mainList$;
   }
 
-  addItem(record: PurchaseInvoiceModel) {
-    this.listCollection.add(record);
+  async addItem(record: PurchaseInvoiceModel) {
+    return await this.listCollection.add(record);
   }
 
-  removeItem(record: PurchaseInvoiceModel) {
-    this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).delete();
+  async setItem(record: PurchaseInvoiceModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(record);
   }
 
-  updateItem(record: PurchaseInvoiceModel) {
-    this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).update(record);
+  async removeItem(record: PurchaseInvoiceModel) {
+    return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).delete();
+  }
+
+  async updateItem(record: PurchaseInvoiceModel) {
+    return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).update(record);
   }
 
   getItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice');
+    this.listCollection = this.db.collection('tblPurchaseInvoice', ref => ref.orderBy('insertDate'));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;

@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { SideNavBarComponent } from './side-nav-bar/side-nav-bar.component';
 import { environment } from 'src/environments/environment';
+import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { environment } from 'src/environments/environment';
     AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
-    AngularFirestoreModule.enablePersistence()
+    AngularFirestoreModule.enablePersistence(),
+    AngularFontAwesomeModule
   ],
   providers: [],
   bootstrap: [AppComponent]

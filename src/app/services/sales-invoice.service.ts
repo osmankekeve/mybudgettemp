@@ -33,20 +33,24 @@ export class SalesInvoiceService {
     return this.mainList$;
   }
 
-  addItem(record: SalesInvoiceModel) {
-    this.listCollection.add(record);
+  async addItem(record: SalesInvoiceModel) {
+    return await this.listCollection.add(record);
   }
 
-  removeItem(record: SalesInvoiceModel) {
-    this.db.collection('tblSalesInvoice').doc(record.primaryKey).delete();
+  async setItem(record: SalesInvoiceModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(record);
   }
 
-  updateItem(record: SalesInvoiceModel) {
-    this.db.collection('tblSalesInvoice').doc(record.primaryKey).update(record);
+  async removeItem(record: SalesInvoiceModel) {
+    return await this.db.collection('tblSalesInvoice').doc(record.primaryKey).delete();
+  }
+
+  async updateItem(record: SalesInvoiceModel) {
+    return await this.db.collection('tblSalesInvoice').doc(record.primaryKey).update(record);
   }
 
   getItems(): Observable<SalesInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblSalesInvoice');
+    this.listCollection = this.db.collection('tblSalesInvoice', ref => ref.orderBy('insertDate'));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;

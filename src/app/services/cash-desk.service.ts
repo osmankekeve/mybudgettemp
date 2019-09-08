@@ -17,8 +17,8 @@ export class CashDeskService {
 
   }
 
-  getAllItems(): Observable<SalesInvoiceModel[]> {
-    this.listCollection = this.db.collection<SalesInvoiceModel>('tblCashDesk');
+  getAllItems(): Observable<CashDeskModel[]> {
+    this.listCollection = this.db.collection<CashDeskModel>('tblCashDesk');
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }

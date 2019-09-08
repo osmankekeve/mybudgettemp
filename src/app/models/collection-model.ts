@@ -7,5 +7,5 @@ export interface CollectionModel {
     cashDeskPrimaryKey?: string;
     amount?: number;
     description?: string;
-    insertDate?: Date;
+    insertDate?: number;
 }

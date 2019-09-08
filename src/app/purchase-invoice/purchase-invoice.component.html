@@ -8,7 +8,8 @@
                 <input type="text" class="form-control form-control-sm" placeholder="Invoice Search.." />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-outline-primary btn-sm btn-block" (click)="btnNew_Click()">+New
+                    <i class="fas fa-ad"></i>
+                <button type="button" class="btn btn-primary btn-sm btn-block" (click)="btnNew_Click()">+New
                     Invoice</button>
             </div>
         </div>
@@ -31,8 +32,8 @@
                 <div class="row">
                     <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}}</span> {{item.customerName}}</div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
-                    <div class="col-sm-2">{{item.data.totalPrice | number}} ₺</div>
-                    <div class="col-sm-2">{{item.data.totalPriceWithTax | number}} ₺</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | number}} ₺</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></div>
                     <div class="col-sm-2">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</div>
 
                 </div>
@@ -49,29 +50,42 @@
     <div class="card-header">
         <div class="row">
             <div class="col-sm-9">
-                <h5 class="card-title">Purchase Invoice Detail</h5>
+                <h5 class="card-title">Purchase Invoice Detail 
+                    <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
+                </h5>                    
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-sm btn-outline-primary btn-block"
+                <button type="button" class="btn btn-sm btn-primary btn-block"
                     (click)="btnReturnList_Click()">Return List</button>
             </div>
         </div>
 
     </div>
     <div class="card-body">
-        <form (ngSubmit)="btnSave_Click()" class="was-validated">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
             <div class="form-row form-inline">
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="customerName">Customer Name</label>
                 </div>
                 <div class="col-sm-9">
-                    <label class="col-form-label float-left font-weight-bold" for="customerName">{{selectedRecordSubItems.customerName}}</label>
+                        <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required 
+                        [disabled]="f.valid"
+                        [(ngModel)]="selectedRecord.customerCode">
+                            <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Please select customer.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="invoiceType">Invoice Type</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left text-success" for="customerName">{{selectedRecordSubItems.invoiceType}}</label>
+                        <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                        [disabled]="f.valid"
+                        [(ngModel)]="selectedRecord.type">
+                            <option value="purchase">Purchase Invoice</option>
+                            <option value="return">Return Invoice</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Please select type.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="insertDate">Record Date</label>
@@ -85,15 +99,15 @@
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text"
                         [(ngModel)]="selectedRecord.receiptNo" required>
-                    <div class="invalid-feedback">Please fill receipt no field.</div>
+                        <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="totalPrice">Total Price</label>
                 </div>
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="text"
-                        [(ngModel)]="selectedRecord.totalPrice">
-                    <div class="invalid-feedback">Please fill total price field.</div>
+                        [(ngModel)]="selectedRecord.totalPrice" required>
+                        <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="totalPriceWithTax">Total Price With Tax</label>
@@ -101,13 +115,14 @@
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
                         type="text" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
-                    <div class="invalid-feedback">Please fill total price with tax field.</div>
+                    <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
                 </div>
+                <div class="col-sm-6"></div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="description">Description</label>
                 </div>
-                <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="description" name="description" type="text"
+                <div class="col-sm-9">
+                    <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
                         [(ngModel)]="selectedRecord.description">
                 </div>
             </div>
@@ -116,11 +131,11 @@
     </div>
     <div class="card-footer">
         <div class="col-sm-3 float-right">
-            <button type="button" class="btn btn-sm btn-outline-success btn-block"
+            <button type="button" class="btn btn-sm btn-success btn-block"
                 (click)="btnSave_Click()">Save</button>
         </div>
         <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
-            <button type="button" class="btn btn-sm btn-outline-danger btn-block"
+            <button type="button" class="btn btn-sm btn-danger btn-block"
                 (click)="btnRemove_Click()">Remove</button>
         </div>
 

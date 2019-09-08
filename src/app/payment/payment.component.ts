@@ -27,6 +27,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     customerName: string,
     typeTr: string
   };
+  isRecordHasTransacton = false;
 
   constructor(public authServis: AuthenticationService,
               public service: PaymentService,
@@ -57,6 +58,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
       customerName : record.customerName,
       typeTr : this.selectedRecord.type
     };
+    this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
+    .subscribe(list => {
+      if (list.length > 0) {
+        this.isRecordHasTransacton = true;
+
+      } else {
+        this.isRecordHasTransacton = false;
+      }
+    });
   }
 
   btnReturnList_Click(): void {
@@ -87,8 +97,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
           insertDate: data.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
-        });
-      });
+          this.selectedRecord = undefined;
+        }).catch(err => console.error(err));
+      }).catch(err => console.error(err));
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
@@ -102,14 +113,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
               amount: data.amount * -1,
             };
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.selectedRecord = undefined;
               console.log('transaction has been updated.');
-            });
+            }).catch(err => console.error(err));
 
           });
         });
-      });
+      }).catch(err => console.error(err));
     }
-    this.selectedRecord = undefined;
   }
 
   btnRemove_Click(): void {
@@ -121,14 +132,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.selectedRecord = undefined;
               console.log('transaction has been removed.');
-            });
-
+            }).catch(err => console.error(err));
           });
         });
-    });
+    }).catch(err => console.error(err));
   }
 
   clearSelectedRecord(): void {
+    this.isRecordHasTransacton = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '', cashDeskPrimaryKey: '', receiptNo: '',
     type: '', description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
   }

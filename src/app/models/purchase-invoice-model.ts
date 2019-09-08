@@ -7,4 +7,5 @@ export interface PurchaseInvoiceModel {
     description?: string;
     totalPrice?: number;
     totalPriceWithTax?: number;
+    insertDate?: number;
 }

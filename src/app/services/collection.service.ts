@@ -33,20 +33,24 @@ export class CollectionService {
     return this.mainList$;
   }
 
-  addItem(record: CollectionModel) {
-    this.listCollection.add(record);
+  async addItem(record: CollectionModel) {
+    return await this.listCollection.add(record);
   }
 
-  removeItem(record: CollectionModel) {
-    this.db.collection('tblCollection').doc(record.primaryKey).delete();
+  async removeItem(record: CollectionModel) {
+    return await this.db.collection('tblCollection').doc(record.primaryKey).delete();
   }
 
-  updateItem(record: CollectionModel) {
-    this.db.collection('tblCollection').doc(record.primaryKey).update(record);
+  async updateItem(record: CollectionModel) {
+    return await this.db.collection('tblCollection').doc(record.primaryKey).update(record);
+  }
+
+  async setItem(record: CollectionModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(record);
   }
 
   getItems(): Observable<CollectionModel[]> {
-    this.listCollection = this.db.collection('tblCollection');
+    this.listCollection = this.db.collection('tblCollection', ref => ref.orderBy('insertDate'));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;
