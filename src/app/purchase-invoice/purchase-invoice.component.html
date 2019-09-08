@@ -9,14 +9,14 @@
             </div>
             <div class="col-sm-3">
                     <i class="fas fa-ad"></i>
-                <button type="button" class="btn btn-primary btn-sm btn-block" (click)="btnNew_Click()">+New
+                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+New
                     Invoice</button>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
-                <div class="list-group-item">
+                <div class="list-group-item bg-warning text-light">
                         <div class="row">
                             <div class="col-sm-4">Customer Name</div>
                             <div class="col-sm-2">Receipt No</div>

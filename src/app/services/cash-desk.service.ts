@@ -3,6 +3,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/fire
 import { Observable } from 'rxjs/Observable';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { CashDeskModel } from '../models/cash-desk-model';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +14,14 @@ export class CashDeskService {
   listCusttomer: AngularFirestoreCollection<CashDeskModel>;
   customerList$: Observable<CashDeskModel[]>;
 
-  constructor(public db: AngularFirestore) {
+  constructor(public authServis: AuthenticationService,
+              public db: AngularFirestore) {
 
   }
 
   getAllItems(): Observable<CashDeskModel[]> {
-    this.listCollection = this.db.collection<CashDeskModel>('tblCashDesk');
+    this.listCollection = this.db.collection<CashDeskModel>('tblCashDesk',
+    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }

@@ -1,5 +1,5 @@
 <div class="card">
-    <div class="card-header bg-danger text-light">
+    <div class="card-header">
         <div class="row">
             <div class="col-sm-4">
                 <h5 class="card-title">Dashboard</h5>
@@ -8,14 +8,136 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-sm-12">
-                    <canvas id="lineChart" ></canvas>
+            <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="lineChart" ></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <h5>Daily Sales</h5>
+                            <h6>55% increase in today sales.</h6>
+                        </div>
+                    </div>
             </div>
-            <div class="col-sm-12">
-                    <canvas id="barChart"></canvas>
+            <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="barChart" ></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <h5>Daily Sales</h5>
+                            <h6>55% increase in today sales.</h6>
+                        </div>
+                    </div>
             </div>
-            <div class="col-sm-12">
-                    <canvas id="pieChart"></canvas>
+            <div class="col-sm-6" hidden>
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="pieChart" ></canvas>
+                        </div>
+                        <div class="card-footer">
+                            <h5>Daily Sales</h5>
+                            <h6>55% increase in today sales.</h6>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-sm-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title">Daily Transaction</h5>
+                        </div>
+                        <div class="card-body">                            
+                            <div class="list-group" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                                    <div class="list-group-item bg-dark text-light">
+                                            <div class="row">
+                                                <div class="col-sm-5">Transaction</div>
+                                                <div class="col-sm-4">Receipt</div>
+                                                <div class="col-sm-3"><span class="float-right">Amount</span></div>
+                                            </div>
+                                    </div>
+                                <div class="list-group-item list-group-item-action list-group-item-light"
+                                    *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
+                                    style="font-size: 85%">
+                                    <div class="row">
+                                        <label class="col-sm-5">{{item.transactionType}}</label>
+                                        <label class="col-sm-4">{{item.receiptNo}}</label>
+                                        <label class="col-sm-3"><span class="float-right">{{item.amount}} ₺</span></label>  
+                                    </div>
+                                </div>
+                            </div>
+                            <ng-template #elseBlock>
+                                <div class="card bg-danger text-white">
+                                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                                </div>
+                            </ng-template>  
+                        </div>
+                    </div>
+            </div>
+            <div class="col-sm-6">
+                
+                    <div id="panel-navigator">
+                            <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="card card-stats">
+                                            <div class="card-header card-header-warning card-header-icon">
+                                                <div class="card-icon">
+                                                    <img src="../../assets/images/sales_invoice.png" width="30px">
+                                                </div>
+                                                <p class="card-category">Sales Invoice</p>
+                                                <h5 class="card-title">{{siAmount | number}} <small>TL</small></h5>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="stats">Last 24 Hours Transactions</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="card card-stats">
+                                            <div class="card-header card-header-danger card-header-icon">
+                                                <div class="card-icon">
+                                                    <img src="../../assets/images/collection.png" width="30px">
+                                                </div>
+                                                <p class="card-category">Collection</p>
+                                                <h5 class="card-title">{{colAmount | number}} <small>TL</small></h5>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="stats">Last 24 Hours Transactions</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-1">
+                                        <div class="card card-stats">
+                                            <div class="card-header card-header-success card-header-icon">
+                                                <div class="card-icon">
+                                                    <img src="../../assets/images/purchase_invoice.png" width="30px">
+                                                </div>
+                                                <p class="card-category">Purchase Invoice</p>
+                                                <h5 class="card-title">{{purchaseInvoiceAmount | number}} <small>TL</small></h5>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="stats">Last 24 Hours Transactions</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 mt-1">
+                                        <div class="card card-stats">
+                                            <div class="card-header card-header-info card-header-icon">
+                                                <div class="card-icon">
+                                                    <img src="../../assets/images/payment.png" width="30px">
+                                                </div>
+                                                <p class="card-category">Payment</p>
+                                                <h5 class="card-title">{{payAmount | number}} <small>TL</small></h5>
+                                            </div>
+                                            <div class="card-footer">
+                                                <div class="stats">Last 24 Hours Transactions</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+            
+                        </div>
             </div>
         </div>
     </div>

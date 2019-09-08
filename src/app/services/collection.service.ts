@@ -5,6 +5,7 @@ import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { CollectionModel } from '../models/collection-model';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +16,14 @@ export class CollectionService {
   listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
 
-  constructor(public db: AngularFirestore) {
+  constructor(public authServis: AuthenticationService,
+              public db: AngularFirestore) {
 
   }
 
   getAllItems(): Observable<CollectionModel[]> {
-    this.listCollection = this.db.collection<CollectionModel>('tblCollection');
+    this.listCollection = this.db.collection<CollectionModel>('tblCollection',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -50,7 +53,8 @@ export class CollectionService {
   }
 
   getItems(): Observable<CollectionModel[]> {
-    this.listCollection = this.db.collection('tblCollection', ref => ref.orderBy('insertDate'));
+    this.listCollection = this.db.collection('tblCollection',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;

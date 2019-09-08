@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../../app/services/customer.service';
@@ -11,6 +11,7 @@ import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
 import { PaymentService } from '../services/payment.service';
 import { PaymentModel } from '../models/payment-model';
+import { Pipe, PipeTransform } from '@angular/core';
 
 @Component({
   selector: 'app-customer',
@@ -18,7 +19,7 @@ import { PaymentModel } from '../models/payment-model';
   styleUrls: ['./customer.component.css']
 })
 
-export class CustomerComponent implements OnInit {
+export class CustomerComponent implements OnInit  {
   mainList$: Observable<CustomerModel[]>;
   selectedCustomer: CustomerModel;
   newSalesInvoice: SalesInvoiceModel;
@@ -32,6 +33,7 @@ export class CustomerComponent implements OnInit {
   payList$: Observable<PaymentModel[]>;
   payAmount: any;
   openedPanel: string;
+  searchText: any;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService,
@@ -59,7 +61,7 @@ export class CustomerComponent implements OnInit {
     this.purchaseInvoiceAmount = 0;
     this.purchaseInvoiceList$.subscribe(list => {
       list.forEach(item => {
-        this.purchaseInvoiceAmount += item.totalPriceWithTax;
+        this.purchaseInvoiceAmount += Math.round(item.totalPriceWithTax);
       });
     });
 
@@ -86,7 +88,7 @@ export class CustomerComponent implements OnInit {
     this.payAmount = 0;
     this.payList$.subscribe(list => {
       list.forEach(item => {
-        this.payAmount += item.amount;
+        this.payAmount += Math.round(item.amount);
       });
     });
   }

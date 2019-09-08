@@ -49,6 +49,15 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
+  getOnDayTransactions(): Observable < AccountTransactionModel[] > {
+    const start = new Date('2019-09-08');
+    const end = new Date('2019-09-09');
+    this.listCollection = this.db.collection<AccountTransactionModel>
+    (this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
+    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    return this.mainList$;
+  }
+
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
     .get().subscribe(list => {

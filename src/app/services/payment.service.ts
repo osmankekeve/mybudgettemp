@@ -5,7 +5,6 @@ import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { PaymentModel } from '../models/payment-model';
-import { AccountTransactionService } from './account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
 
@@ -26,7 +25,8 @@ export class PaymentService {
   }
 
   getAllItems(): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection<PaymentModel>('tblPayment', ref => ref.orderBy('insertDate'));
+    this.listCollection = this.db.collection<PaymentModel>('tblPayment',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -58,7 +58,8 @@ export class PaymentService {
   }
 
   getItems(): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection('tblPayment', ref => ref.orderBy('insertDate'));
+    this.listCollection = this.db.collection('tblPayment',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as PaymentModel;

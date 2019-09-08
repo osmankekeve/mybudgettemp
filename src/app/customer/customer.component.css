@@ -147,7 +147,6 @@
                 display: flex;
                 align-items: center;
                 background-color: transparent;
-                border: 0;
             }
             .card-footer:last-child {
                 border-radius: 0 0 calc(.25rem - 1px) calc(.25rem - 1px);

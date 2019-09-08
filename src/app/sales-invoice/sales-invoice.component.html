@@ -8,35 +8,37 @@
                 <input type="text" class="form-control form-control-sm" placeholder="Invoice Search.." />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-primary btn-sm btn-block" (click)="btnNew_Click()">+New
+                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+New
                     Invoice</button>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
-                <div class="list-group-item">
-                        <div class="row">
-                            <div class="col-sm-4">Customer Name</div>
-                            <div class="col-sm-2">Receipt No</div>
-                            <div class="col-sm-2"><span class="float-right">Amount</span></div>
-                            <div class="col-sm-2"><span class="float-right">Amount (+Tax)</span></div>
-                            <div class="col-sm-2"><span class="float-right">Date</span></div>
-        
-                        </div>
-                </div>
-            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                (click)="showSelectedRecord(item)"
-                *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-                <div class="row">
-                    <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}}</span> {{item.customerName}}</div>
-                    <div class="col-sm-2">{{item.data.receiptNo}}</div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | number}} ₺</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
-
-                </div>
-            </div>
+        <div *ngIf="mainList$ | async; let mainList; else elseBlock">
+                <table class="table table-hover">
+                        <thead>
+                          <tr class="bg-warning text-light">
+                            <th>#</th>
+                            <th>Customer</th>
+                            <th>Receipt No</th>
+                            <th><span class="float-right">Amount</span></th>
+                            <th><span class="float-right">Amount (+Tax)</span></th>
+                            <th><span class="float-right">Date</span></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="cursor-pointer" (click)="showSelectedRecord(item)"
+                          *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                            <td>#</td>
+                            <td scope="row">{{item.customerName}}</td>
+                            <td>{{item.data.receiptNo}}</td>
+                            <td><span class="float-right">{{item.data.totalPrice | number}} ₺</span></td>
+                            <td><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></td>
+                            <td><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></td>
+                          </tr>
+                          <tr>
+                        </tbody>
+                      </table>
         </div>
         <ng-template #elseBlock>
             <div class="card bg-danger text-white">

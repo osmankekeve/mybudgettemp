@@ -68,6 +68,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   btnNew_Click(): void {
     this.clearSelectedRecord();
+    console.log(this.selectedRecord);
   }
 
   btnSave_Click(): void {

@@ -5,6 +5,7 @@ import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
+import { AuthenticationService } from './authentication.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +16,14 @@ export class PurchaseInvoiceService {
   listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
 
-  constructor(public db: AngularFirestore) {
+  constructor(public authServis: AuthenticationService,
+              public db: AngularFirestore) {
 
   }
 
   getAllItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>('tblPurchaseInvoice');
+    this.listCollection = this.db.collection<PurchaseInvoiceModel>('tblPurchaseInvoice',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -50,7 +53,8 @@ export class PurchaseInvoiceService {
   }
 
   getItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice', ref => ref.orderBy('insertDate'));
+    this.listCollection = this.db.collection('tblPurchaseInvoice',
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;

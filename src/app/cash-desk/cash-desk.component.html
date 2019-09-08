@@ -1,5 +1,5 @@
 <div class="card" *ngIf="selectedRecord==undefined">
-    <div class="card-header bg-danger text-light">
+    <div class="card-header">
         <div class="row">
             <div class="col-sm-4">
                 <h5 class="card-title">Cash Desk List</h5>
@@ -8,14 +8,14 @@
                 <input type="text" class="form-control form-control-sm" placeholder="Cash Desk Search.." />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-light btn-sm btn-block" (click)="btnNew_Click()">+New
+                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+New
                     Cash Desk</button>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
-                <div class="list-group-item">
+                <div class="list-group-item bg-dark text-light">
                         <div class="row">
                             <div class="col-sm-4">Name</div>
         
@@ -96,7 +96,7 @@
         </div>
         <div *ngIf="openedPanel=='transactionReport'">
                 <div class="list-group" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-                        <div class="list-group-item">
+                        <div class="list-group-item bg-dark text-light">
                                 <div class="row">
                                     <div class="col-sm-3">Transaction Type</div>
                                     <div class="col-sm-3">ReceiptNo</div>
