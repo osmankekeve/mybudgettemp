@@ -64,7 +64,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         this.isRecordHasTransacton = false;
       }
     });
-    this.infoService.success(this.selectedRecord.primaryKey);
   }
 
   btnReturnList_Click(): void {
@@ -81,7 +80,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       const newId = this.db.createId();
       this.selectedRecord.primaryKey = '';
       this.service.setItem(this.selectedRecord, newId).then(() => {
-        console.log('invoice insert');
         const trans = {
           primaryKey: '',
           userPrimaryKey: data.userPrimaryKey,
@@ -96,7 +94,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           insertDate: data.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
-          console.log('transaction insert');
           this.infoService.success('Fatura başarıyla kaydedildi.');
           this.selectedRecord = undefined;
         }).catch(err => this.infoService.error(err));
@@ -104,7 +101,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
-        console.log('purchase invoice has been updated.');
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
@@ -115,7 +111,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
               this.infoService.success('Fatura başarıyla güncellendi.');
               this.selectedRecord = undefined;
-              console.log('transaction has been updated.');
             }).catch(err => this.infoService.error(err));
           });
         });
@@ -125,14 +120,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
-      console.log('invoice has been removed.');
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.infoService.success('Fatura başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
-              console.log('transaction has been removed.');
             }).catch(err => this.infoService.error(err));
           });
         });

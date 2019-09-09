@@ -2,15 +2,14 @@
     <div class="card-header">
         <div class="row">
             <div class="col-sm-4">
-                <h5 class="card-title">Purchase Invoice List</h5>
+                <h5 class="card-title">Alım Faturası Listesi</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Invoice Search.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Fatura Ara.." />
             </div>
             <div class="col-sm-3">
                     <i class="fas fa-ad"></i>
-                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+New
-                    Invoice</button>
+                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+ Yeni Fatura</button>
             </div>
         </div>
     </div>
@@ -18,11 +17,12 @@
         <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
                 <div class="list-group-item bg-warning text-light">
                         <div class="row">
-                            <div class="col-sm-4">Customer Name</div>
-                            <div class="col-sm-2">Receipt No</div>
-                            <div class="col-sm-2">Amount</div>
-                            <div class="col-sm-2">Amount (+Tax)</div>
-                            <div class="col-sm-2">Date</div>
+                            <div class="col-sm-1">Sıra</div>
+                            <div class="col-sm-3">Müşteri Adı</div>
+                            <div class="col-sm-2">Fiş Numarası</div>
+                            <div class="col-sm-2">Tutar</div>
+                            <div class="col-sm-2">Tutar (+KDV)</div>
+                            <div class="col-sm-2">Tarih</div>
         
                         </div>
                 </div>
@@ -30,7 +30,8 @@
                 (click)="showSelectedRecord(item)"
                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
                 <div class="row">
-                    <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}}</span> {{item.customerName}}</div>
+                    <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}}</span></div>
+                    <div class="col-sm-3">{{item.customerName}}</div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | number}} ₺</span></div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></div>
@@ -50,13 +51,13 @@
     <div class="card-header">
         <div class="row">
             <div class="col-sm-9">
-                <h5 class="card-title">Purchase Invoice Detail 
+                <h5 class="card-title">Alım Fatura Detayı 
                     <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
                 </h5>                    
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-sm btn-primary btn-block"
-                    (click)="btnReturnList_Click()">Return List</button>
+                    (click)="btnReturnList_Click()">listeye Geri Dön</button>
             </div>
         </div>
 
@@ -65,7 +66,7 @@
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
             <div class="form-row form-inline">
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="customerName">Customer Name</label>
+                    <label class="col-form-label float-left" for="customerName">Müşteri</label>
                 </div>
                 <div class="col-sm-9">
                         <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required 
@@ -73,19 +74,19 @@
                         [(ngModel)]="selectedRecord.customerCode">
                             <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                         </select>
-                        <div class="invalid-feedback invalid-inpput-info">Please select customer.</div>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen müşteri seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="invoiceType">Invoice Type</label>
+                    <label class="col-form-label float-left" for="invoiceType">Fatura Tipi</label>
                 </div>
                 <div class="col-sm-3">
                         <select class="form-control form-control-sm w-100" id="type" name="type" required 
                         [disabled]="f.valid"
                         [(ngModel)]="selectedRecord.type">
-                            <option value="purchase">Purchase Invoice</option>
-                            <option value="return">Return Invoice</option>
+                            <option value="purchase">Alım</option>
+                            <option value="return">İade</option>
                         </select>
-                        <div class="invalid-feedback invalid-inpput-info">Please select type.</div>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="insertDate">Record Date</label>
@@ -94,32 +95,32 @@
                     <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="receiptNo">Receipt No</label>
+                    <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                 </div>
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text"
                         [(ngModel)]="selectedRecord.receiptNo" required>
-                        <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="totalPrice">Total Price</label>
+                    <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                 </div>
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="text"
                         [(ngModel)]="selectedRecord.totalPrice" required>
-                        <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="totalPriceWithTax">Total Price With Tax</label>
+                    <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
                 </div>
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
                         type="text" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
-                    <div class="invalid-feedback invalid-inpput-info">Please fill field.</div>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-6"></div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="description">Description</label>
+                    <label class="col-form-label float-left" for="description">Açıklama</label>
                 </div>
                 <div class="col-sm-9">
                     <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
@@ -132,11 +133,12 @@
     <div class="card-footer">
         <div class="col-sm-3 float-right">
             <button type="button" class="btn btn-sm btn-success btn-block"
-                (click)="btnSave_Click()">Save</button>
+            [disabled]="!f.valid"
+                (click)="btnSave_Click()">Kaydet</button>
         </div>
         <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
             <button type="button" class="btn btn-sm btn-danger btn-block"
-                (click)="btnRemove_Click()">Remove</button>
+                (click)="btnRemove_Click()">Kaldır</button>
         </div>
 
     </div>

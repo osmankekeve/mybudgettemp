@@ -2,13 +2,13 @@
     <div class="card-header">
         <div class="row">
             <div class="col-sm-4">
-                <h5 class="card-title">Customer List</h5>
+                <h5 class="card-title">Müşteri Listesi</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Customer Search.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Müşteri Ara.." />
             </div>
             <div class="col-sm-3">
-                <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnNew_Click()">+New Customer</button>
+                <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnNew_Click()">+ Yeni Müşteri</button>
             </div>
         </div>
     </div>
@@ -32,8 +32,8 @@
                     <h4 class="card-title">{{selectedCustomer.name}}</h4>
                 </div>
                 <div class="col-sm-3">
-                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'">Return List</button>
-                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'">Return Main Panel</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'">Listeye Geri Dön</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-block" (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'">Ana Ekrana Geri Dön</button>
                 </div>
             </div>
         </div>
@@ -42,11 +42,11 @@
                     <div class="row">
                         <div class="col-sm-6">
                                 <div class="row">
-                                    <label class="col-sm-4 col-form-label font-weight-bold">Name</label>
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Adı</label>
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.name}}</label>        
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-4 col-form-label font-weight-bold">Owner</label>
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Yetkili Kişi</label>
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.owner}}</label>        
                                 </div>
                                 <div class="row">
@@ -54,19 +54,19 @@
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.eMail}}</label>        
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-4 col-form-label font-weight-bold">Phone 1</label>
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Telefon</label>
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone1}}</label>        
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-4 col-form-label font-weight-bold">Phone 2</label>
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Fax</label>
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone2}}</label>        
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-4 col-form-label font-weight-bold">Address</label>
+                                    <label class="col-sm-4 col-form-label font-weight-bold">Adres</label>
                                     <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.address}}</label>        
                                 </div>
                                 <button type="button" class="btn btn-sm btn-primary" 
-                                (click)="btnOpenSubPanel_Click('edit')">Edit Customer</button>    
+                                (click)="btnOpenSubPanel_Click('edit')">Müşteriyi Düzenle</button>    
                         </div>
                         <div class="col-sm-6">
                                 <div id="panel-navigator">
@@ -77,12 +77,12 @@
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/sales_invoice.png" width="30px">
                                                         </div>
-                                                        <p class="card-category">Sales Invoice</p>
+                                                        <p class="card-category">Satış Faturası</p>
                                                         <h3 class="card-title">{{siAmount | number}} <small>TL</small></h3>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
-                                                            <a class="float-right text-button" (click)="btnOpenSubPanel_Click('salesInvoice')">New Record >></a>
+                                                            <a class="float-right text-button" (click)="btnOpenSubPanel_Click('salesInvoice')">Yeni Kayıt >></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -93,12 +93,12 @@
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/collection.png" width="30px">
                                                         </div>
-                                                        <p class="card-category">Collection</p>
+                                                        <p class="card-category">Tahsilat</p>
                                                         <h3 class="card-title">{{colAmount | number}} <small>TL</small></h3>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
-                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('collection')">New Record >></a>
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('collection')">Yeni Kayıt >></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -109,12 +109,12 @@
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/purchase_invoice.png" width="30px">
                                                         </div>
-                                                        <p class="card-category">Purchase Invoice</p>
+                                                        <p class="card-category">Alım Faturası</p>
                                                         <h3 class="card-title">{{purchaseInvoiceAmount | number}} <small>TL</small></h3>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
-                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('purchaseInvoice')">New Record >></a>
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('purchaseInvoice')">Yeni Kayıt >></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -125,12 +125,12 @@
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/payment.png" width="30px">
                                                         </div>
-                                                        <p class="card-category">Payment</p>
+                                                        <p class="card-category">Ödeme</p>
                                                         <h3 class="card-title">{{payAmount | number}} <small>TL</small></h3>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
-                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('payment')">New Record >></a>
+                                                                <a class="float-right text-button" (click)="btnOpenSubPanel_Click('payment')">Yeni Kayıt >></a>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -147,45 +147,45 @@
             <div class="card-body">
                 <div class="form-row">
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="type">Invoice Type</label>
+                            <label class="col-form-label float-left" for="type">Fatura Tipi</label>
                         </div>
                         <div class="col-sm-3">
                             <select class="form-control form-control-sm" [(ngModel)]="newSalesInvoice.type">
-                                <option [value]="sales">Sales</option>
-                                <option [value]="return">Return</option>
+                                <option [value]="sales">Satış</option>
+                                <option [value]="return">İade</option>
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="receiptNo">Voucher No</label>
+                            <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                         </div>
                         <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text" 
                                 [(ngModel)]="newSalesInvoice.receiptNo" required>
-                            <div class="invalid-feedback">Please fill receipt no field.</div>
+                            <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="totalPrice">Total Price</label>
+                            <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                         </div>
                         <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" 
                                 [(ngModel)]="newSalesInvoice.totalPrice" required>
-                            <div class="invalid-feedback">Please fill total price field.</div>
+                            <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="totalPrice">Total Price (+KDV)</label>
+                            <label class="col-form-label float-left" for="totalPrice">Tutar (+KDV)</label>
                         </div>
                         <div class="col-sm-3">
                             <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" 
                                 [(ngModel)]="newSalesInvoice.totalPriceWithTax" required>
-                            <div class="invalid-feedback">Please fill total price with tax field.</div>
+                            <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="description">Description</label>
+                            <label class="col-form-label float-left" for="description">Açıklama</label>
                         </div>
                         <div class="col-sm-9">
                             <input class="form-control form-control-sm" id="description" name="description" type="text" 
                                 [(ngModel)]="newSalesInvoice.description" required>
-                            <div class="invalid-feedback">Please fill description field.</div>
+                            <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                         </div>
                 </div>
 
@@ -193,65 +193,65 @@
 
         </div>
         <div *ngIf="openedPanel=='collection'">
-                Collection
+                Tahsilat
         </div>
         <div *ngIf="openedPanel=='purchaseInvoice'">
-                purchaseInvoice
+                Alım Faturası
         </div>
         <div *ngIf="openedPanel=='payment'">
-                payment
+                Ödeme
         </div>
         <div *ngIf="openedPanel=='edit'">
             <div class="card-body">
                     <form (ngSubmit)="btnSave_Click()" class="was-validated">
                         <div class="form-row form-inline">
                                 <div class="col-sm-3">
-                                    <label class="col-form-label float-left" for="customerName">Customer Name</label>
+                                    <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
                                 </div>
                                 <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="customerName" name="customerName" type="text" 
                                         [(ngModel)]="selectedCustomer.name" required>
-                                    <div class="invalid-feedback">Please fill name field.</div>
+                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                 </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="customerCode">Code</label>
+                                <label class="col-form-label float-left" for="customerCode">Kod</label>
                             </div>
                             <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text" 
                                         [(ngModel)]="selectedCustomer.code">
                             </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="phone1">Phone 1</label>
+                                <label class="col-form-label float-left" for="phone1">Telefon</label>
                             </div>
                             <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="phone1" name="phone1" type="text" 
                                         [(ngModel)]="selectedCustomer.phone1" required>
-                                        <div class="invalid-feedback">Please fill phone 1 field.</div>
+                                        <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                             </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="phone2">Phone 2</label>
+                                <label class="col-form-label float-left" for="phone2">Fax</label>
                             </div>
                             <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="phone2" name="phone2" type="text" 
                                         [(ngModel)]="selectedCustomer.phone2">
                             </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="eMail">E Mail</label>
+                                <label class="col-form-label float-left" for="eMail">E-Mail</label>
                             </div>
                             <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="eMail" name="eMail" type="email" 
                                         [(ngModel)]="selectedCustomer.email">
                             </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="owner">Owner</label>
+                                <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
                             </div>
                             <div class="col-sm-3">
                                     <input class="form-control form-control-sm" id="owner" name="owner" type="text" 
                                         [(ngModel)]="selectedCustomer.owner" required>
-                                        <div class="invalid-feedback">Please fill owner field.</div>
+                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                             </div>
                             <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="address">Address</label>
+                                <label class="col-form-label float-left" for="address">Adres</label>
                             </div>
                             <div class="col-sm-9">
                                     <input class="form-control form-control-sm" id="address" name="address" type="text" 
@@ -263,10 +263,10 @@
             </div>
             <div class="card-footer">
                 <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
-                    <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Remove</button>
+                    <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
                 </div>
                 <div class="col-sm-3 float-right">
-                    <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Save</button>
+                    <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Kaydet</button>
                 </div>
     
             </div>

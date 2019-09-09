@@ -50,8 +50,9 @@ export class AccountTransactionService {
   }
 
   getOnDayTransactions(): Observable < AccountTransactionModel[] > {
-    const start = new Date('2019-09-08');
-    const end = new Date('2019-09-09');
+    const date = new Date();
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     this.listCollection = this.db.collection<AccountTransactionModel>
     (this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
