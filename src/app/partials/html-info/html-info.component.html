@@ -1,0 +1,16 @@
+﻿<div class="modal-header">
+    <h4 class="modal-title" id="modal-title">{{ title }}</h4>
+    <button type="button" class="close" aria-describedby="modal-title" (click)="modal.dismiss('cross')">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <p *ngIf="details" [innerHTML]="details">
+    </p>
+    <pre *ngIf="detailsPre" [innerHTML]="detailsPre">
+    </pre>
+    <ngx-json-viewer *ngIf="detailsJson" [json]="detailsJson"></ngx-json-viewer>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" ngbAutofocus (click)="modal.dismiss('close')">Close</button>
+</div>

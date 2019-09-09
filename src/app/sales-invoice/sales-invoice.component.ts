@@ -8,6 +8,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CustomerService } from '../services/customer.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -27,6 +28,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   constructor(public authServis: AuthenticationService,
               public service: SalesInvoiceService,
               public cService: CustomerService,
+              public infoService: InformationService,
               public atService: AccountTransactionService,
               public db: AngularFirestore) { }
 
@@ -68,7 +70,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   btnNew_Click(): void {
     this.clearSelectedRecord();
-    console.log(this.selectedRecord);
   }
 
   btnSave_Click(): void {
@@ -78,7 +79,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.selectedRecord.primaryKey = '';
 
       this.service.setItem(this.selectedRecord, newId).then(() => {
-        console.log('invoice insert');
         const trans = {
           primaryKey: '',
           userPrimaryKey: data.userPrimaryKey,
@@ -93,14 +93,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           insertDate: data.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
-          console.log('transaction insert');
+          this.infoService.success('Fatura başarıyla kaydedildi.');
           this.selectedRecord = undefined;
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
-        console.log('purchase invoice has been updated.');
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
@@ -109,28 +108,27 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
               amount: this.selectedRecord.type === 'sales' ? data.totalPriceWithTax * -1 : data.totalPriceWithTax,
             };
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.infoService.success('Fatura başarıyla güncellendi.');
               this.selectedRecord = undefined;
-              console.log('transaction has been updated.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-      }).catch(err => console.error(err));
+      }).catch(err => this.infoService.error(err));
     }
   }
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
-      console.log('invoice has been removed.');
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Fatura başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
-              console.log('transaction has been removed.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-    }).catch(err => console.error(err));
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedRecord(): void {

@@ -10,6 +10,7 @@ import { AccountTransactionService } from '../services/account-transaction-servi
 import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-collection',
@@ -32,6 +33,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
               public service: CollectionService,
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
+              public infoService: InformationService,
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -82,7 +84,6 @@ export class CollectionComponent implements OnInit, OnDestroy {
       this.selectedRecord.primaryKey = '';
 
       this.service.setItem(this.selectedRecord, newId).then(() => {
-        console.log('collection insert');
         const trans = {
           primaryKey: '',
           userPrimaryKey: data.userPrimaryKey,
@@ -97,14 +98,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
           insertDate: data.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
-          console.log('transaction insert');
+          this.infoService.success('Tahsilat başarıyla kaydedildi.');
           this.selectedRecord = undefined;
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
-        console.log('collection has been updated.');
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
@@ -114,29 +114,28 @@ export class CollectionComponent implements OnInit, OnDestroy {
               amount: data.amount,
             };
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.infoService.success('Tahsilat başarıyla kaydedildi.');
               this.selectedRecord = undefined;
-              console.log('transaction has been updated.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
 
           });
         });
-      }).catch(err => console.error(err));
+      }).catch(err => this.infoService.error(err));
     }
   }
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
-      console.log('collection has been removed.');
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Tahsilat başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
-              console.log('transaction has been removed.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-    }).catch(err => console.error(err));
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedRecord(): void {

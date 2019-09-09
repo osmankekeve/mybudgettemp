@@ -26,16 +26,16 @@ export class CashDeskService {
     return this.mainList$;
   }
 
-  addItem(record: CashDeskModel) {
-    this.listCollection.add(record);
+  async addItem(record: CashDeskModel) {
+    return await this.listCollection.add(record);
   }
 
-  removeItem(record: CashDeskModel) {
-    this.db.collection('tblCashDesk').doc(record.primaryKey).delete();
+  async removeItem(record: CashDeskModel) {
+    return await this.db.collection('tblCashDesk').doc(record.primaryKey).delete();
   }
 
-  updateItem(record: CashDeskModel) {
-    this.db.collection('tblCashDesk').doc(record.primaryKey).update(record);
+  async updateItem(record: CashDeskModel) {
+    return await this.db.collection('tblCashDesk').doc(record.primaryKey).update(record);
   }
 
 }

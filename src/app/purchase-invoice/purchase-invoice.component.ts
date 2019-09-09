@@ -8,6 +8,7 @@ import { CustomerService } from '../services/customer.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -28,6 +29,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               public service: PurchaseInvoiceService,
               public cService: CustomerService,
               public atService: AccountTransactionService,
+              public infoService: InformationService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -62,6 +64,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         this.isRecordHasTransacton = false;
       }
     });
+    this.infoService.success(this.selectedRecord.primaryKey);
   }
 
   btnReturnList_Click(): void {
@@ -94,9 +97,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
           console.log('transaction insert');
+          this.infoService.success('Fatura başarıyla kaydedildi.');
           this.selectedRecord = undefined;
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
@@ -109,12 +113,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
             };
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.infoService.success('Fatura başarıyla güncellendi.');
               this.selectedRecord = undefined;
               console.log('transaction has been updated.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-      }).catch(err => console.error(err));
+      }).catch(err => this.infoService.error(err));
     }
   }
 
@@ -125,12 +130,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Fatura başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
               console.log('transaction has been removed.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-    }).catch(err => console.error(err));
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedRecord(): void {

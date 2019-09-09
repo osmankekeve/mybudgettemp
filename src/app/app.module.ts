@@ -11,6 +11,7 @@ import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { SideNavBarComponent } from './side-nav-bar/side-nav-bar.component';
 import { environment } from 'src/environments/environment';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
+import { InformationService } from './services/information.service';
 
 
 @NgModule({
@@ -29,7 +30,9 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
     AngularFirestoreModule.enablePersistence(),
     AngularFontAwesomeModule
   ],
-  providers: [],
+  providers: [
+    InformationService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

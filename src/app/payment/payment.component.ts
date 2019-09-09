@@ -10,6 +10,7 @@ import { CustomerService } from '../services/customer.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-payment',
@@ -34,6 +35,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
               public cdService: CashDeskService,
               public cService: CustomerService,
               public db: AngularFirestore,
+              public infoService: InformationService,
               public atService: AccountTransactionService) { }
 
   ngOnInit() {
@@ -97,13 +99,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
           insertDate: data.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
+          this.infoService.success('Ödeme başarıyla kaydedildi.');
           this.selectedRecord = undefined;
-        }).catch(err => console.error(err));
-      }).catch(err => console.error(err));
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
 
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
-        console.log('payment has been updated.');
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
@@ -113,29 +115,28 @@ export class PaymentComponent implements OnInit, OnDestroy {
               amount: data.amount * -1,
             };
             this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              this.infoService.success('Ödeme başarıyla güncellendi.');
               this.selectedRecord = undefined;
-              console.log('transaction has been updated.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
 
           });
         });
-      }).catch(err => console.error(err));
+      }).catch(err => this.infoService.error(err));
     }
   }
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
-      console.log('paymeny has been removed.');
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Ödeme başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
-              console.log('transaction has been removed.');
-            }).catch(err => console.error(err));
+            }).catch(err => this.infoService.error(err));
           });
         });
-    }).catch(err => console.error(err));
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedRecord(): void {

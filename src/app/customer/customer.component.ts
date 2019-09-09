@@ -12,6 +12,7 @@ import { CollectionService } from '../services/collection.service';
 import { PaymentService } from '../services/payment.service';
 import { PaymentModel } from '../models/payment-model';
 import { Pipe, PipeTransform } from '@angular/core';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-customer',
@@ -36,7 +37,7 @@ export class CustomerComponent implements OnInit  {
   searchText: any;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
-              public siService: SalesInvoiceService, public colService: CollectionService,
+              public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public payService: PaymentService) {
   }
 
@@ -104,16 +105,25 @@ export class CustomerComponent implements OnInit  {
   btnSave_Click(): void {
     if (this.selectedCustomer.primaryKey === undefined) {
       this.selectedCustomer.primaryKey = '';
-      this.customerService.addItem(this.selectedCustomer);
+      this.customerService.addItem(this.selectedCustomer)
+      .then(() => {
+        this.infoService.success('Müşteri başarıyla kaydedildi.');
+        this.selectedCustomer = undefined;
+      }).catch(err => this.infoService.error(err));
     } else {
-      this.customerService.updateItem(this.selectedCustomer);
+      this.customerService.updateItem(this.selectedCustomer)
+      .then(() => {
+        this.infoService.success('Müşteri bilgileri başarıyla güncellendi.');
+        this.selectedCustomer = undefined;
+      }).catch(err => this.infoService.error(err));
     }
-    this.selectedCustomer = undefined;
   }
 
   btnRemove_Click(): void {
-    this.customerService.removeItem(this.selectedCustomer);
-    this.selectedCustomer = undefined;
+    this.customerService.removeItem(this.selectedCustomer).then(() => {
+      this.infoService.success('Müşteri başarıyla kaldırıldı.');
+      this.selectedCustomer = undefined;
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedCustomer(): void {

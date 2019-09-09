@@ -23,16 +23,16 @@ export class CustomerService {
     return this.customerCollection.valueChanges({ idField : 'primaryKey'});
   }
 
-  addItem(customer: CustomerModel) {
-    this.customerCollection.add(customer);
+  async addItem(customer: CustomerModel) {
+    return await this.customerCollection.add(customer);
   }
 
-  removeItem(customer: CustomerModel) {
-    this.db.collection('tblCustomer').doc(customer.primaryKey).delete();
+  async removeItem(customer: CustomerModel) {
+    return await this.db.collection('tblCustomer').doc(customer.primaryKey).delete();
   }
 
-  updateItem(customer: CustomerModel) {
-    this.db.collection('tblCustomer').doc(customer.primaryKey).update(customer);
+  async updateItem(customer: CustomerModel) {
+    return await this.db.collection('tblCustomer').doc(customer.primaryKey).update(customer);
   }
 
 }

@@ -5,6 +5,7 @@ import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
+import { InformationService } from '../services/information.service';
 
 @Component({
   selector: 'app-cash-desk',
@@ -20,6 +21,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   constructor(public service: CashDeskService,
               public atService: AccountTransactionService,
+              public infoService: InformationService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -56,16 +58,26 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   btnSave_Click(): void {
     if (this.selectedRecord.primaryKey === undefined) {
       this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord);
+      this.service.addItem(this.selectedRecord)
+      .then(() => {
+        this.infoService.success('Kasa başarıyla kaydedildi.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
     } else {
-      this.service.updateItem(this.selectedRecord);
+      this.service.updateItem(this.selectedRecord)
+      .then(() => {
+        this.infoService.success('Kasa başarıyla güncellendi.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
     }
-    this.selectedRecord = undefined;
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord);
-    this.selectedRecord = undefined;
+    this.service.removeItem(this.selectedRecord)
+    .then(() => {
+      this.infoService.success('Kasa başarıyla kaldırıldı.');
+      this.selectedRecord = undefined;
+    }).catch(err => this.infoService.error(err));
   }
 
   clearSelectedRecord(): void {

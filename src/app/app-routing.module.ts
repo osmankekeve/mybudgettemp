@@ -11,6 +11,7 @@ import { CollectionComponent } from './collection/collection.component';
 import { PaymentComponent } from './payment/payment.component';
 import { DashoardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
+import { AlertComponent } from './partials/alert/alert.component';
 
 
 const routes: Routes = [
@@ -42,7 +43,8 @@ export const routingComponents = [
   CollectionComponent,
   PaymentComponent,
   DashoardComponent,
-  LoginComponent
+  LoginComponent,
+  AlertComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.
