@@ -13,6 +13,8 @@ import { PaymentService } from '../services/payment.service';
 import { PaymentModel } from '../models/payment-model';
 import { Pipe, PipeTransform } from '@angular/core';
 import { InformationService } from '../services/information.service';
+import { AccountTransactionModel } from '../models/account-transaction-model';
+import { AccountTransactionService } from '../services/account-transaction-service';
 
 @Component({
   selector: 'app-customer',
@@ -35,10 +37,11 @@ export class CustomerComponent implements OnInit  {
   payAmount: any;
   openedPanel: string;
   searchText: any;
+  transactionList$: Observable<AccountTransactionModel[]>;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
-              public payService: PaymentService) {
+              public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
   ngOnInit() {
@@ -132,9 +135,11 @@ export class CustomerComponent implements OnInit  {
 
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
+    this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
     if (this.openedPanel === 'salesInvoice') {
-      this.newSalesInvoice.customerCode = this.selectedCustomer.primaryKey;
-      this.newSalesInvoice.userPrimaryKey = this.selectedCustomer.userPrimaryKey;
+      this.newSalesInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: '',
+      description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
+
 
     } else if (this.openedPanel === 'collection') {
 
