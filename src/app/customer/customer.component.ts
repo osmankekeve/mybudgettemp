@@ -137,7 +137,7 @@ export class CustomerComponent implements OnInit  {
     this.openedPanel = panel;
     this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
     if (this.openedPanel === 'salesInvoice') {
-      this.newSalesInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: '',
+      this.newSalesInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'sales',
       description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
 
 

@@ -46,22 +46,22 @@
             <div class="col-sm-6">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title">Daily Transaction</h5>
+                            <h5 class="card-title">Günlük İşlemler</h5>
                         </div>
                         <div class="card-body">                            
-                            <div class="list-group" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                            <div class="list-group" *ngIf="transactionList; let list; else elseBlock">
                                     <div class="list-group-item bg-dark text-light">
                                             <div class="row">
-                                                <div class="col-sm-5">Transaction</div>
-                                                <div class="col-sm-4">Receipt</div>
-                                                <div class="col-sm-3"><span class="float-right">Amount</span></div>
+                                                <div class="col-sm-5">İşlem</div>
+                                                <div class="col-sm-4">Fiş</div>
+                                                <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
                                             </div>
                                     </div>
                                 <div class="list-group-item list-group-item-action list-group-item-light"
-                                    *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
+                                    *ngFor="let item of list; index as i; trackBy: primaryKey"
                                     style="font-size: 85%">
                                     <div class="row">
-                                        <label class="col-sm-5">{{item.transactionType}}</label>
+                                        <label class="col-sm-5">{{item.transactionTypeTr}}</label>
                                         <label class="col-sm-4">{{item.receiptNo}}</label>
                                         <label class="col-sm-3"><span class="float-right">{{item.amount}} ₺</span></label>  
                                     </div>
@@ -85,11 +85,11 @@
                                                 <div class="card-icon">
                                                     <img src="../../assets/images/sales_invoice.png" width="30px">
                                                 </div>
-                                                <p class="card-category">Sales Invoice</p>
+                                                <p class="card-category">Satış Faturası</p>
                                                 <h5 class="card-title">{{siAmount | number}} <small>TL</small></h5>
                                             </div>
                                             <div class="card-footer">
-                                                <div class="stats">Last 24 Hours Transactions</div>
+                                                <div class="stats">Son 24 Saatlik İşlemler</div>
                                             </div>
                                         </div>
                                     </div>
@@ -99,11 +99,11 @@
                                                 <div class="card-icon">
                                                     <img src="../../assets/images/collection.png" width="30px">
                                                 </div>
-                                                <p class="card-category">Collection</p>
+                                                <p class="card-category">Tahsilat</p>
                                                 <h5 class="card-title">{{colAmount | number}} <small>TL</small></h5>
                                             </div>
                                             <div class="card-footer">
-                                                <div class="stats">Last 24 Hours Transactions</div>
+                                                <div class="stats">Son 24 Saatlik İşlemler</div>
                                             </div>
                                         </div>
                                     </div>
@@ -113,11 +113,11 @@
                                                 <div class="card-icon">
                                                     <img src="../../assets/images/purchase_invoice.png" width="30px">
                                                 </div>
-                                                <p class="card-category">Purchase Invoice</p>
+                                                <p class="card-category">Alım Faturası</p>
                                                 <h5 class="card-title">{{purchaseInvoiceAmount | number}} <small>TL</small></h5>
                                             </div>
                                             <div class="card-footer">
-                                                <div class="stats">Last 24 Hours Transactions</div>
+                                                <div class="stats">Son 24 Saatlik İşlemler</div>
                                             </div>
                                         </div>
                                     </div>
@@ -127,11 +127,11 @@
                                                 <div class="card-icon">
                                                     <img src="../../assets/images/payment.png" width="30px">
                                                 </div>
-                                                <p class="card-category">Payment</p>
+                                                <p class="card-category">Ödeme</p>
                                                 <h5 class="card-title">{{payAmount | number}} <small>TL</small></h5>
                                             </div>
                                             <div class="card-footer">
-                                                <div class="stats">Last 24 Hours Transactions</div>
+                                                <div class="stats">Son 24 Saatlik İşlemler</div>
                                             </div>
                                         </div>
                                     </div>

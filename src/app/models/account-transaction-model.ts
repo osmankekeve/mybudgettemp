@@ -4,6 +4,7 @@ export class AccountTransactionModel {
     receiptNo?: string;
     transactionPrimaryKey?: string;
     transactionType?: string;
+    transactionTypeTr?: string;
     parentPrimaryKey?: string;
     parentType?: string;
     cashDeskPrimaryKey?: string;

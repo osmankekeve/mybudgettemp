@@ -152,7 +152,7 @@
         <div *ngIf="openedPanel=='salesInvoice'">
             <div class="card-body">
                 <div class="form-row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-7">
                         <div class="card">
                             <div class="card-header bg-secondary text-light">
                                 <h6>Yeni Satış Fatura Girişi</h6>
@@ -164,10 +164,11 @@
                                                     <label class="col-form-label float-left" for="type">Fatura Tipi</label>
                                                 </div>
                                                 <div class="col-sm-3">
-                                                    <select class="form-control form-control-sm" id="type" name="type" [(ngModel)]="newSalesInvoice.type">
-                                                        <option [value]="sales">Satış</option>
-                                                        <option [value]="return">İade</option>
+                                                    <select class="form-control form-control-sm" id="type" name="type" [(ngModel)]="newSalesInvoice.type" required>
+                                                        <option value="sales">Satış</option>
+                                                        <option value="return">İade</option>
                                                     </select>
+                                                    <div class="invalid-feedback">Lütfen fatura tipi seçiniz.</div>
                                                 </div>
                                                 <div class="col-sm-3">
                                                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
@@ -213,7 +214,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-5">
                         <div class="card bg-light">
                             <div class="card-header bg-secondary text-light">
                                 <h6>Önceki Satış Faturaları</h6>

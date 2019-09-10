@@ -89,16 +89,10 @@
                         <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">Record Date</label>
-                </div>
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
-                </div>
-                <div class="col-sm-3">
                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text"
+                    <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
                         [(ngModel)]="selectedRecord.receiptNo" required>
                         <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -106,7 +100,7 @@
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="text"
+                    <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number"
                         [(ngModel)]="selectedRecord.totalPrice" required>
                         <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -114,9 +108,15 @@
                     <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
-                        type="text" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
+                    <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax"
+                        type="number" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="insertDate">Record Date</label>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
                 </div>
                 <div class="col-sm-6"></div>
                 <div class="col-sm-3">
