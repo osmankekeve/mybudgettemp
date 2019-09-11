@@ -199,8 +199,7 @@
                                                 </div>
                                                 <div class="col-sm-9">
                                                     <input class="form-control form-control-sm" id="description" name="description" type="text" 
-                                                        [(ngModel)]="newSalesInvoice.description" required>
-                                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                                        [(ngModel)]="newSalesInvoice.description">
                                                 </div>
                                         </div>
                                 </form>
@@ -245,10 +244,201 @@
 
         </div>
         <div *ngIf="openedPanel=='collection'">
-                Tahsilat
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="col-sm-7">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Yeni Tahsilat Girişi</h6>
+                            </div>
+                            <div class="card-body">
+                                <form (ngSubmit)="btnSaveCollection_Click()" class="was-validated" #fc="ngForm">
+                                        <div class="form-row">
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="typeTr">Tahsilat Tipi</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                                                [(ngModel)]="newCollection.type">
+                                                    <option value="cash">Nakit</option>
+                                                    <option value="creditCard">Kredi Kartı</option>
+                                                    <option value="pNote">Senet</option>
+                                                </select>
+                                                <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
+                                                [(ngModel)]="newCollection.cashDeskPrimaryKey">
+                                                    <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                                                </select>
+                                                <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">{{newCollection.insertDate | date: 'yyyy-MM-dd'}}</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                                                    [(ngModel)]="newCollection.receiptNo" required>
+                                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
+                                                    [(ngModel)]="newCollection.amount" required>
+                                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                                            </div>
+                                            <div class="col-sm-6"></div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="description">Açıklama</label>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                                                    [(ngModel)]="newCollection.description">
+                                            </div>
+                                        </div>
+                                </form>
+                            </div>
+                            <div class="card-footer">
+                                    <div class="col-sm-3 float-right">
+                                        <button type="button" class="btn btn-sm btn-success btn-block"
+                                        [disabled]="!fc.valid"
+                                            (click)="btnSaveCollection_Click()">Kaydet</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="card bg-light">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Önceki Tahsilatlar</h6>
+                            </div>
+                            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                                    <table class="table">
+                                            <tbody>
+                                              <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                                                <td>{{item.receiptNo}}</td>
+                                                <td>{{item.amount | number}}</td>
+                                                <td>{{item.insertDate | date: 'yyyy-MM-dd'}}</td>
+                                              </tr>
+                                            </tbody>
+                                    </table>
+                            </div>
+                            <ng-template #elseBlock>
+                                <div class="card bg-danger text-white">
+                                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                                </div>
+                            </ng-template>  
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
         <div *ngIf="openedPanel=='purchaseInvoice'">
-                Alım Faturası
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="col-sm-7">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Yeni Alım Fatura Girişi</h6>
+                            </div>
+                            <div class="card-body">
+                                <form (ngSubmit)="btnSavePurchaseInvoice_Click()" class="was-validated" #fa="ngForm">
+                                        <div class="form-row">
+                                                <div class="col-sm-3">
+                                                    <label class="col-form-label float-left" for="type">Fatura Tipi</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <select class="form-control form-control-sm" id="type" name="type" [(ngModel)]="newPurchaseInvoice.type" required>
+                                                        <option value="purchase">Alım</option>
+                                                        <option value="return">İade</option>
+                                                    </select>
+                                                    <div class="invalid-feedback">Lütfen fatura tipi seçiniz.</div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <input class="form-control form-control-sm" id="receiptNo" name="receiptNo" type="text" 
+                                                        [(ngModel)]="newPurchaseInvoice.receiptNo" required>
+                                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" 
+                                                        [(ngModel)]="newPurchaseInvoice.totalPrice" required>
+                                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label class="col-form-label float-left" for="totalPrice">Tutar (+KDV)</label>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" 
+                                                        [(ngModel)]="newPurchaseInvoice.totalPriceWithTax" required>
+                                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <label class="col-form-label float-left" for="description">Açıklama</label>
+                                                </div>
+                                                <div class="col-sm-9">
+                                                    <input class="form-control form-control-sm" id="description" name="description" type="text" 
+                                                        [(ngModel)]="newPurchaseInvoice.description">
+                                                </div>
+                                        </div>
+                                </form>
+                            </div>
+                            <div class="card-footer">
+                                    <div class="col-sm-3 float-right">
+                                        <button type="button" class="btn btn-sm btn-success btn-block"
+                                        [disabled]="!fa.valid"
+                                            (click)="btnSavePurchaseInvoice_Click()">Kaydet</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="card bg-light">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Önceki Alım Faturaları</h6>
+                            </div>
+                            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                                    <table class="table">
+                                            <tbody>
+                                              <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                                                <td>{{item.receiptNo}}</td>
+                                                <td>{{item.amount | number}}</td>
+                                                <td>{{item.insertDate | date: 'yyyy-MM-dd'}}</td>
+                                              </tr>
+                                            </tbody>
+                                    </table>
+                            </div>
+                            <ng-template #elseBlock>
+                                <div class="card bg-danger text-white">
+                                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                                </div>
+                            </ng-template>  
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
         <div *ngIf="openedPanel=='payment'">
                 Ödeme

@@ -15,6 +15,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { InformationService } from '../services/information.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { CashDeskService } from '../services/cash-desk.service';
 
 @Component({
   selector: 'app-customer',
@@ -26,6 +28,8 @@ export class CustomerComponent implements OnInit  {
   mainList$: Observable<CustomerModel[]>;
   selectedCustomer: CustomerModel;
   newSalesInvoice: SalesInvoiceModel;
+  newPurchaseInvoice: PurchaseInvoiceModel;
+  newCollection: CollectionModel;
 
   purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
   purchaseInvoiceAmount: any;
@@ -38,15 +42,18 @@ export class CustomerComponent implements OnInit  {
   openedPanel: string;
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
+              public cdService: CashDeskService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
   ngOnInit() {
     this.openedPanel = 'dashboard';
     this.populateCustomerList();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedCustomer = undefined;
   }
 
@@ -129,22 +136,114 @@ export class CustomerComponent implements OnInit  {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnSaveSalesInvoice_Click(): void {
+    if (this.newSalesInvoice.primaryKey === undefined) {
+      const newId = this.db.createId();
+      this.newSalesInvoice.primaryKey = '';
+
+      this.siService.setItem(this.newSalesInvoice, newId).then(() => {
+        this.db.collection('tblAccountTransaction').add({
+          primaryKey: '',
+          userPrimaryKey: this.newSalesInvoice.userPrimaryKey,
+          receiptNo: this.newSalesInvoice.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'salesInvoice',
+          parentPrimaryKey: this.newSalesInvoice.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: '-1',
+          amount: this.newSalesInvoice.type === 'sales'
+          ? this.newSalesInvoice.totalPriceWithTax * -1 : this.newSalesInvoice.totalPriceWithTax,
+          amountType: this.newSalesInvoice.type === 'sales' ? 'debit' : 'credit',
+          insertDate: this.newSalesInvoice.insertDate,
+        }).then(() => {
+          this.infoService.success('Fatura başarıyla kaydedildi.');
+          this.clearNewSalesInvoice();
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+    }
+  }
+
+  btnSavePurchaseInvoice_Click(): void {
+    if (this.newPurchaseInvoice.primaryKey === undefined) {
+      const newId = this.db.createId();
+      this.newPurchaseInvoice.primaryKey = '';
+      this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
+        this.db.collection('tblAccountTransaction').add({
+          primaryKey: '',
+          userPrimaryKey: this.newPurchaseInvoice.userPrimaryKey,
+          receiptNo: this.newPurchaseInvoice.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'purchaseInvoice',
+          parentPrimaryKey: this.newPurchaseInvoice.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: '-1',
+          amount: this.newPurchaseInvoice.type === 'purchase'
+          ? this.newPurchaseInvoice.totalPriceWithTax : this.newPurchaseInvoice.totalPriceWithTax * -1,
+          amountType: this.newPurchaseInvoice.type === 'purchase' ? 'credit' : 'debit',
+          insertDate: this.newPurchaseInvoice.insertDate,
+        }).then(() => {
+          this.infoService.success('Fatura başarıyla kaydedildi.');
+          this.clearNewPurchaseInvoice();
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+
+    }
+  }
+
+  btnSaveCollection_Click(): void {
+    if (this.newCollection.primaryKey === undefined) {
+      const newId = this.db.createId();
+      this.newCollection.primaryKey = '';
+
+      this.colService.setItem(this.newCollection, newId).then(() => {
+        this.db.collection('tblAccountTransaction').add({
+          primaryKey: '',
+          userPrimaryKey: this.newCollection.userPrimaryKey,
+          receiptNo: this.newCollection.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'collection',
+          parentPrimaryKey: this.newCollection.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: this.newCollection.cashDeskPrimaryKey,
+          amount: this.newCollection.amount,
+          amountType: 'credit',
+          insertDate: this.newCollection.insertDate,
+        }).then(() => {
+          this.infoService.success('Tahsilat başarıyla kaydedildi.');
+          this.clearNewCollection();
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+    }
+  }
+
   clearSelectedCustomer(): void {
     this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: ''};
+  }
+
+  clearNewSalesInvoice(): void {
+    this.newSalesInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'sales',
+    description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
+  }
+
+  clearNewPurchaseInvoice(): void {
+    this.newPurchaseInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'purchase',
+    description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
+  }
+
+  clearNewCollection(): void {
+    this.newCollection = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey,
+      receiptNo: '', type: 'cash', description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
   }
 
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
     this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
     if (this.openedPanel === 'salesInvoice') {
-      this.newSalesInvoice = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'sales',
-      description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
-
-
+      this.clearNewSalesInvoice();
     } else if (this.openedPanel === 'collection') {
-
+      this.clearNewCollection();
     } else if (this.openedPanel === 'purchaseInvoice') {
-
+      this.clearNewPurchaseInvoice();
     } else if (this.openedPanel === 'payment') {
 
     } else if (this.openedPanel === 'edit') {
