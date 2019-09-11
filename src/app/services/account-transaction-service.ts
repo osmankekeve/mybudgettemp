@@ -35,7 +35,7 @@ export class AccountTransactionService {
       ref => ref
       .where('parentPrimaryKey', '==', customerPrimaryKey)
       .where('parentType', '==', 'customer')
-      .where('transactionType', '==', transactionType));
+      .where('transactionType', '==', transactionType).orderBy('insertDate'));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }

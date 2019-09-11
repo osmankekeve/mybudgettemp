@@ -54,10 +54,10 @@ export class DashoardComponent implements OnInit, OnDestroy {
     });
     // Bar chart:
     this.BarChart = new Chart('barChart', {
-  type: 'bar',
-data: {
- labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
- datasets: [{
+    type: 'bar',
+    data: {
+    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+    datasets: [{
      label: '# of Votes',
      data: [9, 7 , 3, 5, 2, 10],
      backgroundColor: [
@@ -77,9 +77,9 @@ data: {
          'rgba(255, 159, 64, 1)'
      ],
      borderWidth: 1
- }]
+    }]
 },
-options: {
+    options: {
  title: {
      text: 'Bar Chart',
      display: true

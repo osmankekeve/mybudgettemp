@@ -30,6 +30,7 @@ export class CustomerComponent implements OnInit  {
   newSalesInvoice: SalesInvoiceModel;
   newPurchaseInvoice: PurchaseInvoiceModel;
   newCollection: CollectionModel;
+  newPayment: PaymentModel;
 
   purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
   purchaseInvoiceAmount: any;
@@ -216,6 +217,32 @@ export class CustomerComponent implements OnInit  {
     }
   }
 
+  btnSavePayment_Click(): void {
+    if (this.newPayment.primaryKey === undefined) {
+      const newId = this.db.createId();
+      this.newPayment.primaryKey = '';
+
+      this.colService.setItem(this.newPayment, newId).then(() => {
+        this.db.collection('tblAccountTransaction').add({
+          primaryKey: '',
+          userPrimaryKey: this.newPayment.userPrimaryKey,
+          receiptNo: this.newPayment.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'payment',
+          parentPrimaryKey: this.newPayment.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: this.newPayment.cashDeskPrimaryKey,
+          amount: this.newPayment.amount * -1,
+          amountType: 'debit',
+          insertDate: this.newPayment.insertDate,
+        }).then(() => {
+          this.infoService.success('Ödeme başarıyla kaydedildi.');
+          this.clearNewPayment();
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+    }
+  }
+
   clearSelectedCustomer(): void {
     this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: ''};
   }
@@ -235,6 +262,11 @@ export class CustomerComponent implements OnInit  {
       receiptNo: '', type: 'cash', description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
   }
 
+  clearNewPayment(): void {
+    this.newPayment = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey,
+      receiptNo: '', type: 'cash', description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
+  }
+
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
     this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
@@ -245,7 +277,7 @@ export class CustomerComponent implements OnInit  {
     } else if (this.openedPanel === 'purchaseInvoice') {
       this.clearNewPurchaseInvoice();
     } else if (this.openedPanel === 'payment') {
-
+      this.clearNewPayment();
     } else if (this.openedPanel === 'edit') {
 
     } else {

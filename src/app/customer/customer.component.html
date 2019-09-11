@@ -77,14 +77,14 @@
                         <div class="col-sm-6">
                                 <div id="panel-navigator">
                                     <div class="row">
-                                            <div class="col-sm-12">
+                                            <div class="col-sm-6">
                                                 <div class="card card-stats">
                                                     <div class="card-header card-header-warning card-header-icon">
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/sales_invoice.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Satış Faturası</p>
-                                                        <h3 class="card-title">{{siAmount | number}} <small>TL</small></h3>
+                                                        <h5 class="card-title">{{siAmount | number}} <small>₺</small></h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -93,14 +93,14 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12 mt-1">
+                                            <div class="col-sm-6">
                                                 <div class="card card-stats">
                                                     <div class="card-header card-header-danger card-header-icon">
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/collection.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Tahsilat</p>
-                                                        <h3 class="card-title">{{colAmount | number}} <small>TL</small></h3>
+                                                        <h5 class="card-title">{{colAmount | number}} <small>₺</small></h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -109,14 +109,14 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12 mt-1">
+                                            <div class="col-sm-6 mt-1">
                                                 <div class="card card-stats">
                                                     <div class="card-header card-header-success card-header-icon">
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/purchase_invoice.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Alım Faturası</p>
-                                                        <h3 class="card-title">{{purchaseInvoiceAmount | number}} <small>TL</small></h3>
+                                                        <h5 class="card-title">{{purchaseInvoiceAmount | number}} <small>₺</small></h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -125,14 +125,14 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-sm-12 mt-1">
+                                            <div class="col-sm-6 mt-1">
                                                 <div class="card card-stats">
                                                     <div class="card-header card-header-info card-header-icon">
                                                         <div class="card-icon">
                                                             <img src="../../assets/images/payment.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Ödeme</p>
-                                                        <h3 class="card-title">{{payAmount | number}} <small>TL</small></h3>
+                                                        <h5 class="card-title">{{payAmount | number}} <small>₺</small></h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -223,8 +223,8 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td>{{item.amount | number}}</td>
-                                                <td>{{item.insertDate | date: 'yyyy-MM-dd'}}</td>
+                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
                                     </table>
@@ -264,7 +264,7 @@
                                                     <option value="creditCard">Kredi Kartı</option>
                                                     <option value="pNote">Senet</option>
                                                 </select>
-                                                <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+                                                <div class="invalid-feedback">Lütfen tip seçiniz.</div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
@@ -274,13 +274,7 @@
                                                 [(ngModel)]="newCollection.cashDeskPrimaryKey">
                                                     <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                                                 </select>
-                                                <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <label class="col-form-label float-left" for="insertDate">{{newCollection.insertDate | date: 'yyyy-MM-dd'}}</label>
+                                                <div class="invalid-feedback">Lütfen kasa seçiniz.</div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
@@ -288,7 +282,7 @@
                                             <div class="col-sm-3">
                                                 <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
                                                     [(ngModel)]="newCollection.receiptNo" required>
-                                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                                                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                             </div>
                                             <div class="col-sm-3">
                                                 <label class="col-form-label float-left" for="totalPrice">Tutar</label>
@@ -296,7 +290,13 @@
                                             <div class="col-sm-3">
                                                 <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
                                                     [(ngModel)]="newCollection.amount" required>
-                                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                                                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">{{newCollection.insertDate | date: 'yyyy.MM.dd'}}</label>
                                             </div>
                                             <div class="col-sm-6"></div>
                                             <div class="col-sm-3">
@@ -328,8 +328,8 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td>{{item.amount | number}}</td>
-                                                <td>{{item.insertDate | date: 'yyyy-MM-dd'}}</td>
+                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
                                     </table>
@@ -421,8 +421,8 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td>{{item.amount | number}}</td>
-                                                <td>{{item.insertDate | date: 'yyyy-MM-dd'}}</td>
+                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
                                     </table>
@@ -441,7 +441,108 @@
             </div>
         </div>
         <div *ngIf="openedPanel=='payment'">
-                Ödeme
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="col-sm-7">
+                        <div class="card">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Yeni Ödeme Girişi</h6>
+                            </div>
+                            <div class="card-body">
+                                <form (ngSubmit)="btnSavePayment_Click()" class="was-validated" #fp="ngForm">
+                                        <div class="form-row">
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="typeTr">Ödeme Tipi</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                                                [(ngModel)]="newPayment.type">
+                                                    <option value="cash">Nakit</option>
+                                                    <option value="creditCard">Kredi Kartı</option>
+                                                    <option value="pNote">Senet</option>
+                                                </select>
+                                                <div class="invalid-feedback">Lütfen tip seçiniz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
+                                                [(ngModel)]="newPayment.cashDeskPrimaryKey">
+                                                    <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                                                </select>
+                                                <div class="invalid-feedback">Lütfen kasa seçiniz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                                                    [(ngModel)]="newPayment.receiptNo" required>
+                                                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
+                                                    [(ngModel)]="newPayment.amount" required>
+                                                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="insertDate">{{newPayment.insertDate | date: 'yyyy.MM.dd'}}</label>
+                                            </div>
+                                            <div class="col-sm-6"></div>
+                                            <div class="col-sm-3">
+                                                <label class="col-form-label float-left" for="description">Açıklama</label>
+                                            </div>
+                                            <div class="col-sm-9">
+                                                <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                                                    [(ngModel)]="newPayment.description">
+                                            </div>
+                                        </div>
+                                </form>
+                            </div>
+                            <div class="card-footer">
+                                    <div class="col-sm-3 float-right">
+                                        <button type="button" class="btn btn-sm btn-success btn-block"
+                                        [disabled]="!fp.valid"
+                                            (click)="btnSavePayment_Click()">Kaydet</button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <div class="card bg-light">
+                            <div class="card-header bg-secondary text-light">
+                                <h6>Önceki Ödemeler</h6>
+                            </div>
+                            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+                                    <table class="table">
+                                            <tbody>
+                                              <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                                                <td>{{item.receiptNo}}</td>
+                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+                                              </tr>
+                                            </tbody>
+                                    </table>
+                            </div>
+                            <ng-template #elseBlock>
+                                <div class="card bg-danger text-white">
+                                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                                </div>
+                            </ng-template>  
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
         <div *ngIf="openedPanel=='edit'">
             <div class="card-body">
