@@ -1,0 +1,165 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Kasa Fiş Listesi</h5>
+            </div>
+            <div class="col-sm-5">
+                <input type="text" class="form-control form-control-sm" placeholder="Kasa Fişi Ara.." />
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+ Yeni Kasa Fiş</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
+                <div class="list-group-item bg-success text-light">
+                        <div class="row">
+                            <div class="col-sm-1">Sıra</div>
+                            <div class="col-sm-6">Fiş Numarası</div>
+                            <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+                            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+        
+                        </div>
+                </div>
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                (click)="showSelectedRecord(item)"
+                *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                <div class="row">
+                    <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
+                    <div class="col-sm-6">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.amount | number}} ₺</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
+
+                </div>
+            </div>
+        </div>
+        <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+        </ng-template>    
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-9">
+                <h5 class="card-title">Kasa Fiş Detayı
+                    <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
+                </h5>
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-sm btn-primary btn-block"
+                    (click)="btnReturnList_Click()">Listeye Geri Dön</button>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+            <div class="form-row form-inline">
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="firstCashDeskPrimaryKey">Ana Kasa</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="firstCashDeskPrimaryKey" name="firstCashDeskPrimaryKey" required
+                    [(ngModel)]="selectedRecord.firstCashDeskPrimaryKey">
+                        <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="secondCashDeskPrimaryKey">Karşı Kasa</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="secondCashDeskPrimaryKey" name="secondCashDeskPrimaryKey" required
+                    [(ngModel)]="selectedRecord.secondCashDeskPrimaryKey">
+                        <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    [disabled]="f.valid"
+                    [(ngModel)]="selectedRecord.type">
+                        <option value="open">Açılış</option>
+                        <option value="transfer">Transfer</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    [disabled]="f.valid"
+                    [(ngModel)]="selectedRecord.type">
+                        <option value="open">Açılış</option>
+                        <option value="transfer">Transfer</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="typeTr">İşlem Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    [disabled]="f.valid"
+                    [(ngModel)]="selectedRecord.transactionType">
+                        <option value="creditVoucher">Alacaklandırma</option>
+                        <option value="debitVoucher">Borçlandırma</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen işlem seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                        [(ngModel)]="selectedRecord.receiptNo" required>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+                </div>
+                <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
+                        [(ngModel)]="selectedRecord.amount" required>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-6"></div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-9">
+                    <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                        [(ngModel)]="selectedRecord.description">
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="card-footer">
+        <div class="col-sm-3 float-right" *ngIf="selectedRecord.primaryKey==undefined">
+            <button type="button" class="btn btn-sm btn-success btn-block"
+            [disabled]="!f.valid"
+                (click)="btnSave_Click()">Kaydet</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                (click)="btnRemove_Click()">Kaldır</button>
+        </div>
+
+    </div>
+</div>

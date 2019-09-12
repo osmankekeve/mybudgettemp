@@ -19,6 +19,8 @@ export class DashoardComponent implements OnInit, OnDestroy {
   siAmount: any = 0;
   colAmount: any = 0;
   payAmount: any = 0;
+  avAmount: any = 0;
+  cvAmount: any = 0;
   transactionList: Array<AccountTransactionModel>;
 
   constructor(public db: AngularFirestore,
@@ -153,6 +155,14 @@ export class DashoardComponent implements OnInit, OnDestroy {
             if (item.transactionType === 'payment') {
                 this.payAmount += item.amount;
                 item.transactionTypeTr = 'Ödeme';
+            }
+            if (item.transactionType === 'accountVoucher') {
+                this.avAmount += item.amount;
+                item.transactionTypeTr = 'Hesap Fişi';
+            }
+            if (item.transactionType === 'cashDeskVoucher') {
+                this.cvAmount += item.amount;
+                item.transactionTypeTr = 'Kasa Fişi';
             }
         });
     });
