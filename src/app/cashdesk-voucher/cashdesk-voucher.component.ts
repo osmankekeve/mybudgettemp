@@ -42,7 +42,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   populateList(): void {
     this.mainList$ = undefined;
-    this.mainList$ = this.service.getAllItems();
+    this.mainList$ = this.service.getItems();
+    this.mainList$.subscribe(list => {
+      console.log(list);
+    });
   }
 
   showSelectedRecord(record: any): void {

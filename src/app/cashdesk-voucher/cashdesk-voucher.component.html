@@ -17,7 +17,8 @@
                 <div class="list-group-item bg-success text-light">
                         <div class="row">
                             <div class="col-sm-1">Sıra</div>
-                            <div class="col-sm-6">Fiş Numarası</div>
+                            <div class="col-sm-2">Fiş Numarası</div>
+                            <div class="col-sm-4">Ana Kasa</div>
                             <div class="col-sm-2"><span class="float-right">Tutar</span></div>
                             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
         
@@ -28,7 +29,8 @@
                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
                 <div class="row">
                     <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
-                    <div class="col-sm-6">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-2">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-4">{{item.casDeskName}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.amount | number}} ₺</span></div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
 
@@ -79,18 +81,6 @@
                         <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
-                </div>
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
-                </div>
-                <div class="col-sm-3">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
-                    [disabled]="f.valid"
-                    [(ngModel)]="selectedRecord.type">
-                        <option value="open">Açılış</option>
-                        <option value="transfer">Transfer</option>
-                    </select>
-                    <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
