@@ -16,9 +16,10 @@ import { InformationService } from '../services/information.service';
   styleUrls: ['./purchase-invoice.component.css']
 })
 export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
-  mainList$: Observable<PurchaseInvoiceModel[]>;
+  mainList: Array<PurchaseInvoiceModel>;
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: PurchaseInvoiceModel;
+  refModel: PurchaseInvoiceModel;
   selectedRecordSubItems: {
     customerName: string,
     invoiceType: string
@@ -38,17 +39,28 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void {
-    this.mainList$.subscribe();
-  }
+  ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as PurchaseInvoiceModel;
+    this.refModel = record.data as PurchaseInvoiceModel;
     this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
     this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
     this.selectedRecordSubItems = {
@@ -133,6 +145,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
+    this.refModel = undefined;
     this.isRecordHasTransacton = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
     description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};

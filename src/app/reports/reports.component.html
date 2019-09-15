@@ -1,0 +1,82 @@
+<div class="card" *ngIf="!selectedReport">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Raporlar</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Cari Hesap</div>
+                            <small class="text-secondary">Müşteri Detayında Bakiye Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Cari Hesap</div>
+                            <small class="text-secondary">Müşteri Detayında Bakiye Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Cari Hesap</div>
+                            <small class="text-secondary">Müşteri Detayında Bakiye Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Cari Hesap</div>
+                            <small class="text-secondary">Müşteri Detayında Bakiye Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card" *ngIf="selectedReport">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-9">
+                <h5 class="card-title">Rapor Detayı</h5>
+            </div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-sm btn-primary btn-block"
+                    (click)="btnReturnList_Click()">Listeye Geri Dön</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+
+    </div>
+</div>

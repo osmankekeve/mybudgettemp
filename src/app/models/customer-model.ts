@@ -1,4 +1,5 @@
-export interface CustomerModel {
+
+export class CustomerModel {
     primaryKey?: string;
     userPrimaryKey?: string;
     code?: string;

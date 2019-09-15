@@ -18,11 +18,12 @@ import { InformationService } from '../services/information.service';
   styleUrls: ['./collection.component.css']
 })
 export class CollectionComponent implements OnInit, OnDestroy {
-  mainList$: Observable<CollectionModel[]>;
+  mainList: Array<CollectionModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
   recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CollectionModel;
+  refModel: CollectionModel;
   selectedRecordSubItems: {
     customerName: string,
     typeTr: string
@@ -43,17 +44,28 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void {
-    this.mainList$.subscribe();
-  }
+  ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as CollectionModel;
+    this.refModel = record.data as CollectionModel;
     this.selectedRecordSubItems = {
       customerName : record.customerName,
       typeTr : this.selectedRecord.type
@@ -139,6 +151,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
+    this.refModel = undefined;
     this.isRecordHasTransacton = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
       insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};

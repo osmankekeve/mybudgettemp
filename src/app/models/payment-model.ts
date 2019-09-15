@@ -1,3 +1,5 @@
+import { CustomerModel } from './customer-model';
+
 export class PaymentModel {
     primaryKey?: string;
     userPrimaryKey?: string;

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, DocumentReference } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
@@ -57,15 +57,16 @@ export class PaymentService {
     return await this.db.collection('tblPayment').doc(record.primaryKey).update(record);
   }
 
-  getItems(): Observable<PaymentModel[]> {
+  getMainItems(): Observable<PaymentModel[]> {
     this.listCollection = this.db.collection('tblPayment',
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
-        const data = change.payload.doc.data() as PaymentModel;
-        data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges().pipe(map( (customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name}); }));
+        const returnData = change.payload.doc.data() as PaymentModel;
+        returnData.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(returnData.customerCode).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({returnData, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

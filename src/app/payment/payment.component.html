@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
+        <div class="list-group">
                 <div class="list-group-item bg-danger text-light">
                         <div class="row">
                             <div class="col-sm-1">Sıra</div>
@@ -30,9 +30,9 @@
                 <div class="row">
                     <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
                     <div class="col-sm-5">{{item.customerName}}</div>
-                    <div class="col-sm-2">{{item.data.receiptNo}}</div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.amount | number}} ₺</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
+                    <div class="col-sm-2">{{item.returnData.receiptNo}}</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.returnData.amount | number}} ₺</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.returnData.insertDate | date: 'yyyy-MM-dd'}}</span></div>
 
                 </div>
             </div>

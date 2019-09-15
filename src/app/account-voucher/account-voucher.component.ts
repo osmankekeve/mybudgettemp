@@ -78,7 +78,6 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    const data = this.selectedRecord;
     if (this.selectedRecord.primaryKey === undefined) {
       const newId = this.db.createId();
       this.selectedRecord.primaryKey = '';
@@ -86,16 +85,16 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
       this.service.setItem(this.selectedRecord, newId).then(() => {
         const trans = {
           primaryKey: '',
-          userPrimaryKey: data.userPrimaryKey,
-          receiptNo: data.receiptNo,
+          userPrimaryKey: this.selectedRecord.userPrimaryKey,
+          receiptNo: this.selectedRecord.receiptNo,
           transactionPrimaryKey: newId,
           transactionType: 'accountVoucher',
-          parentPrimaryKey: data.customerCode,
+          parentPrimaryKey: this.selectedRecord.customerCode,
           parentType: 'customer',
-          cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+          cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
           amount: this.selectedRecord.type === 'creditVoucher' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
           amountType: this.selectedRecord.type === 'creditVoucher' ? 'credit' : 'debit',
-          insertDate: data.insertDate,
+          insertDate: this.selectedRecord.insertDate,
         };
         this.db.collection('tblAccountTransaction').add(trans).then(() => {
           this.infoService.success('Fiş başarıyla kaydedildi.');
@@ -106,14 +105,13 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     } else {
       this.service.updateItem(this.selectedRecord).then(() => {
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
-            const trans = {
-              receiptNo: data.receiptNo,
-              cashDeskPrimaryKey: data.cashDeskPrimaryKey,
-              amount: this.selectedRecord.type === 'creditVoucher' ? data.amount : data.amount * -1,
-            };
-            this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+            this.db.collection('tblAccountTransaction').doc(item.id).update({
+              receiptNo: this.selectedRecord.receiptNo,
+              cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
+              amount: this.selectedRecord.type === 'creditVoucher' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
+            }).then(() => {
               this.infoService.success('Fiş başarıyla güncellendi.');
               this.selectedRecord = undefined;
             }).catch(err => this.infoService.error(err));

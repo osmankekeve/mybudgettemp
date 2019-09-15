@@ -52,17 +52,16 @@ export class CollectionService {
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
-  getItems(): Observable<CollectionModel[]> {
+  getMainItems(): Observable<CollectionModel[]> {
     this.listCollection = this.db.collection('tblCollection',
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges().pipe(map( (customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name}); }));
-            /* data.customer = customer;
-            return Object.assign({data}); })); */
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

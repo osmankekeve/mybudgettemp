@@ -1,0 +1,46 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Test Module</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="list-group">
+                        <div class="list-group-item bg-danger text-light">
+                                <div class="row">
+                                    <div class="col-sm-12">Data State Changes</div>
+                                </div>
+                        </div>
+                    <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                        (click)="showSelectedRecord(item)"
+                        *ngFor="let item of mainList$ | async; index as i; trackBy: primaryKey">
+                        <div class="row">
+                            <div class="col-sm-12">{{item.data}}</div>
+        
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-sm-6">
+                <div class="row mb-2">
+                    <div class="col-sm-12">
+                        <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="selectedRecord">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnCancel_Click()">İptal</button>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Kaydet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

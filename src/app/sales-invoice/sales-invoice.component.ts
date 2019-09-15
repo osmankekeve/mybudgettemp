@@ -16,9 +16,10 @@ import { InformationService } from '../services/information.service';
   styleUrls: ['./sales-invoice.component.css']
 })
 export class SalesInvoiceComponent implements OnInit, OnDestroy {
-  mainList$: Observable<SalesInvoiceModel[]>;
+  mainList: Array<SalesInvoiceModel>;
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: SalesInvoiceModel;
+  refModel: SalesInvoiceModel;
   selectedRecordSubItems: {
     customerName: string,
     invoiceType: string
@@ -38,17 +39,28 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void {
-    this.mainList$.subscribe();
-  }
+  ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as SalesInvoiceModel;
+    this.refModel = record.data as SalesInvoiceModel;
     this.selectedRecordSubItems = {
       customerName : record.customerName,
       invoiceType : this.selectedRecord.type === 'sales' ?  'Sales Invoice' : 'Return Invoice'

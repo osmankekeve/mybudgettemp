@@ -63,10 +63,36 @@
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
             <div class="form-row form-inline">
                 <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="type">Fiş Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    (change)="onChangeVoucherType($event.target.value)"
+                    [disabled]="f.valid"
+                    [(ngModel)]="selectedRecord.type">
+                        <option value="open">Açılış</option>
+                        <option value="transfer">Transfer</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                    <label class="col-form-label float-left" for="transactionType">İşlem Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100" id="transactionType" name="transactionType" required 
+                    [disabled]="f.valid"
+                    [(ngModel)]="selectedRecord.transactionType">
+                        <option value="credit">Alacaklandırma</option>
+                        <option value="debit">Borçlandırma</option>
+                    </select>
+                    <div class="invalid-feedback invalid-inpput-info">Lütfen işlem seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
                     <label class="col-form-label float-left" for="firstCashDeskPrimaryKey">Ana Kasa</label>
                 </div>
                 <div class="col-sm-3">
                     <select class="form-control form-control-sm w-100" id="firstCashDeskPrimaryKey" name="firstCashDeskPrimaryKey" required
+                    [disabled]="f.valid"
                     [(ngModel)]="selectedRecord.firstCashDeskPrimaryKey">
                         <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
@@ -77,34 +103,13 @@
                 </div>
                 <div class="col-sm-3">
                     <select class="form-control form-control-sm w-100" id="secondCashDeskPrimaryKey" name="secondCashDeskPrimaryKey" required
+                    
+                    [disabled]="selectedRecord.type == 'open'"
                     [(ngModel)]="selectedRecord.secondCashDeskPrimaryKey">
+                    <option value="-1">Lütfen Seçiniz</option>
                         <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen kasa seçiniz.</div>
-                </div>
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
-                </div>
-                <div class="col-sm-3">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
-                    [disabled]="f.valid"
-                    [(ngModel)]="selectedRecord.type">
-                        <option value="open">Açılış</option>
-                        <option value="transfer">Transfer</option>
-                    </select>
-                    <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
-                </div>
-                <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="typeTr">İşlem Tipi</label>
-                </div>
-                <div class="col-sm-3">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
-                    [disabled]="f.valid"
-                    [(ngModel)]="selectedRecord.transactionType">
-                        <option value="creditVoucher">Alacaklandırma</option>
-                        <option value="debitVoucher">Borçlandırma</option>
-                    </select>
-                    <div class="invalid-feedback invalid-inpput-info">Lütfen işlem seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
@@ -118,7 +123,7 @@
                     <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy.MM.dd'}}</label>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>

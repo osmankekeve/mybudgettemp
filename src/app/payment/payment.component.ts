@@ -11,6 +11,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
+import { PaymentMainModel } from '../models/payment-main-model';
 
 @Component({
   selector: 'app-payment',
@@ -18,16 +19,12 @@ import { InformationService } from '../services/information.service';
   styleUrls: ['./payment.component.css']
 })
 export class PaymentComponent implements OnInit, OnDestroy {
-  mainList$: Observable<PaymentModel[]>;
+  mainList: Array<PaymentModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
   customerList$: Observable<CustomerModel[]>;
   collection: AngularFirestoreCollection<PaymentModel>;
   selectedRecord: PaymentModel;
-  selested: PaymentModel;
-  selectedRecordSubItems: {
-    customerName: string,
-    typeTr: string
-  };
+  refModel: PaymentModel;
   isRecordHasTransacton = false;
 
   constructor(public authServis: AuthenticationService,
@@ -41,25 +38,32 @@ export class PaymentComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.populateList();
     this.selectedRecord = undefined;
-    this.cashDeskList$ = this.cdService.getAllItems();
     this.customerList$ = this.cService.getAllItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
   }
 
-  ngOnDestroy(): void {
-    this.mainList$.subscribe();
-  }
+  ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.returnData.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.data as PaymentModel;
-    this.selectedRecordSubItems = {
-      customerName : record.customerName,
-      typeTr : this.selectedRecord.type
-    };
+    this.selectedRecord = record.returnData as PaymentModel;
+    this.refModel = record.returnData as PaymentModel;
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -140,6 +144,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
+    this.refModel = undefined;
     this.isRecordHasTransacton = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '', cashDeskPrimaryKey: '', receiptNo: '',
     type: '', description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};

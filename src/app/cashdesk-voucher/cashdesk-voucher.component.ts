@@ -43,13 +43,12 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList$ = undefined;
     this.mainList$ = this.service.getItems();
-    this.mainList$.subscribe(list => {
-      console.log(list);
-    });
   }
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as CashdeskVoucherModel;
+    if (this.selectedRecord.type === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
+    console.log(record);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -130,8 +129,11 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransacton = false;
-    this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '-1',
+    this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '',
     receiptNo: '', type: '-1', description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
   }
 
+  onChangeVoucherType(record: any): void {
+    if (record === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
+  }
 }
