@@ -82,47 +82,51 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.selectedRecord.primaryKey = '';
+    if (this.selectedRecord.amount <= 0) {
+      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
+    } else {
+      if (this.selectedRecord.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.selectedRecord.primaryKey = '';
 
-      this.service.setItem(this.selectedRecord, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.selectedRecord.userPrimaryKey,
-          parentPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
-          parentType: 'cashDesk',
-          transactionPrimaryKey: newId,
-          transactionType: 'cashDeskVoucher',
-          amountType: this.selectedRecord.transactionType,
-          amount: this.selectedRecord.transactionType === 'credit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
-          cashDeskPrimaryKey: this.selectedRecord.type === 'open' ? '-1' : this.selectedRecord.secondCashDeskPrimaryKey,
-          receiptNo: this.selectedRecord.receiptNo,
-          insertDate: this.selectedRecord.insertDate
-        }).then(() => {
-          if (this.selectedRecord.type === 'transfer') {
-            this.db.collection('tblAccountTransaction').add({
-              primaryKey: '',
-              userPrimaryKey: this.selectedRecord.userPrimaryKey,
-              parentPrimaryKey: this.selectedRecord.secondCashDeskPrimaryKey,
-              parentType: 'cashDesk',
-              transactionPrimaryKey: newId,
-              transactionType: 'cashDeskVoucher',
-              amountType: this.selectedRecord.transactionType,
-              amount: this.selectedRecord.transactionType === 'debit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
-              cashDeskPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
-              receiptNo: this.selectedRecord.receiptNo,
-              insertDate: this.selectedRecord.insertDate
-            }).then(() => {
+        this.service.setItem(this.selectedRecord, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.selectedRecord.userPrimaryKey,
+            parentPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
+            parentType: 'cashDesk',
+            transactionPrimaryKey: newId,
+            transactionType: 'cashDeskVoucher',
+            amountType: this.selectedRecord.transactionType,
+            amount: this.selectedRecord.transactionType === 'credit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
+            cashDeskPrimaryKey: this.selectedRecord.type === 'open' ? '-1' : this.selectedRecord.secondCashDeskPrimaryKey,
+            receiptNo: this.selectedRecord.receiptNo,
+            insertDate: this.selectedRecord.insertDate
+          }).then(() => {
+            if (this.selectedRecord.type === 'transfer') {
+              this.db.collection('tblAccountTransaction').add({
+                primaryKey: '',
+                userPrimaryKey: this.selectedRecord.userPrimaryKey,
+                parentPrimaryKey: this.selectedRecord.secondCashDeskPrimaryKey,
+                parentType: 'cashDesk',
+                transactionPrimaryKey: newId,
+                transactionType: 'cashDeskVoucher',
+                amountType: this.selectedRecord.transactionType,
+                amount: this.selectedRecord.transactionType === 'debit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
+                cashDeskPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
+                receiptNo: this.selectedRecord.receiptNo,
+                insertDate: this.selectedRecord.insertDate
+              }).then(() => {
+                this.infoService.success('Fiş başarıyla kaydedildi.');
+                this.selectedRecord = undefined;
+              }).catch(err => this.infoService.error(err));
+            } else {
               this.infoService.success('Fiş başarıyla kaydedildi.');
               this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-          } else {
-            this.infoService.success('Fiş başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-          }
+            }
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
+      }
     }
   }
 

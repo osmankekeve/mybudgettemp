@@ -88,45 +88,51 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   btnSave_Click(): void {
     const data = this.selectedRecord;
-    if (this.selectedRecord.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.selectedRecord.primaryKey = '';
-      this.service.setItem(this.selectedRecord, newId).then(() => {
-        const trans = {
-          primaryKey: '',
-          userPrimaryKey: data.userPrimaryKey,
-          receiptNo: data.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'purchaseInvoice',
-          parentPrimaryKey: data.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: '-1',
-          amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
-          amountType: this.selectedRecord.type === 'purchase' ? 'credit' : 'debit',
-          insertDate: data.insertDate,
-        };
-        this.db.collection('tblAccountTransaction').add(trans).then(() => {
-          this.infoService.success('Fatura başarıyla kaydedildi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
-
+    if (data.totalPrice <= 0) {
+      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
+    } else if (data.totalPrice <= 0) {
+      this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
     } else {
-      this.service.updateItem(this.selectedRecord).then(() => {
-        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            const trans = {
-              receiptNo: data.receiptNo,
-              amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
-            };
-            this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-              this.infoService.success('Fatura başarıyla güncellendi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
+      if (this.selectedRecord.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.selectedRecord.primaryKey = '';
+        this.service.setItem(this.selectedRecord, newId).then(() => {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: data.userPrimaryKey,
+            receiptNo: data.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'purchaseInvoice',
+            parentPrimaryKey: data.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: '-1',
+            amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
+            amountType: this.selectedRecord.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: data.insertDate,
+          };
+          this.db.collection('tblAccountTransaction').add(trans).then(() => {
+            this.infoService.success('Fatura başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err));
+  
+      } else {
+        this.service.updateItem(this.selectedRecord).then(() => {
+          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+          ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+            list.forEach((item) => {
+              const trans = {
+                receiptNo: data.receiptNo,
+                amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
+              };
+              this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+                this.infoService.success('Fatura başarıyla güncellendi.');
+                this.selectedRecord = undefined;
+              }).catch(err => this.infoService.error(err));
+            });
           });
-        });
-      }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err));
+      }
     }
   }
 
