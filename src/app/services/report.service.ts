@@ -22,38 +22,4 @@ export class ReportService {
               public db: AngularFirestore) {
 
   }
-
-  getItems(): Observable<SalesInvoiceModel[]> {
-
-    this.customerService.getAllItems().toPromise().then(list => {
-      list.forEach(customer => {
-        this.db.collection('tblAccountTransaction', ref => ref.where('parentPrimaryKey', '==', customer.primaryKey));
-
-      });
-
-
-
-
-
-    });
-
-
-
-
-
-
-
-
-    this.listCollection = this.db.collection('tblSalesInvoice',
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
-      return changes.map( change => {
-        const data = change.payload.doc.data() as SalesInvoiceModel;
-        data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges().pipe(map( (customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name}); }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
-  }
 }

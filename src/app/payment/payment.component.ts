@@ -85,47 +85,51 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   btnSave_Click(): void {
     const data = this.selectedRecord;
-    if (this.selectedRecord.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.selectedRecord.primaryKey = '';
-      this.db.collection('tblPayment').doc(newId).set(this.selectedRecord).then(() => {
-        const trans = {
-          primaryKey: '',
-          userPrimaryKey: data.userPrimaryKey,
-          receiptNo: data.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'payment',
-          parentPrimaryKey: data.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: data.cashDeskPrimaryKey,
-          amount: data.amount * -1,
-          amountType: 'debit',
-          insertDate: data.insertDate,
-        };
-        this.db.collection('tblAccountTransaction').add(trans).then(() => {
-          this.infoService.success('Ödeme başarıyla kaydedildi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
-
+    if (data.amount <= 0) {
+      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else {
-      this.service.updateItem(this.selectedRecord).then(() => {
-        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            const trans = {
-              receiptNo: data.receiptNo,
-              cashDeskPrimaryKey: data.cashDeskPrimaryKey,
-              amount: data.amount * -1,
-            };
-            this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-              this.infoService.success('Ödeme başarıyla güncellendi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-
+      if (this.selectedRecord.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.selectedRecord.primaryKey = '';
+        this.db.collection('tblPayment').doc(newId).set(this.selectedRecord).then(() => {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: data.userPrimaryKey,
+            receiptNo: data.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'payment',
+            parentPrimaryKey: data.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+            amount: data.amount * -1,
+            amountType: 'debit',
+            insertDate: data.insertDate,
+          };
+          this.db.collection('tblAccountTransaction').add(trans).then(() => {
+            this.infoService.success('Ödeme başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err));
+  
+      } else {
+        this.service.updateItem(this.selectedRecord).then(() => {
+          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+          ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+            list.forEach((item) => {
+              const trans = {
+                receiptNo: data.receiptNo,
+                cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+                amount: data.amount * -1,
+              };
+              this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+                this.infoService.success('Ödeme başarıyla güncellendi.');
+                this.selectedRecord = undefined;
+              }).catch(err => this.infoService.error(err));
+  
+            });
           });
-        });
-      }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err));
+      }
     }
   }
 
