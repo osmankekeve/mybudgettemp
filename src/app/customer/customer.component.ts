@@ -25,8 +25,9 @@ import { CashDeskService } from '../services/cash-desk.service';
 })
 
 export class CustomerComponent implements OnInit  {
-  mainList$: Observable<CustomerModel[]>;
+  mainList: Array<CustomerModel>;
   selectedCustomer: CustomerModel;
+  refModel: CustomerModel;
   newSalesInvoice: SalesInvoiceModel;
   newPurchaseInvoice: PurchaseInvoiceModel;
   newCollection: CollectionModel;
@@ -60,13 +61,26 @@ export class CustomerComponent implements OnInit  {
 
   populateCustomerList(): void {
     this.openedPanel = 'dashboard';
-    this.mainList$ = undefined;
-    this.mainList$ = this.customerService.getAllItems();
+    this.mainList = [];
+    this.customerService.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
 
   }
 
-  showSelectedCustomer(customer: CustomerModel): void {
-    this.selectedCustomer = customer;
+  showSelectedCustomer(customer: any): void {
+    this.selectedCustomer = customer.data as CustomerModel;
+    this.refModel = customer.data as CustomerModel;
 
     this.purchaseInvoiceList$ = undefined;
     this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.primaryKey);
@@ -244,6 +258,7 @@ export class CustomerComponent implements OnInit  {
   }
 
   clearSelectedCustomer(): void {
+    this.refModel = undefined;
     this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: ''};
   }
 

@@ -17,10 +17,11 @@ import { CashdeskVoucherService } from '../services/cashdesk-voucher.service';
   styleUrls: ['./cashdesk-voucher.component.css']
 })
 export class CashdeskVoucherComponent implements OnInit, OnDestroy {
-  mainList$: Observable<CashdeskVoucherModel[]>;
+  mainList: Array<CashdeskVoucherModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
   recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CashdeskVoucherModel;
+  refModel: CashdeskVoucherModel;
   isRecordHasTransacton = false;
 
   constructor(public authServis: AuthenticationService,
@@ -37,16 +38,28 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.mainList$.subscribe();
   }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as CashdeskVoucherModel;
+    this.refModel = record.data as CashdeskVoucherModel;
     if (this.selectedRecord.type === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
     console.log(record);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
@@ -129,6 +142,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransacton = false;
+    this.refModel = undefined;
     this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '',
     receiptNo: '', type: '-1', description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
   }

@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group">
+        <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
                 <div class="list-group-item bg-warning text-light">
                         <div class="row">
                             <div class="col-sm-1">Sıra</div>

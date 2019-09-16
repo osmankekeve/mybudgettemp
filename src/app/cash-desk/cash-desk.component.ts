@@ -6,6 +6,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
+import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
   selector: 'app-cash-desk',
@@ -13,13 +14,14 @@ import { InformationService } from '../services/information.service';
   styleUrls: ['./cash-desk.component.css']
 })
 export class CashDeskComponent implements OnInit, OnDestroy {
-  mainList$: Observable<CashDeskModel[]>;
+  mainList: Array<CashDeskModel>;
   collection: AngularFirestoreCollection<CashDeskModel>;
   transactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CashDeskModel;
+  refModel: CashDeskModel;
   openedPanel: any;
 
-  constructor(public service: CashDeskService,
+  constructor(public authServis: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public db: AngularFirestore) { }
@@ -29,18 +31,30 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void {
-    this.mainList$.subscribe();
-  }
+  ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList$ = undefined;
-    this.mainList$ = this.service.getAllItems();
+    this.mainList = [];
+    this.service.getMainItems().subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+        } else if (item.data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record as CashDeskModel;
+    this.selectedRecord = record.data as CashDeskModel;
+    this.refModel = record.data as CashDeskModel;
+    console.log(this.selectedRecord);
   }
 
   btnReturnList_Click(): void {
@@ -81,7 +95,10 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: ''};
+    this.openedPanel = 'mainPanel';
+    this.refModel = undefined;
+    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authServis.getUid()};
+    console.log(this.selectedRecord);
   }
 
   onClickShowTransactionReport(): void {

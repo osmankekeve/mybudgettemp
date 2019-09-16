@@ -50,17 +50,15 @@ export class CashdeskVoucherService {
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
-  getItems(): Observable<CashdeskVoucherModel[]> {
+  getMainItems(): Observable<CashdeskVoucherModel[]> {
     this.listCollection = this.db.collection('tblCashDeskVoucher',
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(map(changes  => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
-            return Object.assign({data, casDeskName: item.name}); }));
-            /* data.customer = customer;
-            return Object.assign({data}); })); */
+          return Object.assign({data, casDeskName: item.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

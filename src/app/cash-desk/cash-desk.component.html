@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
+        <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
                 <div class="list-group-item bg-dark text-light">
                         <div class="row">
                             <div class="col-sm-4">Name</div>
@@ -25,7 +25,7 @@
                 (click)="showSelectedRecord(item)"
                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
                 <div class="row">
-                    <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}})</span> {{item.name}}</div>
+                    <div class="col-sm-4"><span class="text-bold text-dark">{{i+1}})</span> {{item.data.name}}</div>
 
                 </div>
             </div>

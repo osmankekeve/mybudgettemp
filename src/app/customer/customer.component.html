@@ -13,10 +13,12 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="list-group" *ngIf="mainList$ | async; let mainList; else elseBlock">
+        <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
             <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
             (click)="showSelectedCustomer(customer)"
-            *ngFor="let customer of mainList; index as i; trackBy: primaryKey"><span class="text-dark">{{i+1}}) {{customer.name}}</span> - <small class="text-muted">{{customer.owner}}</small></div>
+            *ngFor="let customer of mainList; index as i; trackBy: primaryKey">
+                <span class="text-dark">{{i+1}}) {{customer.data.name}}</span> - 
+                <small class="text-muted">{{customer.data.owner}}</small></div>
         </div>
         <ng-template #elseBlock>
             <div class="card bg-danger text-white">
