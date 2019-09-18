@@ -4,6 +4,7 @@ import { InformationService } from '../services/information.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerService } from '../services/customer.service';
 import { CustomerModel } from '../models/customer-model';
+import { AccountTransactionModel } from '../models/account-transaction-model';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -30,19 +31,62 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.mainList = [];
     this.selectedReport = data;
     if (data === 'accountReport') {
-      this.customerList$.subscribe(list => {
-        list.forEach(customer => {
+      this.customerService.getAllItems().subscribe(list => {
+        list.forEach(async customer => {
           const dataReport = {stringField1: '', numberField1 : 0};
           dataReport.stringField1 = customer.name;
-          this.db.collection('tblAccountTransaction', ref =>
+          await this.db.collection('tblAccountTransaction', ref =>
           ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
           .subscribe(listTrans => {
             listTrans.forEach(item => {
               dataReport.numberField1 += item.data().amount;
             });
+            this.mainList.push(dataReport);
           });
-          console.log(dataReport);
-          this.mainList.push(dataReport);
+        });
+      });
+    } else if (data === 'purchaseReport') {
+      this.customerService.getAllItems().subscribe(list => {
+        list.forEach(async customer => {
+          const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
+          dataReport.stringField1 = customer.name;
+          await this.db.collection('tblAccountTransaction', ref =>
+          ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
+          .subscribe(listTrans => {
+            listTrans.forEach(item => {
+              // tslint:disable-next-line: no-shadowed-variable
+              const data = item.data() as AccountTransactionModel;
+              if (data.transactionType === 'purchaseInvoice' || data.transactionType === 'payment') {
+
+                if (data.amount > 0 ) {dataReport.numberField1 += item.data().amount; }
+                if (data.amount < 0 ) {dataReport.numberField2 += item.data().amount; }
+                dataReport.numberField3 += item.data().amount;
+              }
+            });
+            this.mainList.push(dataReport);
+          });
+        });
+      });
+    } else if (data === 'salesReport') {
+      this.customerService.getAllItems().subscribe(list => {
+        list.forEach(async customer => {
+          const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
+          dataReport.stringField1 = customer.name;
+          await this.db.collection('tblAccountTransaction', ref =>
+          ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
+          .subscribe(listTrans => {
+            listTrans.forEach(item => {
+              // tslint:disable-next-line: no-shadowed-variable
+              const data = item.data() as AccountTransactionModel;
+              if (data.transactionType === 'salesInvoice' || data.transactionType === 'collection') {
+
+                if (data.amount > 0 ) {dataReport.numberField1 += item.data().amount; }
+                if (data.amount < 0 ) {dataReport.numberField2 += item.data().amount; }
+                dataReport.numberField3 += item.data().amount;
+              }
+            });
+            this.mainList.push(dataReport);
+          });
         });
       });
     } else {
