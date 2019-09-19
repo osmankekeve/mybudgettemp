@@ -20,9 +20,9 @@
                             <div class="col-sm-1">Sıra</div>
                             <div class="col-sm-3">Müşteri Adı</div>
                             <div class="col-sm-2">Fiş Numarası</div>
-                            <div class="col-sm-2">Tutar</div>
-                            <div class="col-sm-2">Tutar (+KDV)</div>
-                            <div class="col-sm-2">Tarih</div>
+                            <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+                            <div class="col-sm-2"><span class="float-right">Tutar (+KDV)</span></div>
+                            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
         
                         </div>
                 </div>
@@ -33,9 +33,9 @@
                     <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}}</span></div>
                     <div class="col-sm-3">{{item.customerName}}</div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | number}} ₺</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></div>
-                    <div class="col-sm-2">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}} ₺</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
 
                 </div>
             </div>
@@ -100,7 +100,7 @@
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number"
+                    <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number" step="any"
                         [(ngModel)]="selectedRecord.totalPrice" required>
                         <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -108,7 +108,7 @@
                     <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax"
+                    <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" step="any"
                         type="number" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -116,7 +116,7 @@
                     <label class="col-form-label float-left" for="insertDate">Record Date</label>
                 </div>
                 <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy.MM.dd'}}</label>
                 </div>
                 <div class="col-sm-6"></div>
                 <div class="col-sm-3">

@@ -38,7 +38,8 @@ export class CustomerService {
   }
 
   getMainItems(): Observable<CustomerModel[]> {
-    this.listCollection = this.db.collection('tblCustomer', ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.listCollection = this.db.collection('tblCustomer', ref => ref.where('userPrimaryKey', '==', this.authServis.getUid())
+    .orderBy('name', 'asc'));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CustomerModel;

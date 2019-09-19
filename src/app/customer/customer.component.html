@@ -86,7 +86,7 @@
                                                             <img src="../../assets/images/sales_invoice.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Satış Faturası</p>
-                                                        <h5 class="card-title">{{siAmount | number}} <small>₺</small></h5>
+                                                        <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -102,7 +102,7 @@
                                                             <img src="../../assets/images/collection.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Tahsilat</p>
-                                                        <h5 class="card-title">{{colAmount | number}} <small>₺</small></h5>
+                                                        <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -118,7 +118,7 @@
                                                             <img src="../../assets/images/purchase_invoice.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Alım Faturası</p>
-                                                        <h5 class="card-title">{{purchaseInvoiceAmount | number}} <small>₺</small></h5>
+                                                        <h5 class="card-title">{{purchaseInvoiceAmount | currency:'₺'}}</h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -134,7 +134,7 @@
                                                             <img src="../../assets/images/payment.png" width="30px">
                                                         </div>
                                                         <p class="card-category">Ödeme</p>
-                                                        <h5 class="card-title">{{payAmount | number}} <small>₺</small></h5>
+                                                        <h5 class="card-title">{{payAmount | currency:'₺'}}</h5>
                                                     </div>
                                                     <div class="card-footer">
                                                         <div class="stats">
@@ -184,7 +184,7 @@
                                                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                                                 </div>
                                                 <div class="col-sm-3">
-                                                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" 
+                                                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number"  step="any"
                                                         [(ngModel)]="newSalesInvoice.totalPrice" required>
                                                     <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                                 </div>
@@ -192,7 +192,7 @@
                                                     <label class="col-form-label float-left" for="totalPrice">Tutar (+KDV)</label>
                                                 </div>
                                                 <div class="col-sm-3">
-                                                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" 
+                                                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number"  step="any"
                                                         [(ngModel)]="newSalesInvoice.totalPriceWithTax" required>
                                                     <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                                 </div>
@@ -225,7 +225,7 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                                                 <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
@@ -290,7 +290,7 @@
                                                 <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
+                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
                                                     [(ngModel)]="newCollection.amount" required>
                                                 <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                             </div>
@@ -330,7 +330,7 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                                                 <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
@@ -382,7 +382,7 @@
                                                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                                                 </div>
                                                 <div class="col-sm-3">
-                                                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" 
+                                                    <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number" step="any"
                                                         [(ngModel)]="newPurchaseInvoice.totalPrice" required>
                                                     <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                                 </div>
@@ -390,7 +390,7 @@
                                                     <label class="col-form-label float-left" for="totalPrice">Tutar (+KDV)</label>
                                                 </div>
                                                 <div class="col-sm-3">
-                                                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" 
+                                                    <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax" type="number" step="any"
                                                         [(ngModel)]="newPurchaseInvoice.totalPriceWithTax" required>
                                                     <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                                 </div>
@@ -423,7 +423,7 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                                                 <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>
@@ -487,7 +487,7 @@
                                                 <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                                             </div>
                                             <div class="col-sm-3">
-                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number"
+                                                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
                                                     [(ngModel)]="newPayment.amount" required>
                                                 <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
                                             </div>
@@ -527,7 +527,7 @@
                                             <tbody>
                                               <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                                                 <td>{{item.receiptNo}}</td>
-                                                <td><span class="float-right">{{item.amount | number}} ₺</span></td>
+                                                <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                                                 <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                                               </tr>
                                             </tbody>

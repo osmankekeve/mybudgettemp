@@ -31,9 +31,9 @@
                             <td>#</td>
                             <td scope="row">{{item.customerName}}</td>
                             <td>{{item.data.receiptNo}}</td>
-                            <td><span class="float-right">{{item.data.totalPrice | number}} ₺</span></td>
-                            <td><span class="float-right">{{item.data.totalPriceWithTax | number}} ₺</span></td>
-                            <td><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></td>
+                            <td><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></td>
+                            <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
+                            <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                           </tr>
                           <tr>
                         </tbody>
@@ -91,7 +91,7 @@
                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                    <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text" step="any"
                         [(ngModel)]="selectedRecord.receiptNo" required>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -99,7 +99,7 @@
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                 </div>
                 <div class="col-sm-3">
-                    <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number"
+                    <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number" step="any"
                         [(ngModel)]="selectedRecord.totalPrice" required>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
@@ -108,14 +108,14 @@
                 </div>
                 <div class="col-sm-3">
                     <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax"
-                        type="number" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
+                        type="number" step="any" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
                     <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
                 </div>
                 <div class="col-sm-9">
-                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy-MM-dd'}}</label>
+                    <label class="col-form-label float-left" for="insertDate">{{selectedRecord.insertDate | date: 'yyyy.MM.dd'}}</label>
                 </div>
                 <div class="col-sm-3">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
