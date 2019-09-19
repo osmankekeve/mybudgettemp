@@ -27,33 +27,6 @@ export class DashoardComponent implements OnInit, OnDestroy {
               public atService: AccountTransactionService) { }
 
   ngOnInit() {
-    this.LineChart = new Chart('lineChart', {
-      type: 'line',
-    data: {
-     labels: ['Jan', 'Feb', 'March', 'April', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-     datasets: [{
-         label: 'Number of Items Sold in Months',
-         data: [9, 7 , 3, 5, 2, 10, 15, 16, 19, 3, 1, 9],
-         fill: false,
-         lineTension: 0.2,
-         borderColor: 'red',
-         borderWidth: 1
-     }]
-    },
-    options: {
-     title: {
-         text: 'Line Chart',
-         display: true
-     },
-     scales: {
-         yAxes: [{
-             ticks: {
-                 beginAtZero: true
-             }
-         }]
-     }
-    }
-    });
     // Bar chart:
     this.BarChart = new Chart('barChart', {
     type: 'bar',
@@ -167,9 +140,71 @@ export class DashoardComponent implements OnInit, OnDestroy {
         });
     });
 
+    const date = new Date();
+    const chartData = [{month: 0, amount: 0}, {month: 0, amount: 0},
+        {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0},
+        {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0},
+        {month: 0, amount: 0}, {month: 0, amount: 0}];
+
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 1; i <= 12; i++) {
+        const startDate = new Date(date.getFullYear(), i, 1);
+        const endDate = new Date(date.getFullYear(), i + 1, 0);
+        chartData[i - 1].month += i;
+
+        this.atService.getOnDayTransactionsBetweenDates(startDate, endDate).subscribe(list => {
+            list.forEach(item => {
+                if (item.transactionType === 'payment') {
+                    chartData[i - 1].amount += item.amount;
+                }
+            });
+
+            this.LineChart = undefined;
+            this.LineChart = new Chart('lineChart', {
+                type: 'line',
+              data: {
+               labels: [chartData[0].month.toString(), chartData[1].month.toString(), chartData[2].month.toString(),
+               chartData[3].month.toString(), chartData[4].month.toString(), chartData[5].month.toString(), chartData[6].month.toString(),
+               chartData[7].month.toString(), chartData[8].month.toString(), chartData[9].month.toString(), chartData[10].month.toString(),
+               chartData[11].month.toString()],
+               datasets: [{
+                   label: 'Tutar',
+                   data: [chartData[0].amount, chartData[1].amount, chartData[2].amount, chartData[3].amount, chartData[4].amount
+                   , chartData[5].amount, chartData[6].amount, chartData[7].amount, chartData[8].amount, chartData[9].amount
+                   , chartData[10].amount, chartData[11].amount
+                    ],
+                   fill: false,
+                   lineTension: 0.2,
+                   borderColor: 'red',
+                   borderWidth: 1
+               }]
+              },
+              options: {
+               title: {
+                   text: 'Aylık Ödeme Giderleri',
+                   display: true
+               },
+               scales: {
+                   yAxes: [{
+                       ticks: {
+                           beginAtZero: true
+                       }
+                   }]
+               }
+              }
+              });
+        });
+    }
   }
 
   ngOnDestroy(): void {
+  }
+
+  showMonthyPaymentsOnChart(): void {
+    const date = new Date();
+    const jenStartDate = new Date(date.getFullYear(), 1, 1);
+    const jenEndDate = new Date(date.getFullYear(), 2, 0);
+
   }
 
 }
