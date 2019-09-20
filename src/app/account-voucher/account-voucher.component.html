@@ -5,7 +5,7 @@
                 <h5 class="card-title">Cari Fiş Listesi</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Tahsilat Ara.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Müşteri Ara.." [(ngModel)]="searchText"/>
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+ Yeni Cari Fiş</button>
@@ -26,7 +26,7 @@
                 </div>
             <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                 (click)="showSelectedRecord(item)"
-                *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
                     <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
                     <div class="col-sm-5">{{item.customerName}}</div>

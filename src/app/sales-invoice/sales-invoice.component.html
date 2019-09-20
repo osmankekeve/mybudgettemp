@@ -5,7 +5,7 @@
                 <h5 class="card-title">Satış Faturası Listesi</h5>
             </div>
             <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Fatura Ara.." />
+                <input type="text" class="form-control form-control-sm" placeholder="Müşteri Ara.." [(ngModel)]="searchText" />
             </div>
             <div class="col-sm-3">
                 <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+ Yeni Fatura</button>
@@ -27,7 +27,7 @@
                         </thead>
                         <tbody>
                           <tr class="cursor-pointer" (click)="showSelectedRecord(item)"
-                          *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                          *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                             <td>#</td>
                             <td scope="row">{{item.customerName}}</td>
                             <td>{{item.data.receiptNo}}</td>

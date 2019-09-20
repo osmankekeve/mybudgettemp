@@ -12,6 +12,8 @@ import { SideNavBarComponent } from './side-nav-bar/side-nav-bar.component';
 import { environment } from 'src/environments/environment';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { InformationService } from './services/information.service';
+import { CustomerDataFilterPipe } from './filters/customer-data-filter.pipe';
+import { CustomerFilterPipe } from './filters/customer-filter.pipe';
 
 
 @NgModule({
@@ -20,6 +22,8 @@ import { InformationService } from './services/information.service';
     routingComponents,
     NavBarComponent,
     SideNavBarComponent,
+    CustomerDataFilterPipe,
+    CustomerFilterPipe
   ],
   imports: [
     BrowserModule,

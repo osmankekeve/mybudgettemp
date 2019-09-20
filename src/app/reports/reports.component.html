@@ -47,6 +47,32 @@
                     </div>
                 </div>
             </div>
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('paymentReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Gider Raporu</div>
+                            <small class="text-secondary">Müşteri Detayında Aylık Gideri Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('collectionReport')">
+                <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                    <div class="row">
+                        <div class="col-sm-2">
+                                <img src="../../assets/images/report_icon_2.png" width="50px"/>
+                        </div>
+                        <div class="col-sm-10">
+                            <div>Gelir Raporu</div>
+                            <small class="text-secondary">Müşteri Detayında Aylık Geliri Raporlar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -71,40 +97,83 @@
                         <h5>Filtre</h5>
                     </div>
                     <div class="card-body">
+                        <div class="form-row form-inline">
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="customerName">Yıl</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <select class="form-control form-control-sm w-100"
+                                [(ngModel)]="yearFilter">
+                                    <option [value]="2016">2016</option>
+                                    <option [value]="2017">2017</option>
+                                    <option [value]="2018">2018</option>
+                                    <option [value]="2019">2019</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-3">
+                                <label class="col-form-label float-left" for="customerName">Ay</label>
+                            </div>
+                            <div class="col-sm-9">
+                                <select class="form-control form-control-sm w-100"
+                                [(ngModel)]="monthFilter">
+                                    <option [value]="0">1</option>
+                                    <option [value]="1">2</option>
+                                    <option [value]="2">3</option>
+                                    <option [value]="3">4</option>
+                                    <option [value]="4">5</option>
+                                    <option [value]="5">6</option>
+                                    <option [value]="6">7</option>
+                                    <option [value]="7">8</option>
+                                    <option [value]="8">9</option>
+                                    <option [value]="9">10</option>
+                                    <option [value]="10">11</option>
+                                    <option [value]="11">12</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" class="btn btn-primary btn-sm btn-block" (click)="btnFilter_Click()">Raporla</button>
+                            <button type="button" class="btn btn-danger btn-sm btn-block" (click)="btnClearFilter_Click()">Temizle</button>
+                        </div>
                     </div>
                 </div>
 
             </div>
             <div class="col-sm-9">
-                    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-                            <div class="list-group-item bg-success text-light">
-                                    <div class="row">
-                                        <div class="col-sm-1">Sıra</div>
-                                        <div class="col-sm-5">Müşteri Adı</div>
-                                        <div class="col-sm-2"><span class="float-right">Fatura</span></div>
-                                        <div class="col-sm-2" *ngIf="selectedReport != 'accountReport'"><span class="float-right">Ödeme</span></div>
-                                        <div class="col-sm-2" *ngIf="selectedReport != 'accountReport'"><span class="float-right">Bakiye</span></div>
-                    
-                                    </div>
-                            </div>
-                        <div class="list-group-item list-group-item-action list-group-item-light"
-                            (click)="showSelectedRecord(item)"
-                            *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-                            <div class="row">
-                                <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
-                                <div class="col-sm-5">{{item.stringField1}}</div>
-                                <div class="col-sm-2"><span class="float-right">{{item.numberField1 | number}} ₺</span></div>
-                                <div class="col-sm-2" *ngIf="selectedReport != 'accountReport'"><span class="float-right">{{item.numberField2 | number}} ₺</span></div>
-                                <div class="col-sm-2" *ngIf="selectedReport != 'accountReport'"><span class="float-right">{{item.numberField3 | number}} ₺</span></div>
-            
-                            </div>
+                <div *ngIf="!mainList">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">Rapor oluşturuluyor, lütfen bekleyiniz.</div>
+                    </div>
+                </div>
+                <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+                        <div class="list-group-item bg-success text-light">
+                                <div class="row">
+                                    <div class="col-sm-1">Sıra</div>
+                                    <div class="col-sm-5">Müşteri Adı</div>
+                                    <div class="col-sm-2"><span class="float-right">Fatura</span></div>
+                                    <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">Ödeme</span></div>
+                                    <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">Bakiye</span></div>
+                
+                                </div>
+                        </div>
+                    <div class="list-group-item list-group-item-action list-group-item-light"
+                        (click)="showSelectedRecord(item)"
+                        *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                        <div class="row">
+                            <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
+                            <div class="col-sm-5">{{item.stringField1}}</div>
+                            <div class="col-sm-2"><span class="float-right">{{item.numberField1 | number}} ₺</span></div>
+                            <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">{{item.numberField2 | number}} ₺</span></div>
+                            <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">{{item.numberField3 | number}} ₺</span></div>
+        
                         </div>
                     </div>
-                    <ng-template #elseBlock>
-                        <div class="card bg-danger text-white">
-                          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                        </div>
-                    </ng-template>
+                </div>
+                <ng-template #elseBlock>
+                    <div class="card bg-danger text-white">
+                      <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                    </div>
+                </ng-template>
             </div>
         </div>
 

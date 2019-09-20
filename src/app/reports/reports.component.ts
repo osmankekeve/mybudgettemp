@@ -14,6 +14,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
   selectedReport: any;
   mainList: Array<any> = [];
   customerList$: Observable<CustomerModel[]>;
+  yearFilter = new Date().getFullYear();
+  monthFilter = new Date().getMonth();
+
   constructor(public infoService: InformationService,
               public customerService: CustomerService,
               public db: AngularFirestore) { }
@@ -89,9 +92,45 @@ export class ReportsComponent implements OnInit, OnDestroy {
           });
         });
       });
+    } else if (data === 'paymentReport') {
+      const startDate = new Date(this.yearFilter, this.monthFilter, 1);
+      const endDate = new Date(this.yearFilter, this.monthFilter + 1, 0);
+      this.populateAccountTransactions(startDate, endDate, 'payment');
+    } else if (data === 'collectionReport') {
+      const startDate = new Date(this.yearFilter, this.monthFilter, 1);
+      const endDate = new Date(this.yearFilter, this.monthFilter + 1, 0);
+      this.populateAccountTransactions(startDate, endDate, 'collection');
     } else {
       //
     }
+  }
+
+  populateAccountTransactions(startDate: Date, endDate: Date, transactionType: string): void {
+    this.customerService.getAllItems().subscribe(list => {
+      list.forEach(async customer => {
+        const dataReport = {stringField1: '', numberField1 : 0};
+        dataReport.stringField1 = customer.name;
+        this.db.collection('tblAccountTransaction', ref =>
+        ref.where('parentPrimaryKey', '==', customer.primaryKey)
+        .where('parentType', '==', 'customer')
+        .where('transactionType', '==', transactionType)
+        .orderBy('insertDate', 'asc')
+        .startAt(startDate.getTime())
+        .endAt(endDate.getTime()))
+        .get()
+        .subscribe(listTrans => {
+          listTrans.forEach(item => {
+            dataReport.numberField1 += item.data().amount;
+          });
+          this.mainList.push(dataReport);
+        });
+      });
+    });
+
+  }
+
+  btnFilter_Click(): void {
+    this.onClickShowReport(this.selectedReport);
   }
 
   btnReturnList_Click(): void {

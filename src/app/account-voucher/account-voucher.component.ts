@@ -19,6 +19,7 @@ import { AccountVoucherService } from '../services/account-voucher.service';
 })
 export class AccountVoucherComponent implements OnInit, OnDestroy {
   mainList: Array<AccountVoucherModel>;
+  filteredMainList: Array<AccountVoucherModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
   recordTransactionList$: Observable<AccountTransactionModel[]>;
@@ -117,7 +118,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
             this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-  
+
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -131,7 +132,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
                 this.infoService.success('Fiş başarıyla güncellendi.');
                 this.selectedRecord = undefined;
               }).catch(err => this.infoService.error(err));
-  
+
             });
           });
         }).catch(err => this.infoService.error(err));
