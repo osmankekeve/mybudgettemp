@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         <div *ngIf="mainList.length > 0; else elseBlock">
-                <table class="table table-hover">
+                <table class="table table-hover table-striped table-bordered">
                         <thead>
                           <tr class="bg-warning text-light">
                             <th>#</th>
@@ -28,7 +28,11 @@
                         <tbody>
                           <tr class="cursor-pointer" (click)="showSelectedRecord(item)"
                           *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
-                            <td>#</td>
+                            <td>
+                                <a class="btn btn-sm btn-secondary" title="View and Edit">
+                                    <i class="fa fa-fw fa-edit text-white"></i>
+                                </a>
+                            </td>
                             <td scope="row">{{item.customerName}}</td>
                             <td>{{item.data.receiptNo}}</td>
                             <td><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></td>

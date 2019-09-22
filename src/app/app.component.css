@@ -1,0 +1,84 @@
+.navbar .collapse .navbar-nav .nav-item .nav-link .notification {
+    top: 0;
+}
+.navbar .notification {
+    position: absolute;
+    top: 5px;
+    border: 1px solid #fff;
+    right: 0px;
+    font-size: 9px;
+    background: #f44336;
+    color: #fff;
+    min-width: 20px;
+    padding: 0 5px;
+    height: 20px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 18px;
+    vertical-align: middle;
+    display: block;
+}
+.panelHightControl {
+    max-height: 380px;
+    overflow-y: scroll
+}
+
+@media (min-width: 576px) { /*xs*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 320px;
+        z-index: 1001
+    }
+}
+
+@media (min-width: 768px) { /*sm*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 320px;
+        z-index: 1001
+    }
+}
+
+@media (min-width: 992px) { /*md*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 320px;
+        z-index: 1001
+    }
+}
+
+@media (min-width: 1200px) { /*lg*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 320px;
+        z-index: 1001
+    }
+}
+
+@media (min-width: 1349px) { /*lg*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 320px;
+        z-index: 1001
+    }
+}
+
+@media (min-width: 1920px) { /*xlg*/
+    .notificationHeaderPanel {
+        position: absolute;
+        right: 15px;
+        top: 60px;
+        width: 350px;
+        z-index: 1001
+    }
+}

@@ -94,7 +94,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       if (this.selectedRecord.primaryKey === undefined) {
         const newId = this.db.createId();
         this.selectedRecord.primaryKey = '';
-  
+
         this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
@@ -114,7 +114,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
             this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-  
+
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',

@@ -11,7 +11,7 @@
 </div>
 <div *ngIf="userDetails">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
+    <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
@@ -22,8 +22,51 @@
                 
               </ul>
               <form class="form-inline my-2 my-lg-0">
+                  <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
+                      <li class="nav-item dropdown cursor-pointer">
+                        <a class="nav-link" (click)="showSnotificationPanel=true">
+                            <i class="fa fa-fw fa-bell text-white material-icons"></i>
+                            <span class="notification text-white">{{notificationCount}}</span>
+                        </a>
+                      </li>
+                      
+                    </ul>
                   <button type="button" class="btn btn-sm btn-danger" (click)="logoutUser()">Log Out</button>
               </form>
+              <div class="card notificationHeaderPanel" *ngIf="showSnotificationPanel==true" (mouseleave)="showSnotificationPanel=false">
+                  <div class="card-header bg-warning text-wight">
+                      <span>Bildirimler</span>
+                      <button class="btn btn-sm btn-warning my-2 my-sm-0 float-right">Tümünü Göster</button>
+                  </div>
+                  <div class="card-body bg-light panelHightControl">
+                      <div ng-show="notificationCount > 0; else elseBlock">                            
+                          <div class="list-group">
+                              <div class="list-group-item list-group-item-action list-group-item-light"
+                                  *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
+                                  style="font-size: 85%">
+                                  <div class="row">
+                                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute">
+                                      <i class="fa fa-fw fa-times text-danger"></i>
+                                    </a>
+                                      <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
+                                      <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>  
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      <ng-template #elseBlock>
+                          <div class="alert alert-danger" role="alert">
+                              Bidiriminiz bulunmamaktadır.
+                          </div>
+                      </ng-template>  
+
+                  </div>
+                  <div class="card-footer">
+                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
+                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
+                  </div>
+
+              </div>
             </div>
     </div>
   </nav>

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
+import { LogModel } from './models/log-model';
+import { LogService } from './services/log.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +9,8 @@ import { AuthenticationService } from './services/authentication.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  notificationList: Array<LogModel> = [];
+
   title = 'MyBudgetWeb';
   selectedVal: string;
   responseMessage = '';
@@ -15,9 +19,12 @@ export class AppComponent implements OnInit {
   passwordInput: string;
   isForgotPassword: boolean;
   userDetails: any;
+  notificationCount = 0;
+  showSnotificationPanel = false;
 
   constructor(
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private logService: LogService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -25,6 +32,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isUserLoggedIn();
+    this.populateNotificationList();
   }
 
   showMessage(type, msg) {
@@ -114,6 +122,26 @@ export class AppComponent implements OnInit {
       }, err => {
         this.showMessage('danger', err.message);
       });
+  }
+
+  populateNotificationList(): void {
+    const date = new Date();
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    this.logService.getNotificationsBetweenDates(start, end).subscribe(list => {
+      console.log(list);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.notificationCount ++;
+          this.notificationList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.notificationCount --;
+          this.notificationList.splice(this.notificationList.indexOf(item), 1);
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
 }

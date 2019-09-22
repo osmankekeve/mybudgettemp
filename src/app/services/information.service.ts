@@ -3,6 +3,9 @@ import { NavigationStart, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject } from 'rxjs';
 import { HtmlInfoComponent } from '../partials/html-info/html-info.component';
+import { LogService } from './log.service';
+import { LogModel } from '../models/log-model';
+import { AuthenticationService } from './authentication.service';
 
 /**
  * Alert Service
@@ -22,7 +25,9 @@ export class InformationService {
      * @param modalService: NgbModal
      */
     constructor(router: Router,
-                private readonly modalService: NgbModal) {
+                private authServis: AuthenticationService,
+                private readonly modalService: NgbModal,
+                private logService: LogService) {
         // clear alert message on route change
         router.events.subscribe(event => {
             if (event instanceof NavigationStart) {
