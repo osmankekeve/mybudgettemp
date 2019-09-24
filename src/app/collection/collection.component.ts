@@ -117,7 +117,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
             this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-  
+
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -132,7 +132,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
                 this.infoService.success('Tahsilat başarıyla kaydedildi.');
                 this.selectedRecord = undefined;
               }).catch(err => this.infoService.error(err));
-  
+
             });
           });
         }).catch(err => this.infoService.error(err));

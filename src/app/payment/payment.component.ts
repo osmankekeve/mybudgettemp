@@ -91,7 +91,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
       if (this.selectedRecord.primaryKey === undefined) {
         const newId = this.db.createId();
         this.selectedRecord.primaryKey = '';
-        this.db.collection('tblPayment').doc(newId).set(this.selectedRecord).then(() => {
+
+        this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
             userPrimaryKey: data.userPrimaryKey,
@@ -110,7 +111,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-  
+
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -125,7 +126,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
                 this.infoService.success('Ödeme başarıyla güncellendi.');
                 this.selectedRecord = undefined;
               }).catch(err => this.infoService.error(err));
-  
+
             });
           });
         }).catch(err => this.infoService.error(err));

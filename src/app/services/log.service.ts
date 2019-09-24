@@ -37,4 +37,88 @@ export class LogService {
  }), flatMap(feeds => combineLatest(feeds)));
    return this.mainList$;
  }
+
+ async sendToLog(record: any, proccess: string, systemModule: string) {
+   const item = new LogModel();
+   item.parentType = systemModule;
+   item.parentPrimaryKey = record.primaryKey;
+   item.type = 'notification';
+   item.userPrimaryKey = this.authServis.getUid();
+   item.isActive = true;
+   item.insertDate = Date.now();
+   if (systemModule === 'salesInvoice') {
+    item.log = record.receiptNo + ' fiş numaralı Satış Faturası ';
+
+   } else if (systemModule === 'collection') {
+    item.log = record.receiptNo + ' fiş numaralı Tahsilat ';
+
+   } else if (systemModule === 'purchaseInvoice') {
+    item.log = record.receiptNo + ' fiş numaralı Alım Faturası ';
+
+   } else if (systemModule === 'payment') {
+    item.log = record.receiptNo + ' fiş numaralı Ödeme ';
+
+   } else if (systemModule === 'customer') {
+    item.log = record.receiptNo + ' fiş numaralı Müşteri ';
+
+   } else if (systemModule === 'cashDesk') {
+    item.log = record.receiptNo + ' fiş numaralı Kasa ';
+
+   } else if (systemModule === 'accountVoucher') {
+    item.log = record.receiptNo + ' fiş numaralı Hesap Fişi ';
+
+   } else if (systemModule === 'cashdeskVoucher') {
+    item.log = record.receiptNo + ' fiş numaralı Kasa Fişi ';
+
+   } else {
+    item.log = ' bilinmeyen modül ';
+
+   }
+
+   if (proccess === 'insert') {
+     item.log += 'oluşturuldu.';
+   }  else if (proccess === 'update') {
+    item.log += 'güncellendi.';
+   } else if (proccess === 'delete') {
+    item.log += 'kaldırıldı.';
+   } else {
+     //
+   }
+   return await this.setItem(item);
+ }
+
+ async updateItem(record: LogModel) {
+   return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+ }
+
+ getMainItems(): Observable<LogModel[]> {
+   this.listCollection = this.db.collection(this.tableName,
+   ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+   this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+     return changes.map( change => {
+       const data = change.payload.doc.data() as LogModel;
+       data.primaryKey = change.payload.doc.id;
+       return this.db.collection('tblCustomer').doc('-1').valueChanges()
+       .pipe(map( (customer: CustomerModel) => {
+         return Object.assign({data, actionType: change.type}); }));
+     });
+   }), flatMap(feeds => combineLatest(feeds)));
+   return this.mainList$;
+ }
+
+ getNotifications(): Observable<LogModel[]> {
+   this.listCollection = this.db.collection(this.tableName,
+   ref => ref.orderBy('insertDate').where('type', '==', 'notification').where('userPrimaryKey', '==', this.authServis.getUid()));
+   this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+     return changes.map( change => {
+       const data = change.payload.doc.data() as LogModel;
+       data.primaryKey = change.payload.doc.id;
+       return this.db.collection('tblCustomer').doc('-1').valueChanges()
+       .pipe(map( (customer: CustomerModel) => {
+         return Object.assign({data, actionType: change.type}); }));
+     });
+   }), flatMap(feeds => combineLatest(feeds)));
+   return this.mainList$;
+ }
+
 }

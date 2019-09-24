@@ -1,0 +1,35 @@
+<div class="card" *ngIf="!selectedReport">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-4">
+                <h5 class="card-title">Bildirimler</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+                <div class="list-group-item bg-success text-light">
+                        <div class="row">
+                            <div class="col-sm-1">Sıra</div>
+                            <div class="col-sm-9">Bildirim</div>
+                            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+        
+                        </div>
+                </div>
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                <div class="row">
+                    <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
+                    <div class="col-sm-9">{{item.data.log}}</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+
+                </div>
+            </div>
+        </div>
+        <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+        </ng-template>
+    </div>
+</div>

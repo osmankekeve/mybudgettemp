@@ -6,6 +6,7 @@ import { CashdeskVoucherModel } from '../models/cashdesk-voucher-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { CashDeskModel } from '../models/cash-desk-model';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class CashdeskVoucherService {
   mainList$: Observable<CashdeskVoucherModel[]>;
 
   constructor(public authServis: AuthenticationService,
+              public logService: LogService,
               public db: AngularFirestore) {
 
   }
@@ -35,18 +37,22 @@ export class CashdeskVoucherService {
   }
 
   async addItem(record: CashdeskVoucherModel) {
+    this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
     return await this.listCollection.add(record);
   }
 
   async removeItem(record: CashdeskVoucherModel) {
+    this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
     return await this.db.collection('tblCashDeskVoucher').doc(record.primaryKey).delete();
   }
 
   async updateItem(record: CashdeskVoucherModel) {
+    this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
     return await this.db.collection('tblCashDeskVoucher').doc(record.primaryKey).update(record);
   }
 
   async setItem(record: CashdeskVoucherModel, primaryKey: string) {
+    this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 

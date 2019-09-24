@@ -6,6 +6,7 @@ import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class PurchaseInvoiceService {
   customerList$: Observable<CustomerModel[]>;
 
   constructor(public authServis: AuthenticationService,
+              public logService: LogService,
               public db: AngularFirestore) {
 
   }
@@ -37,18 +39,22 @@ export class PurchaseInvoiceService {
   }
 
   async addItem(record: PurchaseInvoiceModel) {
+    this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
     return await this.listCollection.add(record);
   }
 
   async setItem(record: PurchaseInvoiceModel, primaryKey: string) {
+    this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
   async removeItem(record: PurchaseInvoiceModel) {
+    this.logService.sendToLog(record, 'delete', 'purchaseInvoice');
     return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).delete();
   }
 
   async updateItem(record: PurchaseInvoiceModel) {
+    this.logService.sendToLog(record, 'update', 'purchaseInvoice');
     return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).update(record);
   }
 

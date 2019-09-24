@@ -44,17 +44,17 @@ export class SalesInvoiceService {
   }
 
   async setItem(record: SalesInvoiceModel, primaryKey: string) {
-    this.sendToLog(record, 'insert');
+    this.logService.sendToLog(record, 'insert', 'salesInvoice');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
   async removeItem(record: SalesInvoiceModel) {
-    await this.sendToLog(record, 'delete');
+    await this.logService.sendToLog(record, 'delete', 'salesInvoice');
     return await this.db.collection('tblSalesInvoice').doc(record.primaryKey).delete();
   }
 
   async updateItem(record: SalesInvoiceModel) {
-    this.sendToLog(record, 'update');
+    this.logService.sendToLog(record, 'update', 'salesInvoice');
     return await this.db.collection('tblSalesInvoice').doc(record.primaryKey).update(record);
   }
 

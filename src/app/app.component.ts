@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from './services/authentication.service';
 import { LogModel } from './models/log-model';
 import { LogService } from './services/log.service';
+import { InformationService } from './services/information.service';
 
 @Component({
   selector: 'app-root',
@@ -24,6 +25,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authService: AuthenticationService,
+    public infoService: InformationService,
     private logService: LogService
   ) {
     this.selectedVal = 'login';
@@ -129,7 +131,6 @@ export class AppComponent implements OnInit {
     const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     this.logService.getNotificationsBetweenDates(start, end).subscribe(list => {
-      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.notificationCount ++;
@@ -142,6 +143,15 @@ export class AppComponent implements OnInit {
         }
       });
     });
+  }
+
+  setNotificationToPassive(item: any): void {
+    const refModel = item;
+    item.data.isActive = false;
+    this.logService.updateItem(item.data).then(() => {
+      this.notificationList.splice(this.notificationList.indexOf(refModel), 1);
+    }).catch(err => this.infoService.error(err));
+
   }
 
 }

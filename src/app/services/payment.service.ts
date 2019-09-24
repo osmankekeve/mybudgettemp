@@ -7,6 +7,7 @@ import { combineLatest } from 'rxjs';
 import { PaymentModel } from '../models/payment-model';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ export class PaymentService {
   atMod: AccountTransactionModel;
 
   constructor(public authServis: AuthenticationService,
+              public logService: LogService,
               public db: AngularFirestore) {
 
   }
@@ -40,6 +42,7 @@ export class PaymentService {
   }
 
   async addItem(record: PaymentModel) {
+    this.logService.sendToLog(record, 'insert', 'payment');
     return await this.listCollection.add(record);
   }
 
@@ -50,11 +53,18 @@ export class PaymentService {
         }).then().catch(err => console.error(err));
       }); */
 
+      this.logService.sendToLog(record, 'delete', 'payment');
       return await this.db.collection('tblPayment').doc(record.primaryKey).delete();
   }
 
   async updateItem(record: PaymentModel) {
+    this.logService.sendToLog(record, 'update', 'payment');
     return await this.db.collection('tblPayment').doc(record.primaryKey).update(record);
+  }
+
+  async setItem(record: PaymentModel, primaryKey: string) {
+    this.logService.sendToLog(record, 'insert', 'payment');
+    return await this.listCollection.doc(primaryKey).set(record);
   }
 
   getMainItems(): Observable<PaymentModel[]> {

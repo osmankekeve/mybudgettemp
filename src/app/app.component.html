@@ -35,8 +35,8 @@
               </form>
               <div class="card notificationHeaderPanel" *ngIf="showSnotificationPanel==true" (mouseleave)="showSnotificationPanel=false">
                   <div class="card-header bg-warning text-wight">
+                    <i class="fa fa-fw fa-bell material-icons"></i>
                       <span>Bildirimler</span>
-                      <button class="btn btn-sm btn-warning my-2 my-sm-0 float-right">Tümünü Göster</button>
                   </div>
                   <div class="card-body bg-light panelHightControl">
                       <div ng-show="notificationCount > 0; else elseBlock">                            
@@ -45,7 +45,7 @@
                                   *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
                                   style="font-size: 85%">
                                   <div class="row">
-                                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute">
+                                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute" (click)="setNotificationToPassive(item)">
                                       <i class="fa fa-fw fa-times text-danger"></i>
                                     </a>
                                       <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
@@ -63,7 +63,7 @@
                   </div>
                   <div class="card-footer">
                       <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
-                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
+                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="showSnotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
                   </div>
 
               </div>

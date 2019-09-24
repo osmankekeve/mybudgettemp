@@ -6,6 +6,7 @@ import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class AccountVoucherService {
   customerList$: Observable<CustomerModel[]>;
 
   constructor(public authServis: AuthenticationService,
+              public logService: LogService,
               public db: AngularFirestore) {
 
   }
@@ -37,18 +39,22 @@ export class AccountVoucherService {
   }
 
   async addItem(record: AccountVoucherModel) {
+    this.logService.sendToLog(record, 'insert', 'accountVoucher');
     return await this.listCollection.add(record);
   }
 
   async removeItem(record: AccountVoucherModel) {
+    this.logService.sendToLog(record, 'delete', 'accountVoucher');
     return await this.db.collection('tblAccountVoucher').doc(record.primaryKey).delete();
   }
 
   async updateItem(record: AccountVoucherModel) {
+    this.logService.sendToLog(record, 'update', 'accountVoucher');
     return await this.db.collection('tblAccountVoucher').doc(record.primaryKey).update(record);
   }
 
   async setItem(record: AccountVoucherModel, primaryKey: string) {
+    this.logService.sendToLog(record, 'insert', 'accountVoucher');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
