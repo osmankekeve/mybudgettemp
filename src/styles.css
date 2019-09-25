@@ -6,6 +6,9 @@ body {
 .cursor-pointer{
     cursor: pointer;
 }
+.cursor-pointer:hover{
+    opacity: 0.9;
+}
 
 .text-button:hover {
     cursor: pointer;
@@ -22,4 +25,62 @@ body {
     position: absolute;
     margin-left: 5px;
     width: auto !important;
+}
+.font-weight-500 {
+    font-weight: 500 !important
+}
+.text-small {
+    font-size: .875rem;
+    line-height: 1.3125rem;
+}
+.card-list-parent .card {
+    border-left: 4px solid rgba(0,0,0,.125) !important;
+}
+.card-list-parent .cursor-pointer:hover {
+    border-left: 4px solid #dc3545  !important;
+}
+
+/*Button*/
+.btn-round {
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    background: #dee2e6;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+/*filter*/
+.head-filter .input-group-round .input-group-prepend .input-group-text {
+    border-radius: 10rem 0 0 10rem;
+}
+.head-filter .input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.4375rem 1rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: rgba(33, 37, 41, 0.5);
+    text-align: center;
+    white-space: nowrap;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+}
+.head-filter .input-group-text {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.head-filter .input-group-round .input-group-prepend .input-group-text {
+    border-radius: 10rem 0 0 10rem;
+}
+.head-filter .input-group-round .input-group-prepend + .form-control {
+    border-radius: 0 10rem 10rem 0;
+}
+.head-filter .input-group-prepend + .form-control {
+    border-left: none;
+    padding-left: .5rem;
 }
