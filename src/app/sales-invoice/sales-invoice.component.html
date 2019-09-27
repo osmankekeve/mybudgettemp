@@ -1,69 +1,175 @@
 <div class="card" *ngIf="selectedRecord==undefined">
     <div class="card-header">
-        <div class="row">
-            <div class="col-sm-4">
-                <h5 class="card-title">Satış Faturası Listesi</h5>
+            <div class="row">
+                <div class="col-sm-8">
+                    <h4 class="card-title float-left mr-2">Satış Faturası Listesi</h4>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fatura" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Tüm Faturalar" (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+                </div>
+                <div class="col-sm-4 head-filter">
+                    <div class="input-group input-group-round">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                                <i class="fa fa-filter"></i>
+                            </span>
+                        </div>
+                        <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
+                  </div>
+                </div>
             </div>
-            <div class="col-sm-5">
-                <input type="text" class="form-control form-control-sm" placeholder="Müşteri Ara.." [(ngModel)]="searchText" />
-            </div>
-            <div class="col-sm-3">
-                <button type="button" class="btn btn-secondary btn-sm btn-block" (click)="btnNew_Click()">+ Yeni Fatura</button>
-            </div>
-        </div>
     </div>
     <div class="card-body">
-        <div *ngIf="mainList.length > 0; else elseBlock">
-                <table class="table table-hover table-striped table-bordered">
-                        <thead>
-                          <tr class="bg-warning text-light">
-                            <th>#</th>
-                            <th>Müşteri</th>
-                            <th>Fiş Numarası</th>
-                            <th><span class="float-right">Tutar</span></th>
-                            <th><span class="float-right">Tutar (+KDV)</span></th>
-                            <th><span class="float-right">Tarih</span></th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr class="cursor-pointer" (click)="showSelectedRecord(item)"
-                          *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
-                            <td>
-                                <a class="btn btn-sm btn-secondary" title="View and Edit">
-                                    <i class="fa fa-fw fa-edit text-white"></i>
-                                </a>
-                            </td>
-                            <td scope="row">{{item.customerName}}</td>
-                            <td>{{item.data.receiptNo}}</td>
-                            <td><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></td>
-                            <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
-                            <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                          </tr>
-                          <tr>
-                        </tbody>
-                      </table>
-        </div>
-        <ng-template #elseBlock>
-            <div class="card bg-danger text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            <div class="row" *ngIf="!isShowAllRecords">
+                <div class="col-sm-3">
+                            <div class="card-list-parent" *ngIf="mainList4.length > 0; else elseBlock4">
+                                    <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList4 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                                    (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                                    <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                                        <div class="card-body">
+                                            <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
+                                                </div>
+                                                <div class="col">
+                                                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                                </div>
+    
+                                            </div>
+                                            <div class="text-small text-dark">{{item.data.totalPriceWithTax | currency:'₺'}}</div>                       
+                                        </div>
+                                    </div>
+                            </div>
+                            <ng-template #elseBlock4>
+                                <div class="card bg-danger text-white">
+                                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                                </div>
+                            </ng-template>
+                </div>
+                <div class="col-sm-3">
+                        <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
+                                <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList3 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                                (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                                <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                                <div class="card-body">
+                                    <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                        </div>
+    
+                                    </div>
+                                    <div class="text-small text-dark">{{item.data.totalPriceWithTax | currency:'₺'}}</div>                       
+                                </div>
+                                </div>
+                        </div>
+                        <ng-template #elseBlock3>
+                            <div class="card bg-danger text-white">
+                              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                            </div>
+                        </ng-template>
+                </div>
+                <div class="col-sm-3">
+                        <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
+                                <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList2 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                                (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                                <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                                <div class="card-body">
+                                    <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                        </div>
+    
+                                    </div>
+                                    <div class="text-small text-dark">{{item.data.totalPriceWithTax | currency:'₺'}}</div>                       
+                                </div>
+                                </div>
+                        </div>
+                        <ng-template #elseBlock2>
+                            <div class="card bg-danger text-white">
+                              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                            </div>
+                        </ng-template>
+                </div>
+                <div class="col-sm-3">
+                        <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
+                                <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList1 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                                (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                                <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                                <div class="card-body">
+                                    <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                        </div>
+    
+                                    </div>
+                                    <div class="text-small text-dark">{{item.data.totalPriceWithTax | currency:'₺'}}</div>                       
+                                </div>
+                                </div>
+                        </div>
+                        <ng-template #elseBlock1>
+                            <div class="card bg-danger text-white">
+                              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                            </div>
+                        </ng-template>
+                </div>
             </div>
-        </ng-template>        
+            <div *ngIf="isShowAllRecords">
+                    <div *ngIf="mainList.length > 0; else elseBlock">
+                            <table class="table table-hover table-striped table-bordered">
+                                    <thead>
+                                      <tr class="bg-warning text-light">
+                                        <th>#</th>
+                                        <th>Müşteri</th>
+                                        <th>Fiş Numarası</th>
+                                        <th><span class="float-right">Tutar</span></th>
+                                        <th><span class="float-right">Tutar (+KDV)</span></th>
+                                        <th><span class="float-right">Tarih</span></th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr class="cursor-pointer" (click)="showSelectedRecord(item)"
+                                      *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                                        <td>
+                                            <a class="btn btn-sm btn-secondary" title="View and Edit">
+                                                <i class="fa fa-fw fa-edit text-white"></i>
+                                            </a>
+                                        </td>
+                                        <td scope="row">{{item.customerName}}</td>
+                                        <td>{{item.data.receiptNo}}</td>
+                                        <td><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></td>
+                                        <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
+                                        <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+                                      </tr>
+                                      <tr>
+                                    </tbody>
+                                  </table>
+                    </div>
+                    <ng-template #elseBlock>
+                        <div class="card bg-danger text-white">
+                          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template> 
+            </div>       
     </div>
 </div>
 <div class="card" *ngIf="selectedRecord!=undefined">
     <div class="card-header">
-        <div class="row">
-            <div class="col-sm-9">
-                <h5 class="card-title">Satış Faturası Detayı
-                    <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
-                </h5>
-            </div>
-            <div class="col-sm-3">
-                <button type="button" class="btn btn-sm btn-primary btn-block"
-                    (click)="btnReturnList_Click()">Listeye Geri Dön</button>
-            </div>
-        </div>
-
+            <h4 class="card-title float-left mr-2">Satış Faturası Detayı
+                <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
+            </h4>
+            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
     </div>
     <div class="card-body">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">

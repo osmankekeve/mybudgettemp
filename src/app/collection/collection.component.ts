@@ -19,16 +19,17 @@ import { InformationService } from '../services/information.service';
 })
 export class CollectionComponent implements OnInit, OnDestroy {
   mainList: Array<CollectionModel>;
+  mainList1: Array<CollectionModel>;
+  mainList2: Array<CollectionModel>;
+  mainList3: Array<CollectionModel>;
+  mainList4: Array<CollectionModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
   recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CollectionModel;
   refModel: CollectionModel;
-  selectedRecordSubItems: {
-    customerName: string,
-    typeTr: string
-  };
   isRecordHasTransacton = false;
+  isShowAllRecords = false;
 
   constructor(public authServis: AuthenticationService,
               public service: CollectionService,
@@ -47,6 +48,61 @@ export class CollectionComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
+    const date = new Date();
+    const start1 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const end1 = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0);
+    const start2 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 0, 0, 0);
+    const end2 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const start3 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 2, 0, 0, 0);
+    const end3 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 0, 0, 0);
+    const start4 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 3, 0, 0, 0);
+    const end4 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 2, 0, 0, 0);
+
+    this.mainList1 = [];
+    this.mainList2 = [];
+    this.mainList3 = [];
+    this.mainList4 = [];
+    this.service.getMainItemsBetweenDates(start4, end1).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) { this.mainList1.push(item); }
+          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) { this.mainList2.push(item); }
+          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) { this.mainList3.push(item); }
+          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) { this.mainList4.push(item); }
+        } else if (item.actionType === 'removed') {
+          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) {
+            this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
+          }
+          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) {
+            this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
+           }
+          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) {
+            this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
+          }
+          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) {
+            this.mainList4.splice(this.mainList4.indexOf(this.refModel), 1);
+          }
+        } else if (item.data.actionType === 'modified') {
+          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) {
+            this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
+          }
+          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) {
+            this.mainList2[this.mainList2.indexOf(this.refModel)] = item.data;
+           }
+          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) {
+            this.mainList3[this.mainList3.indexOf(this.refModel)] = item.data;
+          }
+          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) {
+            this.mainList4[this.mainList4.indexOf(this.refModel)] = item.data;
+          }
+        } else {
+          // nothing
+        }
+      });
+    });
+  }
+
+  populateAllRecords(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
       list.forEach((item: any) => {
@@ -54,8 +110,8 @@ export class CollectionComponent implements OnInit, OnDestroy {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.data.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else if (item.returnData.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
         } else {
           // nothing
         }
@@ -66,10 +122,6 @@ export class CollectionComponent implements OnInit, OnDestroy {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as CollectionModel;
     this.refModel = record.data as CollectionModel;
-    this.selectedRecordSubItems = {
-      customerName : record.customerName,
-      typeTr : this.selectedRecord.type
-    };
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -152,6 +204,15 @@ export class CollectionComponent implements OnInit, OnDestroy {
           });
         });
     }).catch(err => this.infoService.error(err));
+  }
+
+  btnAllRecords_Click(): void {
+    if (this.isShowAllRecords) {
+      this.isShowAllRecords = false;
+    } else {
+      this.isShowAllRecords = true;
+      this.populateAllRecords();
+    }
   }
 
   clearSelectedRecord(): void {

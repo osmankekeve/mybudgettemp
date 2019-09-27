@@ -84,3 +84,9 @@ body {
     border-left: none;
     padding-left: .5rem;
 }
+
+.small-list-list-icon {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}
