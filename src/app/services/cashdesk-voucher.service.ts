@@ -69,4 +69,19 @@ export class CashdeskVoucherService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashdeskVoucherModel[]> {
+    this.listCollection = this.db.collection('tblCashDeskVoucher',
+    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as CashdeskVoucherModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
+          return Object.assign({data, casDeskName: item.name, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
 }

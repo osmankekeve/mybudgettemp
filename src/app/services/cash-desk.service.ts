@@ -55,6 +55,20 @@ export class CashDeskService {
     return this.mainList$;
   }
 
+
+  getAll(): Array<CashDeskModel> {
+    const array = new Array<CashDeskModel>();
+    
+    
+
+
+
+
+
+
+    return array;
+  }
+
   /* getMainItems(): Observable<CashDeskModel[]> {
     this.listCollection = this.db.collection('tblCashDesk',
     ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));

@@ -72,11 +72,11 @@ export class PaymentService {
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
-        const returnData = change.payload.doc.data() as PaymentModel;
-        returnData.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc(returnData.customerCode).valueChanges()
+        const data = change.payload.doc.data() as PaymentModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({returnData, customerName: customer.name, actionType: change.type}); }));
+          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

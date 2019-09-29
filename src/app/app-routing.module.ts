@@ -17,6 +17,7 @@ import { CashdeskVoucherComponent } from './cashdesk-voucher/cashdesk-voucher.co
 import { ReportsComponent } from './reports/reports.component';
 import { TestModuleComponent } from './test/test-module.component';
 import { NotificationComponent } from './notification/notification.component';
+import { NoteComponent } from './note/note.component';
 
 
 const routes: Routes = [
@@ -33,6 +34,7 @@ const routes: Routes = [
   {path: 'reports', component: ReportsComponent, pathMatch: 'full'},
   {path: 'test', component: TestModuleComponent, pathMatch: 'full'},
   {path: 'notification', component: NotificationComponent, pathMatch: 'full'},
+  {path: 'note', component: NoteComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -59,7 +61,8 @@ export const routingComponents = [
   CashdeskVoucherComponent,
   ReportsComponent,
   TestModuleComponent,
-  NotificationComponent
+  NotificationComponent,
+  NoteComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

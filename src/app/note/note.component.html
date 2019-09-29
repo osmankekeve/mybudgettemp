@@ -1,0 +1,77 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-8">
+                <h4 class="card-title float-left mr-2">Not Listesi</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Not" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+            </div>
+            <div class="col-sm-4 head-filter">
+                <div class="input-group input-group-round">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+                    </div>
+                    <input type="search" class="form-control filter-list-input" placeholder="Not Ara.." [(ngModel)]="searchText">
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+            <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                <div class="card-list-parent">
+                        <div class="card mb-2 bg-light cursor-pointer"
+                        (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                        <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.data.note}}</div>                    
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+        </ng-template>  
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4 class="card-title float-left mr-2">Not Detayı</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div *ngIf="openedPanel=='mainPanel'">
+                <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                    <div class="row form-inline">
+                            <div class="col-sm-2">
+                                <label class="col-form-label float-left" for="note">Note</label>
+                            </div>
+                            <div class="col-sm-10">
+                                <input class="form-control form-control-sm w-100" id="note" name="descriptionoten" type="text"
+                                    [(ngModel)]="selectedRecord.note">
+                                <div class="invalid-feedback">Lütfen not alanını doldurunuz.</div>
+                            </div>
+                    </div>
+                </form>
+        </div>
+    </div>
+    <div class="card-footer" *ngIf="openedPanel=='mainPanel'">
+        <div class="col-sm-3 float-right">
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                (click)="btnSave_Click()">Kaydet</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                (click)="btnRemove_Click()">Kaldır</button>
+        </div>
+
+    </div>
+</div>

@@ -112,8 +112,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.returnData.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
+        } else if (item.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
         } else {
           // nothing
         }
@@ -122,8 +122,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.returnData as PaymentModel;
-    this.refModel = record.returnData as PaymentModel;
+    this.selectedRecord = record.data as PaymentModel;
+    this.refModel = record.data as PaymentModel;
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
