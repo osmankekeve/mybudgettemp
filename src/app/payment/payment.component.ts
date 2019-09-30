@@ -84,7 +84,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) {
             this.mainList4.splice(this.mainList4.indexOf(this.refModel), 1);
           }
-        } else if (item.data.actionType === 'modified') {
+        } else if (item.actionType === 'modified') {
           if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) {
             this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
           }

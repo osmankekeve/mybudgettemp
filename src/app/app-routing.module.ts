@@ -18,6 +18,7 @@ import { ReportsComponent } from './reports/reports.component';
 import { TestModuleComponent } from './test/test-module.component';
 import { NotificationComponent } from './notification/notification.component';
 import { NoteComponent } from './note/note.component';
+import { CRMComponent } from './crm/crm.component';
 
 
 const routes: Routes = [
@@ -35,6 +36,7 @@ const routes: Routes = [
   {path: 'test', component: TestModuleComponent, pathMatch: 'full'},
   {path: 'notification', component: NotificationComponent, pathMatch: 'full'},
   {path: 'note', component: NoteComponent, pathMatch: 'full'},
+  {path: 'crm', component: CRMComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -62,7 +64,8 @@ export const routingComponents = [
   ReportsComponent,
   TestModuleComponent,
   NotificationComponent,
-  NoteComponent
+  NoteComponent,
+  CRMComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

@@ -72,4 +72,20 @@ export class AccountVoucherService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<AccountVoucherModel[]> {
+    this.listCollection = this.db.collection('tblAccountVoucher',
+    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as AccountVoucherModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
 }

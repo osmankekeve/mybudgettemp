@@ -68,7 +68,7 @@ export class CustomerComponent implements OnInit  {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.data.actionType === 'modified') {
+        } else if (item.actionType === 'modified') {
           this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
         } else {
           // nothing

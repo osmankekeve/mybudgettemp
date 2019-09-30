@@ -1,27 +1,25 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { AccountTransactionModel } from '../models/account-transaction-model';
+import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { NoteModel } from '../models/note-model';
-import { NoteService } from '../services/note.service';
+import { CustomerRelationModel } from '../models/customer-relation-model';
+import { CustomerRelationService } from '../services/crm.service';
 
 @Component({
-  selector: 'app-note',
-  templateUrl: './note.component.html',
-  styleUrls: ['./note.component.css']
+  selector: 'app-crm',
+  templateUrl: './crm.component.html',
+  styleUrls: ['./crm.component.css']
 })
-export class NoteComponent implements OnInit, OnDestroy {
-  mainList: Array<NoteModel>;
-  collection: AngularFirestoreCollection<NoteModel>;
-  transactionList$: Observable<AccountTransactionModel[]>;
-  selectedRecord: NoteModel;
-  refModel: NoteModel;
+export class CRMComponent implements OnInit, OnDestroy {
+  mainList: Array<CustomerRelationModel>;
+  collection: AngularFirestoreCollection<CustomerRelationModel>;
+  selectedRecord: CustomerRelationModel;
+  refModel: CustomerRelationModel;
   openedPanel: any;
 
-  constructor(public authServis: AuthenticationService, public service: NoteService,
+  constructor(public authServis: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public db: AngularFirestore) { }
@@ -52,8 +50,8 @@ export class NoteComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as NoteModel;
-    this.refModel = record.data as NoteModel;
+    this.selectedRecord = record.data as CustomerRelationModel;
+    this.refModel = record.data as CustomerRelationModel;
     console.log(this.selectedRecord);
   }
 
@@ -70,20 +68,9 @@ export class NoteComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kasa başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
-    } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kasa başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
-    }
+    console.log(this.selectedRecord.actionDate);
+    const date = new Date(this.selectedRecord.actionDate);
+    console.log(date.getTime());
   }
 
   btnRemove_Click(): void {
@@ -97,7 +84,8 @@ export class NoteComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
+    this.selectedRecord = {primaryKey: undefined, description: '', userPrimaryKey: this.authServis.getUid(),
+    insertDate: Date.now(), actionDate: Date.now()};
   }
 
 }
