@@ -4,6 +4,7 @@ import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
+import { async } from 'q';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +27,7 @@ export class DashoardComponent implements OnInit, OnDestroy {
   constructor(public db: AngularFirestore,
               public atService: AccountTransactionService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Bar chart:
     this.BarChart = new Chart('barChart', {
     type: 'bar',
@@ -152,49 +153,51 @@ export class DashoardComponent implements OnInit, OnDestroy {
         const endDate = new Date(date.getFullYear(), i + 1, 0);
         chartData[i - 1].month += i;
 
-        this.atService.getOnDayTransactionsBetweenDates(startDate, endDate).subscribe(list => {
+        this.atService.getOnDayTransactionsBetweenDatesAsync(startDate, endDate).then(list => {
             list.forEach(item => {
                 if (item.transactionType === 'payment') {
                     chartData[i - 1].amount += item.amount;
                 }
             });
-
-            this.LineChart = undefined;
-            this.LineChart = new Chart('lineChart', {
-                type: 'line',
-              data: {
-               labels: [chartData[0].month.toString(), chartData[1].month.toString(), chartData[2].month.toString(),
-               chartData[3].month.toString(), chartData[4].month.toString(), chartData[5].month.toString(), chartData[6].month.toString(),
-               chartData[7].month.toString(), chartData[8].month.toString(), chartData[9].month.toString(), chartData[10].month.toString(),
-               chartData[11].month.toString()],
-               datasets: [{
-                   label: 'Tutar',
-                   data: [chartData[0].amount, chartData[1].amount, chartData[2].amount, chartData[3].amount, chartData[4].amount
-                   , chartData[5].amount, chartData[6].amount, chartData[7].amount, chartData[8].amount, chartData[9].amount
-                   , chartData[10].amount, chartData[11].amount
-                    ],
-                   fill: false,
-                   lineTension: 0.2,
-                   borderColor: 'red',
-                   borderWidth: 1
-               }]
-              },
-              options: {
-               title: {
-                   text: 'Aylık Ödeme Giderleri',
-                   display: true
-               },
-               scales: {
-                   yAxes: [{
-                       ticks: {
-                           beginAtZero: true
-                       }
-                   }]
-               }
-              }
-              });
         });
     }
+    console.table('list done');
+
+    this.LineChart = undefined;
+    this.LineChart = new Chart('lineChart', {
+        type: 'line',
+      data: {
+       labels: [chartData[0].month.toString(), chartData[1].month.toString(), chartData[2].month.toString(),
+       chartData[3].month.toString(), chartData[4].month.toString(), chartData[5].month.toString(), chartData[6].month.toString(),
+       chartData[7].month.toString(), chartData[8].month.toString(), chartData[9].month.toString(), chartData[10].month.toString(),
+       chartData[11].month.toString()],
+       datasets: [{
+           label: 'Tutar',
+           data: [chartData[0].amount, chartData[1].amount, chartData[2].amount, chartData[3].amount, chartData[4].amount
+           , chartData[5].amount, chartData[6].amount, chartData[7].amount, chartData[8].amount, chartData[9].amount
+           , chartData[10].amount, chartData[11].amount
+            ],
+           fill: false,
+           lineTension: 0.2,
+           borderColor: 'red',
+           borderWidth: 1
+       }]
+      },
+      options: {
+       title: {
+           text: 'Aylık Ödeme Giderleri',
+           display: true
+       },
+       scales: {
+           yAxes: [{
+               ticks: {
+                   beginAtZero: true
+               }
+           }]
+       }
+      }
+      });
+    console.table('chart done');
   }
 
   ngOnDestroy(): void {

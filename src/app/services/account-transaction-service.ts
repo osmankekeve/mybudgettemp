@@ -76,6 +76,26 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
+  getOnDayTransactionsBetweenDatesAsync = async (startDate: Date, endDate: Date):
+      // tslint:disable-next-line:cyclomatic-complexity
+      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const list = Array<AccountTransactionModel>();
+        const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()));
+        citiesRef.get().subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            list.push(doc.data());
+          });
+          resolve(list);
+        });
+
+      } catch (error) {
+          console.error(error);
+          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      }
+  })
+
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
     .get().subscribe(list => {
@@ -99,6 +119,21 @@ export class AccountTransactionService {
     data.insertDate = Date.now();
     data.receiptNo = '';
     return data;
+  }
+
+  getAsyncOnDayTransactions = async (): Promise<AccountTransactionModel[]> => {
+    const list = Array<AccountTransactionModel>();
+    const date = new Date();
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    const citiesRef = this.db.collection(this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
+    citiesRef.get().subscribe(snapshot => {
+      snapshot.forEach(doc => {
+        list.push(doc.data());
+      });
+    });
+    return list;
+
   }
 
 }
