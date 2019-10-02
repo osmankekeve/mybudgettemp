@@ -18,7 +18,7 @@ export class CustomerRelationService {
   atMod: AccountTransactionModel;
   tableName = 'tblCustomerRelation';
   relationTypeMap = new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
-  ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
+  ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
 
   constructor(public authServis: AuthenticationService,
               public logService: LogService,
@@ -63,7 +63,7 @@ export class CustomerRelationService {
 
   getMainItems(): Observable<CustomerRelationModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.orderBy('actionDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CustomerRelationModel;
@@ -79,7 +79,41 @@ export class CustomerRelationService {
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CustomerRelationModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+    ref => ref.orderBy('actionDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as CustomerRelationModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({data, customerName: customer.name, actionType: change.type,
+            relationTypeTR: this.relationTypeMap.get(data.relationType)}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getMainItemsAfterDate(afterDate: Date): Observable<CustomerRelationModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+    ref => ref.orderBy('actionDate').startAfter(afterDate.getTime())
+    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as CustomerRelationModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({data, customerName: customer.name, actionType: change.type,
+            relationTypeTR: this.relationTypeMap.get(data.relationType)}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getMainItemsBeforeDate(beforeDate: Date): Observable<CustomerRelationModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+    ref => ref.orderBy('actionDate').endBefore(beforeDate.getTime())
     .where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {

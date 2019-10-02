@@ -14,6 +14,7 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { InformationService } from './services/information.service';
 import { CustomerDataFilterPipe } from './filters/customer-data-filter.pipe';
 import { CustomerFilterPipe } from './filters/customer-filter.pipe';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -26,6 +27,7 @@ import { CustomerFilterPipe } from './filters/customer-filter.pipe';
     CustomerFilterPipe
   ],
   imports: [
+    NgbModule,
     BrowserModule,
     FormsModule,
     AppRoutingModule,

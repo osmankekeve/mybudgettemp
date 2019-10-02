@@ -6,6 +6,10 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { CustomerRelationService } from '../services/crm.service';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-crm',
@@ -14,17 +18,26 @@ import { CustomerRelationService } from '../services/crm.service';
 })
 export class CRMComponent implements OnInit, OnDestroy {
   mainList: Array<CustomerRelationModel>;
+  mainList1: Array<CustomerRelationModel>;
+  mainList2: Array<CustomerRelationModel>;
+  mainList3: Array<CustomerRelationModel>;
   collection: AngularFirestoreCollection<CustomerRelationModel>;
+  customerList$: Observable<CustomerModel[]>;
   selectedRecord: CustomerRelationModel;
   refModel: CustomerRelationModel;
+  isShowAllRecords = false;
   openedPanel: any;
+  date = new Date();
+  today: NgbDateStruct = { year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate() };
 
   constructor(public authServis: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public cService: CustomerService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
+    this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.selectedRecord = undefined;
   }
@@ -32,6 +45,54 @@ export class CRMComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
+    this.mainList1 = [];
+    this.mainList2 = [];
+    this.mainList3 = [];
+    const date = new Date();
+    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const tomorrowStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    this.service.getMainItemsBeforeDate(todayStart).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList1.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
+        } else if (item.actionType === 'modified') {
+          this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
+    this.service.getMainItemsBetweenDates(todayStart, tomorrowStart).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList2.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
+        } else if (item.actionType === 'modified') {
+          this.mainList2[this.mainList2.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
+    this.service.getMainItemsAfterDate(tomorrowStart).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.mainList3.push(item);
+        } else if (item.actionType === 'removed') {
+          this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
+        } else if (item.actionType === 'modified') {
+          this.mainList3[this.mainList3.indexOf(this.refModel)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
+  }
+
+  populateAllRecords(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
       list.forEach((item: any) => {
@@ -52,7 +113,8 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.selectedRecord = record.data as CustomerRelationModel;
     this.refModel = record.data as CustomerRelationModel;
-    console.log(this.selectedRecord);
+    const selectedDate = new Date(this.selectedRecord.actionDate);
+    this.today = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate() };
   }
 
   btnReturnList_Click(): void {
@@ -68,9 +130,22 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    console.log(this.selectedRecord.actionDate);
-    const date = new Date(this.selectedRecord.actionDate);
-    console.log(date.getTime());
+    const date = new Date(this.today.year, this.today.month - 1, this.today.day);
+    if (this.selectedRecord.primaryKey === undefined) {
+      this.selectedRecord.primaryKey = '';
+      this.selectedRecord.actionDate = date.getTime();
+      this.service.addItem(this.selectedRecord)
+      .then(() => {
+        this.infoService.success('Etkinlik başarıyla kaydedildi.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
+    } else {
+      this.service.updateItem(this.selectedRecord)
+      .then(() => {
+        this.infoService.success('Etkinlik başarıyla güncellendi.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
+    }
   }
 
   btnRemove_Click(): void {
@@ -81,11 +156,22 @@ export class CRMComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnAllRecords_Click(): void {
+    if (this.isShowAllRecords) {
+      this.isShowAllRecords = false;
+    } else {
+      this.isShowAllRecords = true;
+      this.populateAllRecords();
+    }
+  }
+
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, description: '', userPrimaryKey: this.authServis.getUid(),
-    insertDate: Date.now(), actionDate: Date.now()};
+    const selectedDate = new Date();
+    this.today = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate() };
+    this.selectedRecord = {primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
+    userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
   }
 
 }
