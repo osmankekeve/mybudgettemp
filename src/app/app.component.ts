@@ -3,6 +3,8 @@ import { AuthenticationService } from './services/authentication.service';
 import { LogModel } from './models/log-model';
 import { LogService } from './services/log.service';
 import { InformationService } from './services/information.service';
+import {CustomerRelationService} from './services/crm.service';
+import {CustomerRelationModel} from './models/customer-relation-model';
 
 @Component({
   selector: 'app-root',
@@ -11,6 +13,7 @@ import { InformationService } from './services/information.service';
 })
 export class AppComponent implements OnInit {
   notificationList: Array<LogModel> = [];
+  actionList: Array<CustomerRelationModel> = [];
 
   title = 'MyBudgetWeb';
   selectedVal: string;
@@ -21,12 +24,13 @@ export class AppComponent implements OnInit {
   isForgotPassword: boolean;
   userDetails: any;
   notificationCount = 0;
-  showSnotificationPanel = false;
+  showNotificationPanel = false;
+  actionCount = 0;
+  showActionPanel = false;
 
   constructor(
-    private authService: AuthenticationService,
-    public infoService: InformationService,
-    private logService: LogService
+    private authService: AuthenticationService, public infoService: InformationService,
+    private logService: LogService, public crmService: CustomerRelationService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -35,6 +39,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.isUserLoggedIn();
     this.populateNotificationList();
+    this.populateActivityList();
   }
 
   showMessage(type, msg) {
@@ -128,8 +133,8 @@ export class AppComponent implements OnInit {
 
   populateNotificationList(): void {
     const date = new Date();
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
     this.logService.getNotificationsBetweenDates(start, end).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
@@ -138,6 +143,27 @@ export class AppComponent implements OnInit {
         } else if (item.actionType === 'removed') {
           this.notificationCount --;
           this.notificationList.splice(this.notificationList.indexOf(item), 1);
+        } else {
+          // nothing
+        }
+      });
+    });
+  }
+
+  populateActivityList(): void {
+    const date = new Date();
+    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7, 23, 59, 59);
+    this.crmService.getMainItemsBetweenDates(todayStart, endDate).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.actionCount ++;
+          this.actionList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.actionCount --;
+          this.actionList.splice(this.actionList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.actionList[this.actionList.indexOf(item)] = item.data;
         } else {
           // nothing
         }

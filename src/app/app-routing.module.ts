@@ -9,7 +9,7 @@ import { SalesInvoiceComponent } from './sales-invoice/sales-invoice.component';
 import { CashDeskComponent } from './cash-desk/cash-desk.component';
 import { CollectionComponent } from './collection/collection.component';
 import { PaymentComponent } from './payment/payment.component';
-import { DashoardComponent } from './dashboard/dashboard.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { LoginComponent } from './login/login.component';
 import { AlertComponent } from './partials/alert/alert.component';
 import { AccountVoucherComponent } from './account-voucher/account-voucher.component';
@@ -29,7 +29,7 @@ const routes: Routes = [
   {path: 'cash-desk', component: CashDeskComponent, pathMatch: 'full'},
   {path: 'collection', component: CollectionComponent, pathMatch: 'full'},
   {path: 'payment', component: PaymentComponent, pathMatch: 'full'},
-  {path: 'dashboard', component: DashoardComponent, pathMatch: 'full'},
+  {path: 'dashboard', component: DashboardComponent, pathMatch: 'full'},
   {path: 'account-voucher', component: AccountVoucherComponent, pathMatch: 'full'},
   {path: 'cashdesk-voucher', component: CashdeskVoucherComponent, pathMatch: 'full'},
   {path: 'reports', component: ReportsComponent, pathMatch: 'full'},
@@ -56,7 +56,7 @@ export const routingComponents = [
   CashDeskComponent,
   CollectionComponent,
   PaymentComponent,
-  DashoardComponent,
+  DashboardComponent,
   LoginComponent,
   AlertComponent,
   AccountVoucherComponent,

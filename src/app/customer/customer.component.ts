@@ -17,6 +17,8 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
+import {AccountVoucherModel} from '../models/account-voucher-model';
+import {AccountVoucherService} from '../services/account-voucher.service';
 
 @Component({
   selector: 'app-customer',
@@ -41,6 +43,8 @@ export class CustomerComponent implements OnInit  {
   colAmount: any;
   payList$: Observable<PaymentModel[]>;
   payAmount: any;
+  voucherList$: Observable<AccountVoucherModel[]>;
+  voucherAmount: any;
   openedPanel: string;
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
@@ -48,7 +52,7 @@ export class CustomerComponent implements OnInit  {
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
-              public cdService: CashDeskService,
+              public cdService: CashDeskService, public avService: AccountVoucherService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
@@ -115,6 +119,15 @@ export class CustomerComponent implements OnInit  {
     this.payList$.subscribe(list => {
       list.forEach(item => {
         this.payAmount += Math.round(item.amount);
+      });
+    });
+
+    this.voucherList$ = undefined;
+    this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.voucherAmount = 0;
+    this.voucherList$.subscribe(list => {
+      list.forEach(item => {
+        this.voucherAmount += Math.round(item.amount);
       });
     });
   }

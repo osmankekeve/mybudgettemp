@@ -15,31 +15,39 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
             </button>
-            <a class="navbar-brand" href="#">Navbar</a>
-          
+            <a class="navbar-brand" href="#">My Budget Web</a>
+
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
               <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                
+
               </ul>
               <form class="form-inline my-2 my-lg-0">
                   <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
-                      <li class="nav-item dropdown cursor-pointer">
-                        <a class="nav-link" (click)="showSnotificationPanel=true">
-                            <i class="fa fa-fw fa-bell text-white material-icons"></i>
-                            <span class="notification text-white">{{notificationCount}}</span>
-                        </a>
-                      </li>
-                      
-                    </ul>
-                  <button type="button" class="btn btn-sm btn-danger" (click)="logoutUser()">Log Out</button>
+                    <li class="nav-item dropdown cursor-pointer">
+                      <a class="nav-link" (click)="showNotificationPanel=true" title="Planlı Etkinlikler">
+                        <i class="fa fa-2x fa-globe text-white material-icons mr-1"></i>
+                        <span class="notification text-white">{{actionCount}}</span>
+                      </a>
+                    </li>
+                    <li class="nav-item dropdown cursor-pointer">
+                      <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
+                        <i class="fa fa-2x fa-fw fa-bell text-white material-icons"></i>
+                        <span class="notification text-white">{{notificationCount}}</span>
+                      </a>
+                    </li>
+
+                  </ul>
+                  <button type="button" class="btn btn-danger" (click)="logoutUser()">
+                    <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
+                  </button>
               </form>
-              <div class="card notificationHeaderPanel" *ngIf="showSnotificationPanel==true" (mouseleave)="showSnotificationPanel=false">
+              <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
                   <div class="card-header bg-warning text-wight">
                     <i class="fa fa-fw fa-bell material-icons"></i>
                       <span>Bildirimler</span>
                   </div>
                   <div class="card-body bg-light panelHightControl">
-                      <div ng-show="notificationCount > 0; else elseBlock">                            
+                      <div ng-show="notificationCount > 0; else elseBlock">
                           <div class="list-group">
                               <div class="list-group-item list-group-item-action list-group-item-light"
                                   *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
@@ -49,7 +57,7 @@
                                       <i class="fa fa-fw fa-times text-danger"></i>
                                     </a>
                                       <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
-                                      <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>  
+                                      <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>
                                   </div>
                               </div>
                           </div>
@@ -58,12 +66,12 @@
                           <div class="alert alert-danger" role="alert">
                               Bidiriminiz bulunmamaktadır.
                           </div>
-                      </ng-template>  
+                      </ng-template>
 
                   </div>
                   <div class="card-footer">
                       <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
-                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="showSnotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
+                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
                   </div>
 
               </div>
@@ -91,10 +99,10 @@
   </div>
 </div>
 
-<div class="container mt-5 pt-2" *ngIf="!userDetails">  
+<div class="container mt-5 pt-2" *ngIf="!userDetails">
   <div class="row">
     <div class="col-sm-4">
-      
+
     </div>
     <div class="col-sm-4">
         <div class="card">
@@ -110,7 +118,7 @@
                 </div>
               </div>
             </div>
-     
+
             <div class="form-group">
               <label for="email">Email</label>
               <input type="email" class="form-control" [(ngModel)]="emailInput" id="email" placeholder="Email">
@@ -120,7 +128,7 @@
               <input type="password" class="form-control" [(ngModel)]="passwordInput" id="password" placeholder="Password">
             </div>
             <div class="form-group" *ngIf="!isForgotPassword">
-     
+
               <span *ngIf="selectedVal == 'login'; else elseBlock">
                 <button type="button" class="btn btn-sm btn-primary" (click)="loginUser()">Log In</button>
               </span>
@@ -131,7 +139,7 @@
               &nbsp;
               &nbsp;
               <a href="javascript:void(0)" (click)="this.isForgotPassword= true;">Forgot Password?</a>
-     
+
             </div>
             <div class="form-group" *ngIf="isForgotPassword">
               <button type="button" class="btn btn-sm" (click)="this.isForgotPassword=false;">Cancel</button>

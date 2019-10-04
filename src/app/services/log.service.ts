@@ -70,6 +70,9 @@ export class LogService {
    } else if (systemModule === 'cashdeskVoucher') {
     item.log = record.receiptNo + ' fiş numaralı Kasa Fişi ';
 
+   } else if (systemModule === 'crm') {
+     item.log = ' Etkinlik ';
+
    } else {
     item.log = ' bilinmeyen modül ';
 

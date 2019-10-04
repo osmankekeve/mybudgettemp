@@ -7,166 +7,160 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-sm-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <canvas id="lineChart" ></canvas>
-                        </div>
-                        <div class="card-footer">
-                            <h5>Daily Sales</h5>
-                            <h6>55% increase in today sales.</h6>
-                        </div>
-                    </div>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="lineChart" ></canvas>
+                </div>
+                <div class="card-footer">
+                  <h5>Daily Sales</h5>
+                  <h6>55% increase in today sales.</h6>
+                </div>
+              </div>
             </div>
-            <div class="col-sm-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <canvas id="barChart" ></canvas>
-                        </div>
-                        <div class="card-footer">
-                            <h5>Daily Sales</h5>
-                            <h6>55% increase in today sales.</h6>
-                        </div>
-                    </div>
+            <div class="col-sm-12 mt-2">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="barChart" ></canvas>
+                </div>
+                <div class="card-footer">
+                  <h5>Daily Sales</h5>
+                  <h6>55% increase in today sales.</h6>
+                </div>
+              </div>
             </div>
-            <div class="col-sm-6" hidden>
-                    <div class="card">
-                        <div class="card-body">
-                            <canvas id="pieChart" ></canvas>
-                        </div>
-                        <div class="card-footer">
-                            <h5>Daily Sales</h5>
-                            <h6>55% increase in today sales.</h6>
-                        </div>
-                    </div>
-            </div>
+          </div>
         </div>
-        <div class="row mt-2">
-            <div class="col-sm-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title">Günlük İşlemler</h5>
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-12">
+              <div id="panel-navigator">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/sales_invoice.png" width="30px">
                         </div>
-                        <div class="card-body">                            
-                            <div class="list-group" *ngIf="transactionList; let list; else elseBlock">
-                                    <div class="list-group-item bg-dark text-light">
-                                            <div class="row">
-                                                <div class="col-sm-5">İşlem</div>
-                                                <div class="col-sm-4">Fiş</div>
-                                                <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
-                                            </div>
-                                    </div>
-                                <div class="list-group-item list-group-item-action list-group-item-light"
-                                    *ngFor="let item of list; index as i; trackBy: primaryKey"
-                                    style="font-size: 85%">
-                                    <div class="row">
-                                        <label class="col-sm-5">{{item.transactionTypeTr}}</label>
-                                        <label class="col-sm-4">{{item.receiptNo}}</label>
-                                        <label class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></label>  
-                                    </div>
-                                </div>
-                            </div>
-                            <ng-template #elseBlock>
-                                <div class="card bg-danger text-white">
-                                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                                </div>
-                            </ng-template>  
-                        </div>
+                        <p class="card-category">Satış Faturası</p>
+                        <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
                     </div>
-            </div>
-            <div class="col-sm-6">
-                
-                    <div id="panel-navigator">
-                            <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-warning card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/sales_invoice.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Satış Faturası</p>
-                                                <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-danger card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/collection.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Tahsilat</p>
-                                                <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 mt-1">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-success card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/purchase_invoice.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Alım Faturası</p>
-                                                <h5 class="card-title">{{purchaseInvoiceAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 mt-1">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-info card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/payment.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Ödeme</p>
-                                                <h5 class="card-title">{{payAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 mt-1">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-warning card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/account_voucher.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Hesap Fişi</p>
-                                                <h5 class="card-title">{{avAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 mt-1">
-                                        <div class="card card-stats bg-light">
-                                            <div class="card-header card-header-danger card-header-icon">
-                                                <div class="card-icon">
-                                                    <img src="../../assets/images/cash-desks.png" width="30px">
-                                                </div>
-                                                <p class="card-category">Kasa Fişi</p>
-                                                <h5 class="card-title">{{cvAmount | currency:'₺'}}</h5>
-                                            </div>
-                                            <div class="card-footer">
-                                                <div class="stats">Son 24 Saatlik İşlemler</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                            </div>
-            
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-danger card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/collection.png" width="30px">
                         </div>
+                        <p class="card-category">Tahsilat</p>
+                        <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 mt-1">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-success card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/purchase_invoice.png" width="30px">
+                        </div>
+                        <p class="card-category">Alım Faturası</p>
+                        <h5 class="card-title">{{purchaseInvoiceAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 mt-1">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/payment.png" width="30px">
+                        </div>
+                        <p class="card-category">Ödeme</p>
+                        <h5 class="card-title">{{payAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 mt-1">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/account_voucher.png" width="30px">
+                        </div>
+                        <p class="card-category">Hesap Fişi</p>
+                        <h5 class="card-title">{{avAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 mt-1">
+                    <div class="card card-stats bg-light">
+                      <div class="card-header card-header-danger card-header-icon">
+                        <div class="card-icon">
+                          <img src="../../assets/images/cash-desks.png" width="30px">
+                        </div>
+                        <p class="card-category">Kasa Fişi</p>
+                        <h5 class="card-title">{{cvAmount | currency:'₺'}}</h5>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">Son 24 Saatlik İşlemler</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
+            <div class="col-sm-12 mt-2">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title">Günlük İşlemler</h5>
+                </div>
+                <div class="card-body">
+                  <div class="list-group" *ngIf="transactionList; let list; else elseBlock">
+                    <div class="list-group-item bg-dark text-light">
+                      <div class="row">
+                        <div class="col-sm-5">İşlem</div>
+                        <div class="col-sm-4">Fiş</div>
+                        <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
+                      </div>
+                    </div>
+                    <div class="list-group-item list-group-item-action list-group-item-light"
+                         *ngFor="let item of list; index as i; trackBy: primaryKey"
+                         style="font-size: 85%">
+                      <div class="row">
+                        <label class="col-sm-5">{{item.transactionTypeTr}}</label>
+                        <label class="col-sm-4">{{item.receiptNo}}</label>
+                        <label class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></label>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #elseBlock>
+                    <div class="card bg-danger text-white">
+                      <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 </div>

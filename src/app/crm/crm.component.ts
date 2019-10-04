@@ -30,7 +30,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   date = new Date();
   today: NgbDateStruct = { year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate() };
 
-  constructor(public authServis: AuthenticationService, public service: CustomerRelationService,
+  constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public cService: CustomerService,
@@ -171,7 +171,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     const selectedDate = new Date();
     this.today = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate() };
     this.selectedRecord = {primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
-    userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
+    userPrimaryKey: this.authService.getUid(), insertDate: Date.now()};
   }
 
 }
