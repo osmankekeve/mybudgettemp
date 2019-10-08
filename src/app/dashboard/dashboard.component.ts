@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { async } from 'q';
+import {LogService} from '../services/log.service';
+import {CustomerRelationService} from '../services/crm.service';
+import {CustomerRelationModel} from '../models/customer-relation-model';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,6 +19,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   BarChart: any;
   PieChart: any;
   transactionList$: Observable<AccountTransactionModel[]>;
+  actionList: Array<CustomerRelationModel> = [];
   purchaseInvoiceAmount: any = 0;
   siAmount: any = 0;
   colAmount: any = 0;
@@ -25,7 +29,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactionList: Array<AccountTransactionModel>;
 
   constructor(public db: AngularFirestore,
-              public atService: AccountTransactionService) { }
+              public atService: AccountTransactionService, public crmService: CustomerRelationService) { }
 
   async ngOnInit() {
     // Bar chart:
@@ -157,6 +161,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
       });
     console.table('chart done');
+    this.populateActivityList();
   }
 
   ngOnDestroy(): void {
@@ -167,6 +172,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const jenStartDate = new Date(date.getFullYear(), 1, 1);
     const jenEndDate = new Date(date.getFullYear(), 2, 0);
 
+  }
+
+  populateActivityList(): void {
+    const date = new Date();
+    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    this.crmService.getMainItemsBetweenDates(todayStart, endDate).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.actionList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.actionList.splice(this.actionList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.actionList[this.actionList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
 }

@@ -46,7 +46,7 @@
     .card .card-header-danger .card-icon, .card .card-header-danger .card-text, .card .card-header-danger:not(.card-header-icon):not(.card-header-text) {
         box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(244,67,54,.4);
     }
-    
+
     .card .card-header-danger .card-icon, .card .card-header-danger .card-text, .card .card-header-danger:not(.card-header-icon):not(.card-header-text), .card.bg-danger, .card.card-rotate.bg-danger .back, .card.card-rotate.bg-danger .front {
         background: linear-gradient(60deg,#ef5350,#e53935);
     }
@@ -131,7 +131,7 @@
         .card-title, .card-title a, .footer-big h4, .footer-big h4 a, .footer-big h5, .footer-big h5 a, .footer-brand, .footer-brand a, .info-title, .info-title a, .media .media-heading, .media .media-heading a, .title, .title a {
             color: #3c4858;
             text-decoration: none;}
-            
+
             .card-stats .card-header+.card-footer {
                 border-top: 1px solid #eee;
                 margin-top: 14px;
@@ -191,3 +191,36 @@
                 -webkit-font-feature-settings: 'liga';
                 -webkit-font-smoothing: antialiased;
             }
+
+
+.card > .progress {
+  height: 0.1875rem;
+  background: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+}
+.progress {
+  display: flex;
+  height: 0.375rem;
+  overflow: hidden;
+  font-size: 0.75rem;
+  background-color: #dee2e6;
+  border-radius: 20rem;
+}
+.card > .progress .progress-bar {
+  height: 1rem;
+  border-radius: .5rem 0 0 0;
+}
+.progress-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  background-color: #007bff;
+  transition: width 0.6s ease;
+}

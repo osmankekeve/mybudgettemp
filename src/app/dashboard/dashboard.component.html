@@ -21,6 +21,33 @@
                 </div>
               </div>
             </div>
+            <div class="col-sm-12 mt-2" *ngIf="actionList.length > 0;">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <h5 class="card-title">Günlük Etkinlikler</h5>
+                </div>
+                <div class="card-body bg-light">
+                  <div class="card card-kanban" *ngFor="let item of actionList; index as i; trackBy: primaryKey">
+                    <div class="progress">
+                      <div class="progress-bar bg-danger" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="card-body">
+                      <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                      <div class="row">
+                        <div class="col">
+                          <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
+                          <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
+                        </div>
+                        <div class="col">
+                          <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="col-sm-12 mt-2">
               <div class="card">
                 <div class="card-body">
@@ -129,10 +156,10 @@
             </div>
             <div class="col-sm-12 mt-2">
               <div class="card">
-                <div class="card-header">
+                <div class="card-header bg-light">
                   <h5 class="card-title">Günlük İşlemler</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body bg-light">
                   <div class="list-group" *ngIf="transactionList; let list; else elseBlock">
                     <div class="list-group-item bg-dark text-light">
                       <div class="row">
