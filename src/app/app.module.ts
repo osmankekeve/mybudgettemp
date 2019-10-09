@@ -15,6 +15,7 @@ import { InformationService } from './services/information.service';
 import { CustomerDataFilterPipe } from './filters/customer-data-filter.pipe';
 import { CustomerFilterPipe } from './filters/customer-filter.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { AgmCoreModule } from '@agm/core';
 
 
 @NgModule({
@@ -34,7 +35,10 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFirestoreModule.enablePersistence(),
-    AngularFontAwesomeModule
+    AngularFontAwesomeModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
+    })
   ],
   providers: [
     InformationService
