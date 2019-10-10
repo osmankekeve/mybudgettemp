@@ -10,6 +10,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-crm',
@@ -28,21 +29,34 @@ export class CRMComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   openedPanel: any;
   date = new Date();
-  today: NgbDateStruct = { year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate() };
+  today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+  paramPrimaryKey: any = undefined;
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
-              public cService: CustomerService,
-              public db: AngularFirestore) { }
+              public cService: CustomerService, public router: ActivatedRoute,
+              public db: AngularFirestore) {
+  }
 
   ngOnInit() {
+    // observable
+    // this.router.params.subscribe(params => console.log(params));
+    // snapshot
+    this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
+    // console.log(this.paramPrimaryKey);
+
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.selectedRecord = undefined;
+    if (this.paramPrimaryKey !== undefined) {
+      // seçili kayıdı göster
+    } else {
+    }
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList1 = [];
@@ -114,7 +128,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.selectedRecord = record.data as CustomerRelationModel;
     this.refModel = record.data as CustomerRelationModel;
     const selectedDate = new Date(this.selectedRecord.actionDate);
-    this.today = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate() };
+    this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
   }
 
   btnReturnList_Click(): void {
@@ -135,25 +149,25 @@ export class CRMComponent implements OnInit, OnDestroy {
       this.selectedRecord.primaryKey = '';
       this.selectedRecord.actionDate = date.getTime();
       this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Etkinlik başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+        .then(() => {
+          this.infoService.success('Etkinlik başarıyla kaydedildi.');
+          this.selectedRecord = undefined;
+        }).catch(err => this.infoService.error(err));
     } else {
       this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Etkinlik başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+        .then(() => {
+          this.infoService.success('Etkinlik başarıyla güncellendi.');
+          this.selectedRecord = undefined;
+        }).catch(err => this.infoService.error(err));
     }
   }
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
-    .then(() => {
-      this.infoService.success('Kasa başarıyla kaldırıldı.');
-      this.selectedRecord = undefined;
-    }).catch(err => this.infoService.error(err));
+      .then(() => {
+        this.infoService.success('Kasa başarıyla kaldırıldı.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
   }
 
   btnAllRecords_Click(): void {
@@ -169,9 +183,11 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     const selectedDate = new Date();
-    this.today = { year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate() };
-    this.selectedRecord = {primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
-    userPrimaryKey: this.authService.getUid(), insertDate: Date.now()};
+    this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
+    this.selectedRecord = {
+      primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
+      userPrimaryKey: this.authService.getUid(), insertDate: Date.now()
+    };
   }
 
 }

@@ -24,7 +24,7 @@
               <form class="form-inline my-2 my-lg-0">
                   <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
                     <li class="nav-item dropdown cursor-pointer">
-                      <a class="nav-link" (click)="showNotificationPanel=true" title="Planlı Etkinlikler">
+                      <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
                         <i class="fa fa-2x fa-globe text-white material-icons mr-1"></i>
                         <span class="notification text-white">{{actionCount}}</span>
                       </a>
@@ -43,7 +43,7 @@
               </form>
               <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
                   <div class="card-header bg-warning text-wight">
-                    <i class="fa fa-fw fa-bell material-icons"></i>
+                    <i class="fa fa-fw fa-bell material-icons mr-1"></i>
                       <span>Bildirimler</span>
                   </div>
                   <div class="card-body bg-light panelHightControl">
@@ -73,7 +73,34 @@
                       <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
                       <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
                   </div>
-
+              </div>
+              <div class="card notificationHeaderPanel" *ngIf="showActionPanel==true" (mouseleave)="showActionPanel=false">
+                <div class="card-header bg-warning text-wight">
+                  <i class="fa fa-globe material-icons mr-1"></i>
+                  <span>Etkinlikler</span>
+                </div>
+                <div class="card-body bg-light panelHightControl">
+                  <div ng-show="actionCount > 0; else elseBlock2">
+                    <div class="list-group">
+                      <div class="list-group-item list-group-item-action list-group-item-light"
+                           *ngFor="let item of actionList; index as i; trackBy: primaryKey"
+                           style="font-size: 85%">
+                        <div class="row">
+                          <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute" (click)="setNotificationToPassive(item)">
+                            <i class="fa fa-fw fa-times text-danger"></i>
+                          </a>
+                          <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</label>
+                          <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #elseBlock2>
+                    <div class="alert alert-danger" role="alert">
+                      Etkinliğiniz bulunmamaktadır.
+                    </div>
+                  </ng-template>
+                </div>
               </div>
             </div>
     </div>
@@ -98,7 +125,6 @@
     </div>
   </div>
 </div>
-
 <div class="container mt-5 pt-2" *ngIf="!userDetails">
   <div class="row">
     <div class="col-sm-4">

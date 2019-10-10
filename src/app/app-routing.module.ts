@@ -38,6 +38,7 @@ const routes: Routes = [
   {path: 'notification', component: NotificationComponent, pathMatch: 'full'},
   {path: 'note', component: NoteComponent, pathMatch: 'full'},
   {path: 'crm', component: CRMComponent, pathMatch: 'full'},
+  {path: 'crm/:id', component: CRMComponent, pathMatch: 'full'},
   {path: 'location', component: LocationComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];

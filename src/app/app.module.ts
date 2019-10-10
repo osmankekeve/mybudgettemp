@@ -16,6 +16,7 @@ import { CustomerDataFilterPipe } from './filters/customer-data-filter.pipe';
 import { CustomerFilterPipe } from './filters/customer-filter.pipe';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
+import {LocationDataFilterPipe} from './filters/location-data-filter.pipe';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import { AgmCoreModule } from '@agm/core';
     NavBarComponent,
     SideNavBarComponent,
     CustomerDataFilterPipe,
-    CustomerFilterPipe
+    CustomerFilterPipe,
+    LocationDataFilterPipe
   ],
   imports: [
     NgbModule,

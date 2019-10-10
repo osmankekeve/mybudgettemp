@@ -4,10 +4,9 @@ import { Chart } from 'chart.js';
 import { Observable } from 'rxjs';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
-import { async } from 'q';
-import {LogService} from '../services/log.service';
-import {CustomerRelationService} from '../services/crm.service';
-import {CustomerRelationModel} from '../models/customer-relation-model';
+import { CustomerRelationService } from '../services/crm.service';
+import { CustomerRelationModel } from '../models/customer-relation-model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,8 +27,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cvAmount: any = 0;
   transactionList: Array<AccountTransactionModel>;
 
-  constructor(public db: AngularFirestore,
-              public atService: AccountTransactionService, public crmService: CustomerRelationService) { }
+  constructor(public db: AngularFirestore, public router: Router,
+              public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }
 
   async ngOnInit() {
     // Bar chart:
@@ -191,6 +190,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
     });
+  }
+
+  showAction(item: any): void {
+    this.router.navigate(['crm', {primaryKey: item}]);
   }
 
 }
