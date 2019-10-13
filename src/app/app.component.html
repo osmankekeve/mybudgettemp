@@ -9,7 +9,7 @@
     </div>
 
 </div>
-<div *ngIf="userDetails">
+<div *ngIf="userDetails && employeeDetail">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,11 @@
                       <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
                         <i class="fa fa-2x fa-fw fa-bell text-white material-icons"></i>
                         <span class="notification text-white">{{notificationCount}}</span>
+                      </a>
+                    </li>
+                    <li class="nav-item dropdown cursor-pointer">
+                      <a class="nav-link" (click)="showProfilePanel=true" title="Profil">
+                        <i class="fa fa-2x fa-user-circle text-white material-icons"></i>
                       </a>
                     </li>
 
@@ -102,11 +107,30 @@
                   </ng-template>
                 </div>
               </div>
+              <div class="card notificationHeaderPanel" *ngIf="showProfilePanel==true" (mouseleave)="showProfilePanel=false">
+                <div class="card">
+                  <div class="card-body bg-light">
+                      <div class="list-group">
+                          <a routerLink="/profile" class="list-group-item list-group-item-action list-group-item-light">
+                            <i class="fa fa-user-circle text-danger material-icons mr-1"></i> Profil
+                          </a>
+                          <a routerLink="/setting" class="list-group-item list-group-item-action list-group-item-light">Ayarlar</a>
+                      </div>
+                  </div>
+                  <div class="card-footer">
+                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="logoutUser()">
+                          <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
+                      </button>
+                  </div>
+
+                </div>
+
+              </div>
             </div>
     </div>
   </nav>
 </div>
-<div class="container-fluid mt-5 pt-2" *ngIf="userDetails">
+<div class="container-fluid mt-5 pt-2" *ngIf="userDetails && employeeDetail">
   <div class="row mt-3">
     <div class="col-sm-3">
         <aside>
@@ -127,11 +151,8 @@
 </div>
 <div class="container mt-5 pt-2" *ngIf="!userDetails">
   <div class="row">
-    <div class="col-sm-4">
-
-    </div>
-    <div class="col-sm-4">
-        <div class="card">
+    <div class="col-sm-8">
+        <div class="card" hidden>
           <!-- When Uses is Not Logged In -->
           <div class="card-body">
             <div class="row">
@@ -177,6 +198,59 @@
           </div>
         </div>
     </div>
+    <div class="col-sm-4">
+      <div class="card" style="border-radius: 25px;">
+        <div class="card-body">
+            <div class="text-center">
+                <div style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
+                    <div style="font-size: 57px">#</div>
+                </div>
+                <h4>My Budget</h4>
+            </div>
+            <div class="form-group">
+                <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="emailInput" id="email" placeholder="Firma Mail Adresi">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="passwordInput" id="password" placeholder="Şifre">
+            </div>
+            <div class="form-group">
+                <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block" (click)="loginUser()">Sistem Girişi</button>
+            </div>
+        </div>
+      </div>
+    </div>
 
+  </div>
+</div>
+<div class="container mt-5 pt-2" *ngIf="userDetails && !employeeDetail">
+  <div class="row">
+    <div class="col-sm-8">
+
+    </div>
+    <div class="col-sm-4">
+        <div class="card" style="border-radius: 25px;">
+          <div class="card-body">
+              <div class="text-center">
+                  <div style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
+                      <div style="font-size: 57px">#</div>
+                  </div>
+                  <h4>My Budget</h4>
+                  <h6>Sistem girişiniz tamamlandı, lütfen kullanıcı girişinizi yapınız.</h6>
+              </div>
+              <div class="form-group">
+                  <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeeEmail" id="employeeEmail" placeholder="Kullanıcı Mail Adresi">
+              </div>
+              <div class="form-group">
+                  <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeePassword" id="employeePassword" placeholder="Şifre">
+              </div>
+              <div class="form-group">
+                  <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block" (click)="btnLoginEmployee_Click()">Kullanıcı Girişi</button>
+              </div>
+              <div class="form-group">
+                  <button type="button p-4" style="border-radius: 25px;" class="btn btn-danger btn-block" (click)="logoutUser()">Sistem Çıkış</button>
+              </div>
+          </div>
+        </div>
+    </div>
   </div>
 </div>

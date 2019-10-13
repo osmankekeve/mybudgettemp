@@ -1,29 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { NoteModel } from '../models/note-model';
-import { NoteService } from '../services/note.service';
+import { ProfileModel } from '../models/profile-model';
+import { ProfileService } from '../services/profile.service';
 
 @Component({
-  selector: 'app-note',
-  templateUrl: './note.component.html',
-  styleUrls: ['./note.component.css']
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.css']
 })
-export class NoteComponent implements OnInit, OnDestroy {
-  mainList: Array<NoteModel>;
-  collection: AngularFirestoreCollection<NoteModel>;
-  transactionList$: Observable<AccountTransactionModel[]>;
-  selectedRecord: NoteModel;
-  refModel: NoteModel;
-  openedPanel: any;
+export class UserComponent implements OnInit, OnDestroy {
+  mainList: Array<ProfileModel>;
+  selectedRecord: ProfileModel;
+  refModel: ProfileModel;
 
-  constructor(public authServis: AuthenticationService, public service: NoteService,
-              public atService: AccountTransactionService,
+  constructor(public authServis: AuthenticationService,
               public infoService: InformationService,
+              public service: ProfileService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -51,21 +45,12 @@ export class NoteComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as NoteModel;
-    this.refModel = record.data as NoteModel;
+    this.selectedRecord = record.data as ProfileModel;
+    this.refModel = record.data as ProfileModel;
   }
 
   btnReturnList_Click(): void {
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-    } else {
-      this.openedPanel = 'mainPanel';
-    }
-  }
-
-  btnNew_Click(): void {
-    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
   }
 
   btnSave_Click(): void {
@@ -73,13 +58,13 @@ export class NoteComponent implements OnInit, OnDestroy {
       this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Kasa başarıyla kaydedildi.');
+        this.infoService.success('Kullanıcı başarıyla kaydedildi.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     } else {
       this.service.updateItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Kasa başarıyla güncellendi.');
+        this.infoService.success('Kullanıcı başarıyla güncellendi.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     }
@@ -88,15 +73,18 @@ export class NoteComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
     .then(() => {
-      this.infoService.success('Kasa başarıyla kaldırıldı.');
+      this.infoService.success('Kullanıcı başarıyla kaldırıldı.');
       this.selectedRecord = undefined;
     }).catch(err => this.infoService.error(err));
   }
 
+  btnNew_Click(): void {
+    this.clearSelectedRecord();
+  }
+
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
+    this.selectedRecord = {primaryKey: undefined, isMainRecord: false, userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
   }
 
 }

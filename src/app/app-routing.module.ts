@@ -20,6 +20,9 @@ import { NotificationComponent } from './notification/notification.component';
 import { NoteComponent } from './note/note.component';
 import { CRMComponent } from './crm/crm.component';
 import {LocationComponent} from './location/location.component';
+import { ProfileComponent } from './profile/profile.component';
+import { SettingComponent } from './setting/setting.component';
+import { UserComponent } from './user/user.component';
 
 
 const routes: Routes = [
@@ -40,6 +43,9 @@ const routes: Routes = [
   {path: 'crm', component: CRMComponent, pathMatch: 'full'},
   {path: 'crm/:id', component: CRMComponent, pathMatch: 'full'},
   {path: 'location', component: LocationComponent, pathMatch: 'full'},
+  {path: 'profile', component: ProfileComponent, pathMatch: 'full'},
+  {path: 'setting', component: SettingComponent, pathMatch: 'full'},
+  {path: 'user', component: UserComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -69,7 +75,10 @@ export const routingComponents = [
   NotificationComponent,
   NoteComponent,
   CRMComponent,
-  LocationComponent
+  LocationComponent,
+  ProfileComponent,
+  SettingComponent,
+  UserComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

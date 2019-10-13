@@ -27,6 +27,8 @@ export class AppComponent implements OnInit {
   showNotificationPanel = false;
   actionCount = 0;
   showActionPanel = false;
+  showProfilePanel = false;
+  employeeDetail: any;
 
   constructor(
     private authService: AuthenticationService, public infoService: InformationService,
@@ -59,6 +61,9 @@ export class AppComponent implements OnInit {
   // Check localStorage is having User Data
   isUserLoggedIn() {
     this.userDetails = this.authService.isUserLoggedIn();
+    if (!this.userDetails) {
+      this.employeeDetail = undefined;
+    }
   }
 
   // SignOut Firebase Session and Clean LocalStorage
@@ -67,7 +72,9 @@ export class AppComponent implements OnInit {
       .then(res => {
         console.log(res);
         this.userDetails = undefined;
+        this.employeeDetail = undefined;
         localStorage.removeItem('user');
+        localStorage.removeItem('employee');
       }, err => {
         this.showMessage('danger', err.message);
       });
@@ -78,7 +85,6 @@ export class AppComponent implements OnInit {
     this.responseMessage = '';
     this.authService.login(this.emailInput, this.passwordInput)
       .then(res => {
-        console.log(res);
         this.showMessage('success', 'Successfully Logged In!');
         this.isUserLoggedIn();
       }, err => {
@@ -178,6 +184,17 @@ export class AppComponent implements OnInit {
       this.notificationList.splice(this.notificationList.indexOf(refModel), 1);
     }).catch(err => this.infoService.error(err));
 
+  }
+
+  btnLoginEmployee_Click() {
+    this.responseMessage = '';
+    this.authService.login(this.emailInput, this.passwordInput)
+      .then(res => {
+        this.showMessage('success', 'Successfully Logged In!');
+        this.isUserLoggedIn();
+      }, err => {
+        this.showMessage('danger', err.message);
+      });
   }
 
 }

@@ -1,0 +1,110 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-8">
+                <h4 class="card-title float-left mr-2">Kullanıcı Listesi</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Kullanıcı" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+            </div>
+            <div class="col-sm-4 head-filter">
+                <div class="input-group input-group-round">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+                    </div>
+                    <input type="search" class="form-control filter-list-input" placeholder="Kullanıcı Ara.." [(ngModel)]="searchText">
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+            <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+                    <div class="list-group-item bg-danger text-light">
+                            <div class="row">
+                                <div class="col-sm-1">Sıra</div>
+                                <div class="col-sm-4">Kullanıcı Adı</div>
+                                <div class="col-sm-3">Mail Adres</div>
+                                <div class="col-sm-2">Telefon</div>
+                                <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+
+                            </div>
+                    </div>
+                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                    (click)="showSelectedRecord(item)"
+                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                    <div class="row">
+                        <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
+                        <div class="col-sm-4">{{item.data.longName}}</div>
+                        <div class="col-sm-3">{{item.data.mailAddress}}</div>
+                        <div class="col-sm-2">{{item.data.phone}}</div>
+                        <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+
+                    </div>
+                </div>
+            </div>
+            <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+            </ng-template>
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4 class="card-title float-left mr-2">Kullanıcı Detayı</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+            <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                <div class="form-inline">
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="longName">Adı/Soyadı</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="form-control form-control-sm w-100" id="longName" name="longName" type="text"
+                                [(ngModel)]="selectedRecord.longName" required>
+                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="password">Şifre</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="form-control form-control-sm w-100" id="password" name="password" type="password"
+                                [(ngModel)]="selectedRecord.password" required>
+                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="mailAddress">E Mail</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="form-control form-control-sm w-100" id="mailAddress" name="mailAddress" type="text"
+                                [(ngModel)]="selectedRecord.mailAddress" required>
+                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="phone">Telefon</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
+                                [(ngModel)]="selectedRecord.phone" required>
+                                <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                        </div>
+                </div>
+            </form>
+    </div>
+    <div class="card-footer">
+        <div class="col-sm-3 float-right">
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                (click)="btnSave_Click()">Kaydet</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined && !selectedRecord.isMainRecord">
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                (click)="btnRemove_Click()">Kaldır</button>
+        </div>
+
+    </div>
+</div>
