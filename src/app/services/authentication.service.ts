@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,9 @@ import { AngularFireAuth } from '@angular/fire/auth';
 export class AuthenticationService {
 
   constructor(public angularFireAuth: AngularFireAuth,
-              public router: Router
+              public router: Router,
+              public authService: AuthenticationService,
+              public db: AngularFirestore
     ) {
       this.angularFireAuth.authState.subscribe(userResponse => {
         if (userResponse) {
@@ -19,6 +22,7 @@ export class AuthenticationService {
         }
       });
     }
+
     async login(email: string, password: string) {
       return await this.angularFireAuth.auth.signInWithEmailAndPassword(email, password);
     }
@@ -43,7 +47,7 @@ export class AuthenticationService {
       return JSON.parse(localStorage.getItem('user'));
     }
 
-    async  loginWithGoogle() {
+    async loginWithGoogle() {
       return await this.angularFireAuth.auth.signInWithPopup(new auth.GoogleAuthProvider());
     }
 
@@ -52,4 +56,23 @@ export class AuthenticationService {
       return user.uid;
 
     }
+
+    employeeLogin(email: string, password: string): any {
+      return new Promise((resolve, reject) => {
+        this.db.collection('tblProfile',
+          ref => ref.
+          where('userPrimaryKey', '==', this.getUid()).
+          where('mailAddress', '==', email).
+          where('password', '==', password)
+        ).get().toPromise().then(snapshot => {
+          if (snapshot.size > 0) {
+            snapshot.forEach(doc => {
+              resolve(doc.id);
+            });
+          } else {
+            reject();
+          }
+        });
+      }
+    ); }
 }

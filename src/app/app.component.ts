@@ -29,6 +29,8 @@ export class AppComponent implements OnInit {
   showActionPanel = false;
   showProfilePanel = false;
   employeeDetail: any;
+  employeeEmail: string;
+  employeePassword: string;
 
   constructor(
     private authService: AuthenticationService, public infoService: InformationService,
@@ -70,7 +72,6 @@ export class AppComponent implements OnInit {
   logoutUser() {
     this.authService.logout()
       .then(res => {
-        console.log(res);
         this.userDetails = undefined;
         this.employeeDetail = undefined;
         localStorage.removeItem('user');
@@ -85,7 +86,7 @@ export class AppComponent implements OnInit {
     this.responseMessage = '';
     this.authService.login(this.emailInput, this.passwordInput)
       .then(res => {
-        this.showMessage('success', 'Successfully Logged In!');
+        this.showMessage('success', 'Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
       }, err => {
         this.showMessage('danger', err.message);
@@ -99,7 +100,6 @@ export class AppComponent implements OnInit {
 
         // Send Varification link in email
         this.authService.sendEmailVerification().then(res => {
-          console.log(res);
           this.isForgotPassword = false;
           this.showMessage('success', 'Registration Successful! Please Verify Your Email');
         }, err => {
@@ -117,7 +117,6 @@ export class AppComponent implements OnInit {
   forgotPassword() {
     this.authService.sendPasswordResetEmail(this.emailInput)
       .then(res => {
-        console.log(res);
         this.isForgotPassword = false;
         this.showMessage('success', 'Please Check Your Email');
       }, err => {
@@ -129,7 +128,6 @@ export class AppComponent implements OnInit {
   googleLogin() {
     this.authService.loginWithGoogle()
       .then(res => {
-        console.log(res);
         this.showMessage('success', 'Successfully Logged In with Google');
         this.isUserLoggedIn();
       }, err => {
@@ -186,15 +184,14 @@ export class AppComponent implements OnInit {
 
   }
 
-  btnLoginEmployee_Click() {
+  async getAssignedUser(): Promise<string> {
+    return await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
+  }
+
+  async btnLoginEmployee_Click() {
     this.responseMessage = '';
-    this.authService.login(this.emailInput, this.passwordInput)
-      .then(res => {
-        this.showMessage('success', 'Successfully Logged In!');
-        this.isUserLoggedIn();
-      }, err => {
-        this.showMessage('danger', err.message);
-      });
+    const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
+    console.log(data);
   }
 
 }

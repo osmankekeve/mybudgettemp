@@ -33,7 +33,7 @@
                                         <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
                                     </div>
                                     <div class="col">
-                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>  
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -58,7 +58,7 @@
                                         <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
                                     </div>
                                     <div class="col">
-                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>  
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
                                         <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
                                     </div>
                                     <div class="col">
-                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>  
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -111,9 +111,9 @@
                                             <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-                                    </div>        
+                                    </div>
                                 </div>
                             </div>
                     </div>
@@ -140,10 +140,10 @@
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
                 <div class="row form-inline">
                     <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="customerName">Müşteri</label>
+                        <label class="col-form-label float-left">Müşteri</label>
                     </div>
                     <div class="col-sm-9">
-                        <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required 
+                        <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required
                         [disabled]="f.valid"
                         [(ngModel)]="selectedRecord.parentPrimaryKey">
                             <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -151,10 +151,10 @@
                         <div class="invalid-feedback invalid-inpput-info">Lütfen müşteri seçiniz.</div>
                     </div>
                     <div class="col-sm-3">
-                        <label class="col-form-label float-left" for="type">Etkinlik Tipi</label>
+                        <label class="col-form-label float-left" for="relationType">Etkinlik Tipi</label>
                     </div>
                     <div class="col-sm-3">
-                        <select class="form-control form-control-sm w-100" id="relationType" name="relationType" required 
+                        <select class="form-control form-control-sm w-100" id="relationType" name="relationType" required
                         [(ngModel)]="selectedRecord.relationType">
                             <option value="meeting">Toplantı</option>
                             <option value="mailSending">Mail Gönderim</option>

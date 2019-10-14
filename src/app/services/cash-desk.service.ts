@@ -13,17 +13,16 @@ import { CustomerModel } from '../models/customer-model';
 export class CashDeskService {
   listCollection: AngularFirestoreCollection<CashDeskModel>;
   mainList$: Observable<CashDeskModel[]>;
-  listCusttomer: AngularFirestoreCollection<CashDeskModel>;
   customerList$: Observable<CashDeskModel[]>;
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public db: AngularFirestore) {
 
   }
 
   getAllItems(): Observable<CashDeskModel[]> {
     this.listCollection = this.db.collection<CashDeskModel>('tblCashDesk',
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -42,7 +41,7 @@ export class CashDeskService {
 
   getMainItems(): Observable<CashDeskModel[]> {
     this.listCollection = this.db.collection('tblCashDesk',
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashDeskModel;
@@ -58,8 +57,8 @@ export class CashDeskService {
 
   getAll(): Array<CashDeskModel> {
     const array = new Array<CashDeskModel>();
-    
-    
+
+
 
 
 
