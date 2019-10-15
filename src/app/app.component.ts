@@ -17,8 +17,6 @@ export class AppComponent implements OnInit {
 
   title = 'MyBudgetWeb';
   selectedVal: string;
-  responseMessage = '';
-  responseMessageType = '';
   emailInput: string;
   passwordInput: string;
   isForgotPassword: boolean;
@@ -42,28 +40,21 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isUserLoggedIn();
-    this.populateNotificationList();
-    this.populateActivityList();
-  }
-
-  showMessage(type, msg) {
-    this.responseMessageType = type;
-    this.responseMessage = msg;
-    setTimeout(() => {
-      this.responseMessage = '';
-    }, 2000);
-  }
-
-  // Called on switching Login/ Register tabs
-  public onValChange(val: string) {
-    this.showMessage('', '');
-    this.selectedVal = val;
+    this.isEmployeeLoggedIn();
   }
 
   // Check localStorage is having User Data
   isUserLoggedIn() {
     this.userDetails = this.authService.isUserLoggedIn();
     if (!this.userDetails) {
+      this.employeeDetail = undefined;
+    }
+  }
+
+  // Check localStorage is having employee Data
+  isEmployeeLoggedIn() {
+    this.employeeDetail = this.authService.isEmployeeLoggedIn();
+    if (!this.employeeDetail) {
       this.employeeDetail = undefined;
     }
   }
@@ -77,19 +68,20 @@ export class AppComponent implements OnInit {
         localStorage.removeItem('user');
         localStorage.removeItem('employee');
       }, err => {
-        this.showMessage('danger', err.message);
+        this.infoService.error(err.message);
       });
   }
 
   // Login user with  provided Email/ Password
   loginUser() {
-    this.responseMessage = '';
     this.authService.login(this.emailInput, this.passwordInput)
       .then(res => {
-        this.showMessage('success', 'Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
+        this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
+        this.populateNotificationList();
+        this.populateActivityList();
       }, err => {
-        this.showMessage('danger', err.message);
+        this.infoService.error(err.message);
       });
   }
 
@@ -99,17 +91,15 @@ export class AppComponent implements OnInit {
       .then(res => {
 
         // Send Varification link in email
-        this.authService.sendEmailVerification().then(res => {
+        this.authService.sendEmailVerification().then(res2 => {
           this.isForgotPassword = false;
-          this.showMessage('success', 'Registration Successful! Please Verify Your Email');
+          this.infoService.success('Registration Successful! Please Verify Your Email');
         }, err => {
-          this.showMessage('danger', err.message);
+          this.infoService.error(err.message);
         });
         this.isUserLoggedIn();
-
-
       }, err => {
-        this.showMessage('danger', err.message);
+        this.infoService.error(err.message);
       });
   }
 
@@ -118,9 +108,9 @@ export class AppComponent implements OnInit {
     this.authService.sendPasswordResetEmail(this.emailInput)
       .then(res => {
         this.isForgotPassword = false;
-        this.showMessage('success', 'Please Check Your Email');
+        this.infoService.success('Please Check Your Email');
       }, err => {
-        this.showMessage('danger', err.message);
+        this.infoService.error(err.message);
       });
   }
 
@@ -128,10 +118,10 @@ export class AppComponent implements OnInit {
   googleLogin() {
     this.authService.loginWithGoogle()
       .then(res => {
-        this.showMessage('success', 'Successfully Logged In with Google');
+        this.infoService.success('Successfully Logged In with Google');
         this.isUserLoggedIn();
       }, err => {
-        this.showMessage('danger', err.message);
+        this.infoService.error(err.message);
       });
   }
 
@@ -189,9 +179,13 @@ export class AppComponent implements OnInit {
   }
 
   async btnLoginEmployee_Click() {
-    this.responseMessage = '';
     const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
-    console.log(data);
+    if (data) {
+      this.isEmployeeLoggedIn();
+      this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
+    } else {
+      this.infoService.error('Kullanıcı sistemde kayıtlı değil');
+    }
   }
 
 }

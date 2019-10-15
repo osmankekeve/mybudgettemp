@@ -1,14 +1,3 @@
-<div class="row" *ngIf="responseMessage.length">
-    <div class="col-sm-4">
-
-    </div>
-    <div class="col-sm-4">
-        <div class="alert alert-{{responseMessageType}}" role="alert">
-        {{responseMessage}}
-        </div>
-    </div>
-
-</div>
 <div *ngIf="userDetails && employeeDetail">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
@@ -130,22 +119,24 @@
     </div>
   </nav>
 </div>
-<div class="container-fluid mt-5 pt-2" *ngIf="userDetails && employeeDetail">
+<div class="container-fluid mt-5 pt-2">
+  <div class="row mt-3">
+    <div class="col-12">
+      <app-alert></app-alert>
+    </div>
+  </div>
+</div>
+<div class="container-fluid pt-2" *ngIf="userDetails && employeeDetail">
   <div class="row mt-3">
     <div class="col-sm-3">
-        <aside>
-          <app-side-nav-bar></app-side-nav-bar>
-        </aside>
+      <aside>
+        <app-side-nav-bar></app-side-nav-bar>
+      </aside>
     </div>
     <div class="col-sm-9">
-      <div class="row">
-        <div class="col-12">
-          <app-alert></app-alert>
-        </div>
-      </div>
-        <main>
-            <router-outlet></router-outlet>
-        </main>
+      <main>
+        <router-outlet></router-outlet>
+      </main>
     </div>
   </div>
 </div>
@@ -208,10 +199,10 @@
                 <h4>My Budget</h4>
             </div>
             <div class="form-group">
-                <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="emailInput" id="email" placeholder="Firma Mail Adresi">
+                <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="emailInput" id="companyEmail" placeholder="Firma Mail Adresi">
             </div>
             <div class="form-group">
-                <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="passwordInput" id="password" placeholder="Şifre">
+                <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="passwordInput" id="companyPassword" placeholder="Şifre">
             </div>
             <div class="form-group">
                 <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block" (click)="loginUser()">Sistem Girişi</button>
