@@ -14,9 +14,10 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { InformationService } from './services/information.service';
 import { CustomerDataFilterPipe } from './filters/customer-data-filter.pipe';
 import { CustomerFilterPipe } from './filters/customer-filter.pipe';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
-import {LocationDataFilterPipe} from './filters/location-data-filter.pipe';
+import { LocationDataFilterPipe } from './filters/location-data-filter.pipe';
+import { ProfileFilterPipe } from './filters/profile-filter.pipe';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import {LocationDataFilterPipe} from './filters/location-data-filter.pipe';
     SideNavBarComponent,
     CustomerDataFilterPipe,
     CustomerFilterPipe,
-    LocationDataFilterPipe
+    LocationDataFilterPipe,
+    ProfileFilterPipe
   ],
   imports: [
     NgbModule,

@@ -41,6 +41,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.isUserLoggedIn();
     this.isEmployeeLoggedIn();
+    this.populateNotificationList();
   }
 
   // Check localStorage is having User Data
@@ -78,7 +79,6 @@ export class AppComponent implements OnInit {
       .then(res => {
         this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
-        this.populateNotificationList();
         this.populateActivityList();
       }, err => {
         this.infoService.error(err.message);
