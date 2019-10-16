@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
-import {AngularFirestore} from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +10,6 @@ import {AngularFirestore} from '@angular/fire/firestore';
 export class AuthenticationService {
 
   constructor(public angularFireAuth: AngularFireAuth,
-              public router: Router,
-              public authService: AuthenticationService,
               public db: AngularFirestore
   ) {
     this.angularFireAuth.authState.subscribe(userResponse => {
@@ -68,7 +66,7 @@ export class AuthenticationService {
       ).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
-            localStorage.setItem('employee', JSON.stringify(doc.id));
+            localStorage.setItem('employee', JSON.stringify(doc.data()));
             resolve(doc.id);
           });
         } else {

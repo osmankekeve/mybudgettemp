@@ -9,17 +9,17 @@
     <div class="card-body">
         <div class="row">
             <div class="col-sm-4">
-                    <div class="cursor-pointer mb-1" (click)="openedPanel='mainPanel'">
+                    <div class="cursor-pointer mb-1" (click)="openPanel('mainPanel')">
                         <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
                             <div class="form-inline">
-                                <div style="width: 50px;">                                    
+                                <div style="width: 50px;">
                                     <i class="fa fa-2x fa-user-circle mr-2"></i>
                                 </div>
                                 <label>Ana Sayfa</label>
                             </div>
                         </div>
                     </div>
-                    <div class="cursor-pointer mb-1" (click)="openedPanel='personelPanel'">
+                    <div class="cursor-pointer mb-1" (click)="openPanel('personalPanel')">
                         <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
                             <div class="form-inline">
                                     <div style="width: 50px;">
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cursor-pointer mb-1" (click)="openedPanel='securityPanel'">
+                    <div class="cursor-pointer mb-1" (click)="openPanel('securityPanel')">
                         <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
                             <div class="form-inline">
                                     <div style="width: 50px;">
@@ -47,7 +47,7 @@
                             mainPanel
                     </div>
                 </div>
-                <div class="card bg-light" *ngIf="openedPanel == 'personelPanel'">
+                <div class="card bg-light" *ngIf="openedPanel == 'personalPanel'">
                     <div class="card-body">
                             <div class="text-center">
                                 <h4>Kişisel Bilgiler</h4>

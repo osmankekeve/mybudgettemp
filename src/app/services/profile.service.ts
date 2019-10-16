@@ -58,4 +58,12 @@ export class ProfileService {
     return this.mainList$;
   }
 
+  getProfile(): any {
+    return new Promise((resolve, reject) => {
+      this.db.collection('tblProfile').doc(JSON.parse(localStorage.getItem('employee'))).get().toPromise().then(item => {
+        resolve(item.data());
+      });
+    });
+  }
+
 }
