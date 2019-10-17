@@ -19,6 +19,7 @@ import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountVoucherService} from '../services/account-voucher.service';
+import {AuthenticationService} from '../services/authentication.service';
 
 @Component({
   selector: 'app-customer',
@@ -52,7 +53,7 @@ export class CustomerComponent implements OnInit  {
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
-              public cdService: CashDeskService, public avService: AccountVoucherService,
+              public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
@@ -147,6 +148,7 @@ export class CustomerComponent implements OnInit  {
       .then(() => {
         this.infoService.success('Müşteri başarıyla kaydedildi.');
         this.selectedCustomer = undefined;
+        this.openedPanel = 'dashboard';
       }).catch(err => this.infoService.error(err));
     } else {
       this.customerService.updateItem(this.selectedCustomer)
@@ -271,8 +273,10 @@ export class CustomerComponent implements OnInit  {
   }
 
   clearSelectedCustomer(): void {
+    this.openedPanel = 'edit';
     this.refModel = undefined;
-    this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: ''};
+    this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: '',
+      userPrimaryKey: this.authService.getUid()};
   }
 
   clearNewSalesInvoice(): void {
@@ -297,7 +301,9 @@ export class CustomerComponent implements OnInit  {
 
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
-    this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
+    if (this.selectedCustomer.primaryKey) {
+      this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
+    }
     if (this.openedPanel === 'salesInvoice') {
       this.clearNewSalesInvoice();
     } else if (this.openedPanel === 'collection') {
@@ -308,7 +314,12 @@ export class CustomerComponent implements OnInit  {
       this.clearNewPayment();
     } else if (this.openedPanel === 'edit') {
 
-    } else {
+    } else if (this.openedPanel === 'dashboard') {
+      if (!this.selectedCustomer.primaryKey) {
+        this.btnReturnList_Click();
+      }
+
+    }  else {
 
     }
   }

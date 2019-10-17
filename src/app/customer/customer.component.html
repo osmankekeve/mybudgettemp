@@ -49,7 +49,7 @@
             </div>
         </div>
         <div *ngIf="openedPanel=='dashboard'">
-                <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
+          <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="card card-stats">
@@ -177,7 +177,7 @@
                 </div>
         </div>
         <div *ngIf="openedPanel=='salesInvoice'">
-            <div class="card-body">
+          <div class="card-body">
                 <div class="form-row">
                     <div class="col-sm-7">
                         <div class="card">
@@ -268,10 +268,9 @@
                 </div>
 
             </div>
-
         </div>
         <div *ngIf="openedPanel=='collection'">
-            <div class="card-body">
+          <div class="card-body">
                 <div class="form-row">
                     <div class="col-sm-7">
                         <div class="card">
@@ -375,7 +374,7 @@
             </div>
         </div>
         <div *ngIf="openedPanel=='purchaseInvoice'">
-            <div class="card-body">
+          <div class="card-body">
                 <div class="form-row">
                     <div class="col-sm-7">
                         <div class="card">
@@ -468,7 +467,7 @@
             </div>
         </div>
         <div *ngIf="openedPanel=='payment'">
-            <div class="card-body">
+          <div class="card-body">
                 <div class="form-row">
                     <div class="col-sm-7">
                         <div class="card">
@@ -572,74 +571,76 @@
             </div>
         </div>
         <div *ngIf="openedPanel=='edit'">
-            <div class="card-body">
-                    <form (ngSubmit)="btnSave_Click()" class="was-validated">
-                        <div class="form-row form-inline">
-                                <div class="col-sm-3">
-                                    <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
-                                </div>
-                                <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="customerName" name="customerName" type="text"
-                                        [(ngModel)]="selectedCustomer.name" required>
-                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
-                                </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="customerCode">Kod</label>
-                            </div>
-                            <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="customerCode" name="customerCode" type="text"
-                                        [(ngModel)]="selectedCustomer.code">
-                            </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="phone1">Telefon</label>
-                            </div>
-                            <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="phone1" name="phone1" type="text"
-                                        [(ngModel)]="selectedCustomer.phone1" required>
-                                        <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="phone2">Fax</label>
-                            </div>
-                            <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="phone2" name="phone2" type="text"
-                                        [(ngModel)]="selectedCustomer.phone2">
-                            </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="eMail">E-Mail</label>
-                            </div>
-                            <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="eMail" name="eMail" type="email"
-                                        [(ngModel)]="selectedCustomer.email">
-                            </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
-                            </div>
-                            <div class="col-sm-3">
-                                    <input class="form-control form-control-sm" id="owner" name="owner" type="text"
-                                        [(ngModel)]="selectedCustomer.owner" required>
-                                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
-                            </div>
-                            <div class="col-sm-3">
-                                <label class="col-form-label float-left" for="address">Adres</label>
-                            </div>
-                            <div class="col-sm-9">
-                                    <input class="form-control form-control-sm" id="address" name="address" type="text"
-                                        [(ngModel)]="selectedCustomer.address">
-                            </div>
-                        </div>
-                    </form>
-
-            </div>
-            <div class="card-footer">
+          <div class="card-body">
+            <div class="card card-stats">
+              <div  class="card-body">
+                <form (ngSubmit)="btnSave_Click()" class="was-validated">
+                  <div class="form-row form-inline">
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="customerName" name="customerName" type="text"
+                             [(ngModel)]="selectedCustomer.name" required>
+                      <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="customerCode">Kod</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
+                             [(ngModel)]="selectedCustomer.code">
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="phone1">Telefon</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="phone1" name="phone1" type="text"
+                             [(ngModel)]="selectedCustomer.phone1" required>
+                      <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="phone2">Fax</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="phone2" name="phone2" type="text"
+                             [(ngModel)]="selectedCustomer.phone2">
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="eMail">E-Mail</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="eMail" name="eMail" type="email"
+                             [(ngModel)]="selectedCustomer.email">
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <input class="form-control form-control-sm w-100" id="owner" name="owner" type="text"
+                             [(ngModel)]="selectedCustomer.owner" required>
+                      <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="address">Adres</label>
+                    </div>
+                    <div class="col-sm-9">
+                      <input class="form-control form-control-sm w-100" id="address" name="address" type="text"
+                             [(ngModel)]="selectedCustomer.address">
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="card-footer">
                 <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
-                    <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
+                  <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
                 </div>
                 <div class="col-sm-3 float-right">
-                    <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Kaydet</button>
+                  <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Kaydet</button>
                 </div>
 
+              </div>
             </div>
-
+          </div>
         </div>
 </div>

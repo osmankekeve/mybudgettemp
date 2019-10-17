@@ -32,11 +32,11 @@
                                                     <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                                 </div>
-    
+
                                             </div>
-                                            <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                            <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                         </div>
                                     </div>
                             </div>
@@ -58,11 +58,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -84,11 +84,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -110,11 +110,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -134,7 +134,7 @@
                                         <div class="col-sm-2">Fiş Numarası</div>
                                         <div class="col-sm-2"><span class="float-right">Tutar</span></div>
                                         <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-                    
+
                                     </div>
                             </div>
                         <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
@@ -146,7 +146,7 @@
                                 <div class="col-sm-2">{{item.data.receiptNo}}</div>
                                 <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
                                 <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-            
+
                             </div>
                         </div>
                     </div>
@@ -154,16 +154,18 @@
                         <div class="card bg-danger text-white">
                           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
                         </div>
-                    </ng-template>   
+                    </ng-template>
 
-            </div> 
+            </div>
     </div>
 </div>
 <div class="card" *ngIf="selectedRecord!=undefined">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-12">
-                <h4 class="card-title float-left mr-2">Cari Fiş Detayı</h4>
+                <h4 class="card-title float-left mr-2">Cari Fiş Detayı
+                  <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
+                </h4>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
             </div>
         </div>
@@ -176,7 +178,7 @@
                     <label class="col-form-label float-left" for="customerName">Müşteri</label>
                 </div>
                 <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required 
+                    <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
                     [disabled]="f.valid"
                     [(ngModel)]="selectedRecord.customerCode">
                         <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -187,7 +189,7 @@
                     <label class="col-form-label float-left" for="typeTr">Tahsilat Tipi</label>
                 </div>
                 <div class="col-sm-3">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required
                     [disabled]="f.valid"
                     [(ngModel)]="selectedRecord.type">
                         <option value="creditVoucher">Alacaklandırma</option>

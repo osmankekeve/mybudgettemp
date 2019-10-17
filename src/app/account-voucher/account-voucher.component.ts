@@ -29,7 +29,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: AccountVoucherModel;
   refModel: AccountVoucherModel;
-  isRecordHasTransacton = false;
+  isRecordHasTransaction = false;
   isShowAllRecords = false;
 
   constructor(public authServis: AuthenticationService,
@@ -127,10 +127,10 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
-        this.isRecordHasTransacton = true;
+        this.isRecordHasTransaction = true;
 
       } else {
-        this.isRecordHasTransacton = false;
+        this.isRecordHasTransaction = false;
       }
     });
   }
@@ -216,7 +216,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.isRecordHasTransacton = false;
+    this.isRecordHasTransaction = false;
     this.refModel = undefined;
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
       insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
