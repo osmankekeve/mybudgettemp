@@ -251,7 +251,7 @@ export class CustomerComponent implements OnInit  {
       const newId = this.db.createId();
       this.newPayment.primaryKey = '';
 
-      this.colService.setItem(this.newPayment, newId).then(() => {
+      this.payService.setItem(this.newPayment, newId).then(() => {
         this.db.collection('tblAccountTransaction').add({
           primaryKey: '',
           userPrimaryKey: this.newPayment.userPrimaryKey,

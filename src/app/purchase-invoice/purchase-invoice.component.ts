@@ -26,6 +26,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   refModel: PurchaseInvoiceModel;
   isRecordHasTransacton = false;
   isShowAllRecords = false;
+  isMainFilterOpened = false;
+  date = new Date();
+  beginDate: any;
+  finishDate: any;
 
   constructor(public authServis: AuthenticationService,
               public service: PurchaseInvoiceService,
@@ -99,8 +103,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   populateAllRecords(): void {
     this.mainList = [];
+    const beginDate = new Date(this.beginDate.year, this.beginDate.month - 1, this.beginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.finishDate.year, this.finishDate.month - 1, this.finishDate.day + 1, 0, 0, 0);
 
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -133,6 +139,19 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+  }
+
+  btnMainFilter_Click(): void {
+    this.populateAllRecords();
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
   }
 
   btnNew_Click(): void {
@@ -208,6 +227,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = false;
     } else {
       this.isShowAllRecords = true;
+      this.clearMainFiler();
       this.populateAllRecords();
     }
   }
@@ -217,6 +237,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.isRecordHasTransacton = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
     description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
+  }
+
+  clearMainFiler(): void {
+    this.beginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
+    this.finishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
   }
 
 }

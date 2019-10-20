@@ -4,7 +4,8 @@
             <div class="col-sm-8">
                 <h4 class="card-title float-left mr-2">Alım Faturası Listesi</h4>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fatura" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Tüm Faturalar" (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Faturalar" (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Geniş Filtre" (click)="btnShowMainFiler_Click()" *ngIf="isShowAllRecords"><i class="fa fa-filter"></i></button>
             </div>
             <div class="col-sm-4 head-filter">
                 <div class="input-group input-group-round">
@@ -127,6 +128,42 @@
         </div>
 
         <div *ngIf="isShowAllRecords">
+            <div class="card mb-2" *ngIf="isMainFilterOpened">
+                <div class="card-header">Filtreler</div>
+                <div class="card-body bg-light">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left">Başlangıç Tarihi</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel" [(ngModel)]="beginDate" ngbDatepicker #d="ngbDatepicker">
+                                <div class="input-group-append">
+                                    <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left">Bitiş Tarihi</label>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel" [(ngModel)]="finishDate" ngbDatepicker #d2="ngbDatepicker">
+                                <div class="input-group-append">
+                                    <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
                         <div class="list-group-item bg-warning text-light">
                                 <div class="row">
