@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
@@ -7,6 +7,7 @@ import { combineLatest } from 'rxjs';
 import { CollectionModel } from '../models/collection-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
+import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -75,15 +76,38 @@ export class CollectionService {
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CollectionModel[]> {
     this.listCollection = this.db.collection('tblCollection',
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authServis.getUid()));
+      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          .pipe(map( (customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<CollectionModel[]> {
+    this.listCollection = this.db.collection('tblCollection',
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+          .where('userPrimaryKey', '==', this.authServis.getUid());
+        if (customerPrimaryKey !== '-1') {
+          query = query.where('customerCode', '==', customerPrimaryKey);
+        }
+        return query;
+      });
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as CollectionModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+          .pipe(map( (customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

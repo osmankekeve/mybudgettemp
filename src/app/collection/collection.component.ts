@@ -25,13 +25,21 @@ export class CollectionComponent implements OnInit, OnDestroy {
   mainList4: Array<CollectionModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
-  recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CollectionModel;
   refModel: CollectionModel;
-  isRecordHasTransacton = false;
+  isRecordHasTransaction = false;
   isShowAllRecords = false;
+  isMainFilterOpened = false;
 
-  constructor(public authServis: AuthenticationService,
+  date = new Date();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  filterCustomerCode: any;
+  totalValues = {
+    amount: 0
+  };
+
+  constructor(public authService: AuthenticationService,
               public service: CollectionService,
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
@@ -104,14 +112,23 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   populateAllRecords(): void {
     this.mainList = [];
-    this.service.getMainItems().subscribe(list => {
+    this.totalValues = {
+      amount: 0
+    };
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
+          this.totalValues.amount += item.data.amount;
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+          this.totalValues.amount -= item.data.amount;
         } else if (item.returnData.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+          this.totalValues.amount -= this.refModel.amount;
+          this.totalValues.amount += item.data.amount;
         } else {
           // nothing
         }
@@ -125,12 +142,25 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
-        this.isRecordHasTransacton = true;
+        this.isRecordHasTransaction = true;
 
       } else {
-        this.isRecordHasTransacton = false;
+        this.isRecordHasTransaction = false;
       }
     });
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  btnMainFilter_Click(): void {
+    this.populateAllRecords();
   }
 
   btnReturnList_Click(): void {
@@ -211,15 +241,22 @@ export class CollectionComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = false;
     } else {
       this.isShowAllRecords = true;
+      this.clearMainFiler();
       this.populateAllRecords();
     }
   }
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.isRecordHasTransacton = false;
+    this.isRecordHasTransaction = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
-      insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
+      insertDate: Date.now(), userPrimaryKey: this.authService.getUid()};
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
+    this.filterFinishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+    this.filterCustomerCode = '-1';
   }
 
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
@@ -93,6 +93,28 @@ export class PaymentService {
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
           return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PaymentModel[]> {
+    this.listCollection = this.db.collection('tblPayment', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+          .where('userPrimaryKey', '==', this.authServis.getUid());
+        if (customerPrimaryKey !== '-1') {
+          query = query.where('customerCode', '==', customerPrimaryKey);
+        }
+        return query;
+      });
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as PaymentModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+          .pipe(map( (customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

@@ -1,11 +1,14 @@
-
 <div class="card" *ngIf="selectedRecord==undefined">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-8">
-                <h4 class="card-title float-left mr-2">Tahsilat Listesi</h4>
-                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Tahsilat" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Tüm Tahsilatlar" (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+              <h4 class="card-title float-left mr-2">Tahsilat Listesi</h4>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Tahsilat"
+                      (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Tahsilatlar"
+                      (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Geniş Filtre"
+                      (click)="btnShowMainFiler_Click()" *ngIf="isShowAllRecords"><i class="fa fa-filter"></i></button>
             </div>
             <div class="col-sm-4 head-filter">
                 <div class="input-group input-group-round">
@@ -20,7 +23,7 @@
         </div>
     </div>
     <div class="card-body">
-            <div class="row" *ngIf="!isShowAllRecords">
+      <div class="row" *ngIf="!isShowAllRecords">
                 <div class="col-sm-3">
                             <div class="card-list-parent" *ngIf="mainList4.length > 0; else elseBlock4">
                                     <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList4 | filterCustomer : searchText; index as i; trackBy: primaryKey"
@@ -33,11 +36,11 @@
                                                     <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                                 </div>
                                                 <div class="col">
-                                                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                                 </div>
-    
+
                                             </div>
-                                            <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                            <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                         </div>
                                     </div>
                             </div>
@@ -59,11 +62,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -85,11 +88,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -111,11 +114,11 @@
                                             <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
                                         </div>
                                         <div class="col">
-                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>  
+                                            <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                                         </div>
-    
+
                                     </div>
-                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>                       
+                                    <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                                 </div>
                                 </div>
                         </div>
@@ -126,19 +129,65 @@
                         </ng-template>
                 </div>
             </div>
-            <div *ngIf="isShowAllRecords">
-                    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-                            <div class="list-group-item bg-success text-light">
+      <div *ngIf="isShowAllRecords">
+        <div class="card mb-2" *ngIf="isMainFilterOpened">
+          <div class="card-header">Filtreler</div>
+          <div class="card-body bg-light">
+            <div class="row">
+              <div class="col-sm-3">
+                <label class="col-form-label float-left">Müşteri</label>
+              </div>
+              <div class="col-sm-9">
+                <select class="form-control form-control-sm w-100"
+                        [(ngModel)]="filterCustomerCode">
+                  <option value="-1">Hepsini Seç</option>
+                  <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left">Başlangıç Tarihi</label>
+              </div>
+              <div class="col-sm-3">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel" [(ngModel)]="filterBeginDate" ngbDatepicker #d="ngbDatepicker">
+                  <div class="input-group-append">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left">Bitiş Tarihi</label>
+              </div>
+              <div class="col-sm-3">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel" [(ngModel)]="filterFinishDate" ngbDatepicker #d2="ngbDatepicker">
+                  <div class="input-group-append">
+                    <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="row">
+              <div class="col-sm-2">
+                <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="list-group work-area" *ngIf="mainList.length > 0; else elseBlock">
+          <div class="list-group-item bg-success text-light">
                                     <div class="row">
                                         <div class="col-sm-1">Sıra</div>
                                         <div class="col-sm-5">Müşteri Adı</div>
                                         <div class="col-sm-2">Fiş Numarası</div>
                                         <div class="col-sm-2"><span class="float-right">Tutar</span></div>
                                         <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-                    
+
                                     </div>
                             </div>
-                        <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+          <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                             (click)="showSelectedRecord(item)"
                             *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                             <div class="row">
@@ -147,16 +196,22 @@
                                 <div class="col-sm-2">{{item.data.receiptNo}}</div>
                                 <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
                                 <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-            
+
                             </div>
                         </div>
-                    </div>
-                    <ng-template #elseBlock>
+          <li class="list-group-item list-group-item-success">
+            <div class="row">
+              <div class="col-sm-8">Toplam</div>
+              <div class="col-sm-2"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
+            </div>
+          </li>
+        </div>
+        <ng-template #elseBlock>
                         <div class="card bg-danger text-white">
                           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
                         </div>
                     </ng-template>
-            </div>
+      </div>
     </div>
 </div>
 <div class="card" *ngIf="selectedRecord!=undefined">
@@ -164,7 +219,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <h4 class="card-title float-left mr-2">Tahsilat Detayı
-                    <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
+                    <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
                 </h4>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
             </div>
@@ -178,7 +233,7 @@
                     <label class="col-form-label float-left" for="customerName">Müşteri</label>
                 </div>
                 <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required 
+                    <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
                     [disabled]="f.valid"
                     [(ngModel)]="selectedRecord.customerCode">
                         <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -189,7 +244,7 @@
                     <label class="col-form-label float-left" for="typeTr">Tahsilat Tipi</label>
                 </div>
                 <div class="col-sm-3">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required 
+                    <select class="form-control form-control-sm w-100" id="type" name="type" required
                     [disabled]="f.valid"
                     [(ngModel)]="selectedRecord.type">
                         <option value="cash">Nakit</option>

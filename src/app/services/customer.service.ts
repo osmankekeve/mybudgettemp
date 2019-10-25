@@ -21,7 +21,7 @@ export class CustomerService {
 
   getAllItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection<CustomerModel>('tblCustomer',
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()).orderBy('name', 'asc'));
     return this.listCollection.valueChanges({ idField : 'primaryKey'});
   }
 

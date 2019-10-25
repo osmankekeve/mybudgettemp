@@ -24,14 +24,20 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: PurchaseInvoiceModel;
   refModel: PurchaseInvoiceModel;
-  isRecordHasTransacton = false;
+  isRecordHasTransaction = false;
   isShowAllRecords = false;
   isMainFilterOpened = false;
-  date = new Date();
-  beginDate: any;
-  finishDate: any;
 
-  constructor(public authServis: AuthenticationService,
+  date = new Date();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  filterCustomerCode: any;
+  totalValues = {
+    totalPrice: 0,
+    totalPriceWithTax: 0,
+  };
+
+  constructor(public authService: AuthenticationService,
               public service: PurchaseInvoiceService,
               public cService: CustomerService,
               public atService: AccountTransactionService,
@@ -103,17 +109,29 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   populateAllRecords(): void {
     this.mainList = [];
-    const beginDate = new Date(this.beginDate.year, this.beginDate.month - 1, this.beginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.finishDate.year, this.finishDate.month - 1, this.finishDate.day + 1, 0, 0, 0);
+    this.totalValues = {
+      totalPrice: 0,
+      totalPriceWithTax: 0,
+    };
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
+          this.totalValues.totalPrice += item.data.totalPrice;
+          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+          this.totalValues.totalPrice -= item.data.totalPrice;
+          this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
         } else if (item.actionType === 'modified') {
           this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+          this.totalValues.totalPrice -= this.refModel.totalPrice;
+          this.totalValues.totalPriceWithTax -= this.refModel.totalPriceWithTax;
+          this.totalValues.totalPrice += item.data.totalPrice;
+          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
         } else {
           // nothing
         }
@@ -125,14 +143,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord = record.data as PurchaseInvoiceModel;
     this.refModel = record.data as PurchaseInvoiceModel;
     this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
-    this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);    
+    this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
-        this.isRecordHasTransacton = true;
+        this.isRecordHasTransaction = true;
 
       } else {
-        this.isRecordHasTransacton = false;
+        this.isRecordHasTransaction = false;
       }
     });
   }
@@ -187,7 +205,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-  
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -234,14 +251,15 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.isRecordHasTransacton = false;
+    this.isRecordHasTransaction = false;
     this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
-    description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
+    description: '', insertDate: Date.now(), userPrimaryKey: this.authService.getUid()};
   }
 
   clearMainFiler(): void {
-    this.beginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
-    this.finishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+    this.filterBeginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
+    this.filterFinishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+    this.filterCustomerCode = '-1';
   }
 
 }

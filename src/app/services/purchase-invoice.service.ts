@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { CustomerModel } from '../models/customer-model';
@@ -7,6 +7,7 @@ import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
+import {QueryFn} from '@angular/fire/firestore/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,28 @@ export class PurchaseInvoiceService {
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
           return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PurchaseInvoiceModel[]> {
+    this.listCollection = this.db.collection('tblPurchaseInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+          .where('userPrimaryKey', '==', this.authServis.getUid());
+        if (customerPrimaryKey !== '-1') {
+          query = query.where('customerCode', '==', customerPrimaryKey);
+        }
+        return query;
+      });
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as PurchaseInvoiceModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+          .pipe(map( (customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

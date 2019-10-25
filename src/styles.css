@@ -90,3 +90,8 @@ body {
     right: 10px;
     top: 5px;
 }
+
+.work-area {
+  max-height: calc(100vh - 210px);
+  overflow: auto;
+}
