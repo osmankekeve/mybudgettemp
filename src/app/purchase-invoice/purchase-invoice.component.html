@@ -241,7 +241,7 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="form-row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="customerName">Müşteri</label>
+          <label class="col-form-label float-left" for="customerCode">Müşteri</label>
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
@@ -253,7 +253,7 @@
           <div class="invalid-feedback invalid-inpput-info">Lütfen müşteri seçiniz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="invoiceType">Fatura Tipi</label>
+          <label class="col-form-label float-left" for="type">Fatura Tipi</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
@@ -289,11 +289,18 @@
           <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="insertDate">Record Date</label>
+          <label class="col-form-label float-left" for="recordDate">Kayıt Tarihi</label>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left"
-                 for="insertDate">{{selectedRecord.insertDate | date: 'yyyy.MM.dd'}}</label>
+          <div class="input-group">
+            <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                   [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+            <div class="input-group-append">
+              <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                class="fa fa-calendar"></i></button>
+            </div>
+          </div>
+
         </div>
         <div class="col-sm-6"></div>
         <div class="col-sm-3">

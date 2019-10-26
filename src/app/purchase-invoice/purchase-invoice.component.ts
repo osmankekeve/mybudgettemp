@@ -27,6 +27,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isShowAllRecords = false;
   isMainFilterOpened = false;
+  recordDate: any;
 
   date = new Date();
   filterBeginDate: any;
@@ -144,6 +145,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.refModel = record.data as PurchaseInvoiceModel;
     this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
     this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
+    const selectedRecordInsertDate = new Date(this.selectedRecord.insertDate);
+    this.recordDate = {year: selectedRecordInsertDate.getFullYear(),
+      month: selectedRecordInsertDate.getMonth() + 1,
+      day: selectedRecordInsertDate.getDate()};
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -177,6 +182,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
+    this.selectedRecord.insertDate = new Date(this.recordDate.year, this.recordDate.month - 1, this.recordDate.day,
+      this.date.getHours(), this.date.getMinutes(), this.date.getSeconds()).getTime();
     const data = this.selectedRecord;
     if (data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
@@ -198,7 +205,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             cashDeskPrimaryKey: '-1',
             amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
             amountType: this.selectedRecord.type === 'purchase' ? 'credit' : 'debit',
-            insertDate: data.insertDate,
+            insertDate: this.selectedRecord.insertDate
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
@@ -212,6 +219,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             list.forEach((item) => {
               const trans = {
                 receiptNo: data.receiptNo,
+                insertDate: this.selectedRecord.insertDate,
                 amount: this.selectedRecord.type === 'purchase' ? data.totalPriceWithTax : data.totalPriceWithTax * -1,
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
@@ -252,8 +260,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
+    this.recordDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
     this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
-    description: '', insertDate: Date.now(), userPrimaryKey: this.authService.getUid()};
+    description: '', userPrimaryKey: this.authService.getUid()};
   }
 
   clearMainFiler(): void {
