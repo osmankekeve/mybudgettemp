@@ -1,5 +1,4 @@
-import {isNumber, isString} from '@ng-bootstrap/ng-bootstrap/util/util';
-import {isBoolean, isUndefined} from 'util';
+import { isBoolean, isNumber, isString, isNullOrUndefined } from 'util';
 
 export const getFloat = (value: any) => {
   if (isNumber(value)) {
@@ -29,7 +28,7 @@ export const getBool = (value: any) => {
   return false;
 };
 
-export const getBoolByInt = (value: any) => {
+export const getBoolByInt = (value: number) => {
   if (isNumber(value)) {
     if (getNumber(value) === 0) {
       return false;
@@ -40,7 +39,41 @@ export const getBoolByInt = (value: any) => {
   return false;
 };
 
+export const isNullOrEmpty = (value: any) => {
+  if (isNullOrUndefined(value) || value === '') {
+    return true;
+  }
+  return false;
+};
 
+export const getTodayForInput = () => {
+  const date = new Date();
+  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+};
 
+export const getFirstDayOfMonthForInput = () => {
+  const date = new Date();
+  return { year: date.getFullYear(), month: date.getMonth() + 1, day: 1 };
+};
 
+export const getDateForInput = (value: number) => {
+  if (isNullOrEmpty(value)) {
+    const date = new Date();
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  } else {
+    const date = new Date(value);
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }
+};
+
+export const getInputDataForInsert = (value: any) => {
+  const date = new Date();
+  if (isNullOrEmpty(value)) {
+    return new Date(date.getFullYear(), date.getMonth() + 1, date.getDate(),
+      date.getHours(), date.getMinutes(), date.getSeconds()).getTime();
+  } else {
+    return new Date(value.year, value.month - 1, value.day,
+      date.getHours(), date.getMinutes(), date.getSeconds()).getTime();
+  }
+};
 

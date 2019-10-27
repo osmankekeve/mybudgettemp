@@ -9,6 +9,7 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput } from '../core/correct-library';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -27,6 +28,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isShowAllRecords = false;
   isMainFilterOpened = false;
+  recordDate: any;
 
   date = new Date();
   filterBeginDate: any;
@@ -141,6 +143,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as SalesInvoiceModel;
     this.refModel = record.data as SalesInvoiceModel;
+    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -162,7 +165,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnMainFilter_Click(): void {
-    this.populateAllRecords();
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateAllRecords();
+    }
   }
 
   btnReturnList_Click(): void {
@@ -174,11 +183,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    const data = this.selectedRecord;
-    if (data.totalPrice <= 0) {
+    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (data.totalPrice <= 0) {
+    } else if (this.selectedRecord.totalPrice <= 0) {
       this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
+    } else if (isNullOrEmpty(this.recordDate)) {
+      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
       if (this.selectedRecord.primaryKey === undefined) {
         const newId = this.db.createId();
@@ -187,16 +198,17 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
         this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
-            userPrimaryKey: data.userPrimaryKey,
-            receiptNo: data.receiptNo,
+            userPrimaryKey: this.selectedRecord.userPrimaryKey,
+            receiptNo: this.selectedRecord.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'salesInvoice',
-            parentPrimaryKey: data.customerCode,
+            parentPrimaryKey: this.selectedRecord.customerCode,
             parentType: 'customer',
             cashDeskPrimaryKey: '-1',
-            amount: this.selectedRecord.type === 'sales' ? data.totalPriceWithTax * -1 : data.totalPriceWithTax,
+            amount: this.selectedRecord.type === 'sales' ? this.selectedRecord.totalPriceWithTax * -1 :
+            this.selectedRecord.totalPriceWithTax,
             amountType: this.selectedRecord.type === 'sales' ? 'debit' : 'credit',
-            insertDate: data.insertDate,
+            insertDate: this.selectedRecord.insertDate
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
@@ -207,11 +219,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               const trans = {
-                receiptNo: data.receiptNo,
-                amount: this.selectedRecord.type === 'sales' ? data.totalPriceWithTax * -1 : data.totalPriceWithTax,
+                receiptNo: this.selectedRecord.receiptNo,
+                insertDate: this.selectedRecord.insertDate,
+                amount: this.selectedRecord.type === 'sales' ? this.selectedRecord.totalPriceWithTax * -1 :
+                this.selectedRecord.totalPriceWithTax,
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
@@ -250,13 +264,14 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
+    this.recordDate = getTodayForInput();
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '',
-    description: '', insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
+    description: '', userPrimaryKey: this.authServis.getUid()};
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
-    this.filterFinishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
   }
 

@@ -11,6 +11,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
+import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty } from '../core/correct-library';
 
 @Component({
   selector: 'app-account-voucher',
@@ -31,6 +32,15 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   refModel: AccountVoucherModel;
   isRecordHasTransaction = false;
   isShowAllRecords = false;
+  isMainFilterOpened = false;
+  recordDate: any;
+
+  date = new Date();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  totalValues = {
+    amount: 0
+  };
 
   constructor(public authServis: AuthenticationService,
               public service: AccountVoucherService,
@@ -106,14 +116,20 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
 
   populateAllRecords(): void {
     this.mainList = [];
-    this.service.getMainItems().subscribe(list => {
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
+          this.totalValues.amount += item.data.amount;
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+          this.totalValues.amount -= item.data.amount;
         } else if (item.actionType === 'modified') {
           this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
+          this.totalValues.amount -= this.refModel.amount;
+          this.totalValues.amount += item.data.amount;
         } else {
           // nothing
         }
@@ -124,6 +140,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as AccountVoucherModel;
     this.refModel = record.data as AccountVoucherModel;
+    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -144,8 +161,11 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
+    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
     if (this.selectedRecord.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
+    } else if (isNullOrEmpty(this.recordDate)) {
+      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
       if (this.selectedRecord.primaryKey === undefined) {
         const newId = this.db.createId();
@@ -211,15 +231,41 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = false;
     } else {
       this.isShowAllRecords = true;
+      this.clearMainFiler();
       this.populateAllRecords();
     }
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  btnMainFilter_Click(): void {
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateAllRecords();
+    }
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
   }
 
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
     this.refModel = undefined;
+    this.recordDate = getTodayForInput();
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
-      insertDate: Date.now(), userPrimaryKey: this.authServis.getUid()};
+    userPrimaryKey: this.authServis.getUid()};
   }
 
 }

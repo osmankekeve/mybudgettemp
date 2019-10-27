@@ -11,6 +11,8 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert 
+} from '../core/correct-library';
 
 @Component({
   selector: 'app-collection',
@@ -30,6 +32,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isShowAllRecords = false;
   isMainFilterOpened = false;
+  recordDate: any;
 
   date = new Date();
   filterBeginDate: any;
@@ -139,6 +142,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record.data as CollectionModel;
     this.refModel = record.data as CollectionModel;
+    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
@@ -160,7 +164,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   btnMainFilter_Click(): void {
-    this.populateAllRecords();
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateAllRecords();
+    }
   }
 
   btnReturnList_Click(): void {
@@ -172,9 +182,11 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    const data = this.selectedRecord;
-    if (data.amount <= 0) {
+    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
+    } else if (isNullOrEmpty(this.recordDate)) {
+      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
       if (this.selectedRecord.primaryKey === undefined) {
         const newId = this.db.createId();
@@ -183,16 +195,16 @@ export class CollectionComponent implements OnInit, OnDestroy {
         this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
-            userPrimaryKey: data.userPrimaryKey,
-            receiptNo: data.receiptNo,
+            userPrimaryKey: this.selectedRecord.userPrimaryKey,
+            receiptNo: this.selectedRecord.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'collection',
-            parentPrimaryKey: data.customerCode,
+            parentPrimaryKey: this.selectedRecord.customerCode,
             parentType: 'customer',
-            cashDeskPrimaryKey: data.cashDeskPrimaryKey,
+            cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
             amount: this.selectedRecord.amount,
             amountType: 'credit',
-            insertDate: data.insertDate,
+            insertDate: this.selectedRecord.insertDate
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Tahsilat başarıyla kaydedildi.');
@@ -203,12 +215,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', data.primaryKey)).get().subscribe(list => {
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               const trans = {
-                receiptNo: data.receiptNo,
-                cashDeskPrimaryKey: data.cashDeskPrimaryKey,
-                amount: data.amount,
+                receiptNo: this.selectedRecord.receiptNo,
+                insertDate: this.selectedRecord.insertDate,
+                cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
+                amount: this.selectedRecord.amount
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Tahsilat başarıyla kaydedildi.');
@@ -249,13 +262,14 @@ export class CollectionComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
+    this.recordDate = getTodayForInput();
     this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
-      insertDate: Date.now(), userPrimaryKey: this.authService.getUid()};
+    userPrimaryKey: this.authService.getUid()};
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: 1};
-    this.filterFinishDate = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
   }
 
