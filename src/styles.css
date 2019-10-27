@@ -94,4 +94,11 @@ body {
 .work-area {
   max-height: calc(100vh - 210px);
   overflow: auto;
+  scrollbar-width: none;
+}
+
+.side-bar-work-area {
+  max-height: calc(100vh - 102px);
+  overflow: auto;
+  scrollbar-width: none;
 }
