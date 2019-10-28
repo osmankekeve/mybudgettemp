@@ -80,11 +80,11 @@
             <div class="card-body">
               <div class="row">
                 <div class="col">
-                  <div class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</div>
-                  <div class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</div>
+                  <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
+                  <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</label>
                 </div>
                 <div class="col">
-                  <div class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
+                  <label class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
                 </div>
               </div>
               <div class="text-dark text-small">{{item.data.description}}</div>

@@ -55,7 +55,7 @@ export class ReminderService {
   getMainItems(): Observable<ReminderModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(
+    this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
           const data = c.payload.doc.data() as ReminderModel;
@@ -74,7 +74,7 @@ export class ReminderService {
         .where('isActive', '==', true)
         .where('periodType', '==', 'oneTime')
         .startAt(startDate.getTime()).endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(
+    this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
           const data = c.payload.doc.data() as ReminderModel;
@@ -93,7 +93,7 @@ export class ReminderService {
         .where('isActive', '==', true)
         .where('periodType', '==', 'oneTime')
         .startAt(startDate.getTime()).endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.snapshotChanges().pipe(
+    this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
           const data = c.payload.doc.data() as ReminderModel;
