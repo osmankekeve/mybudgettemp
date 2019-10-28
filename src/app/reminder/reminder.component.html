@@ -1,0 +1,202 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+  <div class="card-header">
+    <div class="row">
+      <div class="col-sm-8">
+        <h4 class="card-title float-left mr-2">Hatırlatıcı Listesi</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Hatırlatma"
+                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Geniş Filtre"
+                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
+      </div>
+      <div class="col-sm-4 head-filter">
+        <div class="input-group input-group-round">
+          <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+          </div>
+          <input type="search" class="form-control filter-list-input" placeholder="Hatırlatma Ara.."
+                 [(ngModel)]="searchText">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="card mb-2" *ngIf="isMainFilterOpened">
+      <div class="card-header">Filtreler</div>
+      <div class="card-body bg-light">
+        <div class="row">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Kişisel mi?</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filterIsPersonal">
+              <option value="-1">Hepsi</option>
+              <option value="1">Evet</option>
+              <option value="0">Hayır</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Period Tipi</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filterPeriodType">
+              <option value="oneTime">Tek Sefer</option>
+              <option value="daily">Günlük</option>
+              <option value="monthly">Aylık</option>
+              <option value="yearly">Yıllık</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Aktif mi?</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filterIsActive">
+              <option value="-1">Hepsi</option>
+              <option value="1">Evet</option>
+              <option value="0">Hayır</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+      <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+        <div class="card-list-parent">
+          <div class="card mb-2 bg-light cursor-pointer"
+               (click)="showSelectedRecord(item)" title="Kaydı Göster">
+            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+            <div class="card-body">
+              <div class="row">
+                <div class="col">
+                  <div class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</div>
+                  <div class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</div>
+                </div>
+                <div class="col">
+                  <div class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
+                </div>
+              </div>
+              <div class="text-dark text-small">{{item.data.description}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #elseBlock>
+      <div class="card bg-danger text-white">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+  <div class="card-header">
+    <div class="row">
+      <div class="col-sm-12">
+        <h4 class="card-title float-left mr-2">Hatırlatma Detayı</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div *ngIf="openedPanel=='mainPanel'">
+      <form (ngSubmit)="btnSave_Click()" class="was-validated">
+        <div class="row form-inline">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="isPersonal">Kişisel mi?</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100" id="isPersonal" name="isPersonal"
+                    (change)="onChangeVoucherType($event.target.value)"
+                    [(ngModel)]="selectedRecord.isPersonal">
+              <option value="true">Evet</option>
+              <option value="false">Hayır</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="isPeriodic">Personel</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey"
+                    required
+                    [disabled]="selectedRecord.isPersonal"
+                    [(ngModel)]="selectedRecord.employeePrimaryKey">
+              <option [value]="-1">Tüm Kullanıcılar</option>
+              <option value={{item.primaryKey}}
+                      *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.longName}}</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="periodType">Period Tipi</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100" id="periodType" name="periodType"
+                    [(ngModel)]="selectedRecord.periodType">
+              <option value="oneTime">Tek Sefer</option>
+              <option value="daily">Günlük</option>
+              <option value="monthly">Aylık</option>
+              <option value="yearly">Yıllık</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="reminderDate">Hatırlatma Tarihi</label>
+          </div>
+          <div class="col-sm-3">
+            <div class="input-group">
+              <input class="form-control form-control-sm" id="reminderDate" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
+                     [(ngModel)]="recordDate" ngbDatepicker #d="ngbDatepicker">
+              <div class="input-group-append">
+                <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
+                  class="fa fa-calendar"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                    [(ngModel)]="selectedRecord.isActive">
+              <option value="true">Aktif</option>
+              <option value="false">Pasif</option>
+            </select>
+          </div>
+          <div class="col-sm-6"></div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left" for="description">Açıklama</label>
+          </div>
+          <div class="col-sm-9">
+            <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
+              cols="40" rows="5" [(ngModel)]="selectedRecord.description" required=""></textarea>
+            <div class="invalid-feedback">Lütfen not alanını doldurunuz.</div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="card-footer" *ngIf="openedPanel=='mainPanel'">
+    <div class="col-sm-3 float-right">
+      <button type="button" class="btn btn-sm btn-success btn-block"
+              (click)="btnSave_Click()">Kaydet
+      </button>
+    </div>
+    <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+      <button type="button" class="btn btn-sm btn-danger btn-block"
+              (click)="btnRemove_Click()">Kaldır
+      </button>
+    </div>
+
+  </div>
+</div>

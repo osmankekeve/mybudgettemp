@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
+import {ProfileModel} from '../models/profile-model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +57,11 @@ export class AuthenticationService {
   public getUid(): string {
     const user = JSON.parse(localStorage.getItem('user'));
     return user.uid;
+  }
 
+  public getEid(): string {
+    const user = JSON.parse(localStorage.getItem('employee')) as ProfileModel;
+    return user.primaryKey;
   }
 
   employeeLogin(email: string, password: string): any {
@@ -66,7 +71,9 @@ export class AuthenticationService {
       ).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
-            localStorage.setItem('employee', JSON.stringify(doc.data()));
+            const pData = doc.data() as ProfileModel;
+            pData.primaryKey = doc.id;
+            localStorage.setItem('employee', JSON.stringify(pData));
             resolve(doc.id);
           });
         } else {

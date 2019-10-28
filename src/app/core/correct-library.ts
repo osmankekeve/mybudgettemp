@@ -1,35 +1,35 @@
-import { isBoolean, isNumber, isString, isNullOrUndefined } from 'util';
+import {isNullOrUndefined} from 'util';
 
 export const getFloat = (value: any) => {
-  if (isNumber(value)) {
+  if (getNumber(value)) {
     return parseFloat(value.toString());
   }
   return 0;
 };
 
 export const getNumber = (value: any) => {
-  if (isNumber(value)) {
+  if (Number(value)) {
     return parseInt(value.toString(), 0);
   }
   return 0;
 };
 
 export const getString = (value: any) => {
-  if (isString(value)) {
+  if (String(value)) {
     return value.toString();
   }
   return '';
 };
 
 export const getBool = (value: any) => {
-  if (isBoolean(value)) {
+  if (Boolean(value)) {
     return value;
   }
   return false;
 };
 
 export const getBoolByInt = (value: number) => {
-  if (isNumber(value)) {
+  if (Number(value)) {
     if (getNumber(value) === 0) {
       return false;
     } else {
@@ -54,6 +54,19 @@ export const getTodayForInput = () => {
 export const getFirstDayOfMonthForInput = () => {
   const date = new Date();
   return { year: date.getFullYear(), month: date.getMonth() + 1, day: 1 };
+};
+
+export const getDateAndTime = (hour: number, minute: number, seconds: number) => {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute, seconds);
+};
+
+export const getTodayStart = () => {
+  return getDateAndTime(0, 0, 0);
+};
+
+export const getTodayEnd = () => {
+  return getDateAndTime(23, 59, 59);
 };
 
 export const getDateForInput = (value: number) => {

@@ -14,14 +14,20 @@
                   <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
                     <li class="nav-item dropdown cursor-pointer">
                       <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
-                        <i class="fa fa-2x fa-globe text-white material-icons mr-1"></i>
+                        <i class="fa fa-2x fa-globe text-white mr-1"></i>
                         <span class="notification text-white">{{actionCount}}</span>
                       </a>
                     </li>
                     <li class="nav-item dropdown cursor-pointer">
                       <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
-                        <i class="fa fa-2x fa-fw fa-bell text-white material-icons"></i>
+                        <i class="fa fa-2x fa-fw fa-bell text-white"></i>
                         <span class="notification text-white">{{notificationCount}}</span>
+                      </a>
+                    </li>
+                    <li class="nav-item dropdown cursor-pointer">
+                      <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
+                        <i class="fa fa-2x fa-fw fa-clock-o text-white"></i>
+                        <span class="notification text-white">{{reminderCount}}</span>
                       </a>
                     </li>
                     <li class="nav-item dropdown cursor-pointer">
@@ -34,7 +40,6 @@
                         {{this.employeeDetail.longName}}
                       </a>
                     </li>
-
                   </ul>
                   <button type="button" class="btn btn-danger" (click)="logoutUser()">
                     <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
@@ -45,7 +50,7 @@
                     <i class="fa fa-fw fa-bell material-icons mr-1"></i>
                       <span>Bildirimler</span>
                   </div>
-                  <div class="card-body bg-light panelHightControl">
+                  <div class="card-body bg-light panelHeightControl">
                       <div ng-show="notificationCount > 0; else elseBlock">
                           <div class="list-group">
                               <div class="list-group-item list-group-item-action list-group-item-light"
@@ -78,7 +83,7 @@
                   <i class="fa fa-globe material-icons mr-1"></i>
                   <span>Etkinlikler</span>
                 </div>
-                <div class="card-body bg-light panelHightControl">
+                <div class="card-body bg-light panelHeightControl">
                   <div ng-show="actionCount > 0; else elseBlock2">
                     <div class="list-group">
                       <div class="list-group-item list-group-item-action list-group-item-light"
@@ -97,6 +102,34 @@
                   <ng-template #elseBlock2>
                     <div class="alert alert-danger" role="alert">
                       Etkinliğiniz bulunmamaktadır.
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+              <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true" (mouseleave)="showReminderPanel=false">
+                <div class="card-header bg-warning text-wight">
+                  <i class="fa fa-globe material-icons mr-1"></i>
+                  <span>Hatırlatıcı</span>
+                </div>
+                <div class="card-body bg-light panelHeightControl">
+                  <div ng-show="reminderCount > 0; else elseBlock3">
+                    <div class="list-group">
+                      <div class="list-group-item list-group-item-action list-group-item-light"
+                           *ngFor="let item of actionList; index as i; trackBy: primaryKey"
+                           style="font-size: 85%">
+                        <div class="row">
+                          <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute" (click)="setNotificationToPassive(item)">
+                            <i class="fa fa-fw fa-times text-danger"></i>
+                          </a>
+                          <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</label>
+                          <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #elseBlock3>
+                    <div class="alert alert-danger" role="alert">
+                      Hatırlatıcı bulunmamaktadır.
                     </div>
                   </ng-template>
                 </div>

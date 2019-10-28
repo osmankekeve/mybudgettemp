@@ -275,7 +275,7 @@ export class CustomerComponent implements OnInit  {
   clearSelectedCustomer(): void {
     this.openedPanel = 'edit';
     this.refModel = undefined;
-    this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: '',
+    this.selectedCustomer = {primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: '', isActive: true,
       userPrimaryKey: this.authService.getUid()};
   }
 

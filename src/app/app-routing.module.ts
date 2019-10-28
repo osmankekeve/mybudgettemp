@@ -23,6 +23,7 @@ import {LocationComponent} from './location/location.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingComponent } from './setting/setting.component';
 import { UserComponent } from './user/user.component';
+import {ReminderComponent} from './reminder/reminder.component';
 
 
 const routes: Routes = [
@@ -46,6 +47,7 @@ const routes: Routes = [
   {path: 'profile', component: ProfileComponent, pathMatch: 'full'},
   {path: 'setting', component: SettingComponent, pathMatch: 'full'},
   {path: 'user', component: UserComponent, pathMatch: 'full'},
+  {path: 'reminder', component: ReminderComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -78,7 +80,8 @@ export const routingComponents = [
   LocationComponent,
   ProfileComponent,
   SettingComponent,
-  UserComponent
+  UserComponent,
+  ReminderComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

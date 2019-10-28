@@ -5,6 +5,8 @@ import { LogService } from './services/log.service';
 import { InformationService } from './services/information.service';
 import {CustomerRelationService} from './services/crm.service';
 import {CustomerRelationModel} from './models/customer-relation-model';
+import {getDateAndTime, getTodayEnd, getTodayStart} from './core/correct-library';
+import {ReminderService} from './services/reminder.service';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +16,7 @@ import {CustomerRelationModel} from './models/customer-relation-model';
 export class AppComponent implements OnInit {
   notificationList: Array<LogModel> = [];
   actionList: Array<CustomerRelationModel> = [];
+  reminderList: Array<CustomerRelationModel> = [];
 
   title = 'MyBudgetWeb';
   selectedVal: string;
@@ -25,6 +28,8 @@ export class AppComponent implements OnInit {
   showNotificationPanel = false;
   actionCount = 0;
   showActionPanel = false;
+  reminderCount = 0;
+  showReminderPanel = false;
   showProfilePanel = false;
   employeeDetail: any;
   employeeEmail: string;
@@ -32,7 +37,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private authService: AuthenticationService, public infoService: InformationService,
-    private logService: LogService, public crmService: CustomerRelationService
+    private logService: LogService, private remService: ReminderService, public crmService: CustomerRelationService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -42,6 +47,7 @@ export class AppComponent implements OnInit {
     this.isUserLoggedIn();
     this.isEmployeeLoggedIn();
     this.populateNotificationList();
+    this.populateReminderList();
   }
 
   // Check localStorage is having User Data
@@ -126,10 +132,7 @@ export class AppComponent implements OnInit {
   }
 
   populateNotificationList(): void {
-    const date = new Date();
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    this.logService.getNotificationsBetweenDates(start, end).subscribe(list => {
+    this.logService.getNotificationsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.notificationCount ++;
@@ -146,9 +149,8 @@ export class AppComponent implements OnInit {
 
   populateActivityList(): void {
     const date = new Date();
-    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7, 23, 59, 59);
-    this.crmService.getMainItemsBetweenDates(todayStart, endDate).subscribe(list => {
+    this.crmService.getMainItemsBetweenDates(getTodayStart(), endDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.actionCount ++;
@@ -163,6 +165,31 @@ export class AppComponent implements OnInit {
         }
       });
     });
+  }
+
+  populateReminderList(): void {
+    this.remService.getMainItemsOneTimeBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+      console.table(list);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.reminderCount ++;
+          this.reminderList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.reminderCount --;
+          this.reminderList.splice(this.reminderList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.reminderList[this.reminderList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
+
+
+
+
+
+
   }
 
   setNotificationToPassive(item: any): void {

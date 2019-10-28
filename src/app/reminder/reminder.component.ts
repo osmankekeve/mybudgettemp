@@ -1,33 +1,48 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { NoteModel } from '../models/note-model';
-import { NoteService } from '../services/note.service';
+import {ReminderModel} from '../models/reminder-model';
+import {ReminderService} from '../services/reminder.service';
+import {ProfileModel} from '../models/profile-model';
+import {ProfileService} from '../services/profile.service';
+import {
+  getBool,
+  getDateForInput,
+  getFirstDayOfMonthForInput,
+  getInputDataForInsert,
+  getTodayForInput,
+  isNullOrEmpty
+} from '../core/correct-library';
 
 @Component({
-  selector: 'app-note',
-  templateUrl: './note.component.html',
-  styleUrls: ['./note.component.css']
+  selector: 'app-reminder',
+  templateUrl: './reminder.component.html',
+  styleUrls: ['./reminder.component.css']
 })
-export class NoteComponent implements OnInit, OnDestroy {
-  mainList: Array<NoteModel>;
-  collection: AngularFirestoreCollection<NoteModel>;
-  transactionList$: Observable<AccountTransactionModel[]>;
-  selectedRecord: NoteModel;
-  refModel: NoteModel;
+export class ReminderComponent implements OnInit, OnDestroy {
+  mainList: Array<ReminderModel>;
+  collection: AngularFirestoreCollection<ReminderModel>;
+  employeeList$: Observable<ProfileModel[]>;
+  selectedRecord: ReminderModel;
+  refModel: ReminderModel;
   openedPanel: any;
+  recordDate: any;
+  isMainFilterOpened = false;
 
-  constructor(public authServis: AuthenticationService, public service: NoteService,
-              public atService: AccountTransactionService,
+  filterIsPersonal = '-1';
+  filterPeriodType = 'oneTime';
+  filterIsActive = '1';
+
+  constructor(public authService: AuthenticationService, public service: ReminderService,
+              public proService: ProfileService,
               public infoService: InformationService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
+    this.employeeList$ = this.proService.getAllItems();
     this.selectedRecord = undefined;
   }
 
@@ -52,8 +67,9 @@ export class NoteComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as NoteModel;
-    this.refModel = record.data as NoteModel;
+    this.selectedRecord = record.data as ReminderModel;
+    this.refModel = record.data as ReminderModel;
+    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
   }
 
   btnReturnList_Click(): void {
@@ -69,6 +85,10 @@ export class NoteComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
+    this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
+    this.selectedRecord.year = this.recordDate.year;
+    this.selectedRecord.month = this.recordDate.month;
+    this.selectedRecord.day = this.recordDate.day;
     if (this.selectedRecord.primaryKey === undefined) {
       this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord)
@@ -93,10 +113,38 @@ export class NoteComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnMainFilter_Click(): void {
+    this.populateList();
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  onChangeVoucherType(isPersonal: any): void {
+    this.selectedRecord.employeePrimaryKey = '-1';
+    if (isPersonal === 'true') {
+      this.selectedRecord.employeePrimaryKey = this.authService.getEid();
+    }
+  }
+
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
+    this.recordDate = getTodayForInput();
+    this.selectedRecord = {primaryKey: undefined, isPersonal: true, userPrimaryKey: this.authService.getUid(),
+      isActive: true, periodType: 'oneTime', employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()};
+  }
+
+  clearMainFiler(): void {
+    this.filterPeriodType = 'oneTime';
+    this.filterIsPersonal = '-1';
+    this.filterIsActive = '1';
   }
 
 }
