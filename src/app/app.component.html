@@ -114,7 +114,7 @@
                 <div class="card-body bg-light panelHeightControl">
                   <div ng-show="reminderCount > 0; else elseBlock3">
                     <div class="list-group">
-                      <div class="list-group-item list-group-item-action list-group-item-light"
+                      <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer" (click)="showReminder(item)"
                            *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
                            style="font-size: 85%">
                         <div class="row">

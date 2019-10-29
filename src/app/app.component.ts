@@ -7,6 +7,9 @@ import {CustomerRelationService} from './services/crm.service';
 import {CustomerRelationModel} from './models/customer-relation-model';
 import {getDateAndTime, getTodayEnd, getTodayStart} from './core/correct-library';
 import {ReminderService} from './services/reminder.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {ReminderModel} from './models/reminder-model';
 
 @Component({
   selector: 'app-root',
@@ -36,7 +39,7 @@ export class AppComponent implements OnInit {
   employeePassword: string;
 
   constructor(
-    private authService: AuthenticationService, public infoService: InformationService,
+    private authService: AuthenticationService, public infoService: InformationService, public router: Router,
     private logService: LogService, private remService: ReminderService, public crmService: CustomerRelationService
   ) {
     this.selectedVal = 'login';
@@ -168,8 +171,7 @@ export class AppComponent implements OnInit {
   }
 
   populateReminderList(): void {
-    this.remService.getMainItemsOneTimeBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
-      console.table(list);
+    this.remService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.reminderCount ++;
@@ -213,6 +215,10 @@ export class AppComponent implements OnInit {
     } else {
       this.infoService.error('Kullanıcı sistemde kayıtlı değil');
     }
+  }
+
+  showReminder(item: any): void {
+    this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
   }
 
 }

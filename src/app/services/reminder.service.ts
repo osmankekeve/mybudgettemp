@@ -35,8 +35,8 @@ export class ReminderService {
 
   getAllItems(): Observable<ReminderModel[]> {
     this.listCollection = this.db.collection<ReminderModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
@@ -50,6 +50,29 @@ export class ReminderService {
 
   async updateItem(record: ReminderModel) {
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  }
+
+  getItem(primaryKey: string): Observable<ReminderModel> {
+    this.db.collection(this.tableName).doc(primaryKey).get().subscribe(item => {
+      const data = item as ReminderModel;
+      data.primaryKey = item.id;
+      return data;
+    });
+    return null;
+  }
+
+  getItem2(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as ReminderModel;
+          data.primaryKey = doc.id;
+          resolve(Object.assign({data, employeeName: this.employeeMap.get(data.employeePrimaryKey)}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
   }
 
   getMainItems(): Observable<ReminderModel[]> {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, OnChanges} from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { InformationService } from '../services/information.service';
@@ -15,6 +15,7 @@ import {
   getTodayForInput,
   isNullOrEmpty
 } from '../core/correct-library';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-reminder',
@@ -30,20 +31,28 @@ export class ReminderComponent implements OnInit, OnDestroy {
   openedPanel: any;
   recordDate: any;
   isMainFilterOpened = false;
+  paramPrimaryKey: any = undefined;
 
   filterIsPersonal = '-1';
   filterPeriodType = 'oneTime';
   filterIsActive = '1';
 
   constructor(public authService: AuthenticationService, public service: ReminderService,
-              public proService: ProfileService,
-              public infoService: InformationService,
+              public proService: ProfileService, public router: ActivatedRoute,
+              public infoService: InformationService, public route: Router,
               public db: AngularFirestore) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
     this.populateList();
     this.employeeList$ = this.proService.getAllItems();
     this.selectedRecord = undefined;
+    if (this.paramPrimaryKey !== undefined) {
+      const data = await this.service.getItem2(this.paramPrimaryKey);
+      if (data) {
+        this.showSelectedRecord(data);
+      }
+    }
   }
 
   ngOnDestroy(): void { }
@@ -73,6 +82,9 @@ export class ReminderComponent implements OnInit, OnDestroy {
   }
 
   btnReturnList_Click(): void {
+    if (this.paramPrimaryKey !== undefined) {
+      this.route.navigate(['reminder', {}]);
+    }
     if (this.openedPanel === 'mainPanel') {
       this.selectedRecord = undefined;
     } else {

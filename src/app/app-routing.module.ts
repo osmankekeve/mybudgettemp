@@ -48,6 +48,7 @@ const routes: Routes = [
   {path: 'setting', component: SettingComponent, pathMatch: 'full'},
   {path: 'user', component: UserComponent, pathMatch: 'full'},
   {path: 'reminder', component: ReminderComponent, pathMatch: 'full'},
+  {path: 'reminder/:id', component: ReminderComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
