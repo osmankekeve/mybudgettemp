@@ -52,9 +52,13 @@ export class AccountTransactionService {
     this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
-  getCashDeskTransactions(cashDeskPrimaryKey: string): Observable < AccountTransactionModel[] > {
+  getCashDeskTransactions(cashDeskPrimaryKey: string, startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
     this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref.where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey).orderBy('insertDate'));
+    (this.tableName, ref => ref
+      .orderBy('insertDate')
+      .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
+      .startAt(startDate.getTime())
+      .endAt(endDate.getTime()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }

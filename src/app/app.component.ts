@@ -51,6 +51,7 @@ export class AppComponent implements OnInit {
     this.isEmployeeLoggedIn();
     this.populateNotificationList();
     this.populateReminderList();
+    this.populateActivityList();
   }
 
   // Check localStorage is having User Data
@@ -77,6 +78,7 @@ export class AppComponent implements OnInit {
         this.employeeDetail = undefined;
         localStorage.removeItem('user');
         localStorage.removeItem('employee');
+        localStorage.clear();
       }, err => {
         this.infoService.error(err.message);
       });

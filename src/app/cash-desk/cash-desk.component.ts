@@ -7,6 +7,7 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
+import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 
 @Component({
   selector: 'app-cash-desk',
@@ -20,8 +21,13 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   selectedRecord: CashDeskModel;
   refModel: CashDeskModel;
   openedPanel: any;
+  isMainFilterOpened = false;
 
-  constructor(public authServis: AuthenticationService, public service: CashDeskService,
+  date = new Date();
+  filterBeginDate: any;
+  filterFinishDate: any;
+
+  constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public db: AngularFirestore) { }
@@ -54,7 +60,6 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.selectedRecord = record.data as CashDeskModel;
     this.refModel = record.data as CashDeskModel;
-    console.log(this.selectedRecord);
   }
 
   btnReturnList_Click(): void {
@@ -94,17 +99,44 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  btnMainFilter_Click(): void {
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateList();
+    }
+  }
+
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authServis.getUid()};
+    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authService.getUid()};
     console.log(this.selectedRecord);
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
   }
 
   onClickShowTransactionReport(): void {
     this.openedPanel = 'transactionReport';
     this.transactionList$ = undefined;
-    this.transactionList$ = this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey);
+    this.clearMainFiler();
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    this.transactionList$ = this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate);
   }
 
 }
