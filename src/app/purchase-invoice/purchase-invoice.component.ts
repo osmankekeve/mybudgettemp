@@ -9,8 +9,10 @@ import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty
+import {
+  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel
 } from '../core/correct-library';
+import {ExcelService} from '../services/excel-service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -45,6 +47,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               public cService: CustomerService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public excelService: ExcelService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -276,6 +279,26 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+  }
+
+  btnExportToExcel_Click(): void {
+    const excelList = [];
+    this.mainList.forEach((item: any) => {
+      const data = {
+        'Customer Name': item.customerName,
+        'Receipt No': item.data.receiptNo,
+        'Total Price': item.data.totalPrice,
+        'Total Price (+KDV)': item.data.totalPriceWithTax,
+        'Insert Date': getDateForExcel(item.data.insertDate),
+        Description: item.data.description
+      };
+      excelList.push(data);
+    });
+    if (excelList.length > 0) {
+      this.excelService.exportAsExcelFile(excelList, 'purchase_invoice');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
   }
 
 }

@@ -90,3 +90,13 @@ export const getInputDataForInsert = (value: any) => {
   }
 };
 
+export const getDateForExcel = (value: number) => {
+  if (isNullOrEmpty(value)) {
+    const date = new Date();
+    return date.getFullYear() + '-' + date.getMonth().toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0');
+  } else {
+    const date = getDateForInput(value);
+    return date.year + '-' + date.month.toString().padStart(2, '0') + '-' + date.day.toString().padStart(2, '0');
+  }
+};
+

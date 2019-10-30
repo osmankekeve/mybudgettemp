@@ -18,6 +18,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { LocationDataFilterPipe } from './filters/location-data-filter.pipe';
 import { ProfileFilterPipe } from './filters/profile-filter.pipe';
+import {ExcelService} from './services/excel-service';
 
 
 @NgModule({
@@ -45,7 +46,8 @@ import { ProfileFilterPipe } from './filters/profile-filter.pipe';
     })
   ],
   providers: [
-    InformationService
+    InformationService,
+    ExcelService
   ],
   bootstrap: [AppComponent]
 })
