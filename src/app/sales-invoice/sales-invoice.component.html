@@ -7,8 +7,10 @@
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Faturalar"
                 (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Geniş Filtre"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()" *ngIf="isShowAllRecords"><i class="fa fa-filter"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                        (click)="btnExportToExcel_Click()" *ngIf="isShowAllRecords"><i class="fa fa-file-excel-o"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -24,7 +26,7 @@
     </div>
   </div>
   <div class="card-body">
-    <div class="row" *ngIf="!isShowAllRecords">
+    <div class="row work-area" *ngIf="!isShowAllRecords">
       <div class="col-sm-3">
         <div class="card-list-parent" *ngIf="mainList4.length > 0; else elseBlock4">
           <div class="card mb-2 bg-light cursor-pointer"

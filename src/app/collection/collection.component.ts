@@ -13,6 +13,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert 
 } from '../core/correct-library';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-collection',
@@ -47,6 +48,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public excelService: ExcelService,
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -256,6 +258,14 @@ export class CollectionComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = true;
       this.clearMainFiler();
       this.populateAllRecords();
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'collection');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

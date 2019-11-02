@@ -13,6 +13,7 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
 import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty 
 } from '../core/correct-library';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-payment',
@@ -48,6 +49,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
               public cdService: CashDeskService,
               public cService: CustomerService,
               public db: AngularFirestore,
+              public excelService: ExcelService,
               public infoService: InformationService,
               public atService: AccountTransactionService) { }
 
@@ -258,6 +260,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = true;
       this.clearMainFiler();
       this.populateAllRecords();
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'payment');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

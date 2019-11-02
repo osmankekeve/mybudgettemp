@@ -2,13 +2,9 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
-import {ProfileModel} from '../models/profile-model';
 import {CustomerModel} from '../models/customer-model';
-import {CustomerService} from './customer.service';
-import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {ProfileService} from './profile.service';
 
 @Injectable({
@@ -16,7 +12,11 @@ import {ProfileService} from './profile.service';
 })
 export class ReminderService {
   listCollection: AngularFirestoreCollection<ReminderModel>;
+  listEmployeeDailyReminderCollection: AngularFirestoreCollection<ReminderModel>;
   mainList$: Observable<ReminderModel[]>;
+  listEmployeeDailyReminderCollection$: Observable<ReminderModel[]>;
+  listEmployeeMonthlyReminderCollection$: Observable<ReminderModel[]>;
+  listEmployeeYearlyReminderCollection$: Observable<ReminderModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
   tableName = 'tblReminder';
@@ -110,13 +110,13 @@ export class ReminderService {
   }
 
   getMainItemsOneTimeBetweenDates(startDate: Date, endDate: Date): Observable<ReminderModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
+    this.mainList$ = this.db.collection(this.tableName,
       ref => ref.orderBy('reminderDate')
         .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('employeePrimaryKey', '==', '-1')
         .where('isActive', '==', true)
         .where('periodType', '==', 'oneTime')
-        .startAt(startDate.getTime()).endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(
+        .startAt(startDate.getTime()).endAt(endDate.getTime())).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
           const data = c.payload.doc.data() as ReminderModel;
@@ -126,6 +126,66 @@ export class ReminderService {
       )
     );
     return this.mainList$;
+  }
+
+  getEmployeeDailyReminderCollection(startDate: Date): Observable<ReminderModel[]> {
+    this.listEmployeeDailyReminderCollection$ = this.db.collection(this.tableName,
+      ref => ref.orderBy('reminderDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('employeePrimaryKey', '==', this.authService.getEid())
+        .where('isActive', '==', true)
+        .where('periodType', '==', 'daily')
+        .startAfter(startDate.getTime())).stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as ReminderModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
+        })
+      )
+    );
+    return this.listEmployeeDailyReminderCollection$;
+  }
+
+  getEmployeeMonthlyReminderCollection(startDate: Date): Observable<ReminderModel[]> {
+    this.listEmployeeMonthlyReminderCollection$ = this.db.collection(this.tableName,
+      ref => ref.orderBy('reminderDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('employeePrimaryKey', '==', this.authService.getEid())
+        .where('isActive', '==', true)
+        .where('day', '==', startDate.getDate())
+        .where('periodType', '==', 'monthly')
+        .startAfter(startDate.getTime())).stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as ReminderModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
+        })
+      )
+    );
+    return this.listEmployeeMonthlyReminderCollection$;
+  }
+
+  getEmployeeYearlyReminderCollection(startDate: Date): Observable<ReminderModel[]> {
+    this.listEmployeeYearlyReminderCollection$ = this.db.collection(this.tableName,
+      ref => ref.orderBy('reminderDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('employeePrimaryKey', '==', this.authService.getEid())
+        .where('isActive', '==', true)
+        .where('day', '==', startDate.getDate())
+        .where('month', '==', startDate.getMonth() + 1)
+        .where('periodType', '==', 'yearly')
+        .startAfter(startDate.getTime())).stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as ReminderModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
+        })
+      )
+    );
+    return this.listEmployeeYearlyReminderCollection$;
   }
 
 }

@@ -47,7 +47,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.populateList();
     this.employeeList$ = this.proService.getAllItems();
     this.selectedRecord = undefined;
-    if (this.paramPrimaryKey !== undefined) {
+    if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
       const data = await this.service.getItem2(this.paramPrimaryKey);
       if (data) {
         this.showSelectedRecord(data);

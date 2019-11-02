@@ -189,11 +189,53 @@ export class AppComponent implements OnInit {
       });
     });
 
+    this.remService.getEmployeeDailyReminderCollection(getTodayStart()).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.reminderCount ++;
+          this.reminderList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.reminderCount --;
+          this.reminderList.splice(this.reminderList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.reminderList[this.reminderList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
 
+    this.remService.getEmployeeMonthlyReminderCollection(getTodayStart()).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.reminderCount ++;
+          this.reminderList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.reminderCount --;
+          this.reminderList.splice(this.reminderList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.reminderList[this.reminderList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
 
-
-
-
+    this.remService.getEmployeeYearlyReminderCollection(getTodayStart()).subscribe(list => {
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.reminderCount ++;
+          this.reminderList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.reminderCount --;
+          this.reminderList.splice(this.reminderList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.reminderList[this.reminderList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
   }
 
   setNotificationToPassive(item: any): void {

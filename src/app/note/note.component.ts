@@ -7,6 +7,7 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { NoteModel } from '../models/note-model';
 import { NoteService } from '../services/note.service';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-note',
@@ -24,6 +25,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   constructor(public authServis: AuthenticationService, public service: NoteService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public excelService: ExcelService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -36,6 +38,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
+      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -91,6 +94,14 @@ export class NoteComponent implements OnInit, OnDestroy {
       this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
       this.selectedRecord = undefined;
     }).catch(err => this.infoService.error(err));
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'note');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
   }
 
   clearSelectedRecord(): void {

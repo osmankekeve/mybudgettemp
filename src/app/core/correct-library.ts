@@ -28,6 +28,13 @@ export const getBool = (value: any) => {
   return false;
 };
 
+export const getBoolStr = (value: boolean) => {
+  if (value === true) {
+    return 'Evet';
+  }
+  return 'Hayır';
+};
+
 export const getBoolByInt = (value: number) => {
   if (Number(value)) {
     if (getNumber(value) === 0) {

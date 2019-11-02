@@ -20,6 +20,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountVoucherService} from '../services/account-voucher.service';
 import {AuthenticationService} from '../services/authentication.service';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-customer',
@@ -54,6 +55,7 @@ export class CustomerComponent implements OnInit  {
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
+              public excelService: ExcelService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
@@ -269,6 +271,14 @@ export class CustomerComponent implements OnInit  {
           this.clearNewPayment();
         }).catch(err => this.infoService.error(err));
       }).catch(err => this.infoService.error(err));
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'customer');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

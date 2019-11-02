@@ -282,20 +282,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnExportToExcel_Click(): void {
-    const excelList = [];
-    this.mainList.forEach((item: any) => {
-      const data = {
-        'Customer Name': item.customerName,
-        'Receipt No': item.data.receiptNo,
-        'Total Price': item.data.totalPrice,
-        'Total Price (+KDV)': item.data.totalPriceWithTax,
-        'Insert Date': getDateForExcel(item.data.insertDate),
-        Description: item.data.description
-      };
-      excelList.push(data);
-    });
-    if (excelList.length > 0) {
-      this.excelService.exportAsExcelFile(excelList, 'purchase_invoice');
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }

@@ -3,7 +3,10 @@
         <div class="row">
             <div class="col-sm-8">
                 <h4 class="card-title float-left mr-2">Not Listesi</h4>
-                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Not" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Not" 
+                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                        (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
             </div>
             <div class="col-sm-4 head-filter">
                 <div class="input-group input-group-round">
@@ -18,7 +21,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="row work-area" *ngIf="mainList.length > 0; else elseBlock">
             <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
                 <div class="card-list-parent">
                         <div class="card mb-2 bg-light cursor-pointer"

@@ -9,7 +9,9 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput } from '../core/correct-library';
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput 
+} from '../core/correct-library';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -42,6 +44,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   constructor(public authServis: AuthenticationService,
               public service: SalesInvoiceService,
               public cService: CustomerService,
+              public excelService: ExcelService,
               public infoService: InformationService,
               public atService: AccountTransactionService,
               public db: AngularFirestore) { }
@@ -259,6 +262,14 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.isShowAllRecords = true;
       this.clearMainFiler();
       this.populateAllRecords();
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'salesInvoice');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
