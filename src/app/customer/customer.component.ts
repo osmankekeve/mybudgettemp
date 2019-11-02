@@ -36,6 +36,7 @@ export class CustomerComponent implements OnInit  {
   newPurchaseInvoice: PurchaseInvoiceModel;
   newCollection: CollectionModel;
   newPayment: PaymentModel;
+  newVoucher: AccountVoucherModel;
 
   purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
   purchaseInvoiceAmount: any;
@@ -274,6 +275,32 @@ export class CustomerComponent implements OnInit  {
     }
   }
 
+  btnSaveVoucher_Click(): void {
+    if (this.newVoucher.primaryKey === undefined) {
+      const newId = this.db.createId();
+      this.newVoucher.primaryKey = '';
+
+      this.avService.setItem(this.newVoucher, newId).then(() => {
+        this.db.collection('tblAccountTransaction').add({
+          primaryKey: '',
+          userPrimaryKey: this.newVoucher.userPrimaryKey,
+          receiptNo: this.newVoucher.receiptNo,
+          transactionPrimaryKey: newId,
+          transactionType: 'accountVoucher',
+          parentPrimaryKey: this.newVoucher.customerCode,
+          parentType: 'customer',
+          cashDeskPrimaryKey: this.newVoucher.cashDeskPrimaryKey,
+          amount: this.newVoucher.type === 'creditVoucher' ? this.newVoucher.amount : this.newVoucher.amount * -1,
+          amountType: this.newVoucher.type === 'creditVoucher' ? 'credit' : 'debit',
+          insertDate: this.newVoucher.insertDate,
+        }).then(() => {
+          this.infoService.success('Fiş başarıyla kaydedildi.');
+          this.clearNewVoucher();
+        }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'customer');
@@ -309,6 +336,11 @@ export class CustomerComponent implements OnInit  {
       receiptNo: '', type: 'cash', description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
   }
 
+  clearNewVoucher(): void {
+    this.newVoucher = {primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: '-1', description: '',
+    insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey};
+  }
+
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
     if (this.selectedCustomer.primaryKey) {
@@ -322,6 +354,8 @@ export class CustomerComponent implements OnInit  {
       this.clearNewPurchaseInvoice();
     } else if (this.openedPanel === 'payment') {
       this.clearNewPayment();
+    } else if (this.openedPanel === 'accountVoucher') {
+      this.clearNewVoucher();
     } else if (this.openedPanel === 'edit') {
 
     } else if (this.openedPanel === 'dashboard') {

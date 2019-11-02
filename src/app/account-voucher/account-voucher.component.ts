@@ -11,7 +11,8 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty } from '../core/correct-library';
+import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty 
+} from '../core/correct-library';
 
 @Component({
   selector: 'app-account-voucher',

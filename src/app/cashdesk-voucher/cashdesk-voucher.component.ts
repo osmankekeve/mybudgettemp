@@ -121,7 +121,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -145,7 +144,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.refModel = record.data as CashdeskVoucherModel;
     this.recordDate = getDateForInput(this.selectedRecord.insertDate);
     if (this.selectedRecord.type === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
-    console.log(record);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
