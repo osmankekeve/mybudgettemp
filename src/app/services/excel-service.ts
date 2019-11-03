@@ -3,10 +3,12 @@ import * as XLSX from 'xlsx';
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
 import * as FileSaver from 'file-saver';
-import { getDateForExcel, getBoolStr } from '../core/correct-library';
+import { getDateForExcel, getBoolStr, getTransactionTypes } from '../core/correct-library';
 
 @Injectable()
 export class ExcelService {
+  relationTypeMap = new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
+  ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
   constructor() { }
 
   public exportAsExcelFile(json: any[], excelFileName: string): void {
@@ -23,6 +25,7 @@ export class ExcelService {
 
   public exportToExcel(list: any[], record: string): void {
     const excelList = [];
+    const transactionTypes = getTransactionTypes();
     let fileName = 'default';
     if (record === 'purchaseInvoice') {
       fileName = 'purchase_invoice';
@@ -124,7 +127,36 @@ export class ExcelService {
       excelList.push(data);
     });
 
-    } else {
+    } else if (record === 'cashdeskTransaction') {
+      fileName = 'cashdesk_transaction';
+
+      list.forEach((item: any) => {
+      const data = {
+        'Transaction Type': transactionTypes.get(item.transactionType),
+        'Receipt No': item.receiptNo,
+        Amount: Math.abs(item.amount),
+        Type: item.type === 'debit' ? 'Borç' : 'Alacak',
+        'Insert Date': getDateForExcel(item.insertDate)
+      };
+      excelList.push(data);
+    });
+
+    } else if (record === 'accountVoucher') {
+      fileName = 'account_voucher';
+
+      list.forEach((item: any) => {
+      const data = {
+        'Customer Name': item.customerName,
+        'Receipt No': item.data.receiptNo,
+        Amount: item.data.amount,
+        Type: item.data.type === 'debitVoucher' ? 'Borç' : 'Alacak',
+        'Insert Date': getDateForExcel(item.data.insertDate),
+        Description: item.data.description
+      };
+      excelList.push(data);
+    });
+
+    }  else {
       // add empty information
     }
     this.exportAsExcelFile(excelList, fileName);

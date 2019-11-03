@@ -107,3 +107,8 @@ export const getDateForExcel = (value: number) => {
   }
 };
 
+export const getTransactionTypes = () => {
+  return new Map([['salesInvoice', 'Satış Faturası'], ['collection', 'Tahsilat'],
+  ['purchaseInvoice', 'Alım Faturası'], ['payment', 'Ödeme'], ['accountVoucher', 'Cari Fiş'], ['cashDeskVoucher', 'Kasa Fişi']]);
+};
+

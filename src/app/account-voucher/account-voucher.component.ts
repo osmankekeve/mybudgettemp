@@ -13,6 +13,7 @@ import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
 import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty 
 } from '../core/correct-library';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-account-voucher',
@@ -48,6 +49,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public excelService: ExcelService,
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -120,6 +122,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -253,6 +256,14 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateAllRecords();
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'accountVoucher');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

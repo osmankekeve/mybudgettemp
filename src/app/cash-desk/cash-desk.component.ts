@@ -8,6 +8,7 @@ import { AccountTransactionService } from '../services/account-transaction-servi
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import { ExcelService } from '../services/excel-service';
 
 @Component({
   selector: 'app-cash-desk',
@@ -17,7 +18,7 @@ import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../co
 export class CashDeskComponent implements OnInit, OnDestroy {
   mainList: Array<CashDeskModel>;
   collection: AngularFirestoreCollection<CashDeskModel>;
-  transactionList$: Observable<AccountTransactionModel[]>;
+  transactionList: Array<AccountTransactionModel>;
   selectedRecord: CashDeskModel;
   refModel: CashDeskModel;
   openedPanel: any;
@@ -30,6 +31,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
+              public excelService: ExcelService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -118,6 +120,14 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     }
   }
 
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.transactionList, 'cashdeskTransaction');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
@@ -132,11 +142,16 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   onClickShowTransactionReport(): void {
     this.openedPanel = 'transactionReport';
-    this.transactionList$ = undefined;
+    this.transactionList = [];
     this.clearMainFiler();
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.transactionList$ = this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate);
+    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).subscribe(list => {
+      console.log(list);
+      list.forEach(item => {
+        this.transactionList.push(item);
+      });
+    });
   }
 
 }

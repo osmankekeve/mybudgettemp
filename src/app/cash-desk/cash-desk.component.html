@@ -46,8 +46,10 @@
         <h4 class="card-title float-left mr-2">Kasa Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Geniş Filtre"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()" *ngIf="openedPanel=='transactionReport'"><i class="fa fa-filter"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                        (click)="btnExportToExcel_Click()" *ngIf="openedPanel=='transactionReport'"><i class="fa fa-file-excel-o"></i></button>
       </div>
     </div>
   </div>
@@ -135,7 +137,7 @@
           </div>
         </div>
       </div>
-      <div class="list-group" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+      <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
         <div class="list-group-item bg-dark text-light">
           <div class="row">
             <div class="col-sm-3">İşlem Tipi</div>
