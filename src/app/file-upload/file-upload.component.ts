@@ -5,6 +5,9 @@ import { storage } from 'firebase';
 import { InformationService } from '../services/information.service';
 import { FileModel } from '../models/file-model';
 import { AuthenticationService } from '../services/authentication.service';
+import { Observable } from 'rxjs';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-file-upload',
@@ -18,6 +21,7 @@ export class FileUploadComponent implements OnInit {
   currentFileUpload: FileUpload;
   selectedRecord: FileModel;
   refModel: FileModel;
+  customerList$: Observable<CustomerModel[]>;
   progress: { percentage: number } = { percentage: 0 };
   progressShow = false;
   btnDis = true;
@@ -25,17 +29,19 @@ export class FileUploadComponent implements OnInit {
 
   constructor(public storageService: FileUploadService,
               public service: FileUploadService,
+              public cService: CustomerService,
               public authService: AuthenticationService,
               public infoService: InformationService ) { }
 
   ngOnInit() {
+    this.clearSelectedRecord();
+    this.customerList$ = this.cService.getAllItems();
     this.populateAllRecords();
   }
 
   populateAllRecords(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -60,16 +66,16 @@ export class FileUploadComponent implements OnInit {
 
       this.storageService.uploadFileAsync(this.currentFileUpload, this.progress).then((data) => {
         if (data.state === 'success') {
-          this.clearSelectedRecord();
           this.selectedRecord.primaryKey = '';
           this.selectedRecord.fileName = this.currentFileUpload.file.name;
           this.selectedRecord.size = this.currentFileUpload.file.size;
           this.selectedRecord.type = this.currentFileUpload.file.type;
           this.selectedRecord.path = data.metadata.fullPath;
+          if (this.selectedRecord.parentType !== 'customer') { this.selectedRecord.customerPrimaryKey = '-1'; }
           this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Dosya başarılı şekilde yüklendi.');
-            this.selectedRecord = undefined;
+            this.clearSelectedRecord();
             this.onFileChange(undefined);
           }).catch(err => this.infoService.error(err));
         } else {
@@ -102,7 +108,7 @@ export class FileUploadComponent implements OnInit {
         this.service.removeItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Dosya başarılı şekilde kaldırıldı.');
-          this.selectedRecord = undefined;
+          this.clearSelectedRecord();
           this.onFileChange(undefined);
         }).catch(err => this.infoService.error(err));
 
@@ -172,7 +178,7 @@ export class FileUploadComponent implements OnInit {
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.selectedRecord = {primaryKey: undefined, customerPrimaryKey: '-1', fileName: '', path: '', size: 0, type: '-1',
-    userPrimaryKey: this.authService.getUid(), insertDate: new Date().getTime() };
+    userPrimaryKey: this.authService.getUid(), insertDate: new Date().getTime(), parentType: 'shared' };
   }
 
 }

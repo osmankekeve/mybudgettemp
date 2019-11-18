@@ -6,7 +6,7 @@
   </div>
   <div class="card-body work-area-3">
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-sm-8">
           <div class="list-group mb-2" *ngIf="mainList.length > 0; else elseBlock">
             <div class="list-group-item bg-success text-light">
               <div class="row">
@@ -33,7 +33,7 @@
             </div>
           </ng-template>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-4">
         <form novalidate (ngSubmit)="btnUploadFile_Click()" *ngIf="!refModel">
           <div class="custom-file">
               <div class="mb-1" *ngIf="progressShow">
@@ -43,7 +43,18 @@
                    </div>
                 </div>
               </div>
-              <input type="file" class="form-control" (change)="onFileChange($event)" />
+              <input type="file" class="form-control mb-1" (change)="onFileChange($event)" />
+              <select class="form-control form-control-sm w-100 mb-1" id="parentType" name="parentType"
+                      [(ngModel)]="selectedRecord.parentType">
+                <option value="shared">Paylaşılan Dosya</option>
+                <option value="customer">Müşteri Dosyası</option>
+                <option value="user">Kullanıcı Dosyası</option>
+              </select>
+              <select class="form-control form-control-sm w-100 mb-1" id="customerPrimaryKey" name="customerPrimaryKey"
+              [(ngModel)]="selectedRecord.customerPrimaryKey" *ngIf="selectedRecord.parentType=='customer'">
+              <option value="-1">Lütfen Seçiniz</option>
+                  <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+              </select>
             <button type="submit" class="btn btn-sm btn-success btn-block mt-2" [disabled]="btnDis">Kaydet</button>
           </div>
         </form>
@@ -51,13 +62,13 @@
           <div class="card-header">Dosya Adı: {{selectedRecord.fileName}}</div>
           <div class="card-body">
               <div class="row">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnDownloadFile_Click()">İndir</button>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemoveFile_Click()">Kaldır</button>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                     <button type="button" class="btn btn-sm btn-secondary btn-block" (click)="btnCancelFile_Click()">İptal</button>
                 </div>
               </div>
