@@ -146,12 +146,10 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).subscribe(list => {
-      console.log(list);
-      list.forEach(item => {
-        this.transactionList.push(item);
-      });
+    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).then(list => {
+      this.transactionList = list;
     });
+
   }
 
 }

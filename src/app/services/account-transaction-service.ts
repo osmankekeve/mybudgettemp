@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
+import { getTransactionTypes, getTodayStart, getTodayEnd } from '../core/correct-library';
+import { CustomerService } from './customer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +13,10 @@ export class AccountTransactionService {
   listCollection: AngularFirestoreCollection<AccountTransactionModel>;
   mainList$: Observable<AccountTransactionModel[]>;
   tableName: any = 'tblAccountTransaction';
+  transactionTypes = getTransactionTypes();
 
   constructor(public authServis: AuthenticationService,
+              public cService: CustomerService,
               public db: AngularFirestore) {
 
   }
@@ -52,7 +56,96 @@ export class AccountTransactionService {
     this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
-  getCashDeskTransactions(cashDeskPrimaryKey: string, startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
+  getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
+      // tslint:disable-next-line:cyclomatic-complexity
+      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const list = Array<AccountTransactionModel>();
+        const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+        .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
+        .startAt(startDate.getTime())
+        .endAt(endDate.getTime()));
+        citiesRef.get().subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            data.primaryKey = doc.id;
+            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+            list.push(data);
+          });
+          resolve(list);
+        });
+
+      } catch (error) {
+          console.error(error);
+          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      }
+  })
+
+  getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
+      // tslint:disable-next-line:cyclomatic-complexity
+      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const list = Array<AccountTransactionModel>();
+        const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+        .where('parentPrimaryKey', '==', customerPrimaryKey)
+        .where('parentType', '==', 'customer')
+        .startAt(startDate.getTime())
+        .endAt(endDate.getTime()));
+        citiesRef.get().subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            data.primaryKey = doc.id;
+            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+            list.push(data);
+          });
+          resolve(list);
+        });
+
+      } catch (error) {
+          console.error(error);
+          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      }
+  })
+
+  getCustomerTransactionsWithDateControl = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
+      // tslint:disable-next-line:cyclomatic-complexity
+      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const returnList = Array<AccountTransactionModel>();
+        const refData = this.db.collection(this.tableName, ref => {
+
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate')
+        .where('parentPrimaryKey', '==', customerPrimaryKey)
+        .where('parentType', '==', 'customer');
+
+        if (startDate !== undefined) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== undefined) {
+          query = query.endAt(endDate.getTime());
+        }
+
+        return query;
+        });
+        refData.get().subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            data.primaryKey = doc.id;
+            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+            returnList.push(data);
+          });
+          resolve(returnList);
+        });
+      } catch (error) {
+          console.error(error);
+          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      }
+  })
+
+  getCashDeskTransactions2(cashDeskPrimaryKey: string, startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
     this.listCollection = this.db.collection<AccountTransactionModel>
     (this.tableName, ref => ref
       .orderBy('insertDate')

@@ -45,52 +45,82 @@
     <div class="row">
       <div class="col-sm-12">
         <h4 class="card-title float-left mr-2">{{selectedCustomer.name}}</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'"><i class="fa fa-arrow-left"></i>
         </button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Ana Ekrana Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ana Ekrana Geri Dön"
                 (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'"><i
-          class="fa fa-arrow-left"></i></button>
+          class="fa fa-arrow-left"></i>
+        </button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                (click)="btnAccountSummaryExportToExcel_Click()" *ngIf="openedPanel=='accountSummary'"><i class="fa fa-file-excel-o"></i>
+        </button>
       </div>
     </div>
   </div>
   <div *ngIf="openedPanel=='dashboard'">
-    <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
+    <div class="card-body dashboard-work-area" *ngIf="selectedCustomer.primaryKey!=undefined">
       <div class="row">
         <div class="col-sm-6">
-          <div class="card card-stats">
-            <div class="card-body">
-              <div class="row" style="border-bottom: thin solid #eee">
-                <label class="col-sm-4 col-form-label font-weight-bold">Adı</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.name}}</label>
-              </div>
-              <div class="row" style="border-bottom: thin solid #eee">
-                <label class="col-sm-4 col-form-label font-weight-bold">Yetkili Kişi</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.owner}}</label>
-              </div>
-              <div class="row" style="border-bottom: thin solid #eee">
-                <label class="col-sm-4 col-form-label font-weight-bold">E-Mail</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.email}}</label>
-              </div>
-              <div class="row" style="border-bottom: thin solid #eee">
-                <label class="col-sm-4 col-form-label font-weight-bold">Telefon</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone1}}</label>
-              </div>
-              <div class="row" style="border-bottom: thin solid #eee">
-                <label class="col-sm-4 col-form-label font-weight-bold">Fax</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone2}}</label>
-              </div>
-              <div class="row">
-                <label class="col-sm-4 col-form-label font-weight-bold">Adres</label>
-                <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.address}}</label>
+            <div class="row mb-2">
+              <div class="col-sm-12">
+                <div class="card card-stats">
+                  <div class="card-body">                    
+                    <div class="row" style="border-bottom: thin solid #eee">
+                      <label class="col-sm-4 col-form-label font-weight-bold">Adı</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.name}}</label>
+                    </div>
+                    <div class="row" style="border-bottom: thin solid #eee">
+                      <label class="col-sm-4 col-form-label font-weight-bold">Yetkili Kişi</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.owner}}</label>
+                    </div>
+                    <div class="row" style="border-bottom: thin solid #eee">
+                      <label class="col-sm-4 col-form-label font-weight-bold">E-Mail</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.email}}</label>
+                    </div>
+                    <div class="row" style="border-bottom: thin solid #eee">
+                      <label class="col-sm-4 col-form-label font-weight-bold">Telefon</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone1}}</label>
+                    </div>
+                    <div class="row" style="border-bottom: thin solid #eee">
+                      <label class="col-sm-4 col-form-label font-weight-bold">Fax</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone2}}</label>
+                    </div>
+                    <div class="row">
+                      <label class="col-sm-4 col-form-label font-weight-bold">Adres</label>
+                      <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.address}}</label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="card-footer">
-              <button type="button" class="btn btn-sm btn-primary"
-                      (click)="btnOpenSubPanel_Click('edit')">Müşteriyi Düzenle
-              </button>
+            <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('edit')">
+                      <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                        <div class="row">
+                            <div class="col-sm-2">
+                              <img src="../../assets/images/customer-edit.png" width="50px">
+                            </div>
+                            <div class="col-sm-10">
+                                <div>Düzenleme</div>
+                                <small class="text-secondary">Müşteri Bilgilerini Düzenleyin</small>
+                            </div>
+                        </div>
+                      </div>
             </div>
-          </div>
+            <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('accountSummary')">
+                      <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                        <div class="row">
+                            <div class="col-sm-2">
+                              <img src="../../assets/images/customer-account-balance.png" width="50px">
+                            </div>
+                            <div class="col-sm-10">
+                                <div>Hesap Bakiye</div>
+                                <small class="text-secondary">Müşteriye Ait Tüm Hareketleri Listele</small>
+                            </div>
+                        </div>
+                      </div>
+            </div>
+
         </div>
         <div class="col-sm-6">
           <div id="panel-navigator">
@@ -179,15 +209,13 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>
   <div *ngIf="openedPanel=='salesInvoice'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -281,7 +309,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='collection'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -387,7 +415,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='purchaseInvoice'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -482,7 +510,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='payment'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -586,7 +614,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='accountVoucher'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -682,7 +710,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='edit'">
-    <div class="card-body">
+    <div class="card-body dashboard-work-area">
       <div class="card card-stats">
         <div class="card-body">
           <form (ngSubmit)="btnSave_Click()" class="was-validated">
@@ -762,6 +790,41 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='accountSummary'">
+    <div class="card-body">
+        <div class="list-group work-area-2" *ngIf="transactionList; else elseBlock">
+          <div class="list-group-item bg-success text-light">
+            <div class="row">
+              <div class="col-sm-1">Sıra</div>
+              <div class="col-sm-5">İşlem</div>
+              <div class="col-sm-2">Fiş Numarası</div>
+              <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>      
+          </div>
+        </div>
+          <div class="list-group-item list-group-item-action list-group-item-light" *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+            <div class="row">
+            <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
+            <div class="col-sm-5">{{item.transactionTypeTr}}</div>
+            <div class="col-sm-2">{{item.receiptNo}}</div>
+            <div class="col-sm-2"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>      
+          </div>
+        </div>
+          <li class="list-group-item list-group-item-success">
+            <div class="row">
+              <div class="col-sm-8">Toplam</div>
+              <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
+            </div>
+          </li>
+        </div>
+        <ng-template #elseBlock>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+          </div>
+        </ng-template>
     </div>
   </div>
 </div>

@@ -97,8 +97,20 @@ body {
   scrollbar-width: none;
 }
 
+.work-area-2 {
+  max-height: calc(100vh - 205px);
+  overflow: auto;
+  scrollbar-width: none;
+}
+
 .side-bar-work-area {
   max-height: calc(100vh - 106px);
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.dashboard-work-area {
+  height: calc(100vh - 157px);
   overflow: auto;
   scrollbar-width: none;
 }

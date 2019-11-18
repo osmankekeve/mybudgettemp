@@ -156,6 +156,23 @@ export class ExcelService {
       excelList.push(data);
     });
 
+    } else if (record === 'customerAccountSummary') {
+      fileName = 'customer_account_summary';
+
+      let totalValue = 0;
+      list.forEach((item: any) => {
+      const data = {
+        Transaction: item.transactionTypeTr,
+        'Receipt No': item.receiptNo,
+        Amount: item.amount,
+        Type: item.amountType === 'debit' ? 'Borç' : 'Alacak',
+        'Insert Date': getDateForExcel(item.insertDate)
+      };
+      excelList.push(data);
+      totalValue += data.Amount;
+    });
+      excelList.push({ Transaction: 'Toplam', 'Receipt No': '', Amount: totalValue, Type: '', 'Insert Date': '' });
+
     }  else {
       // add empty information
     }

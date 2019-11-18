@@ -5,6 +5,8 @@ import { Observable } from 'rxjs/internal/Observable';
 import { CustomerService } from '../services/customer.service';
 import { CustomerModel } from '../models/customer-model';
 import { AccountTransactionModel } from '../models/account-transaction-model';
+import { getFirstDayOfMonthForInput, getTodayForInput } from '../core/correct-library';
+import { AccountTransactionService } from '../services/account-transaction-service';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -14,16 +16,36 @@ export class ReportsComponent implements OnInit, OnDestroy {
   selectedReport: any;
   mainList: Array<any> = [];
   customerList$: Observable<CustomerModel[]>;
+  customerMap = new Map();
   yearFilter = new Date().getFullYear();
   monthFilter = new Date().getMonth();
 
+  isMainFilterOpened = false;
+  recordDate: any;
+
+  date = new Date();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  filterCustomerCode: any;
+  filterBalance: any;
+
   constructor(public infoService: InformationService,
               public customerService: CustomerService,
+              public atService: AccountTransactionService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
     this.selectedReport = undefined;
     this.customerList$ = this.customerService.getAllItems();
+    this.clearMainFiler();
+
+    this.customerList$.subscribe(list => {
+      this.customerMap.clear();
+      this.customerMap.set('-1', 'Tüm Kullanıcılar');
+      list.forEach(item => {
+        this.customerMap.set(item.primaryKey, item.name);
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -33,8 +55,11 @@ export class ReportsComponent implements OnInit, OnDestroy {
   onClickShowReport(data: any): void {
     this.mainList = [];
     this.selectedReport = data;
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     if (data === 'accountReport') {
-      this.customerService.getAllItems().subscribe(list => {
+
+      this.customerService.getAllActiveItems().subscribe(list => {
         list.forEach(async customer => {
           const dataReport = {stringField1: '', numberField1 : 0};
           dataReport.stringField1 = customer.name;
@@ -48,58 +73,82 @@ export class ReportsComponent implements OnInit, OnDestroy {
           });
         });
       });
+
     } else if (data === 'purchaseReport') {
-      this.customerService.getAllItems().subscribe(list => {
+
+      this.customerService.getAllActiveItems().subscribe(list => {
         list.forEach(async customer => {
           const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
           dataReport.stringField1 = customer.name;
-          await this.db.collection('tblAccountTransaction', ref =>
-          ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
-          .subscribe(listTrans => {
-            listTrans.forEach(item => {
-              // tslint:disable-next-line: no-shadowed-variable
-              const data = item.data() as AccountTransactionModel;
-              if (data.transactionType === 'purchaseInvoice' || data.transactionType === 'payment') {
 
-                if (data.amount > 0 ) {dataReport.numberField1 += item.data().amount; }
-                if (data.amount < 0 ) {dataReport.numberField2 += item.data().amount; }
-                dataReport.numberField3 += item.data().amount;
+          this.atService.getCustomerTransactions(customer.primaryKey, beginDate, finishDate).then(listTrans => {
+            listTrans.forEach(item => {
+              if (item.transactionType === 'purchaseInvoice' || item.transactionType === 'payment') {
+                if (item.amount > 0 ) {dataReport.numberField1 += item.amount; }
+                if (item.amount < 0 ) {dataReport.numberField2 += item.amount; }
+                dataReport.numberField3 += item.amount;
               }
             });
-            this.mainList.push(dataReport);
+
+            if (this.filterBalance === '-1') {
+              this.mainList.push(dataReport);
+            } else if (this.filterBalance === '0') {
+              if (dataReport.numberField3 === 0) {
+                this.mainList.push(dataReport);
+              }
+            } else if (this.filterBalance === '1') {
+              if (dataReport.numberField3 !== 0) {
+                this.mainList.push(dataReport);
+              }
+            } else {
+              // nothing
+            }
           });
         });
       });
+
     } else if (data === 'salesReport') {
-      this.customerService.getAllItems().subscribe(list => {
+
+      this.customerService.getAllActiveItems().subscribe(list => {
         list.forEach(async customer => {
           const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
           dataReport.stringField1 = customer.name;
-          await this.db.collection('tblAccountTransaction', ref =>
-          ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
-          .subscribe(listTrans => {
-            listTrans.forEach(item => {
-              // tslint:disable-next-line: no-shadowed-variable
-              const data = item.data() as AccountTransactionModel;
-              if (data.transactionType === 'salesInvoice' || data.transactionType === 'collection') {
 
-                if (data.amount > 0 ) {dataReport.numberField1 += item.data().amount; }
-                if (data.amount < 0 ) {dataReport.numberField2 += item.data().amount; }
-                dataReport.numberField3 += item.data().amount;
+          this.atService.getCustomerTransactions(customer.primaryKey, beginDate, finishDate).then(listTrans => {
+            listTrans.forEach(item => {
+              if (item.transactionType === 'salesInvoice' || item.transactionType === 'collection') {
+                console.log(item);
+                if (item.amount > 0 ) {dataReport.numberField1 += item.amount; }
+                if (item.amount < 0 ) {dataReport.numberField2 += item.amount; }
+                dataReport.numberField3 += item.amount;
               }
             });
-            this.mainList.push(dataReport);
+
+            if (this.filterBalance === '-1') {
+              this.mainList.push(dataReport);
+            } else if (this.filterBalance === '0') {
+              if (dataReport.numberField3 === 0) {
+                this.mainList.push(dataReport);
+              }
+            } else if (this.filterBalance === '1') {
+              if (dataReport.numberField3 !== 0) {
+                this.mainList.push(dataReport);
+              }
+            } else {
+              // nothing
+            }
           });
         });
       });
+
     } else if (data === 'paymentReport') {
-      const startDate = new Date(this.yearFilter, this.monthFilter, 1);
-      const endDate = new Date(this.yearFilter, this.monthFilter + 1, 0);
-      this.populateAccountTransactions(startDate, endDate, 'payment');
+
+      this.populateAccountTransactions(beginDate, finishDate, 'payment');
+
     } else if (data === 'collectionReport') {
-      const startDate = new Date(this.yearFilter, this.monthFilter, 1);
-      const endDate = new Date(this.yearFilter, this.monthFilter + 1, 0);
-      this.populateAccountTransactions(startDate, endDate, 'collection');
+
+      this.populateAccountTransactions(beginDate, finishDate, 'collection');
+
     } else {
       //
     }
@@ -135,5 +184,21 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedReport = undefined;
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
+    this.filterCustomerCode = '-1';
+    this.filterBalance = '1';
   }
 }

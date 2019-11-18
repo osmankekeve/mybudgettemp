@@ -21,6 +21,7 @@ import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountVoucherService} from '../services/account-voucher.service';
 import {AuthenticationService} from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
+import { Chart } from 'chart.js';
 
 @Component({
   selector: 'app-customer',
@@ -52,6 +53,9 @@ export class CustomerComponent implements OnInit  {
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
+  transactionList: Array<AccountTransactionModel>;
+  totalValues = 0;
+  BarChart: any;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
@@ -134,6 +138,7 @@ export class CustomerComponent implements OnInit  {
         this.voucherAmount += Math.round(item.amount);
       });
     });
+
   }
 
   btnReturnList_Click(): void {
@@ -343,7 +348,7 @@ export class CustomerComponent implements OnInit  {
 
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
-    if (this.selectedCustomer.primaryKey) {
+    if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary') {
       this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
     }
     if (this.openedPanel === 'salesInvoice') {
@@ -358,13 +363,30 @@ export class CustomerComponent implements OnInit  {
       this.clearNewVoucher();
     } else if (this.openedPanel === 'edit') {
 
+    } else if (this.openedPanel === 'accountSummary') {
+      this.totalValues = 0;
+
+      this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
+        this.transactionList = list;
+        this.transactionList.forEach(item => {
+          this.totalValues += item.amount;
+        });
+      });
+
     } else if (this.openedPanel === 'dashboard') {
       if (!this.selectedCustomer.primaryKey) {
         this.btnReturnList_Click();
       }
-
     }  else {
 
+    }
+  }
+
+  btnAccountSummaryExportToExcel_Click(): void {
+    if (this.transactionList.length > 0) {
+      this.excelService.exportToExcel(this.transactionList, 'customerAccountSummary');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

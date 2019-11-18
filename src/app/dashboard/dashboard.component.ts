@@ -7,6 +7,7 @@ import { AccountTransactionService } from '../services/account-transaction-servi
 import { CustomerRelationService } from '../services/crm.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { Router } from '@angular/router';
+import { getFloat } from '../core/correct-library';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,9 +15,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  LineChart: any;
   BarChart: any;
-  PieChart: any;
   transactionList$: Observable<AccountTransactionModel[]>;
   actionList: Array<CustomerRelationModel> = [];
   purchaseInvoiceAmount: any = 0;
@@ -31,47 +30,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
               public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }
 
   async ngOnInit() {
-    // Bar chart:
-    this.BarChart = new Chart('barChart', {
-    type: 'bar',
-    data: {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-    datasets: [{
-     label: '# of Votes',
-     data: [9, 7 , 3, 5, 2, 10],
-     backgroundColor: [
-         'rgba(255, 99, 132, 0.2)',
-         'rgba(54, 162, 235, 0.2)',
-         'rgba(255, 206, 86, 0.2)',
-         'rgba(75, 192, 192, 0.2)',
-         'rgba(153, 102, 255, 0.2)',
-         'rgba(255, 159, 64, 0.2)'
-     ],
-     borderColor: [
-         'rgba(255,99,132,1)',
-         'rgba(54, 162, 235, 1)',
-         'rgba(255, 206, 86, 1)',
-         'rgba(75, 192, 192, 1)',
-         'rgba(153, 102, 255, 1)',
-         'rgba(255, 159, 64, 1)'
-     ],
-     borderWidth: 1
-    }]
-},
-    options: {
- title: {
-     text: 'Bar Chart',
-     display: true
- },
- scales: {
-     yAxes: [{
-         ticks: {
-             beginAtZero: true
-         }
-     }]
- }
-}
-    });
 
     this.atService.getOnDayTransactions().subscribe(list => {
         this.transactionList = list;
@@ -104,62 +62,84 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     const date = new Date();
-    const chartData = [{month: 0, amount: 0}, {month: 0, amount: 0},
-        {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0},
-        {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0}, {month: 0, amount: 0},
-        {month: 0, amount: 0}, {month: 0, amount: 0}];
-
-    // tslint:disable-next-line: prefer-for-of
-    for (let i = 1; i <= 12; i++) {
-        const startDate = new Date(date.getFullYear(), i, 1);
-        const endDate = new Date(date.getFullYear(), i + 1, 0);
-        chartData[i - 1].month += i;
-
-        this.atService.getOnDayTransactionsBetweenDatesAsync(startDate, endDate).then(list => {
-            list.forEach(item => {
-                if (item.transactionType === 'payment') {
-                    chartData[i - 1].amount += item.amount;
-                }
-            });
+    const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    let siAmount2 = 0;
+    let colAmount2 = 0;
+    let purchaseInvoiceAmount2 = 0;
+    let payAmount2 = 0;
+    let avAmount2 = 0;
+    let cvAmount2 = 0;
+    this.atService.getOnDayTransactionsBetweenDates(todayStart, endDate).subscribe(list => {
+        list.forEach(item => {
+            if (item.transactionType === 'salesInvoice') {
+                siAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Satış Faturası';
+            }
+            if (item.transactionType === 'collection') {
+                colAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Tahsilat';
+            }
+            if (item.transactionType === 'purchaseInvoice') {
+                purchaseInvoiceAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Alım Faturası';
+            }
+            if (item.transactionType === 'payment') {
+                payAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Ödeme';
+            }
+            if (item.transactionType === 'accountVoucher') {
+                avAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Hesap Fişi';
+            }
+            if (item.transactionType === 'cashDeskVoucher') {
+                cvAmount2 += getFloat(Math.abs(item.amount));
+                item.transactionTypeTr = 'Kasa Fişi';
+            }
         });
-    }
-    console.table('list done');
 
-    this.LineChart = undefined;
-    this.LineChart = new Chart('lineChart', {
-        type: 'line',
-      data: {
-       labels: [chartData[0].month.toString(), chartData[1].month.toString(), chartData[2].month.toString(),
-       chartData[3].month.toString(), chartData[4].month.toString(), chartData[5].month.toString(), chartData[6].month.toString(),
-       chartData[7].month.toString(), chartData[8].month.toString(), chartData[9].month.toString(), chartData[10].month.toString(),
-       chartData[11].month.toString()],
-       datasets: [{
-           label: 'Tutar',
-           data: [chartData[0].amount, chartData[1].amount, chartData[2].amount, chartData[3].amount, chartData[4].amount
-           , chartData[5].amount, chartData[6].amount, chartData[7].amount, chartData[8].amount, chartData[9].amount
-           , chartData[10].amount, chartData[11].amount
-            ],
-           fill: false,
-           lineTension: 0.2,
-           borderColor: 'red',
-           borderWidth: 1
-       }]
-      },
-      options: {
-       title: {
-           text: 'Aylık Ödeme Giderleri',
-           display: true
-       },
-       scales: {
-           yAxes: [{
-               ticks: {
-                   beginAtZero: true
-               }
-           }]
-       }
-      }
+        this.BarChart = new Chart('barChart', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+            datasets: [{
+              label: '# of Votes',
+              data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
+              backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            title: {
+                text: 'Aylık Cari Hareketler',
+                display: true
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+          }
       });
-    console.table('chart done');
+    });
+
     this.populateActivityList();
   }
 
