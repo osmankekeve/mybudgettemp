@@ -103,6 +103,12 @@ body {
   scrollbar-width: none;
 }
 
+.work-area-3 {
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+  scrollbar-width: none;
+}
+
 .side-bar-work-area {
   max-height: calc(100vh - 106px);
   overflow: auto;

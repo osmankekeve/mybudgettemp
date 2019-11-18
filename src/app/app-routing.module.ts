@@ -24,6 +24,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { SettingComponent } from './setting/setting.component';
 import { UserComponent } from './user/user.component';
 import {ReminderComponent} from './reminder/reminder.component';
+import { FileUploadComponent } from './file-upload/file-upload.component';
 
 
 const routes: Routes = [
@@ -49,6 +50,7 @@ const routes: Routes = [
   {path: 'user', component: UserComponent, pathMatch: 'full'},
   {path: 'reminder', component: ReminderComponent, pathMatch: 'full'},
   {path: 'reminder/:id', component: ReminderComponent, pathMatch: 'full'},
+  {path: 'file-upload', component: FileUploadComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -82,7 +84,8 @@ export const routingComponents = [
   ProfileComponent,
   SettingComponent,
   UserComponent,
-  ReminderComponent
+  ReminderComponent,
+  FileUploadComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

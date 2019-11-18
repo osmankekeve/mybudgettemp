@@ -1,0 +1,70 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title float-left mr-2">Dosya Yükleme</h5>
+    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Dosya Yükle"
+            (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+  </div>
+  <div class="card-body work-area-3">
+    <div class="row">
+      <div class="col-sm-6">
+          <div class="list-group mb-2" *ngIf="mainList.length > 0; else elseBlock">
+            <div class="list-group-item bg-success text-light">
+              <div class="row">
+                <div class="col-sm-2">Sıra</div>
+                <div class="col-sm-6">Dosya Adı</div>
+                <div class="col-sm-2">Boyut</div>
+                <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+              </div>
+            </div>
+            <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+            (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+              <div class="row">
+                <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
+                <div class="col-sm-6">{{item.data.fileName}}</div>
+                <div class="col-sm-2">{{item.data.size}} Byte</div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+      </div>
+      <div class="col-sm-6">
+        <form novalidate (ngSubmit)="btnUploadFile_Click()" *ngIf="!refModel">
+          <div class="custom-file">
+              <div class="mb-1" *ngIf="progressShow">
+                <div class="progress bg-success p-2">
+                   <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" [style.width]="progress?.percentage+'%'">
+                {{progress?.percentage}}%
+                   </div>
+                </div>
+              </div>
+              <input type="file" class="form-control" (change)="onFileChange($event)" />
+            <button type="submit" class="btn btn-sm btn-success btn-block mt-2" [disabled]="btnDis">Kaydet</button>
+          </div>
+        </form>
+        <div class="card" *ngIf="refModel">
+          <div class="card-header">Dosya Adı: {{selectedRecord.fileName}}</div>
+          <div class="card-body">
+              <div class="row">
+                <div class="col-sm-3">
+                    <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnDownloadFile_Click()">İndir</button>
+                </div>
+                <div class="col-sm-3">
+                    <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemoveFile_Click()">Kaldır</button>
+                </div>
+                <div class="col-sm-3">
+                    <button type="button" class="btn btn-sm btn-secondary btn-block" (click)="btnCancelFile_Click()">İptal</button>
+                </div>
+              </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

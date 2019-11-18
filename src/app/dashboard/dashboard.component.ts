@@ -16,7 +16,6 @@ import { getFloat } from '../core/correct-library';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   BarChart: any;
-  transactionList$: Observable<AccountTransactionModel[]>;
   actionList: Array<CustomerRelationModel> = [];
   purchaseInvoiceAmount: any = 0;
   siAmount: any = 0;
@@ -24,7 +23,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   payAmount: any = 0;
   avAmount: any = 0;
   cvAmount: any = 0;
-  transactionList: Array<AccountTransactionModel>;
+  transactionList: Array<AccountTransactionModel> = [];
 
   constructor(public db: AngularFirestore, public router: Router,
               public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }

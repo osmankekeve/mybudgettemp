@@ -148,7 +148,7 @@
                   <h5 class="card-title">Günlük İşlemler</h5>
                 </div>
                 <div class="card-body bg-light">
-                  <div class="list-group" *ngIf="transactionList; let list; else elseBlock">
+                  <div class="list-group" *ngIf="transactionList.length>0; else elseBlock">
                     <div class="list-group-item bg-dark text-light">
                       <div class="row">
                         <div class="col-sm-5">İşlem</div>
@@ -157,7 +157,7 @@
                       </div>
                     </div>
                     <div class="list-group-item list-group-item-action list-group-item-light"
-                         *ngFor="let item of list; index as i; trackBy: primaryKey"
+                         *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                          style="font-size: 85%">
                       <div class="row">
                         <label class="col-sm-5">{{item.transactionTypeTr}}</label>

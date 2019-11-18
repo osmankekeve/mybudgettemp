@@ -4,6 +4,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { AngularFireAuthModule } from '@angular/fire/auth';
+import { AngularFireStorageModule } from '@angular/fire/storage';
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,7 +19,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AgmCoreModule } from '@agm/core';
 import { LocationDataFilterPipe } from './filters/location-data-filter.pipe';
 import { ProfileFilterPipe } from './filters/profile-filter.pipe';
-import {ExcelService} from './services/excel-service';
+import { ExcelService } from './services/excel-service';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import {ExcelService} from './services/excel-service';
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireAuthModule,
     AngularFirestoreModule.enablePersistence(),
+    AngularFireStorageModule,
     AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
