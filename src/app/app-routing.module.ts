@@ -19,12 +19,13 @@ import { TestModuleComponent } from './test/test-module.component';
 import { NotificationComponent } from './notification/notification.component';
 import { NoteComponent } from './note/note.component';
 import { CRMComponent } from './crm/crm.component';
-import {LocationComponent} from './location/location.component';
+import { LocationComponent } from './location/location.component';
 import { ProfileComponent } from './profile/profile.component';
 import { SettingComponent } from './setting/setting.component';
 import { UserComponent } from './user/user.component';
-import {ReminderComponent} from './reminder/reminder.component';
+import { ReminderComponent } from './reminder/reminder.component';
 import { FileUploadComponent } from './file-upload/file-upload.component';
+import { VisitComponent } from './visit/visit.component';
 
 
 const routes: Routes = [
@@ -51,6 +52,7 @@ const routes: Routes = [
   {path: 'reminder', component: ReminderComponent, pathMatch: 'full'},
   {path: 'reminder/:id', component: ReminderComponent, pathMatch: 'full'},
   {path: 'file-upload', component: FileUploadComponent, pathMatch: 'full'},
+  {path: 'visit', component: VisitComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -85,7 +87,8 @@ export const routingComponents = [
   SettingComponent,
   UserComponent,
   ReminderComponent,
-  FileUploadComponent
+  FileUploadComponent,
+  VisitComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

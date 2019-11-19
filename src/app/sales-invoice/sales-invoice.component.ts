@@ -32,7 +32,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   isMainFilterOpened = false;
   recordDate: any;
 
-  date = new Date();
   filterBeginDate: any;
   filterFinishDate: any;
   filterCustomerCode: any;

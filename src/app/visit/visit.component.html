@@ -1,0 +1,204 @@
+<div class="card" *ngIf="selectedRecord==undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-8">
+                <h4 class="card-title float-left mr-2">Ziyaret Listesi</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Etkinlik" (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Tüm Etkinlikler" (click)="btnAllRecords_Click()"><i class="fa fa-list"></i></button>
+            </div>
+            <div class="col-sm-4 head-filter">
+                <div class="input-group input-group-round">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+                    </div>
+                    <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
+              </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row work-area" *ngIf="!isShowAllRecords">
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList1 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
+                                        <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #elseBlock1>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList2 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
+                                        <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #elseBlock2>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList3 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
+                                        <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #elseBlock3>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
+                </div>
+        </div>
+        <div class="work-area" *ngIf="isShowAllRecords">
+            <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+                <div class="col-sm-4" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                    <div class="card-list-parent">
+                            <div class="card mb-2 bg-light cursor-pointer"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                                <div class="card-body">
+                                    <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
+                                            <div class="text-small text-dark float-left">{{item.relationTypeTR}}</div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>
+<div class="card" *ngIf="selectedRecord!=undefined">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-sm-12">
+                <h4 class="card-title float-left mr-2">Ziyaret Detayı</h4>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+                <div class="row form-inline">
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left">Müşteri</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
+                        [(ngModel)]="selectedRecord.customerPrimaryKey">
+                            <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen müşteri seçiniz.</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left">Personel</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
+                        [(ngModel)]="selectedRecord.employeePrimaryKey">
+                            <option value={{item.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.longName}}</option>
+                        </select>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen personel seçiniz.</div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="actionDate">Tarih</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="input-group">
+                            <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
+                                name="d2" #c2="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d2="ngbDatepicker">
+                            <div class="input-group-append">
+                                <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="col-form-label float-left" for="description">Açıklama</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <textarea  class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                        cols="40" rows="2" [(ngModel)]="selectedRecord.description"></textarea>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen not alanını doldurunuz.</div>
+                    </div>
+                    <div class="col-sm-3 mt-1">
+                        <label class="col-form-label float-left" for="result">Sonuç</label>
+                    </div>
+                    <div class="col-sm-9 mt-1">
+                        <textarea  class="form-control form-control-sm w-100" id="result" name="result" type="text"
+                        cols="40" rows="2" [(ngModel)]="selectedRecord.result"></textarea>
+                        <div class="invalid-feedback invalid-inpput-info">Lütfen sonuç alanını doldurunuz.</div>
+                    </div>
+                </div>
+        </form>
+    </div>
+    <div class="card-footer">
+        <div class="col-sm-3 float-right">
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                (click)="btnSave_Click()">Kaydet</button>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                (click)="btnRemove_Click()">Kaldır</button>
+        </div>
+
+    </div>
+</div>

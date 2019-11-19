@@ -1,58 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { CustomerRelationModel } from '../models/customer-relation-model';
-import { CustomerRelationService } from '../services/crm.service';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute} from '@angular/router';
+import { VisitModel } from '../models/visit-model';
+import { getTodayForInput, getDateForInput, getInputDataForInsert } from '../core/correct-library';
+import { VisitService } from '../services/visit.service';
+import { ProfileService } from '../services/profile.service';
+import { ProfileModel } from '../models/profile-model';
 
 @Component({
-  selector: 'app-crm',
-  templateUrl: './crm.component.html',
-  styleUrls: ['./crm.component.css']
+  selector: 'app-visit',
+  templateUrl: './visit.component.html',
+  styleUrls: ['./visit.component.css']
 })
-export class CRMComponent implements OnInit, OnDestroy {
-  mainList: Array<CustomerRelationModel>;
-  mainList1: Array<CustomerRelationModel>;
-  mainList2: Array<CustomerRelationModel>;
-  mainList3: Array<CustomerRelationModel>;
-  collection: AngularFirestoreCollection<CustomerRelationModel>;
+export class VisitComponent implements OnInit, OnDestroy {
+  mainList: Array<VisitModel>;
+  mainList1: Array<VisitModel>;
+  mainList2: Array<VisitModel>;
+  mainList3: Array<VisitModel>;
+  collection: AngularFirestoreCollection<VisitModel>;
   customerList$: Observable<CustomerModel[]>;
-  selectedRecord: CustomerRelationModel;
-  refModel: CustomerRelationModel;
+  profileList$: Observable<ProfileModel[]>;
+  selectedRecord: VisitModel;
+  refModel: VisitModel;
   isShowAllRecords = false;
   openedPanel: any;
-  date = new Date();
-  today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
+  recordDate: any;
   paramPrimaryKey: any = undefined;
 
-  constructor(public authService: AuthenticationService, public service: CustomerRelationService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public cService: CustomerService, public router: ActivatedRoute,
+  constructor(public authService: AuthenticationService, public service: VisitService,
+              public atService: AccountTransactionService, public infoService: InformationService,
+              public cService: CustomerService, public router: ActivatedRoute, public proService: ProfileService,
               public db: AngularFirestore) {
   }
 
   ngOnInit() {
-    // observable
-    // this.router.params.subscribe(params => console.log(params));
-    // snapshot
-    this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
-    // console.log(this.paramPrimaryKey);
 
     this.customerList$ = this.cService.getAllItems();
+    this.profileList$ = this.proService.getAllItems();
     this.populateList();
-    this.selectedRecord = undefined;
-    if (this.paramPrimaryKey !== undefined) {
-      // seçili kayıdı göster
-    } else {
-    }
   }
 
   ngOnDestroy(): void {
@@ -125,10 +116,9 @@ export class CRMComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as CustomerRelationModel;
-    this.refModel = record.data as CustomerRelationModel;
-    const selectedDate = new Date(this.selectedRecord.actionDate);
-    this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
+    this.selectedRecord = record.data as VisitModel;
+    this.refModel = record.data as VisitModel;
+    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
   }
 
   btnReturnList_Click(): void {
@@ -144,19 +134,18 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    const date = new Date(this.today.year, this.today.month - 1, this.today.day);
     if (this.selectedRecord.primaryKey === undefined) {
       this.selectedRecord.primaryKey = '';
-      this.selectedRecord.actionDate = date.getTime();
+      this.selectedRecord.visitDate = getInputDataForInsert(this.recordDate);
       this.service.addItem(this.selectedRecord)
         .then(() => {
-          this.infoService.success('Etkinlik başarıyla kaydedildi.');
+          this.infoService.success('Ziyaret başarıyla kaydedildi.');
           this.selectedRecord = undefined;
         }).catch(err => this.infoService.error(err));
     } else {
       this.service.updateItem(this.selectedRecord)
         .then(() => {
-          this.infoService.success('Etkinlik başarıyla güncellendi.');
+          this.infoService.success('Ziyaret başarıyla güncellendi.');
           this.selectedRecord = undefined;
         }).catch(err => this.infoService.error(err));
     }
@@ -165,7 +154,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Etkinlik başarıyla kaldırıldı.');
+        this.infoService.success('Ziyaret başarıyla kaldırıldı.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
   }
@@ -182,11 +171,10 @@ export class CRMComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    const selectedDate = new Date();
-    this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
+    this.recordDate = getTodayForInput();
     this.selectedRecord = {
-      primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
-      userPrimaryKey: this.authService.getUid(), insertDate: Date.now()
+      primaryKey: undefined, userPrimaryKey: this.authService.getUid(),
+      insertDate: Date.now()
     };
   }
 
