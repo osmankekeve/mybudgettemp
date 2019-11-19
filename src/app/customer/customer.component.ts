@@ -22,6 +22,8 @@ import {AccountVoucherService} from '../services/account-voucher.service';
 import {AuthenticationService} from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
 import { Chart } from 'chart.js';
+import { FileModel } from '../models/file-model';
+import { FileUploadService } from '../services/file-upload.service';
 
 @Component({
   selector: 'app-customer',
@@ -49,6 +51,7 @@ export class CustomerComponent implements OnInit  {
   payAmount: any;
   voucherList$: Observable<AccountVoucherModel[]>;
   voucherAmount: any;
+  totalAmount: any;
   openedPanel: string;
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
@@ -56,11 +59,12 @@ export class CustomerComponent implements OnInit  {
   transactionList: Array<AccountTransactionModel>;
   totalValues = 0;
   BarChart: any;
+  filesList$: Observable<FileModel[]>;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
-              public excelService: ExcelService,
+              public excelService: ExcelService, public fuService: FileUploadService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
@@ -94,12 +98,14 @@ export class CustomerComponent implements OnInit  {
     this.selectedCustomer = customer.data as CustomerModel;
     this.refModel = customer.data as CustomerModel;
 
+    this.totalAmount = 0;
     this.purchaseInvoiceList$ = undefined;
     this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.purchaseInvoiceAmount = 0;
     this.purchaseInvoiceList$.subscribe(list => {
       list.forEach(item => {
         this.purchaseInvoiceAmount += Math.round(item.totalPriceWithTax);
+        this.totalAmount += Math.round(item.totalPriceWithTax);
       });
     });
 
@@ -108,7 +114,8 @@ export class CustomerComponent implements OnInit  {
     this.siAmount = 0;
     this.siList$.subscribe(list => {
       list.forEach(item => {
-        this.siAmount += item.totalPriceWithTax;
+        this.siAmount += Math.round(item.totalPriceWithTax);
+        this.totalAmount -= Math.round(item.totalPriceWithTax);
       });
     });
 
@@ -117,7 +124,8 @@ export class CustomerComponent implements OnInit  {
     this.colAmount = 0;
     this.colList$.subscribe(list => {
       list.forEach(item => {
-        this.colAmount += item.amount;
+        this.colAmount += Math.round(item.amount);
+        this.totalAmount += Math.round(item.amount);
       });
     });
 
@@ -127,6 +135,7 @@ export class CustomerComponent implements OnInit  {
     this.payList$.subscribe(list => {
       list.forEach(item => {
         this.payAmount += Math.round(item.amount);
+        this.totalAmount -= Math.round(item.amount);
       });
     });
 
@@ -136,9 +145,13 @@ export class CustomerComponent implements OnInit  {
     this.voucherList$.subscribe(list => {
       list.forEach(item => {
         this.voucherAmount += Math.round(item.amount);
+        if (item.type === 'debitVoucher') {
+          this.totalAmount -= Math.round(item.amount);
+        } else {
+          this.totalAmount += Math.round(item.amount);
+        }
       });
     });
-
   }
 
   btnReturnList_Click(): void {
@@ -377,6 +390,10 @@ export class CustomerComponent implements OnInit  {
       if (!this.selectedCustomer.primaryKey) {
         this.btnReturnList_Click();
       }
+    } else if (this.openedPanel === 'fileUpload') {
+
+      this.filesList$ = undefined;
+      this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
     }  else {
 
     }

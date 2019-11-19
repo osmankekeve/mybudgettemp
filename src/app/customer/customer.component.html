@@ -221,6 +221,25 @@
                   </div>
                 </div>
               </div>
+              <div class="col-sm-6 mt-1">
+                <div class="card card-stats">
+                  <div class="card-header card-header-danger card-header-icon">
+                    <div class="card-icon">
+                        <img src="../../assets/images/cash-desks.png" width="30px">
+                    </div>
+                    <p class="card-category">Toplam</p>
+                    <h5 class="card-title">{{totalAmount | currency:'₺'}}</h5>
+                  </div>
+                  <div class="card-footer">
+                    <div class="stats">
+                      Müşteriye ait toplam bakiye bilgisi 
+                      <span class="ml-1" *ngIf="totalAmount>0">(Alacaklı)</span>
+                      <span class="ml-1" *ngIf="totalAmount<0">(Borçlu)</span>
+                      <span class="ml-1" *ngIf="totalAmount==0">(Bakiye Yok)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -832,6 +851,35 @@
               <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
             </div>
           </li>
+        </div>
+        <ng-template #elseBlock>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+          </div>
+        </ng-template>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='fileUpload'">
+    <div class="card-body">
+        <div class="list-group mb-2" *ngIf="filesList$ | async; let filesList; else elseBlock">
+          <div class="list-group-item bg-success text-light">
+            <div class="row">
+              <div class="col-sm-2">Sıra</div>
+              <div class="col-sm-6">Dosya Adı</div>
+              <div class="col-sm-2">Boyut</div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+          (click)="showSelectedRecord(item)"
+           *ngFor="let item of filesList; index as i; trackBy: primaryKey">
+            <div class="row">
+              <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
+              <div class="col-sm-6">{{item.data.fileName}}</div>
+              <div class="col-sm-2">{{item.data.size}} Byte</div>
+              <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+            </div>
+          </div>
         </div>
         <ng-template #elseBlock>
           <div class="card bg-danger text-white">

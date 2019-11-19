@@ -48,10 +48,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isUserLoggedIn();
-    this.isEmployeeLoggedIn();
-    this.populateNotificationList();
-    this.populateReminderList();
-    this.populateActivityList();
   }
 
   // Check localStorage is having User Data
@@ -59,6 +55,11 @@ export class AppComponent implements OnInit {
     this.userDetails = this.authService.isUserLoggedIn();
     if (!this.userDetails) {
       this.employeeDetail = undefined;
+    } else {
+      this.isEmployeeLoggedIn();
+      this.populateNotificationList();
+      this.populateReminderList();
+      this.populateActivityList();
     }
   }
 

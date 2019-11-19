@@ -107,4 +107,21 @@ getMainItems(): Observable<FileModel[]> {
   return this.mainList$;
 }
 
+getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<FileModel[]> {
+  this.listCollection = this.db.collection(this.tableName,
+  ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid())
+  .where('customerPrimaryKey', '==', customerPrimaryKey));
+  this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+    return changes.map( change => {
+      const data = change.payload.doc.data() as FileModel;
+      data.primaryKey = change.payload.doc.id;
+
+      return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
+      .pipe(map( (customer: CustomerModel) => {
+        return Object.assign({data, actionType: change.type}); }));
+    });
+  }), flatMap(feeds => combineLatest(feeds)));
+  return this.mainList$;
+}
+
 }
