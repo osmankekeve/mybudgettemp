@@ -73,6 +73,9 @@ export class LogService {
    } else if (systemModule === 'crm') {
      item.log = ' Etkinlik ';
 
+   } else if (systemModule === 'visit') {
+    item.log = record.customerName + ' müşteriye Ziyaret ';
+
    } else if (systemModule === 'fileUpload') {
     item.log = record.fileName + ' isimli dosya ';
 

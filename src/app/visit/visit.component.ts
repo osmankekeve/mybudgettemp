@@ -12,6 +12,7 @@ import { getTodayForInput, getDateForInput, getInputDataForInsert } from '../cor
 import { VisitService } from '../services/visit.service';
 import { ProfileService } from '../services/profile.service';
 import { ProfileModel } from '../models/profile-model';
+import { VisitMainModel } from '../models/visit-main-model';
 
 @Component({
   selector: 'app-visit',
@@ -19,15 +20,15 @@ import { ProfileModel } from '../models/profile-model';
   styleUrls: ['./visit.component.css']
 })
 export class VisitComponent implements OnInit, OnDestroy {
-  mainList: Array<VisitModel>;
-  mainList1: Array<VisitModel>;
-  mainList2: Array<VisitModel>;
-  mainList3: Array<VisitModel>;
-  collection: AngularFirestoreCollection<VisitModel>;
+  mainList: Array<VisitMainModel>;
+  mainList1: Array<VisitMainModel>;
+  mainList2: Array<VisitMainModel>;
+  mainList3: Array<VisitMainModel>;
+  collection: AngularFirestoreCollection<VisitMainModel>;
   customerList$: Observable<CustomerModel[]>;
   profileList$: Observable<ProfileModel[]>;
-  selectedRecord: VisitModel;
-  refModel: VisitModel;
+  selectedRecord: VisitMainModel;
+  refModel: VisitMainModel;
   isShowAllRecords = false;
   openedPanel: any;
   recordDate: any;
@@ -57,39 +58,42 @@ export class VisitComponent implements OnInit, OnDestroy {
     const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
     const tomorrowStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
     this.service.getMainItemsBeforeDate(todayStart).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
           this.mainList1.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
+          this.mainList1[this.mainList1.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
       });
     });
     this.service.getMainItemsBetweenDates(todayStart, tomorrowStart).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
           this.mainList2.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList2[this.mainList2.indexOf(this.refModel)] = item.data;
+          this.mainList2[this.mainList2.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
       });
     });
     this.service.getMainItemsAfterDate(tomorrowStart).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
           this.mainList3.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList3[this.mainList3.indexOf(this.refModel)] = item.data;
+          this.mainList3[this.mainList3.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
@@ -100,13 +104,14 @@ export class VisitComponent implements OnInit, OnDestroy {
   populateAllRecords(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
@@ -114,11 +119,11 @@ export class VisitComponent implements OnInit, OnDestroy {
     });
   }
 
-  showSelectedRecord(record: any): void {
+  showSelectedRecord(record: VisitMainModel): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as VisitModel;
-    this.refModel = record.data as VisitModel;
-    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
+    this.selectedRecord = record;
+    this.refModel = record;
+    this.recordDate = getDateForInput(this.selectedRecord.visit.visitDate);
   }
 
   btnReturnList_Click(): void {
@@ -134,9 +139,11 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.selectedRecord.visitDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.visit.primaryKey === null) {
+      this.selectedRecord.visit.primaryKey = '';
+      const newId = this.db.createId();
+      this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
+      console.log(this.selectedRecord);
       this.service.addItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Ziyaret başarıyla kaydedildi.');
@@ -172,10 +179,9 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
-    this.selectedRecord = {
-      primaryKey: undefined, userPrimaryKey: this.authService.getUid(),
-      insertDate: Date.now()
-    };
+
+    this.selectedRecord = this.service.clearVisitMainModel();
+    console.log(this.selectedRecord);
   }
 
 }
