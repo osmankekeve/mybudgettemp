@@ -127,51 +127,71 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   btnReturnList_Click(): void {
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-    } else {
-      this.openedPanel = 'mainPanel';
+    try {
+      if (this.openedPanel === 'mainPanel') {
+        this.selectedRecord = undefined;
+      } else {
+        this.openedPanel = 'mainPanel';
+      }
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
   btnNew_Click(): void {
-    this.clearSelectedRecord();
+    try {
+      this.clearSelectedRecord();
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.visit.primaryKey === null) {
-      this.selectedRecord.visit.primaryKey = '';
-      const newId = this.db.createId();
-      this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
-      console.log(this.selectedRecord);
-      this.service.addItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Ziyaret başarıyla kaydedildi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
-    } else {
-      this.service.updateItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Ziyaret başarıyla güncellendi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
+    try {
+      if (this.selectedRecord.visit.primaryKey === null) {
+        this.selectedRecord.visit.primaryKey = '';
+        const newId = this.db.createId();
+        this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
+        console.log(this.selectedRecord);
+        this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Ziyaret başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      } else {
+        this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Ziyaret başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      }
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Ziyaret başarıyla kaldırıldı.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    try {
+      this.service.removeItem(this.selectedRecord)
+        .then(() => {
+          this.infoService.success('Ziyaret başarıyla kaldırıldı.');
+          this.selectedRecord = undefined;
+        }).catch(err => this.infoService.error(err));
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnAllRecords_Click(): void {
-    if (this.isShowAllRecords) {
-      this.isShowAllRecords = false;
-    } else {
-      this.isShowAllRecords = true;
-      this.populateAllRecords();
+    try {
+      if (this.isShowAllRecords) {
+        this.isShowAllRecords = false;
+      } else {
+        this.isShowAllRecords = true;
+        this.populateAllRecords();
+      }
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
@@ -181,7 +201,6 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.recordDate = getTodayForInput();
 
     this.selectedRecord = this.service.clearVisitMainModel();
-    console.log(this.selectedRecord);
   }
 
 }

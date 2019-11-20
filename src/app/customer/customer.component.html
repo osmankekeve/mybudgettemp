@@ -133,6 +133,19 @@
                         </div>
                       </div>
             </div>
+            <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('visit')">
+                      <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                        <div class="row">
+                            <div class="col-sm-2">
+                              <img src="../../assets/images/customer-visit.png" width="50px">
+                            </div>
+                            <div class="col-sm-10">
+                                <div>Ziyaretler</div>
+                                <small class="text-secondary">Müşteriye Ait Planlı Ziyaretleri Listeler</small>
+                            </div>
+                        </div>
+                      </div>
+            </div>
 
         </div>
         <div class="col-sm-6">
@@ -886,6 +899,34 @@
             <div class="card-body">Görüntülenecek veri bulunamadı.</div>
           </div>
         </ng-template>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='visit'">
+    <div class="card-body">
+        <div class="list-group mb-2" *ngIf="visitList$ | async; let visitList; else elseBlock">
+        <div class="list-group-item bg-success text-light">
+          <div class="row">
+            <div class="col-sm-2">Sıra</div>
+            <div class="col-sm-5">Personel</div>
+            <div class="col-sm-3">Açıklama</div>
+            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action list-group-item-light"
+         *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
+            <div class="col-sm-5">{{item.returnData.employeeName}}</div>
+            <div class="col-sm-3">{{item.returnData.visit.description}}</div>
+            <div class="col-sm-2"><span class="float-right">{{item.returnData.visit.visitDate | date: 'yyyy.MM.dd'}}</span></div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
     </div>
   </div>
 </div>

@@ -165,4 +165,28 @@ export class VisitService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<VisitMainModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+    ref => ref.orderBy('visitDate').where('userPrimaryKey', '==', this.authService.getUid())
+    .where('customerPrimaryKey', '==', customerPrimaryKey));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as VisitModel;
+        data.primaryKey = change.payload.doc.id;
+
+        const returnData = new VisitMainModel();
+        returnData.visit = data;
+        returnData.actionType = change.type;
+        returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+
+        return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          returnData.customerName = customer.name;
+
+          return Object.assign({ returnData }); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
 }

@@ -21,9 +21,10 @@ import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountVoucherService} from '../services/account-voucher.service';
 import {AuthenticationService} from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
-import { Chart } from 'chart.js';
 import { FileModel } from '../models/file-model';
 import { FileUploadService } from '../services/file-upload.service';
+import { VisitMainModel } from '../models/visit-main-model';
+import { VisitService } from '../services/visit.service';
 
 @Component({
   selector: 'app-customer',
@@ -60,11 +61,12 @@ export class CustomerComponent implements OnInit  {
   totalValues = 0;
   BarChart: any;
   filesList$: Observable<FileModel[]>;
+  visitList$: Observable<VisitMainModel[]>;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
-              public excelService: ExcelService, public fuService: FileUploadService,
+              public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
               public payService: PaymentService, public atService: AccountTransactionService) {
   }
 
@@ -378,22 +380,26 @@ export class CustomerComponent implements OnInit  {
 
     } else if (this.openedPanel === 'accountSummary') {
       this.totalValues = 0;
-
       this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
         this.transactionList = list;
         this.transactionList.forEach(item => {
           this.totalValues += item.amount;
         });
       });
-
     } else if (this.openedPanel === 'dashboard') {
       if (!this.selectedCustomer.primaryKey) {
         this.btnReturnList_Click();
       }
     } else if (this.openedPanel === 'fileUpload') {
-
       this.filesList$ = undefined;
       this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+    } else if (this.openedPanel === 'visit') {
+      this.visitList$ = undefined;
+      this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+      this.visitList$.subscribe(list => {
+        console.log(list);
+      });
+
     }  else {
 
     }
