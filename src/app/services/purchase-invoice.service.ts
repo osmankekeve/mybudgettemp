@@ -17,6 +17,7 @@ export class PurchaseInvoiceService {
   mainList$: Observable<PurchaseInvoiceModel[]>;
   listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
+  tableName = 'tblPurchaseInvoice';
 
   constructor(public authServis: AuthenticationService,
               public logService: LogService,
@@ -25,16 +26,8 @@ export class PurchaseInvoiceService {
   }
 
   getAllItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>('tblPurchaseInvoice',
+    this.listCollection = this.db.collection<PurchaseInvoiceModel>(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  getCustomerItems(customerCode: string): Observable<PurchaseInvoiceModel[]> {
-    // valueChanges gercek zamanli guncelleme
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>
-    ('tblPurchaseInvoice', ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -51,16 +44,31 @@ export class PurchaseInvoiceService {
 
   async removeItem(record: PurchaseInvoiceModel) {
     this.logService.sendToLog(record, 'delete', 'purchaseInvoice');
-    return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: PurchaseInvoiceModel) {
     this.logService.sendToLog(record, 'update', 'purchaseInvoice');
-    return await this.db.collection('tblPurchaseInvoice').doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  }
+
+  getCustomerItems(customerCode: string): Observable<PurchaseInvoiceModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.where('customerCode', '==', customerCode));
+    this.mainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as PurchaseInvoiceModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type});
+        })
+      )
+    );
+    return this.mainList$;
   }
 
   getMainItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
@@ -75,7 +83,7 @@ export class PurchaseInvoiceService {
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
@@ -91,7 +99,7 @@ export class PurchaseInvoiceService {
   }
 
   getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection('tblPurchaseInvoice', ref => {
+    this.listCollection = this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
           .where('userPrimaryKey', '==', this.authServis.getUid());

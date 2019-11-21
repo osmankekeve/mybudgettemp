@@ -19,6 +19,7 @@ export class PaymentService {
   customerList$: Observable<CustomerModel[]>;
   transactionList$: Observable<PaymentModel[]>;
   atMod: AccountTransactionModel;
+  tableName = 'tblPayment';
 
   constructor(public authServis: AuthenticationService,
               public logService: LogService,
@@ -27,16 +28,8 @@ export class PaymentService {
   }
 
   getAllItems(): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection<PaymentModel>('tblPayment',
+    this.listCollection = this.db.collection<PaymentModel>(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  getCustomerItems(customerCode: string): Observable<PaymentModel[]> {
-    // valueChanges gercek zamanli guncelleme
-    this.listCollection = this.db.collection<PaymentModel>
-    ('tblPayment', ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -54,12 +47,12 @@ export class PaymentService {
       }); */
 
       this.logService.sendToLog(record, 'delete', 'payment');
-      return await this.db.collection('tblPayment').doc(record.primaryKey).delete();
+      return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: PaymentModel) {
     this.logService.sendToLog(record, 'update', 'payment');
-    return await this.db.collection('tblPayment').doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   async setItem(record: PaymentModel, primaryKey: string) {
@@ -67,8 +60,23 @@ export class PaymentService {
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
+  getCustomerItems(customerCode: string): Observable<PaymentModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.where('customerCode', '==', customerCode));
+    this.mainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as PaymentModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type});
+        })
+      )
+    );
+    return this.mainList$;
+  }
+
   getMainItems(): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection('tblPayment',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
@@ -83,7 +91,7 @@ export class PaymentService {
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection('tblPayment',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
@@ -99,7 +107,7 @@ export class PaymentService {
   }
 
   getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PaymentModel[]> {
-    this.listCollection = this.db.collection('tblPayment', ref => {
+    this.listCollection = this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
           .where('userPrimaryKey', '==', this.authServis.getUid());

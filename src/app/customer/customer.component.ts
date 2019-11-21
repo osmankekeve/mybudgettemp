@@ -105,9 +105,16 @@ export class CustomerComponent implements OnInit  {
     this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.purchaseInvoiceAmount = 0;
     this.purchaseInvoiceList$.subscribe(list => {
-      list.forEach(item => {
-        this.purchaseInvoiceAmount += Math.round(item.totalPriceWithTax);
-        this.totalAmount += Math.round(item.totalPriceWithTax);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.purchaseInvoiceAmount += Math.round(item.data.totalPriceWithTax);
+          this.totalAmount += Math.round(item.data.totalPriceWithTax);
+        } else if (item.actionType === 'removed') {
+          this.purchaseInvoiceAmount -= Math.round(item.data.totalPriceWithTax);
+          this.totalAmount -= Math.round(item.data.totalPriceWithTax);
+        } else {
+          // TODO: not complated
+        }
       });
     });
 
@@ -115,9 +122,16 @@ export class CustomerComponent implements OnInit  {
     this.siList$ = this.siService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.siAmount = 0;
     this.siList$.subscribe(list => {
-      list.forEach(item => {
-        this.siAmount += Math.round(item.totalPriceWithTax);
-        this.totalAmount -= Math.round(item.totalPriceWithTax);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.siAmount += Math.round(item.data.totalPriceWithTax);
+          this.totalAmount -= Math.round(item.data.totalPriceWithTax);
+        } else if (item.actionType === 'removed') {
+          this.siAmount -= Math.round(item.data.totalPriceWithTax);
+          this.totalAmount += Math.round(item.data.totalPriceWithTax);
+        } else {
+          // TODO: not complated
+        }
       });
     });
 
@@ -125,9 +139,16 @@ export class CustomerComponent implements OnInit  {
     this.colList$ = this.colService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.colAmount = 0;
     this.colList$.subscribe(list => {
-      list.forEach(item => {
-        this.colAmount += Math.round(item.amount);
-        this.totalAmount += Math.round(item.amount);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.colAmount += Math.round(item.data.amount);
+          this.totalAmount += Math.round(item.data.amount);
+        } else if (item.actionType === 'removed') {
+          this.colAmount -= Math.round(item.data.amount);
+          this.totalAmount -= Math.round(item.data.amount);
+        } else {
+          // TODO: not complated
+        }
       });
     });
 
@@ -135,9 +156,17 @@ export class CustomerComponent implements OnInit  {
     this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.payAmount = 0;
     this.payList$.subscribe(list => {
-      list.forEach(item => {
-        this.payAmount += Math.round(item.amount);
-        this.totalAmount -= Math.round(item.amount);
+      console.log(list);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.payAmount += Math.round(item.data.amount);
+          this.totalAmount -= Math.round(item.data.amount);
+        } else if (item.actionType === 'removed') {
+          this.payAmount -= Math.round(item.data.amount);
+          this.totalAmount += Math.round(item.data.amount);
+        } else {
+          // TODO: not complated
+        }
       });
     });
 
@@ -145,12 +174,23 @@ export class CustomerComponent implements OnInit  {
     this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.voucherAmount = 0;
     this.voucherList$.subscribe(list => {
-      list.forEach(item => {
-        this.voucherAmount += Math.round(item.amount);
-        if (item.type === 'debitVoucher') {
-          this.totalAmount -= Math.round(item.amount);
+      list.forEach((item: any) => {
+        if (item.actionType === 'added') {
+          this.voucherAmount += Math.round(item.data.amount);
+          if (item.data.type === 'debitVoucher') {
+            this.totalAmount -= Math.round(item.data.amount);
+          } else {
+            this.totalAmount += Math.round(item.data.amount);
+          }
+        } else if (item.actionType === 'removed') {
+          this.voucherAmount -= Math.round(item.data.amount);
+          if (item.data.type === 'debitVoucher') {
+            this.totalAmount += Math.round(item.data.amount);
+          } else {
+            this.totalAmount -= Math.round(item.data.amount);
+          }
         } else {
-          this.totalAmount += Math.round(item.amount);
+          // TODO: not complated
         }
       });
     });
@@ -396,9 +436,6 @@ export class CustomerComponent implements OnInit  {
     } else if (this.openedPanel === 'visit') {
       this.visitList$ = undefined;
       this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
-      this.visitList$.subscribe(list => {
-        console.log(list);
-      });
 
     }  else {
 

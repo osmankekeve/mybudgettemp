@@ -16,6 +16,7 @@ export class AccountVoucherService {
   mainList$: Observable<AccountVoucherModel[]>;
   listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
+  tableName = 'tblAccountVoucher';
 
   constructor(public authServis: AuthenticationService,
               public logService: LogService,
@@ -24,16 +25,8 @@ export class AccountVoucherService {
   }
 
   getAllItems(): Observable<AccountVoucherModel[]> {
-    this.listCollection = this.db.collection<AccountVoucherModel>('tblAccountVoucher',
+    this.listCollection = this.db.collection<AccountVoucherModel>(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  getCustomerItems(customerCode: string): Observable<AccountVoucherModel[]> {
-    // valueChanges gercek zamanli guncelleme
-    this.listCollection = this.db.collection<AccountVoucherModel>
-    ('tblAccountVoucher', ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
@@ -45,12 +38,12 @@ export class AccountVoucherService {
 
   async removeItem(record: AccountVoucherModel) {
     this.logService.sendToLog(record, 'delete', 'accountVoucher');
-    return await this.db.collection('tblAccountVoucher').doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: AccountVoucherModel) {
     this.logService.sendToLog(record, 'update', 'accountVoucher');
-    return await this.db.collection('tblAccountVoucher').doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   async setItem(record: AccountVoucherModel, primaryKey: string) {
@@ -58,8 +51,23 @@ export class AccountVoucherService {
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
+  getCustomerItems(customerCode: string): Observable<AccountVoucherModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.where('customerCode', '==', customerCode));
+    this.mainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as AccountVoucherModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type});
+        })
+      )
+    );
+    return this.mainList$;
+  }
+
   getMainItems(): Observable<AccountVoucherModel[]> {
-    this.listCollection = this.db.collection('tblAccountVoucher',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
@@ -74,7 +82,7 @@ export class AccountVoucherService {
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<AccountVoucherModel[]> {
-    this.listCollection = this.db.collection('tblAccountVoucher',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authServis.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {

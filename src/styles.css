@@ -94,29 +94,35 @@ body {
 .work-area {
   max-height: calc(100vh - 210px);
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .work-area-2 {
   max-height: calc(100vh - 205px);
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .work-area-3 {
   max-height: calc(100vh - 160px);
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .side-bar-work-area {
   max-height: calc(100vh - 106px);
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
 }
 
 .dashboard-work-area {
   height: calc(100vh - 157px);
   overflow: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+}
+
+.work-area-250 {
+  max-height: 250px;
+  overflow: auto;
+  scrollbar-width: thin;
 }

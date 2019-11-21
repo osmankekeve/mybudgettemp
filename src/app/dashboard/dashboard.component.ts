@@ -7,7 +7,9 @@ import { AccountTransactionService } from '../services/account-transaction-servi
 import { CustomerRelationService } from '../services/crm.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { Router } from '@angular/router';
-import { getFloat } from '../core/correct-library';
+import { getFloat, getTodayStart, getTodayEnd } from '../core/correct-library';
+import { VisitMainModel } from '../models/visit-main-model';
+import { VisitService } from '../services/visit.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,8 +26,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   avAmount: any = 0;
   cvAmount: any = 0;
   transactionList: Array<AccountTransactionModel> = [];
+  visitList: Array<VisitMainModel> = [];
 
-  constructor(public db: AngularFirestore, public router: Router,
+  constructor(public db: AngularFirestore, public router: Router, public vService: VisitService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }
 
   async ngOnInit() {
@@ -140,6 +143,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
 
     this.populateActivityList();
+    this.populateVisitList();
   }
 
   ngOnDestroy(): void {
@@ -153,10 +157,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   populateActivityList(): void {
-    const date = new Date();
-    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    this.crmService.getMainItemsBetweenDates(todayStart, endDate).subscribe(list => {
+    this.crmService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.actionList.push(item);
@@ -164,6 +165,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.actionList.splice(this.actionList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.actionList[this.actionList.indexOf(item)] = item.data;
+        } else {
+          // nothing
+        }
+      });
+    });
+  }
+
+  populateVisitList(): void {
+    this.vService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as VisitMainModel;
+        if (item.actionType === 'added') {
+          this.visitList.push(item);
+        } else if (item.actionType === 'removed') {
+          this.visitList.splice(this.visitList.indexOf(item), 1);
+        } else if (item.actionType === 'modified') {
+          this.visitList[this.visitList.indexOf(item)] = item;
         } else {
           // nothing
         }
