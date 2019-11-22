@@ -112,3 +112,7 @@ export const getTransactionTypes = () => {
   ['purchaseInvoice', 'Alım Faturası'], ['payment', 'Ödeme'], ['accountVoucher', 'Cari Fiş'], ['cashDeskVoucher', 'Kasa Fişi']]);
 };
 
+export const getEncriptionKey = () => {
+  return '34OSman17';
+};
+

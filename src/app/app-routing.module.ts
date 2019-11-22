@@ -53,6 +53,7 @@ const routes: Routes = [
   {path: 'reminder/:id', component: ReminderComponent, pathMatch: 'full'},
   {path: 'file-upload', component: FileUploadComponent, pathMatch: 'full'},
   {path: 'visit', component: VisitComponent, pathMatch: 'full'},
+  {path: 'visit/:id', component: ReminderComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 

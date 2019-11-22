@@ -7,9 +7,10 @@ import { AccountTransactionService } from '../services/account-transaction-servi
 import { CustomerRelationService } from '../services/crm.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { Router } from '@angular/router';
-import { getFloat, getTodayStart, getTodayEnd } from '../core/correct-library';
+import { getFloat, getTodayStart, getTodayEnd, getEncriptionKey } from '../core/correct-library';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cvAmount: any = 0;
   transactionList: Array<AccountTransactionModel> = [];
   visitList: Array<VisitMainModel> = [];
+  encryptSecretKey: string = getEncriptionKey();
 
   constructor(public db: AngularFirestore, public router: Router, public vService: VisitService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }
@@ -191,6 +193,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   showAction(item: any): void {
     this.router.navigate(['crm', {primaryKey: item}]);
+  }
+
+  showVisit(item: any): void {
+    this.router.navigate(['visit', {visitItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
   }
 
 }

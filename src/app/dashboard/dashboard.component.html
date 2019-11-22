@@ -62,7 +62,7 @@
                 </div>
                 <div class="card-body bg-light work-area-250">
                   <div *ngIf="visitList.length > 0; else elseBlock">
-                  <div class="card card-kanban mb-1" *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+                  <div class="card card-kanban cursor-pointer mb-1" *ngFor="let item of visitList; index as i; trackBy: primaryKey" (click)="showVisit(item)">
                     <div class="progress">
                       <div class="progress-bar bg-success" role="progressbar" style="width: 80%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>

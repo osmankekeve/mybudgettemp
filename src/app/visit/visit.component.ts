@@ -6,13 +6,13 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
-import {ActivatedRoute} from '@angular/router';
-import { VisitModel } from '../models/visit-model';
-import { getTodayForInput, getDateForInput, getInputDataForInsert } from '../core/correct-library';
+import { ActivatedRoute, Router } from '@angular/router';
+import { getTodayForInput, getDateForInput, getInputDataForInsert, getEncriptionKey } from '../core/correct-library';
 import { VisitService } from '../services/visit.service';
 import { ProfileService } from '../services/profile.service';
 import { ProfileModel } from '../models/profile-model';
 import { VisitMainModel } from '../models/visit-main-model';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-visit',
@@ -20,10 +20,10 @@ import { VisitMainModel } from '../models/visit-main-model';
   styleUrls: ['./visit.component.css']
 })
 export class VisitComponent implements OnInit, OnDestroy {
-  mainList: Array<VisitMainModel>;
-  mainList1: Array<VisitMainModel>;
-  mainList2: Array<VisitMainModel>;
-  mainList3: Array<VisitMainModel>;
+  mainList: Array<VisitMainModel> = [];
+  mainList1: Array<VisitMainModel> = [];
+  mainList2: Array<VisitMainModel> = [];
+  mainList3: Array<VisitMainModel> = [];
   collection: AngularFirestoreCollection<VisitMainModel>;
   customerList$: Observable<CustomerModel[]>;
   profileList$: Observable<ProfileModel[]>;
@@ -32,19 +32,27 @@ export class VisitComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   openedPanel: any;
   recordDate: any;
-  paramPrimaryKey: any = undefined;
+  encryptSecretKey: string = getEncriptionKey();
 
-  constructor(public authService: AuthenticationService, public service: VisitService,
+  constructor(public authService: AuthenticationService, public service: VisitService, public route: Router,
               public atService: AccountTransactionService, public infoService: InformationService,
               public cService: CustomerService, public router: ActivatedRoute, public proService: ProfileService,
               public db: AngularFirestore) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
 
     this.customerList$ = this.cService.getAllItems();
     this.profileList$ = this.proService.getAllItems();
     this.populateList();
+
+    if (this.router.snapshot.paramMap.get('visitItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('visitItem'), this.encryptSecretKey);
+      const visitItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (visitItem) {
+        this.showSelectedRecord(visitItem);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -130,6 +138,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       if (this.openedPanel === 'mainPanel') {
         this.selectedRecord = undefined;
+        this.route.navigate(['visit', {}]);
       } else {
         this.openedPanel = 'mainPanel';
       }

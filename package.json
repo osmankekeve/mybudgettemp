@@ -26,6 +26,7 @@
     "bootstrap": "^4.3.1",
     "bootstrap4": "0.0.1-security",
     "chart.js": "^2.8.0",
+    "crypto-js": "^3.1.9-1",
     "file-save": "^0.2.0",
     "file-saver": "^2.0.2",
     "firebase": "^6.3.3",

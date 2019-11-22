@@ -53,6 +53,26 @@ export class VisitService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.visit));
   }
 
+  getItem(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as VisitModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new VisitMainModel();
+          returnData.visit = data;
+          returnData.actionType = '';
+          returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+
+          resolve(Object.assign({returnData}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   clearVisitModel(): VisitModel {
     const returnData = new VisitModel();
     returnData.primaryKey = null;
