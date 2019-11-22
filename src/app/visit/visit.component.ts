@@ -44,13 +44,14 @@ export class VisitComponent implements OnInit, OnDestroy {
 
     this.customerList$ = this.cService.getAllItems();
     this.profileList$ = this.proService.getAllItems();
+    this.selectedRecord = undefined;
     this.populateList();
 
-    if (this.router.snapshot.paramMap.get('visitItem') !== null) {
-      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('visitItem'), this.encryptSecretKey);
-      const visitItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      if (visitItem) {
-        this.showSelectedRecord(visitItem);
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
       }
     }
   }

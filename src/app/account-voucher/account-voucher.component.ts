@@ -11,9 +11,11 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty 
+import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty, getEncriptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
+import * as CryptoJS from 'crypto-js';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-account-voucher',
@@ -36,6 +38,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   isMainFilterOpened = false;
   recordDate: any;
+  encryptSecretKey: string = getEncriptionKey();
 
   date = new Date();
   filterBeginDate: any;
@@ -44,7 +47,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     amount: 0
   };
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authServis: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: AccountVoucherService,
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
@@ -57,6 +60,14 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
+      }
+    }
   }
 
   ngOnDestroy(): void {

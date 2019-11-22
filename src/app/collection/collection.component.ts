@@ -11,9 +11,11 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert 
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncriptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
+import * as CryptoJS from 'crypto-js';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-collection',
@@ -34,6 +36,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   isMainFilterOpened = false;
   recordDate: any;
+  encryptSecretKey: string = getEncriptionKey();
 
   date = new Date();
   filterBeginDate: any;
@@ -43,7 +46,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     amount: 0
   };
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: CollectionService,
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
@@ -56,6 +59,14 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
+      }
+    }
   }
 
   ngOnDestroy(): void { }

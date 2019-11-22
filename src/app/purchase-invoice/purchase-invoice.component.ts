@@ -10,9 +10,11 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction-service';
 import { InformationService } from '../services/information.service';
 import {
-  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel
+  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel, getEncriptionKey
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
+import * as CryptoJS from 'crypto-js';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -32,6 +34,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   isMainFilterOpened = false;
   recordDate: any;
+  encryptSecretKey: string = getEncriptionKey();
 
   date = new Date();
   filterBeginDate: any;
@@ -42,7 +45,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     totalPriceWithTax: 0,
   };
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService,
               public cService: CustomerService,
               public atService: AccountTransactionService,
@@ -54,6 +57,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.populateList();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
+      }
+    }
   }
 
   ngOnDestroy(): void { }

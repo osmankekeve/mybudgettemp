@@ -11,6 +11,8 @@ import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute} from '@angular/router';
+import * as CryptoJS from 'crypto-js';
+import { getEncriptionKey } from '../core/correct-library';
 
 @Component({
   selector: 'app-crm',
@@ -30,7 +32,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   openedPanel: any;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
-  paramPrimaryKey: any = undefined;
+  encryptSecretKey: string = getEncriptionKey();
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
@@ -40,18 +42,16 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // observable
-    // this.router.params.subscribe(params => console.log(params));
-    // snapshot
-    this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
-    // console.log(this.paramPrimaryKey);
 
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
-    this.selectedRecord = undefined;
-    if (this.paramPrimaryKey !== undefined) {
-      // seçili kayıdı göster
-    } else {
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
+      }
     }
   }
 

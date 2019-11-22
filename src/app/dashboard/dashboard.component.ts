@@ -192,11 +192,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   showAction(item: any): void {
-    this.router.navigate(['crm', {primaryKey: item}]);
+    this.router.navigate(['crm', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
   }
 
   showVisit(item: any): void {
-    this.router.navigate(['visit', {visitItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
+    this.router.navigate(['visit', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
   }
 
 }
