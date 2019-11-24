@@ -168,6 +168,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    this.route.navigate(['cashdesk-voucher', {}]);
   }
 
   btnNew_Click(): void {

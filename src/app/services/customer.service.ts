@@ -47,6 +47,20 @@ export class CustomerService {
     return await this.db.collection(this.tableName).doc(customer.primaryKey).update(customer);
   }
 
+  getItem(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as CustomerModel;
+          data.primaryKey = doc.id;
+          resolve(Object.assign({data}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   getMainItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => ref.where('userPrimaryKey', '==', this.authServis.getUid())
     .orderBy('name', 'asc'));

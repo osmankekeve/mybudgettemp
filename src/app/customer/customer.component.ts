@@ -25,6 +25,10 @@ import { FileModel } from '../models/file-model';
 import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { getEncriptionKey } from '../core/correct-library';
+import * as CryptoJS from 'crypto-js';
+import 'rxjs/add/operator/filter';
 
 @Component({
   selector: 'app-customer',
@@ -62,12 +66,14 @@ export class CustomerComponent implements OnInit  {
   BarChart: any;
   filesList$: Observable<FileModel[]>;
   visitList$: Observable<VisitMainModel[]>;
+  encryptSecretKey: string = getEncriptionKey();
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
-              public payService: PaymentService, public atService: AccountTransactionService) {
+              public router: ActivatedRoute,
+              public payService: PaymentService, public atService: AccountTransactionService, public route: Router) {
   }
 
   ngOnInit() {
@@ -156,7 +162,6 @@ export class CustomerComponent implements OnInit  {
     this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.payAmount = 0;
     this.payList$.subscribe(list => {
-      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.payAmount += Math.round(item.data.amount);
@@ -447,6 +452,72 @@ export class CustomerComponent implements OnInit  {
       this.excelService.exportToExcel(this.transactionList, 'customerAccountSummary');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async showTransactionRecord(item: any): Promise<void> {
+    let data;
+    if (item.transactionType === 'salesInvoice') {
+
+      data = await this.siService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['sales-invoice', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'collection') {
+
+      data = await this.colService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['collection', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+        }
+
+    } else if  (item.transactionType === 'purchaseInvoice') {
+
+      data = await this.piService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['purchaseInvoice', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+      /* data = await this.piService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['/purchaseInvoice'], { queryParams: {
+          data: CryptoJS.AES.encrypt(JSON.stringify(data), this.encryptSecretKey).toString(),
+          from: 'customer',
+          fromData: CryptoJS.AES.encrypt(JSON.stringify(this.selectedCustomer), this.encryptSecretKey).toString(),
+        } });
+      } */
+
+    } else if  (item.transactionType === 'payment') {
+
+      data = await this.payService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['payment', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'accountVoucher') {
+
+      data = await this.avService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['account-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'cashdeskVoucher') {
+
+      data = await this.cdService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.route.navigate(['cashdesk-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else {
+
+      this.infoService.error('Modül bulunamadı.');
+
     }
   }
 

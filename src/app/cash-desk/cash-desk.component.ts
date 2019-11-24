@@ -9,6 +9,7 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-cash-desk',
@@ -30,7 +31,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
-              public infoService: InformationService,
+              public infoService: InformationService, public route: Router, public router: ActivatedRoute,
               public excelService: ExcelService,
               public db: AngularFirestore) { }
 
@@ -67,6 +68,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   btnReturnList_Click(): void {
     if (this.openedPanel === 'mainPanel') {
       this.selectedRecord = undefined;
+      this.route.navigate(['cash-desk', {}]);
     } else {
       this.openedPanel = 'mainPanel';
     }

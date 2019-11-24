@@ -11,6 +11,13 @@ import { getFloat, getTodayStart, getTodayEnd, getEncriptionKey } from '../core/
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
+import { InformationService } from '../services/information.service';
+import { PaymentService } from '../services/payment.service';
+import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
+import { SalesInvoiceService } from '../services/sales-invoice.service';
+import { CollectionService } from '../services/collection.service';
+import { CashdeskVoucherService } from '../services/cashdesk-voucher.service';
+import { AccountVoucherService } from '../services/account-voucher.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,8 +37,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   visitList: Array<VisitMainModel> = [];
   encryptSecretKey: string = getEncriptionKey();
 
-  constructor(public db: AngularFirestore, public router: Router, public vService: VisitService,
-              public atService: AccountTransactionService, public crmService: CustomerRelationService) {  }
+  constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
+              public siService: SalesInvoiceService, public colService: CollectionService,
+              public cdService: CashdeskVoucherService, public avService: AccountVoucherService,
+              public atService: AccountTransactionService, public crmService: CustomerRelationService,
+              public puService: PurchaseInvoiceService, public pService: PaymentService) {  }
 
   async ngOnInit() {
 
@@ -199,4 +209,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['visit', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
   }
 
+  async showTransaction(item: any): Promise<void> {
+    let data;
+    if (item.transactionType === 'salesInvoice') {
+
+      data = await this.siService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['sales-invoice', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'collection') {
+
+      data = await this.colService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['collection', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+        }
+
+    } else if  (item.transactionType === 'purchaseInvoice') {
+
+      data = await this.puService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['purchaseInvoice', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'payment') {
+
+      data = await this.pService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['payment', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'accountVoucher') {
+
+      data = await this.avService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['account-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else if  (item.transactionType === 'cashdeskVoucher') {
+
+      data = await this.cdService.getItem(item.transactionPrimaryKey);
+      if (data) {
+        this.router.navigate(['cashdesk-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          this.encryptSecretKey).toString() }]);
+      }
+
+    } else {
+
+      this.infoService.error('Modül bulunamadı.');
+
+    }
+  }
 }

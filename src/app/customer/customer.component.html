@@ -333,9 +333,11 @@
               <h6>Önceki Satış Faturaları</h6>
             </div>
             <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table">
+              <table class="table table-hover table-striped table-bordered">
                 <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
+                class="cursor-pointer"
+                (click)="showTransactionRecord(item)">
                   <td>{{item.receiptNo}}</td>
                   <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                   <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
@@ -437,9 +439,11 @@
               <h6>Önceki Tahsilatlar</h6>
             </div>
             <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table">
+              <table class="table table-hover table-striped table-bordered">
                 <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
+                class="cursor-pointer"
+                (click)="showTransactionRecord(item)">
                   <td>{{item.receiptNo}}</td>
                   <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                   <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
@@ -532,9 +536,11 @@
               <h6>Önceki Alım Faturaları</h6>
             </div>
             <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table">
+              <table class="table table-hover table-striped table-bordered">
                 <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
+                  class="cursor-pointer"
+                  (click)="showTransactionRecord(item)">
                   <td>{{item.receiptNo}}</td>
                   <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                   <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
@@ -637,9 +643,11 @@
               <h6>Önceki Ödemeler</h6>
             </div>
             <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table">
+              <table class="table table-hover table-striped table-bordered">
                 <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
+                class="cursor-pointer"
+                (click)="showTransactionRecord(item)">
                   <td>{{item.receiptNo}}</td>
                   <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                   <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
@@ -732,9 +740,11 @@
                 <h6>Önceki Fişler</h6>
               </div>
               <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-                <table class="table">
+                <table class="table table-hover table-striped table-bordered">
                   <tbody>
-                  <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                  <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
+                  class="cursor-pointer"
+                  (click)="showTransactionRecord(item)">
                     <td>{{item.receiptNo}}</td>
                     <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
                     <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>

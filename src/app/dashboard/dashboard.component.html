@@ -197,8 +197,9 @@
                         <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
                       </div>
                     </div>
-                    <div class="list-group-item list-group-item-action list-group-item-light"
+                    <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                          *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
+                         (click)="showTransaction(item)"
                          style="font-size: 85%">
                       <div class="row">
                         <label class="col-sm-5">{{item.transactionTypeTr}}</label>

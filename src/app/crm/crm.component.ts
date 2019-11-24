@@ -10,7 +10,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
 import { getEncriptionKey } from '../core/correct-library';
 
@@ -36,8 +36,8 @@ export class CRMComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public cService: CustomerService, public router: ActivatedRoute,
+              public infoService: InformationService, public route: Router, public router: ActivatedRoute,
+              public cService: CustomerService,
               public db: AngularFirestore) {
   }
 
@@ -134,6 +134,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   btnReturnList_Click(): void {
     if (this.openedPanel === 'mainPanel') {
       this.selectedRecord = undefined;
+      this.route.navigate(['crm', {}]);
     } else {
       this.openedPanel = 'mainPanel';
     }

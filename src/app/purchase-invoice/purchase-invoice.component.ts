@@ -15,6 +15,7 @@ import {
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import 'rxjs/add/operator/filter';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -35,6 +36,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncriptionKey();
+  fromModule: string;
 
   date = new Date();
   filterBeginDate: any;
@@ -65,6 +67,18 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         this.showSelectedRecord(paramItem);
       }
     }
+
+    /* this.router.queryParams.subscribe(params => {
+        this.fromModule = params.from;
+
+        if (params.data !== null) {
+          const bytes = CryptoJS.AES.decrypt(params.data, this.encryptSecretKey);
+          const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+          if (paramItem) {
+            this.showSelectedRecord(paramItem);
+          }
+        }
+      }); */
   }
 
   ngOnDestroy(): void { }
@@ -175,6 +189,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    /* if (this.fromModule) {
+      this.route.navigate([this.fromModule, {}]);
+    } else {
+      this.route.navigate(['purchaseInvoice', {}]);
+    } */
+    this.route.navigate(['purchaseInvoice', {}]);
   }
 
   btnMainFilter_Click(): void {

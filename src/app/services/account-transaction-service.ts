@@ -44,6 +44,20 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
+  getItem(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as AccountTransactionModel;
+          data.primaryKey = doc.id;
+          resolve(Object.assign({data}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   addItem(record: AccountTransactionModel) {
     this.listCollection.add(record);
   }

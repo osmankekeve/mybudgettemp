@@ -189,6 +189,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    this.route.navigate(['sales-invoice', {}]);
   }
 
   btnNew_Click(): void {

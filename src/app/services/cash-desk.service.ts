@@ -14,6 +14,7 @@ export class CashDeskService {
   listCollection: AngularFirestoreCollection<CashDeskModel>;
   mainList$: Observable<CashDeskModel[]>;
   customerList$: Observable<CashDeskModel[]>;
+  tableName = 'tblCashDesk';
 
   constructor(public authService: AuthenticationService,
               public db: AngularFirestore) {
@@ -21,7 +22,7 @@ export class CashDeskService {
   }
 
   getAllItems(): Observable<CashDeskModel[]> {
-    this.listCollection = this.db.collection<CashDeskModel>('tblCashDesk',
+    this.listCollection = this.db.collection<CashDeskModel>(this.tableName,
     ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
@@ -32,15 +33,29 @@ export class CashDeskService {
   }
 
   async removeItem(record: CashDeskModel) {
-    return await this.db.collection('tblCashDesk').doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: CashDeskModel) {
-    return await this.db.collection('tblCashDesk').doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  }
+
+  getItem(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as CashDeskModel;
+          data.primaryKey = doc.id;
+          resolve(Object.assign({data}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
   }
 
   getMainItems(): Observable<CashDeskModel[]> {
-    this.listCollection = this.db.collection('tblCashDesk',
+    this.listCollection = this.db.collection(this.tableName,
     ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
@@ -53,32 +68,4 @@ export class CashDeskService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
-
-
-  getAll(): Array<CashDeskModel> {
-    const array = new Array<CashDeskModel>();
-
-
-
-
-
-
-
-
-    return array;
-  }
-
-  /* getMainItems(): Observable<CashDeskModel[]> {
-    this.listCollection = this.db.collection('tblCashDesk',
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
-        const data = change.payload.doc.data() as CashDeskModel;
-        data.primaryKey = change.payload.doc.id;
-        return { actionType: change.type, ...data };
-      });
-    }));
-    return this.mainList$;
-  } */
-
 }

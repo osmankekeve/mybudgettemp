@@ -168,6 +168,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    this.route.navigate(['account-voucher', {}]);
   }
 
   btnNew_Click(): void {

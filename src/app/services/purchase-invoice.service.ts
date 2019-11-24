@@ -52,6 +52,20 @@ export class PurchaseInvoiceService {
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
+  getItem(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as PurchaseInvoiceModel;
+          data.primaryKey = doc.id;
+          resolve(Object.assign({data}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   getCustomerItems(customerCode: string): Observable<PurchaseInvoiceModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.where('customerCode', '==', customerCode));

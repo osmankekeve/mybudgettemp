@@ -190,6 +190,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    this.route.navigate(['payment', {}]);
   }
 
   btnNew_Click(): void {

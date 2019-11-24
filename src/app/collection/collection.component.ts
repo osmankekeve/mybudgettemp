@@ -188,6 +188,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
+    this.route.navigate(['collection', {}]);
   }
 
   btnNew_Click(): void {
