@@ -127,6 +127,7 @@
     height: calc(100% - 30px);
     overflow-y: auto;
     position: relative;
+    scrollbar-width: thin;
   }
   
   .sidebar-content.desktop {
