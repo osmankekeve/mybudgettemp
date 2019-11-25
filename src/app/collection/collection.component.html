@@ -1,4 +1,4 @@
-<div class="card" *ngIf="selectedRecord==undefined">
+<div class="card work-area" *ngIf="selectedRecord==undefined">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-8">
@@ -25,7 +25,7 @@
         </div>
     </div>
     <div class="card-body">
-      <div class="row work-area" *ngIf="!isShowAllRecords">
+      <div class="row" *ngIf="!isShowAllRecords">
                 <div class="col-sm-3">
                             <div class="card-list-parent" *ngIf="mainList4.length > 0; else elseBlock4">
                                     <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList4 | filterCustomer : searchText; index as i; trackBy: primaryKey"
@@ -178,7 +178,7 @@
             </div>
           </div>
         </div>
-        <div class="list-group work-area" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
           <div class="list-group-item bg-success text-light">
                                     <div class="row">
                                         <div class="col-sm-1">Sıra</div>
@@ -216,7 +216,7 @@
       </div>
     </div>
 </div>
-<div class="card" *ngIf="selectedRecord!=undefined">
+<div class="card work-area" *ngIf="selectedRecord!=undefined">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-12">

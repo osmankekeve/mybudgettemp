@@ -92,7 +92,7 @@ body {
 }
 
 .work-area {
-  max-height: calc(100vh - 180px);
+  height: calc(100vh - 72px);
   overflow: auto;
   scrollbar-width: thin;
 }

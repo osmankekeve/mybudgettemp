@@ -1,4 +1,4 @@
-<div class="card" *ngIf="selectedCustomer==undefined">
+<div class="card work-area" *ngIf="selectedCustomer==undefined">
   <div class="card-header">
     <div class="row">
       <div class="col-sm-8">
@@ -22,7 +22,7 @@
     </div>
   </div>
   <div class="card-body">
-    <div class="card-list-parent work-area" *ngIf="mainList.length > 0; else elseBlock">
+    <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
       <div class="card mb-2 bg-light cursor-pointer"
            *ngFor="let customer of mainList | filterDataCustomer : searchText; index as i; trackBy: primaryKey"
            (click)="showSelectedCustomer(customer)">
@@ -40,7 +40,7 @@
     </ng-template>
   </div>
 </div>
-<div class="card" *ngIf="selectedCustomer!=undefined">
+<div class="card work-area" *ngIf="selectedCustomer!=undefined">
   <div class="card-header">
     <div class="row">
       <div class="col-sm-12">
@@ -59,7 +59,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='dashboard'">
-    <div class="card-body dashboard-work-area" *ngIf="selectedCustomer.primaryKey!=undefined">
+    <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
       <div class="row">
         <div class="col-sm-6">
             <div class="row mb-2">
@@ -260,7 +260,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='salesInvoice'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -356,7 +356,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='collection'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -464,7 +464,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='purchaseInvoice'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -561,7 +561,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='payment'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -667,7 +667,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='accountVoucher'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
@@ -765,7 +765,7 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='edit'">
-    <div class="card-body dashboard-work-area">
+    <div class="card-body">
       <div class="card card-stats">
         <div class="card-body">
           <form (ngSubmit)="btnSave_Click()" class="was-validated">
@@ -849,7 +849,7 @@
   </div>
   <div *ngIf="openedPanel=='accountSummary'">
     <div class="card-body">
-        <div class="list-group work-area-2" *ngIf="transactionList; else elseBlock">
+        <div class="list-group" *ngIf="transactionList; else elseBlock">
           <div class="list-group-item bg-success text-light">
             <div class="row">
               <div class="col-sm-1">Sıra</div>
