@@ -1,61 +1,181 @@
-<nav class="side-bar-work-area">
-  <div class="list-group">
-    <a routerLink="/dashboard" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/dashboard.png" width="30px"> Pano</a>
-    <a routerLink="/customer" class="list-group-item list-group-item-action list-group-item-light" 
-       routerLinkActive="active">
-      <img src="../../assets/images/customers.png" width="30px"> Müşteri</a>
-    <a routerLink="/crm" class="list-group-item list-group-item-action list-group-item-light" 
-       routerLinkActive="active">
-      <img src="../../assets/images/crm_2.png" width="30px"> Müşteri İlişkileri</a>
-    <a routerLink="/account-voucher" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/account_voucher.png" width="30px"> Cari Fiş</a>
-    <a routerLink="/visit" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/visit-2.png" width="30px"> Ziyaret</a>
-    <a routerLink="/sales-invoice" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/sales_invoice.png" width="30px"> Satış Faturası</a>
-    <a routerLink="/collection" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/collection.png" width="30px"> Tahsilat</a>
-    <a routerLink="/purchaseInvoice" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/purchase_invoice.png" width="30px"> Alım Faturası</a>
-    <a routerLink="/payment" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/payment.png" width="30px"> Ödeme</a>
-    <a routerLink="/cash-desk" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/cash-desks.png" width="30px"> Kasa</a>
-    <a routerLink="/cashdesk-voucher" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/account_voucher.png" width="30px"> Kasa Fişi</a>
-    <a routerLink="/note" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/collection_term_on_day.png" width="30px"> Notlar</a>
-    <a routerLink="/file-upload" class="list-group-item list-group-item-action list-group-item-light"
-        routerLinkActive="active">
-      <img src="../../assets/images/file-upload.png" width="30px"> Dosya Yükleme</a>
-    <a routerLink="/location" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/location.png" width="30px"> Lokasyonlar</a>
-    <a routerLink="/reports" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/report_icon_2.png" width="30px"> Raporlar</a>
-    <a routerLink="/notification" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/report_icon_2.png" width="30px"> Bildirimler</a>
-    <a routerLink="/user" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/report_icon_2.png" width="30px"> Kullanıcılar</a>
-    <a routerLink="/reminder" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      <img src="../../assets/images/report_icon_2.png" width="30px"> Hatırlatıcı</a>
-    <a routerLink="/test" class="list-group-item list-group-item-action list-group-item-light"
-       routerLinkActive="active">
-      Test</a>
-  </div>
-</nav>
+<div class="page-wrapper chiller-theme toggled">
+  <nav id="sidebar" class="sidebar-wrapper">
+    <div class="sidebar-content">
+      <div class="sidebar-brand">
+        <a routerLink="/dashboard">My Budget Web</a>
+      </div>
+      <div class="sidebar-header">
+        <div class="user-pic">
+          <img class="img-responsive img-rounded" src="https://raw.githubusercontent.com/azouaoui-med/pro-sidebar-template/gh-pages/src/img/user.jpg"
+            alt="User picture">
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{employeeDetail.longName}}
+            <strong hidden>Smith</strong>
+          </span>
+          <span class="user-role">Administrator</span>
+          <span class="user-status">
+            <i class="fa fa-circle"></i>
+            <span>Online</span>
+          </span>
+        </div>
+      </div>
+      <!-- sidebar-header  -->
+      <div class="sidebar-search" hidden>
+        <div>
+          <div class="input-group">
+            <input type="text" class="form-control search-menu" placeholder="Search...">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- sidebar-search  -->
+      <div class="sidebar-menu">
+        <ul>
+          <li class="header-menu">
+            <span>General</span>
+          </li>
+          <li class="sidebar-dropdown">
+            <a routerLink="/dashboard"
+               routerLinkActive="active">
+              <img src="../../assets/images/dashboard.png" width="30px"> Pano</a>
+          </li>
+          <li class="sidebar-dropdown">
+            <a class="cursor-pointer">
+              <img src="../../assets/images/customers.png" width="30px">
+              <i class="fa fa-angle-right float-right"></i> Müşteri
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a routerLink="/customer" routerLinkActive="active">
+                    <img src="../../assets/images/customers.png" width="30px"> Müşteriler
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/crm" routerLinkActive="active">
+                    <img src="../../assets/images/crm_2.png" width="30px"> Müşteri İlişkileri</a>
+                </li>
+                <li>
+                  <a routerLink="/visit" routerLinkActive="active">
+                    <img src="../../assets/images/visit-2.png" width="30px"> Ziyaret</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="sidebar-dropdown">
+            <a class="cursor-pointer">
+              <img src="../../assets/images/sales_invoice.png" width="30px">
+              <i class="fa fa-angle-right float-right"></i> Satış Modülü
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a routerLink="/sales-invoice" routerLinkActive="active">
+                    <img src="../../assets/images/sales_invoice.png" width="30px"> Satış Faturası
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/collection" routerLinkActive="active">
+                    <img src="../../assets/images/collection.png" width="30px"> Tahsilat</a>
+                </li>
+                <li>
+                  <a routerLink="/account-voucher" routerLinkActive="active">
+                    <img src="../../assets/images/account_voucher.png" width="30px"> Cari Fiş</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="sidebar-dropdown">
+            <a class="cursor-pointer">
+              <img src="../../assets/images/purchase_invoice.png" width="30px">
+              <i class="fa fa-angle-right float-right"></i> Alım Modülü
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a routerLink="/purchaseInvoice" routerLinkActive="active">
+                    <img src="../../assets/images/purchase_invoice.png" width="30px"> Alım Faturası
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/payment" routerLinkActive="active">
+                    <img src="../../assets/images/payment.png" width="30px"> Ödeme</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="sidebar-dropdown">
+            <a class="cursor-pointer">
+              <img src="../../assets/images/cash-desks.png" width="30px">
+              <i class="fa fa-angle-right float-right"></i> Kasa Modülü
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a routerLink="/cash-desk" routerLinkActive="active">
+                    <img src="../../assets/images/cash-desks.png" width="30px"> Kasa
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/cashdesk-voucher" routerLinkActive="active">
+                    <img src="../../assets/images/account_voucher.png" width="30px"> Kasa Fişi</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="header-menu">
+            <span>Extra</span>
+          </li>
+          <li class="sidebar-dropdown">
+            <a class="cursor-pointer">
+              <i class="fa fa-globe"></i>
+              <span>Modules</span>
+              <i class="fa fa-angle-right float-right"></i>
+            </a>
+            <div class="sidebar-submenu">
+              <ul>
+                <li>
+                  <a routerLink="/note" routerLinkActive="active">
+                    <img src="../../assets/images/collection_term_on_day.png" width="30px"> Notlar
+                  </a>
+                </li>
+                <li>
+                  <a routerLink="/file-upload" routerLinkActive="active">
+                    <img src="../../assets/images/file-upload.png" width="30px"> Dosya Yükleme</a>
+                </li>
+                <li>
+                  <a routerLink="/file-notification" routerLinkActive="active">
+                    <img src="../../assets/images/report_icon_2.png" width="30px"> Bildirimler</a>
+                </li>
+                <li>
+                  <a routerLink="/user" routerLinkActive="active">
+                    <img src="../../assets/images/report_icon_2.png" width="30px"> Kullanıcılar</a>
+                </li>
+                <li>
+                  <a routerLink="/reminder" routerLinkActive="active">
+                    <img src="../../assets/images/report_icon_2.png" width="30px"> Hatırlatıcı</a>
+                </li>
+              </ul>
+            </div>
+          </li>
+          <li class="sidebar-dropdown">
+            <a routerLink="/location"
+               routerLinkActive="active">
+              <img src="../../assets/images/location.png" width="30px"> Lokasyonlar</a>
+          </li>
+          <li class="sidebar-dropdown">
+            <a routerLink="/reports"
+               routerLinkActive="active">
+              <img src="../../assets/images/report_icon_2.png" width="30px"> Raporlar</a>
+          </li>
+        </ul>
+      </div>
+      <!-- sidebar-menu  -->
+    </div>
+  </nav>
+</div>

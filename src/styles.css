@@ -92,7 +92,7 @@ body {
 }
 
 .work-area {
-  max-height: calc(100vh - 210px);
+  max-height: calc(100vh - 180px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -110,13 +110,13 @@ body {
 }
 
 .side-bar-work-area {
-  max-height: calc(100vh - 106px);
+  max-height: calc(100vh - 64px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .dashboard-work-area {
-  height: calc(100vh - 157px);
+  height: calc(100vh - 126px);
   overflow: auto;
   scrollbar-width: thin;
 }
