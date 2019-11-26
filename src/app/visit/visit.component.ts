@@ -13,6 +13,7 @@ import { ProfileService } from '../services/profile.service';
 import { ProfileModel } from '../models/profile-model';
 import { VisitMainModel } from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
+import { ProfileMainModel } from '../models/profile-main-model';
 
 @Component({
   selector: 'app-visit',
@@ -26,7 +27,7 @@ export class VisitComponent implements OnInit, OnDestroy {
   mainList3: Array<VisitMainModel> = [];
   collection: AngularFirestoreCollection<VisitMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  profileList$: Observable<ProfileModel[]>;
+  profileList$: Observable<ProfileMainModel[]>;
   selectedRecord: VisitMainModel;
   refModel: VisitMainModel;
   isShowAllRecords = false;
@@ -43,7 +44,7 @@ export class VisitComponent implements OnInit, OnDestroy {
   async ngOnInit() {
 
     this.customerList$ = this.cService.getAllItems();
-    this.profileList$ = this.proService.getAllItems();
+    this.profileList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
     this.populateList();
 

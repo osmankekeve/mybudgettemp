@@ -24,11 +24,11 @@ export class VisitService {
               public eService: ProfileService,
               public db: AngularFirestore) {
 
-                this.eService.getAllItems().subscribe(list => {
+                this.eService.getMainItems().subscribe(list => {
                 this.employeeMap.clear();
                 this.employeeMap.set('-1', 'Tüm Kullanıcılar');
                 list.forEach(item => {
-                  this.employeeMap.set(item.primaryKey, item.longName);
+                  this.employeeMap.set(item.data.primaryKey, item.data.longName);
                 });
               });
   }

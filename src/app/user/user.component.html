@@ -70,6 +70,17 @@
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
+                          <label class="col-form-label float-left" for="isActive">Kullanıcı Tipi</label>
+                        </div>
+                        <div class="col-sm-9">
+                          <select class="form-control form-control-sm w-100" id="type" name="type"
+                                  [(ngModel)]="selectedRecord.type">
+                            <option value="admin">Administrator</option>
+                            <option value="manager">Yönetici</option>
+                            <option value="user">Kullanıcı</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
                             <label class="col-form-label float-left" for="password">Şifre</label>
                         </div>
                         <div class="col-sm-9">
@@ -92,6 +103,28 @@
                             <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
                                 [(ngModel)]="selectedRecord.phone" required>
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+                        </div>
+                        <div class="col-sm-3">
+                          <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+                        </div>
+                        <div class="col-sm-9">
+                          <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                                  [(ngModel)]="selectedRecord.isActive">
+                            <option value="true">Aktif</option>
+                            <option value="false">Pasif</option>
+                          </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-form-label float-left" for="actionDate">Doğum Tarihi</label>
+                        </div>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
+                                    name="d2" #c2="ngModel" [(ngModel)]="birthDate" ngbDatepicker #d2="ngbDatepicker">
+                                <div class="input-group-append">
+                                    <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                                </div>
+                            </div>
                         </div>
                 </div>
             </form>

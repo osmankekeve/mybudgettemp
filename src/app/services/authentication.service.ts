@@ -4,6 +4,8 @@ import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import {ProfileModel} from '../models/profile-model';
+import { ProfileMainModel } from '../models/profile-main-model';
+import { ProfileService } from './profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -60,8 +62,25 @@ export class AuthenticationService {
   }
 
   public getEid(): string {
-    const user = JSON.parse(localStorage.getItem('employee')) as ProfileModel;
-    return user.primaryKey;
+    const user = JSON.parse(localStorage.getItem('employee')) as ProfileMainModel;
+    return user.data.primaryKey;
+  }
+
+  clearProfileModel(): ProfileModel {
+    const returnData = new ProfileModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.getUid();
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearProfileMainModel(): ProfileMainModel {
+    const returnData = new ProfileMainModel();
+    returnData.data = this.clearProfileModel();
+    returnData.typeTr = 'admin';
+    returnData.actionType = 'added';
+    return returnData;
   }
 
   employeeLogin(email: string, password: string): any {
@@ -71,9 +90,19 @@ export class AuthenticationService {
       ).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
-            const pData = doc.data() as ProfileModel;
-            pData.primaryKey = doc.id;
-            localStorage.setItem('employee', JSON.stringify(pData));
+            const data = doc.data() as ProfileModel;
+            data.primaryKey = doc.id;
+
+            const returnData = this.clearProfileMainModel();
+            if (data.type === 'admin') {
+              returnData.typeTr = 'Administrator';
+            } else if (data.type === 'manager') {
+              returnData.typeTr = 'Yönetici';
+            } else {
+              returnData.typeTr = 'Kullanıcı';
+            }
+            returnData.data = data;
+            localStorage.setItem('employee', JSON.stringify(returnData));
             resolve(doc.id);
           });
         } else {

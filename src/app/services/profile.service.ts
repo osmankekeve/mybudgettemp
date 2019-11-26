@@ -6,53 +6,69 @@ import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
+import { ProfileMainModel } from '../models/profile-main-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileService {
   listCollection: AngularFirestoreCollection<ProfileModel>;
-  mainList$: Observable<ProfileModel[]>;
+  mainList$: Observable<ProfileMainModel[]>;
   tableName = 'tblProfile';
+  typeMap = new Map([['admin', 'Administrator'], ['manager', 'Yönetici'], ['user', 'Kullanıcı']]);
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public db: AngularFirestore) {
 
   }
 
-  getAllItems(): Observable<ProfileModel[]> {
-    this.listCollection = this.db.collection<ProfileModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
+  async addItem(record: ProfileMainModel) {
+    return await this.listCollection.add(record.data);
   }
 
-  async addItem(record: ProfileModel) {
-    return await this.listCollection.add(record);
+  async removeItem(record: ProfileMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async removeItem(record: ProfileModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+  async updateItem(record: ProfileMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(record.data);
   }
 
-  async updateItem(record: ProfileModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  async getItem(record: ProfileMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey);
   }
 
-  async getItem(record: ProfileModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey);
+  clearProfileModel(): ProfileModel {
+    const returnData = new ProfileModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.insertDate = Date.now();
+
+    return returnData;
   }
 
-  getMainItems(): Observable<ProfileModel[]> {
+  clearProfileMainModel(): ProfileMainModel {
+    const returnData = new ProfileMainModel();
+    returnData.data = this.clearProfileModel();
+    returnData.typeTr = 'admin';
+    returnData.actionType = 'added';
+    return returnData;
+  }
+
+  getMainItems(): Observable<ProfileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()).orderBy('longName', 'asc'));
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('longName', 'asc'));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as ProfileModel;
         data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc('-1').valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, actionType: change.type}); }));
+
+        const returnData = new ProfileMainModel();
+        returnData.data = data;
+        returnData.actionType = change.type;
+        returnData.typeTr = this.typeMap.get(data.type);
+
+        return Object.assign({returnData});
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -60,8 +76,11 @@ export class ProfileService {
 
   getProfile(): any {
     return new Promise((resolve, reject) => {
-      this.db.collection('tblProfile').doc(JSON.parse(localStorage.getItem('employee'))).get().toPromise().then(item => {
-        resolve(item.data());
+      this.db.collection('tblProfile').doc(JSON.parse(localStorage.getItem('employee'))).get().toPromise().then((item) => {
+        const returnData = new ProfileMainModel();
+        returnData.data = item.data() as ProfileModel;
+        returnData.typeTr = this.typeMap.get(returnData.data.type);
+        resolve(returnData);
       });
     });
   }

@@ -151,7 +151,7 @@
                     <div class="col-sm-3">
                         <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
                         [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
-                            <option value={{item.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.longName}}</option>
+                            <option value={{item.data.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.data.longName}}</option>
                         </select>
                         <div class="invalid-feedback invalid-inpput-info">Lütfen personel seçiniz.</div>
                     </div>
