@@ -14,6 +14,7 @@ import { ProfileMainModel } from '../models/profile-main-model';
 export class ProfileService {
   listCollection: AngularFirestoreCollection<ProfileModel>;
   mainList$: Observable<ProfileMainModel[]>;
+  mainList2$: Observable<ProfileModel[]>;
   tableName = 'tblProfile';
   typeMap = new Map([['admin', 'Administrator'], ['manager', 'Yönetici'], ['user', 'Kullanıcı']]);
 
@@ -23,7 +24,7 @@ export class ProfileService {
   }
 
   async addItem(record: ProfileMainModel) {
-    return await this.listCollection.add(record.data);
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: ProfileMainModel) {
@@ -41,6 +42,8 @@ export class ProfileService {
   clearProfileModel(): ProfileModel {
     const returnData = new ProfileModel();
     returnData.primaryKey = null;
+    returnData.type = 'admin';
+    returnData.isActive = true;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -50,13 +53,20 @@ export class ProfileService {
   clearProfileMainModel(): ProfileMainModel {
     const returnData = new ProfileMainModel();
     returnData.data = this.clearProfileModel();
-    returnData.typeTr = 'admin';
+    returnData.typeTr = 'Administrator';
     returnData.actionType = 'added';
     return returnData;
   }
 
+  getItems(): Observable<ProfileModel[]> {
+    this.listCollection = this.db.collection<ProfileModel>(this.tableName,
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList2$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    return this.mainList2$;
+  }
+
   getMainItems(): Observable<ProfileMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
+    this.listCollection = this.db.collection<ProfileModel>(this.tableName,
     ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('longName', 'asc'));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
@@ -68,7 +78,10 @@ export class ProfileService {
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
 
-        return Object.assign({returnData});
+        return this.db.collection('tblCustomer').doc('-1').valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+
+          return Object.assign({ returnData }); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

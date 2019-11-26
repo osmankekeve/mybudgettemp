@@ -66,7 +66,7 @@
                         </div>
                         <div class="col-sm-9">
                             <input class="form-control form-control-sm w-100" id="longName" name="longName" type="text"
-                                [(ngModel)]="selectedRecord.longName" required>
+                                [(ngModel)]="selectedRecord.data.longName" required>
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
@@ -74,7 +74,7 @@
                         </div>
                         <div class="col-sm-9">
                           <select class="form-control form-control-sm w-100" id="type" name="type"
-                                  [(ngModel)]="selectedRecord.type">
+                                  [(ngModel)]="selectedRecord.data.type">
                             <option value="admin">Administrator</option>
                             <option value="manager">Yönetici</option>
                             <option value="user">Kullanıcı</option>
@@ -85,7 +85,7 @@
                         </div>
                         <div class="col-sm-9">
                             <input class="form-control form-control-sm w-100" id="password" name="password" type="password"
-                                [(ngModel)]="selectedRecord.password" required>
+                                [(ngModel)]="selectedRecord.data.password" required>
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
@@ -93,7 +93,7 @@
                         </div>
                         <div class="col-sm-9">
                             <input class="form-control form-control-sm w-100" id="mailAddress" name="mailAddress" type="text"
-                                [(ngModel)]="selectedRecord.mailAddress" required>
+                                [(ngModel)]="selectedRecord.data.mailAddress" required>
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
@@ -101,7 +101,7 @@
                         </div>
                         <div class="col-sm-9">
                             <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
-                                [(ngModel)]="selectedRecord.phone" required>
+                                [(ngModel)]="selectedRecord.data.phone" required>
                                 <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                         </div>
                         <div class="col-sm-3">
@@ -109,7 +109,7 @@
                         </div>
                         <div class="col-sm-9">
                           <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                                  [(ngModel)]="selectedRecord.isActive">
+                                  [(ngModel)]="selectedRecord.data.isActive">
                             <option value="true">Aktif</option>
                             <option value="false">Pasif</option>
                           </select>
@@ -134,7 +134,7 @@
             <button type="button" class="btn btn-sm btn-success btn-block"
                 (click)="btnSave_Click()">Kaydet</button>
         </div>
-        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined && !selectedRecord.isMainRecord">
+        <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined && !selectedRecord.data.isMainRecord">
             <button type="button" class="btn btn-sm btn-danger btn-block"
                 (click)="btnRemove_Click()">Kaldır</button>
         </div>

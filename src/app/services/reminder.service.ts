@@ -6,6 +6,7 @@ import { AuthenticationService } from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
+import { ProfileMainModel } from '../models/profile-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,13 +26,13 @@ export class ReminderService {
               public eService: ProfileService,
               public db: AngularFirestore) {
 
-                /* this.eService.getAllItems().subscribe(list => {
+                this.eService.getItems().subscribe(list => {
                   this.employeeMap.clear();
                   this.employeeMap.set('-1', 'Tüm Kullanıcılar');
                   list.forEach(item => {
                     this.employeeMap.set(item.primaryKey, item.longName);
                   });
-                }); */
+                });
   }
 
   getAllItems(): Observable<ReminderModel[]> {

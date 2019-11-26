@@ -13,7 +13,7 @@ import { ProfileMainModel } from '../models/profile-main-model';
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit, OnDestroy {
-  mainList: Array<ProfileMainModel>;
+  mainList: Array<ProfileMainModel> = [];
   selectedRecord: ProfileMainModel;
   refModel: ProfileMainModel;
   birthDate: any;
@@ -33,7 +33,6 @@ export class UserComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       list.forEach((data: any) => {
         const item = data.returnData as ProfileMainModel;
         if (item.actionType === 'added') {
@@ -60,7 +59,7 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.data.primaryKey === undefined) {
+    if (this.selectedRecord.data.primaryKey === null) {
       this.selectedRecord.data.primaryKey = '';
       this.selectedRecord.data.birthDate = getInputDataForInsert(this.birthDate);
       this.service.addItem(this.selectedRecord)

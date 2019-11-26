@@ -16,6 +16,7 @@ import {
   isNullOrEmpty
 } from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
+import { ProfileMainModel } from '../models/profile-main-model';
 
 @Component({
   selector: 'app-reminder',
@@ -25,7 +26,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 export class ReminderComponent implements OnInit, OnDestroy {
   mainList: Array<ReminderModel>;
   collection: AngularFirestoreCollection<ReminderModel>;
-  employeeList$: Observable<ProfileModel[]>;
+  employeeList$: Observable<ProfileMainModel[]>;
   selectedRecord: ReminderModel;
   refModel: ReminderModel;
   openedPanel: any;
@@ -45,7 +46,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
     this.populateList();
-    this.employeeList$ = this.proService.getAllItems();
+    this.employeeList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
     if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
       const data = await this.service.getItem2(this.paramPrimaryKey);

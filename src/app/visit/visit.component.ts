@@ -161,9 +161,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       if (this.selectedRecord.visit.primaryKey === null) {
         this.selectedRecord.visit.primaryKey = '';
-        const newId = this.db.createId();
         this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
-        console.log(this.selectedRecord);
         this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Ziyaret başarıyla kaydedildi.');
