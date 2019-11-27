@@ -76,6 +76,16 @@ export const getTodayEnd = () => {
   return getDateAndTime(23, 59, 59);
 };
 
+export const getTomorrowStart = () => {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0);
+};
+
+export const getTomorrowEnd = () => {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 23, 59, 59);
+};
+
 export const getDateForInput = (value: number) => {
   if (isNullOrEmpty(value)) {
     const date = new Date();

@@ -5,7 +5,7 @@ import { LogService } from './services/log.service';
 import { InformationService } from './services/information.service';
 import {CustomerRelationService} from './services/crm.service';
 import {CustomerRelationModel} from './models/customer-relation-model';
-import {getDateAndTime, getTodayEnd, getTodayStart} from './core/correct-library';
+import {getDateAndTime, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
 import {ReminderService} from './services/reminder.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AngularFirestore} from '@angular/fire/firestore';
@@ -68,6 +68,8 @@ export class AppComponent implements OnInit {
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
     if (!this.employeeDetail) {
       this.employeeDetail = undefined;
+    } else {
+      this.populateEmployeeReminderList();
     }
   }
 
@@ -174,7 +176,7 @@ export class AppComponent implements OnInit {
   }
 
   populateReminderList(): void {
-    this.remService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+    this.remService.getMainItemsBetweenDates(getTodayStart(), getTomorrowEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.reminderCount ++;
@@ -189,7 +191,9 @@ export class AppComponent implements OnInit {
         }
       });
     });
+  }
 
+  populateEmployeeReminderList(): void {
     this.remService.getEmployeeDailyReminderCollection(getTodayStart()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {

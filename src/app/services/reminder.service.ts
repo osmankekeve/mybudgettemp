@@ -26,13 +26,15 @@ export class ReminderService {
               public eService: ProfileService,
               public db: AngularFirestore) {
 
-                this.eService.getItems().subscribe(list => {
-                  this.employeeMap.clear();
-                  this.employeeMap.set('-1', 'Tüm Kullanıcılar');
-                  list.forEach(item => {
-                    this.employeeMap.set(item.primaryKey, item.longName);
+                if (this.authService.isUserLoggedIn()) {
+                  this.eService.getItems().subscribe(list => {
+                    this.employeeMap.clear();
+                    this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+                    list.forEach(item => {
+                      this.employeeMap.set(item.primaryKey, item.longName);
+                    });
                   });
-                });
+                }
   }
 
   getAllItems(): Observable<ReminderModel[]> {
