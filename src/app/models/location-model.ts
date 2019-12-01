@@ -5,10 +5,10 @@ export interface LocationModel {
   name?: string;
   longitude?: number;
   latitude?: number;
-  insertDate: number;
-  district?: string;
-  description?: string;
   country?: string;
   city?: string;
+  district?: string;
   address?: string;
+  description?: string;
+  insertDate: number;
 }

@@ -6,7 +6,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body work-area">
         <div class="row">
             <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
                 <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
@@ -88,7 +88,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body work-area">
             <div class="card mb-2" *ngIf="isMainFilterOpened">
               <div class="card-header">Filtreler</div>
               <div class="card-body bg-light">
@@ -153,7 +153,7 @@
                         <div class="card-body">Rapor oluşturuluyor, lütfen bekleyiniz.</div>
                     </div>
                 </div>
-                <div class="list-group work-area" *ngIf="mainList.length > 0; else elseBlock">
+                <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
                         <div class="list-group-item bg-success text-light">
                                 <div class="row">
                                     <div class="col-sm-1">Sıra</div>

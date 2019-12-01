@@ -79,7 +79,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.selectedRecord = record.data as ReminderModel;
     this.refModel = record.data as ReminderModel;
-    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
+    this.recordDate = getDateForInput(this.selectedRecord.reminderDate);
   }
 
   btnReturnList_Click(): void {

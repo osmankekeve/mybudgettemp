@@ -330,9 +330,10 @@
         <div class="col-sm-5">
           <div class="card bg-light">
             <div class="card-header bg-secondary text-light">
-              <h6>Önceki Satış Faturaları</h6>
+              <h6 class="float-left">Önceki Satış Faturaları</h6>
+              <span class="font-weight-bold float-right">{{siAmount | currency:'₺'}}</span>
             </div>
-            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table table-hover table-striped table-bordered">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
@@ -436,9 +437,10 @@
         <div class="col-sm-5">
           <div class="card bg-light">
             <div class="card-header bg-secondary text-light">
-              <h6>Önceki Tahsilatlar</h6>
+              <h6 class="float-left">Önceki Tahsilatlar</h6>
+              <span class="font-weight-bold float-right">{{colAmount | currency:'₺'}}</span>
             </div>
-            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table table-hover table-striped table-bordered">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
@@ -533,9 +535,10 @@
         <div class="col-sm-5">
           <div class="card bg-light">
             <div class="card-header bg-secondary text-light">
-              <h6>Önceki Alım Faturaları</h6>
+              <h6 class="float-left">Önceki Alım Faturaları</h6>
+              <span class="font-weight-bold float-right">{{purchaseInvoiceAmount | currency:'₺'}}</span>
             </div>
-            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table table-hover table-striped table-bordered">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
@@ -640,9 +643,10 @@
         <div class="col-sm-5">
           <div class="card bg-light">
             <div class="card-header bg-secondary text-light">
-              <h6>Önceki Ödemeler</h6>
+              <h6 class="float-left">Önceki Ödemeler</h6>
+              <span class="font-weight-bold float-right">{{payAmount | currency:'₺'}}</span>
             </div>
-            <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table table-hover table-striped table-bordered">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
@@ -737,9 +741,10 @@
         <div class="col-sm-5">
           <div class="card bg-light">
               <div class="card-header bg-secondary text-light">
-                <h6>Önceki Fişler</h6>
+                <h6 class="float-left">Önceki Fişler</h6>
+                <span class="font-weight-bold float-right">{{voucherAmount | currency:'₺'}}</span>
               </div>
-              <div class="card-body" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+              <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
                 <table class="table table-hover table-striped table-bordered">
                   <tbody>
                   <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey" 
@@ -791,8 +796,8 @@
               <div class="col-sm-3">
                 <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
                         [(ngModel)]="selectedCustomer.isActive">
-                  <option value="true">Aktif</option>
-                  <option value="false">Pasif</option>
+                  <option [ngValue]="true">Aktif</option>
+                  <option [ngValue]="false">Pasif</option>
                 </select>
               </div>
               <div class="col-sm-3">

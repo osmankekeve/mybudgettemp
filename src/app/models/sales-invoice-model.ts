@@ -4,8 +4,8 @@ export interface SalesInvoiceModel {
     customerCode?: string;
     receiptNo?: string;
     type?: string; // sales,return
-    description?: string;
     totalPrice?: number;
     totalPriceWithTax?: number;
+    description?: string;
     insertDate?: number;
 }

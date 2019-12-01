@@ -4,8 +4,8 @@ export interface PurchaseInvoiceModel {
     customerCode?: string;
     receiptNo?: string;
     type?: string; // purchase,return
-    description?: string;
     totalPrice?: number;
     totalPriceWithTax?: number;
+    description?: string;
     insertDate?: number;
 }

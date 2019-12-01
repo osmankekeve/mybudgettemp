@@ -24,7 +24,6 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // tslint:disable-next-line:use-lifecycle-interface
   ngAfterViewInit() {
 
     $('.sidebar-dropdown > a').click(function() {

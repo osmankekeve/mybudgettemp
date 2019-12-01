@@ -117,7 +117,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
           this.atService.getCustomerTransactions(customer.primaryKey, beginDate, finishDate).then(listTrans => {
             listTrans.forEach(item => {
               if (item.transactionType === 'salesInvoice' || item.transactionType === 'collection') {
-                console.log(item);
                 if (item.amount > 0 ) {dataReport.numberField1 += item.amount; }
                 if (item.amount < 0 ) {dataReport.numberField2 += item.amount; }
                 dataReport.numberField3 += item.amount;
