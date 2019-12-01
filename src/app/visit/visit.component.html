@@ -151,7 +151,7 @@
                     <div class="col-sm-3">
                         <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
                         [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
-                            <option value={{item.data.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.data.longName}}</option>
+                            <option value={{item.returnData.data.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
                         </select>
                         <div class="invalid-feedback invalid-inpput-info">Lütfen personel seçiniz.</div>
                     </div>
@@ -191,7 +191,7 @@
             <button type="button" class="btn btn-sm btn-success btn-block"
                 (click)="btnSave_Click()">Kaydet</button>
         </div>
-        <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+        <div class="col-sm-3" *ngIf="selectedRecord.visit.primaryKey!=undefined">
             <button type="button" class="btn btn-sm btn-danger btn-block"
                 (click)="btnRemove_Click()">Kaldır</button>
         </div>

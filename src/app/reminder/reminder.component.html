@@ -134,7 +134,7 @@
                     [disabled]="selectedRecord.isPersonal"
                     [(ngModel)]="selectedRecord.employeePrimaryKey">
               <option [value]="-1">Tüm Kullanıcılar</option>
-              <option value={{item.data.primaryKey}} *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.data.longName}}</option>
+              <option value={{item.returnData.data.primaryKey}} *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
             </select>
           </div>
           <div class="col-sm-3">
