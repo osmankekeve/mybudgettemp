@@ -46,6 +46,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   async ngOnInit() {
 
     this.atService.getOnDayTransactions().subscribe(list => {
+      // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
         this.transactionList = list;
         list.forEach(item => {
             if (item.transactionType === 'salesInvoice') {
