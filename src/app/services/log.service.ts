@@ -115,9 +115,10 @@ export class LogService {
    return this.mainList$;
  }
 
- getNotifications(): Observable<LogModel[]> {
+ getNotifications(startDate: Date, endDate: Date): Observable<LogModel[]> {
    this.listCollection = this.db.collection(this.tableName,
-   ref => ref.orderBy('insertDate', 'desc').where('type', '==', 'notification').where('userPrimaryKey', '==', this.authServis.getUid()));
+   ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+   .where('type', '==', 'notification').where('userPrimaryKey', '==', this.authServis.getUid()));
    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
      return changes.map( change => {
        const data = change.payload.doc.data() as LogModel;
