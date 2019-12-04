@@ -2,10 +2,11 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { ProfileModel } from '../models/profile-model';
-import { ProfileService } from '../services/profile.service';
-import { getDateForInput, getInputDataForInsert, getTodayForInput } from '../core/correct-library';
-import { ProfileMainModel } from '../models/profile-main-model';
+import { CustomerTargetMainModel } from '../models/customer-target-main-model';
+import { CustomerTargetService } from '../services/customer-target.service';
+import { Observable } from 'rxjs';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
 
 @Component({
   selector: 'app-customer-target',
@@ -13,17 +14,19 @@ import { ProfileMainModel } from '../models/profile-main-model';
   styleUrls: ['./customer-target.component.css']
 })
 export class CustomerTargetComponent implements OnInit, OnDestroy {
-  mainList: Array<ProfileMainModel> = [];
-  selectedRecord: ProfileMainModel;
-  refModel: ProfileMainModel;
-  birthDate: any;
+  mainList: Array<CustomerTargetMainModel> = [];
+  selectedRecord: CustomerTargetMainModel;
+  customerList$: Observable<CustomerModel[]>;
+  refModel: CustomerTargetMainModel;
 
   constructor(public authServis: AuthenticationService,
               public infoService: InformationService,
-              public service: ProfileService,
+              public cService: CustomerService,
+              public service: CustomerTargetService,
               public db: AngularFirestore) { }
 
   async ngOnInit() {
+    this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.selectedRecord = undefined;
   }
@@ -33,8 +36,9 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
+      console.log(list);
       list.forEach((data: any) => {
-        const item = data.returnData as ProfileMainModel;
+        const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
@@ -49,9 +53,8 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as ProfileMainModel;
-    this.refModel = record as ProfileMainModel;
-    this.birthDate = getDateForInput(this.selectedRecord.data.birthDate);
+    this.selectedRecord = record as CustomerTargetMainModel;
+    this.refModel = record as CustomerTargetMainModel;
   }
 
   btnReturnList_Click(): void {
@@ -61,16 +64,15 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   btnSave_Click(): void {
     if (this.selectedRecord.data.primaryKey === null) {
       this.selectedRecord.data.primaryKey = '';
-      this.selectedRecord.data.birthDate = getInputDataForInsert(this.birthDate);
       this.service.addItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Kullanıcı başarıyla kaydedildi.');
+        this.infoService.success('Hedef başarıyla kaydedildi.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     } else {
       this.service.updateItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Kullanıcı başarıyla güncellendi.');
+        this.infoService.success('Hedef başarıyla güncellendi.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     }
@@ -79,7 +81,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
     .then(() => {
-      this.infoService.success('Kullanıcı başarıyla kaldırıldı.');
+      this.infoService.success('Hedef başarıyla kaldırıldı.');
       this.selectedRecord = undefined;
     }).catch(err => this.infoService.error(err));
   }
@@ -90,7 +92,6 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.birthDate = getTodayForInput();
     this.selectedRecord = this.service.clearProfileMainModel();
   }
 
