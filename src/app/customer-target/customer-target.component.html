@@ -18,33 +18,80 @@
         </div>
     </div>
     <div class="card-body">
-            <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-                    <div class="list-group-item bg-danger text-light">
-                            <div class="row">
-                                <div class="col-sm-1">Sıra</div>
-                                <div class="col-sm-4">Müşteri Adı</div>
-                                <div class="col-sm-4">Hedef Tipi</div>
-                                <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-
+        <div class="row">
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList1 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="text-small font-weight-500 text-dark float-left">{{item.typeTr}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
                     </div>
-                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                    (click)="showSelectedRecord(item)"
-                    *ngFor="let item of mainList | filterProfile: searchText; index as i; trackBy: primaryKey">
-                    <div class="row">
-                        <div class="col-sm-1"><span class="text-bold text-dark">{{i+1}})</span></div>
-                        <div class="col-sm-4">{{item.customerName}}</div>
-                        <div class="col-sm-4">{{item.typeTr}}</div>
-                        <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-
+                    <ng-template #elseBlock1>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList2 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="text-small text-dark float-left">{{item.typeTr}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <ng-template #elseBlock2>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
                 </div>
-            </div>
-            <ng-template #elseBlock>
-                <div class="card bg-danger text-white">
-                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                <div class="col-sm-4">
+                    <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
+                        <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of mainList3 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                            (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                            <div class="card-body">
+                                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="text-small text-dark float-left">{{item.typeTr}}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #elseBlock3>
+                        <div class="card bg-danger text-white">
+                            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                        </div>
+                    </ng-template>
                 </div>
-            </ng-template>
+        </div>
     </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
@@ -74,7 +121,7 @@
                     </div>
                     <div class="col-sm-3">
                       <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.type" id="type" name="type"
-                              required>
+                      (change)="onChangeType($event.target.value)" required>
                         <option value="monthly">Aylık</option>
                         <option value="yearly">Yıllık</option>
                         <option value="periodic">Periodic</option>
@@ -93,14 +140,16 @@
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
                       </select>
-                      <div class="invalid-feedback invalid-inpput-info">Başlangıç ayı seçiniz.</div>
+                      <div class="invalid-feedback invalid-inpput-info">Yıl seçiniz.</div>
                     </div>
                     <div class="col-sm-3">
                       <label class="col-form-label float-left" for="type">Başlangıç Ayı</label>
                     </div>
                     <div class="col-sm-3">
                       <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.beginMonth" id="beginMonth" name="beginMonth"
+                        [disabled]="selectedRecord.data.type == 'yearly'"
                               required>
+                        <option value="-1">Seçilmedi</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
@@ -121,7 +170,9 @@
                     </div>
                     <div class="col-sm-3">
                       <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.finishMonth" id="finishMonth" name="finishMonth"
+                      [disabled]="selectedRecord.data.type == 'yearly' || selectedRecord.data.type == 'monthly'"
                               required>
+                        <option value="-1">Seçilmedi</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>

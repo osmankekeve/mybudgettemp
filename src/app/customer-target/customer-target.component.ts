@@ -15,6 +15,9 @@ import { CustomerService } from '../services/customer.service';
 })
 export class CustomerTargetComponent implements OnInit, OnDestroy {
   mainList: Array<CustomerTargetMainModel> = [];
+  mainList1: Array<CustomerTargetMainModel> = [];
+  mainList2: Array<CustomerTargetMainModel> = [];
+  mainList3: Array<CustomerTargetMainModel> = [];
   selectedRecord: CustomerTargetMainModel;
   customerList$: Observable<CustomerModel[]>;
   refModel: CustomerTargetMainModel;
@@ -35,16 +38,43 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
   populateList(): void {
     this.mainList = [];
+    this.mainList1 = [];
+    this.mainList2 = [];
+    this.mainList3 = [];
     this.service.getMainItems().subscribe(list => {
       console.log(list);
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
-          this.mainList.push(item);
+          if (item.data.type === 'yearly') {
+            this.mainList1.push(item);
+          } else if (item.data.type === 'monthly') {
+            this.mainList2.push(item);
+          } else if (item.data.type === 'periodic') {
+            this.mainList3.push(item);
+          } else {
+
+          }
         } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+          if (item.data.type === 'yearly') {
+            this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
+          } else if (item.data.type === 'monthly') {
+            this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
+          } else if (item.data.type === 'periodic') {
+            this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
+          } else {
+
+          }
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
+          if (item.data.type === 'yearly') {
+            this.mainList1[this.mainList1.indexOf(this.refModel)] = item;
+          } else if (item.data.type === 'monthly') {
+            this.mainList2[this.mainList2.indexOf(this.refModel)] = item;
+          } else if (item.data.type === 'periodic') {
+            this.mainList3[this.mainList3.indexOf(this.refModel)] = item;
+          } else {
+
+          }
         } else {
           // nothing
         }
@@ -88,6 +118,23 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
   btnNew_Click(): void {
     this.clearSelectedRecord();
+  }
+
+  onChangeType(record: any): void {
+    if (record === 'yearly') {
+      this.selectedRecord.data.beginMonth = -1;
+      this.selectedRecord.data.finishMonth = -1;
+    } else if (record === 'monthly') {
+      this.selectedRecord.data.beginMonth = 1;
+      this.selectedRecord.data.finishMonth = -1;
+
+    } else if (record === 'periodic') {
+      this.selectedRecord.data.beginMonth = 1;
+      this.selectedRecord.data.finishMonth = 12;
+    } else {
+      this.selectedRecord.data.beginMonth = -1;
+      this.selectedRecord.data.finishMonth = -1;
+    }
   }
 
   clearSelectedRecord(): void {

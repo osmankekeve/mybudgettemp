@@ -43,6 +43,8 @@ export class CustomerTargetService {
     const returnData = new CustomerTargetModel();
     returnData.primaryKey = null;
     returnData.type = 'yearly';
+    returnData.beginMonth = -1;
+    returnData.finishMonth = -1;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
