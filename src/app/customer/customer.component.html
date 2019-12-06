@@ -146,6 +146,19 @@
                         </div>
                       </div>
             </div>
+            <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('target')">
+                      <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+                        <div class="row">
+                            <div class="col-sm-2">
+                              <img src="../../assets/images/customer-visit.png" width="50px">
+                            </div>
+                            <div class="col-sm-10">
+                                <div>Hedefler</div>
+                                <small class="text-secondary">Müşteriye Ait Hedefleri Listeler</small>
+                            </div>
+                        </div>
+                      </div>
+            </div>
 
         </div>
         <div class="col-sm-6">
@@ -762,9 +775,7 @@
                   <div class="card-body">Görüntülenecek veri bulunamadı.</div>
                 </div>
               </ng-template>
-
           </div>
-
         </div>
       </div>
     </div>
@@ -942,6 +953,44 @@
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='target'">
+    <div class="card-body">
+      <div class="row" *ngIf="targetList$ | async; let targetList; else elseBlock">
+        <div class="col-sm-4">
+            <div class="card-list-parent">
+                <div class="card mb-2 bg-light cursor-pointer" *ngFor="let item of targetList; index as i; trackBy: primaryKey"
+                    (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                    <div class="card-body">
+                        <div class="font-weight-500 text-dark">Hedef Tipi: {{item.returnData.typeTr}}</div>
+                        <div class="row">
+                            <div class="col">
+                                <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl: </div>
+                                  <span class="text-small text-dark float-left">{{item.returnData.data.year}}</span>
+                                  <br/>
+                                <div class="text-small font-weight-bold text-dark float-left mr-2">Başlangıç Ayı: </div>
+                                  <span class="text-small text-dark float-left">{{item.returnData.data.beginMonth}}</span>
+                                  <br/>
+                                <div class="text-small font-weight-bold text-dark float-left mr-2">Bitiş Ayı: </div>
+                                  <span class="text-small text-dark float-left">{{item.returnData.data.finishMonth}}</span>
+                            </div>
+                            <div class="col">
+                                <div class="text-small text-dark float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+      
     </div>
   </div>
 </div>

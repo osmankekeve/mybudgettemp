@@ -39,6 +39,7 @@ export class LogService {
  }
 
  async sendToLog(record: any, proccess: string, systemModule: string) {
+   // main model mantigindaki modellerde problem olusuyor. main model icerisindeki modelden primary keyler alamiyor.
    const item = new LogModel();
    item.parentType = systemModule;
    item.parentPrimaryKey = record.primaryKey;
@@ -78,6 +79,10 @@ export class LogService {
 
    } else if (systemModule === 'fileUpload') {
     item.log = record.fileName + ' isimli dosya ';
+
+   } else if (systemModule === 'customerTarget') {
+    item.parentPrimaryKey = record.data.primaryKey;
+    item.log = record.customerName + ' müşteriye Hedef ';
 
    } else {
     item.log = ' bilinmeyen modül ';

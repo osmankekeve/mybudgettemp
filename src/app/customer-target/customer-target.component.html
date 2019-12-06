@@ -111,6 +111,7 @@
                     </div>
                     <div class="col-sm-9">
                         <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
+                        (change)="onChangeCustomer($event)"
                             [(ngModel)]="selectedRecord.data.customerCode">
                             <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                         </select>
@@ -196,7 +197,16 @@
                              [(ngModel)]="selectedRecord.data.amount">
                       <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
                     </div>
-                    <div class="col-sm-6"></div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                              [(ngModel)]="selectedRecord.data.isActive">
+                        <option [ngValue]="true">Aktif</option>
+                        <option [ngValue]="false">Pasif</option>
+                      </select>
+                    </div>
                     <div class="col-sm-3">
                         <label class="col-form-label float-left" for="description">Açıklama</label>
                     </div>

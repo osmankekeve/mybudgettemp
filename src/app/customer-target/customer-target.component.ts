@@ -42,7 +42,6 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     this.mainList2 = [];
     this.mainList3 = [];
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
@@ -137,9 +136,13 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     }
   }
 
+  onChangeCustomer($event: any): void {
+    this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
+  }
+
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.selectedRecord = this.service.clearProfileMainModel();
+    this.selectedRecord = this.service.clearMainModel();
   }
 
 }

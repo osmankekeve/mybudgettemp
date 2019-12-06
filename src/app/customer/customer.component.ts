@@ -29,6 +29,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { getEncriptionKey } from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
+import { CustomerTargetMainModel } from '../models/customer-target-main-model';
+import { CustomerTargetService } from '../services/customer-target.service';
 
 @Component({
   selector: 'app-customer',
@@ -66,13 +68,14 @@ export class CustomerComponent implements OnInit  {
   BarChart: any;
   filesList$: Observable<FileModel[]>;
   visitList$: Observable<VisitMainModel[]>;
+  targetList$: Observable<CustomerTargetMainModel[]>;
   encryptSecretKey: string = getEncriptionKey();
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
-              public router: ActivatedRoute,
+              public router: ActivatedRoute, public ctService: CustomerTargetService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router) {
   }
 
@@ -408,7 +411,7 @@ export class CustomerComponent implements OnInit  {
 
   btnOpenSubPanel_Click(panel: string): void {
     this.openedPanel = panel;
-    if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary') {
+    if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
       this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
     }
     if (this.openedPanel === 'salesInvoice') {
@@ -423,7 +426,13 @@ export class CustomerComponent implements OnInit  {
       this.clearNewVoucher();
     } else if (this.openedPanel === 'edit') {
 
-    } else if (this.openedPanel === 'accountSummary') {
+    } else if (this.openedPanel === 'target') {
+      this.targetList$ = undefined;
+      this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+      this.targetList$.subscribe(list => {
+        console.log(list);
+      });
+    }  else if (this.openedPanel === 'accountSummary') {
       this.totalValues = 0;
       this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
         this.transactionList = list;

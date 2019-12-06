@@ -8,5 +8,6 @@ export class CustomerTargetModel {
     year?: number;
     amount?: number;
     description?: string;
+    isActive?: boolean;
     insertDate: number;
 }
