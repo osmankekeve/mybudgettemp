@@ -47,6 +47,7 @@ export class CustomerTargetService {
   clearSubModel(): CustomerTargetModel {
     const returnData = new CustomerTargetModel();
     returnData.primaryKey = null;
+    returnData.customerCode = '';
     returnData.type = 'yearly';
     returnData.isActive = true;
     returnData.beginMonth = -1;
@@ -78,7 +79,7 @@ export class CustomerTargetService {
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
 
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+        return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
           returnData.customerName = customer.name;
 
@@ -102,7 +103,7 @@ export class CustomerTargetService {
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
 
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
+        return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
           returnData.customerName = customer.name;
 

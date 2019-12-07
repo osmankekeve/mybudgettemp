@@ -1,15 +1,16 @@
 import {isNullOrUndefined} from 'util';
 
-export const getFloat = (value: any) => {
-  if (getNumber(value)) {
-    return parseFloat(value.toString());
-  }
-  return 0;
-};
 
 export const getNumber = (value: any) => {
   if (Number(value)) {
     return parseInt(value.toString(), 0);
+  }
+  return 0;
+};
+
+export const getFloat = (value: any) => {
+  if (getNumber(value)) {
+    return parseFloat(value.toString());
   }
   return 0;
 };

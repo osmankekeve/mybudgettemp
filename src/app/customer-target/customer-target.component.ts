@@ -7,6 +7,7 @@ import { CustomerTargetService } from '../services/customer-target.service';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
+import { getFloat, getNumber, getDateAndTime, getTodayForInput } from '../core/correct-library';
 
 @Component({
   selector: 'app-customer-target',
@@ -82,32 +83,63 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as CustomerTargetMainModel;
-    this.refModel = record as CustomerTargetMainModel;
+    try {
+      this.selectedRecord = record as CustomerTargetMainModel;
+      this.refModel = record as CustomerTargetMainModel;
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
+    try {
+      this.selectedRecord = undefined;
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.data.primaryKey === null) {
-      this.selectedRecord.data.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hedef başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
-    } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hedef başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    try {
+      if (this.selectedRecord.data.customerCode === '-1' || this.selectedRecord.data.customerCode === '') {
+        this.infoService.error('Lütfen müşteri seçiniz.');
+      } else if (getNumber(this.selectedRecord.data.year) < getTodayForInput().year) {
+        this.infoService.error('Lütfen yıl seçiniz.');
+      } else if (this.selectedRecord.data.type === 'monthly' && this.selectedRecord.data.beginMonth < 1) {
+        this.infoService.error('Lütfen ay seçiniz.');
+      } else if (this.selectedRecord.data.type === 'periodic' && this.selectedRecord.data.beginMonth < 1) {
+        this.infoService.error('Lütfen başlangıç ayı seçiniz.');
+      } else if (this.selectedRecord.data.type === 'periodic' && this.selectedRecord.data.finishMonth < 1) {
+        this.infoService.error('Lütfen bitiş ayı seçiniz.');
+      } else if (getFloat(this.selectedRecord.data.amount) <= 0) {
+        this.infoService.error('Lütfen hedef giriniz.');
+      } else {
+        if (this.selectedRecord.data.primaryKey === null) {
+          this.selectedRecord.data.primaryKey = '';
+          this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hedef başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+        } else {
+          this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hedef başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+        }
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnRemove_Click(): void {
+    try {
+
+    } catch (error) {
+      this.infoService.error(error);
+    }
     this.service.removeItem(this.selectedRecord)
     .then(() => {
       this.infoService.success('Hedef başarıyla kaldırıldı.');
@@ -116,7 +148,11 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   }
 
   btnNew_Click(): void {
-    this.clearSelectedRecord();
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   onChangeType(record: any): void {
