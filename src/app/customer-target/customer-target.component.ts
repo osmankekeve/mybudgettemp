@@ -114,6 +114,17 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
       } else if (getFloat(this.selectedRecord.data.amount) <= 0) {
         this.infoService.error('Lütfen hedef giriniz.');
       } else {
+        if (this.selectedRecord.data.type === 'yearly') {
+          this.selectedRecord.data.beginMonth = -1;
+          this.selectedRecord.data.finishMonth = -1;
+        }
+        if (this.selectedRecord.data.type === 'monthly') {
+          this.selectedRecord.data.finishMonth = -1;
+        }
+        this.selectedRecord.data.beginMonth = getNumber(this.selectedRecord.data.beginMonth);
+        this.selectedRecord.data.finishMonth = getNumber(this.selectedRecord.data.finishMonth);
+        this.selectedRecord.data.year = getNumber(this.selectedRecord.data.year);
+
         if (this.selectedRecord.data.primaryKey === null) {
           this.selectedRecord.data.primaryKey = '';
           this.service.addItem(this.selectedRecord)
@@ -160,11 +171,11 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
       this.selectedRecord.data.beginMonth = -1;
       this.selectedRecord.data.finishMonth = -1;
     } else if (record === 'monthly') {
-      this.selectedRecord.data.beginMonth = 1;
+      this.selectedRecord.data.beginMonth = getTodayForInput().month;
       this.selectedRecord.data.finishMonth = -1;
 
     } else if (record === 'periodic') {
-      this.selectedRecord.data.beginMonth = 1;
+      this.selectedRecord.data.beginMonth = getTodayForInput().month;
       this.selectedRecord.data.finishMonth = 12;
     } else {
       this.selectedRecord.data.beginMonth = -1;
@@ -174,6 +185,14 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
   onChangeCustomer($event: any): void {
     this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
+  }
+
+  onChangeBeginMonth($event: any): void {
+    this.selectedRecord.beginMonthTr = $event.target.options[$event.target.options.selectedIndex].text;
+  }
+
+  onChangeFinishMonth($event: any): void {
+    this.selectedRecord.finishMonthTr = $event.target.options[$event.target.options.selectedIndex].text;
   }
 
   clearSelectedRecord(): void {

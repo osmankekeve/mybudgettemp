@@ -5,4 +5,5 @@ export class VisitMainModel {
     customerName: string;
     employeeName?: string;
     actionType?: string;
+    isVisitedTr?: string;
 }

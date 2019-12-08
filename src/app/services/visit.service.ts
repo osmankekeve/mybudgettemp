@@ -64,6 +64,7 @@ export class VisitService {
           returnData.visit = data;
           returnData.actionType = '';
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
           resolve(Object.assign({returnData}));
         } else {
@@ -76,6 +77,7 @@ export class VisitService {
   clearVisitModel(): VisitModel {
     const returnData = new VisitModel();
     returnData.primaryKey = null;
+    returnData.isVisited = false;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -87,6 +89,7 @@ export class VisitService {
     returnData.visit = this.clearVisitModel();
     returnData.customerName = '';
     returnData.employeeName = '';
+    returnData.isVisitedTr = 'Ziyaret Edilmedi';
     returnData.actionType = 'added';
     return returnData;
   }
@@ -103,6 +106,7 @@ export class VisitService {
         returnData.visit = data;
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -127,6 +131,7 @@ export class VisitService {
         returnData.visit = data;
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -151,6 +156,7 @@ export class VisitService {
         returnData.visit = data;
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -175,6 +181,7 @@ export class VisitService {
         returnData.visit = data;
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -199,6 +206,7 @@ export class VisitService {
         returnData.visit = data;
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
         .pipe(map( (customer: CustomerModel) => {

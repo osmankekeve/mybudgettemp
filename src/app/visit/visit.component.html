@@ -26,6 +26,8 @@
                             (click)="showSelectedRecord(item)" title="Kaydı Göster">
                             <i class="fa fa-ellipsis-h small-list-list-icon"></i>
                             <div class="card-body">
+                                <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" *ngIf="item.visit.isVisited"/>
+                                <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" *ngIf="!item.visit.isVisited"/>
                                 <div class="font-weight-500 text-dark">{{item.customerName}}</div>
                                 <div class="row">
                                     <div class="col">
@@ -50,6 +52,8 @@
                             (click)="showSelectedRecord(item)" title="Kaydı Göster">
                             <i class="fa fa-ellipsis-h small-list-list-icon"></i>
                             <div class="card-body">
+                                    <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" *ngIf="item.visit.isVisited"/>
+                                    <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" *ngIf="!item.visit.isVisited"/>
                                 <div class="font-weight-500 text-dark">{{item.customerName}}</div>
                                 <div class="row">
                                     <div class="col">
@@ -74,6 +78,8 @@
                             (click)="showSelectedRecord(item)" title="Kaydı Göster">
                             <i class="fa fa-ellipsis-h small-list-list-icon"></i>
                             <div class="card-body">
+                                    <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" *ngIf="item.visit.isVisited"/>
+                                    <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" *ngIf="!item.visit.isVisited"/>
                                 <div class="font-weight-500 text-dark">{{item.customerName}}</div>
                                 <div class="row">
                                     <div class="col">
@@ -101,6 +107,8 @@
                             (click)="showSelectedRecord(item)" title="Kaydı Göster">
                             <i class="fa fa-ellipsis-h small-list-list-icon"></i>
                                 <div class="card-body">
+                                        <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" *ngIf="item.visit.isVisited"/>
+                                        <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" *ngIf="!item.visit.isVisited"/>
                                     <div class="font-weight-500 text-dark">{{item.customerName}}</div>
                                     <div class="row">
                                         <div class="col">
@@ -140,6 +148,7 @@
                     </div>
                     <div class="col-sm-9">
                         <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
+                        [disabled]="f.valid"
                         [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
                             <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                         </select>
@@ -150,6 +159,7 @@
                     </div>
                     <div class="col-sm-3">
                         <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
+                        [disabled]="f.valid"
                         [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
                             <option value={{item.returnData.data.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
                         </select>
@@ -161,12 +171,25 @@
                     <div class="col-sm-3">
                         <div class="input-group">
                             <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
+                            [disabled]="f.valid"
                                 name="d2" #c2="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d2="ngbDatepicker">
                             <div class="input-group-append">
-                                <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i class="fa fa-calendar"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"
+                                [disabled]="f.valid"><i class="fa fa-calendar"></i></button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-left" for="isVisited">Ziyaret Durumu</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <select class="form-control form-control-sm w-100" id="isVisited" name="isVisited"
+                              [(ngModel)]="selectedRecord.visit.isVisited">
+                        <option value="true">Yapıldı</option>
+                        <option value="false">Yapılmadı</option>
+                      </select>
+                    </div>
+                    <div class="col-sm-6"></div>
                     <div class="col-sm-3">
                         <label class="col-form-label float-left" for="description">Açıklama</label>
                     </div>

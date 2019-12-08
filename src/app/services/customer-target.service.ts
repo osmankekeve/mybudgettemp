@@ -8,6 +8,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerTargetModel } from '../models/customer-target-model';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { LogService } from './log.service';
+import { getTodayForInput, getMonths } from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class CustomerTargetService {
   mainList2$: Observable<CustomerTargetModel[]>;
   tableName = 'tblCustomerTarget';
   typeMap = new Map([['monthly', 'Aylık'], ['yearly', 'Yıllık'], ['periodic', 'Periyodik']]);
+  months = getMonths();
 
   constructor(public authService: AuthenticationService,
               public logService: LogService,
@@ -50,8 +52,9 @@ export class CustomerTargetService {
     returnData.customerCode = '';
     returnData.type = 'yearly';
     returnData.isActive = true;
-    returnData.beginMonth = -1;
-    returnData.finishMonth = -1;
+    returnData.beginMonth = getTodayForInput().month;
+    returnData.finishMonth = 12;
+    returnData.year = getTodayForInput().year;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -61,6 +64,9 @@ export class CustomerTargetService {
   clearMainModel(): CustomerTargetMainModel {
     const returnData = new CustomerTargetMainModel();
     returnData.data = this.clearSubModel();
+    returnData.typeTr = 'Yıllık';
+    returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
+    returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
     returnData.typeTr = 'Yıllık';
     returnData.actionType = 'added';
     return returnData;
@@ -78,6 +84,8 @@ export class CustomerTargetService {
         returnData.data = data;
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
+        returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
+        returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -102,6 +110,8 @@ export class CustomerTargetService {
         returnData.data = data;
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
+        returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
+        returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
