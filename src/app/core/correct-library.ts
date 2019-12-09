@@ -87,6 +87,24 @@ export const getTomorrowEnd = () => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 23, 59, 59);
 };
 
+export const getBeginOfYear = (year: number) => {
+  const date = new Date();
+  if (isNullOrEmpty(year)) {
+    return new Date(date.getFullYear(), 1, 1, 0, 0, 0);
+  } else {
+    return new Date(year, 1, 1, 0, 0, 0);
+  }
+};
+
+export const getEndOfYear = (year: number) => {
+  const date = new Date();
+  if (isNullOrEmpty(year)) {
+    return new Date(date.getFullYear(), 12, 31, 23, 59, 59);
+  } else {
+    return new Date(year, 12, 31, 23, 59, 59);
+  }
+};
+
 export const getDateForInput = (value: number) => {
   if (isNullOrEmpty(value)) {
     const date = new Date();

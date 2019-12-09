@@ -7,7 +7,9 @@ import { CustomerTargetService } from '../services/customer-target.service';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
-import { getFloat, getNumber, getDateAndTime, getTodayForInput } from '../core/correct-library';
+import { getFloat, getNumber, getDateAndTime, getTodayForInput, getBeginOfYear, getEndOfYear } from '../core/correct-library';
+import { CollectionModel } from '../models/collection-model';
+import { CollectionService } from '../services/collection.service';
 
 @Component({
   selector: 'app-customer-target',
@@ -22,9 +24,10 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   selectedRecord: CustomerTargetMainModel;
   customerList$: Observable<CustomerModel[]>;
   refModel: CustomerTargetMainModel;
+  transactionList$: Observable<CollectionModel[]>;
 
   constructor(public authServis: AuthenticationService,
-              public infoService: InformationService,
+              public infoService: InformationService, public colService: CollectionService,
               public cService: CustomerService,
               public service: CustomerTargetService,
               public db: AngularFirestore) { }
@@ -86,6 +89,23 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord = record as CustomerTargetMainModel;
       this.refModel = record as CustomerTargetMainModel;
+
+      const date = new Date();
+      let beginDate = new Date();
+      let finishDate = new Date();
+      if (this.selectedRecord.data.type === 'yearly') {
+        beginDate = getBeginOfYear(getNumber(this.selectedRecord.data.year));
+        finishDate = getEndOfYear(getNumber(this.selectedRecord.data.year));
+      } else if (this.selectedRecord.data.type === 'monthly') {
+
+      } else if (this.selectedRecord.data.type === 'periodic') {
+
+      } else {
+
+      }
+
+      this.transactionList$ = this.colService.
+      getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
     } catch (error) {
       this.infoService.error(error);
     }

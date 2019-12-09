@@ -121,6 +121,12 @@ body {
   scrollbar-width: thin;
 }
 
+.work-area-4 {
+  max-height: calc(100vh - 290px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .work-area-250 {
   max-height: 250px;
   overflow: auto;
