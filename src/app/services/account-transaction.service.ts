@@ -5,6 +5,9 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
 import { getTransactionTypes, getTodayStart, getTodayEnd } from '../core/correct-library';
 import { CustomerService } from './customer.service';
+import { CustomerModel } from '../models/customer-model';
+import { map, flatMap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -58,16 +61,16 @@ export class AccountTransactionService {
     });
   }
 
-  addItem(record: AccountTransactionModel) {
-    this.listCollection.add(record);
+  async addItem(record: AccountTransactionModel) {
+    return await this.listCollection.add(record);
   }
 
-  removeItem(record: AccountTransactionModel) {
-    this.db.collection(this.tableName).doc(record.primaryKey).delete();
+  async removeItem(record: AccountTransactionModel) {
+    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
-  updateItem(record: AccountTransactionModel) {
-    this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  async updateItem(record: AccountTransactionModel) {
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
@@ -245,6 +248,22 @@ export class AccountTransactionService {
     });
     return list;
 
+  }
+
+  getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
+      return changes.map( change => {
+        const data = change.payload.doc.data() as AccountTransactionModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc('-1').valueChanges()
+        .pipe(map( (customer: CustomerModel) => {
+          return Object.assign({data, actionType: change.type}); }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
   }
 
 }

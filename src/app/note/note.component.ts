@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { NoteModel } from '../models/note-model';

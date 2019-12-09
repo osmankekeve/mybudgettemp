@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';

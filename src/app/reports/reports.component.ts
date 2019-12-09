@@ -6,7 +6,7 @@ import { CustomerService } from '../services/customer.service';
 import { CustomerModel } from '../models/customer-model';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { getFirstDayOfMonthForInput, getTodayForInput } from '../core/correct-library';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',

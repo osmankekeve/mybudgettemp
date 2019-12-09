@@ -7,7 +7,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import {
   getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel, getEncriptionKey

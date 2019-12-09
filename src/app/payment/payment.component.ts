@@ -8,7 +8,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
 import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty, getEncriptionKey
@@ -158,6 +158,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.selectedRecord = record.data as PaymentModel;
     this.refModel = record.data as PaymentModel;
     this.recordDate = getDateForInput(this.selectedRecord.insertDate);
+    console.log(this.selectedRecord);
     this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {

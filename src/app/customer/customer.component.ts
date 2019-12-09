@@ -14,7 +14,7 @@ import { PaymentModel } from '../models/payment-model';
 import { Pipe, PipeTransform } from '@angular/core';
 import { InformationService } from '../services/information.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction-service';
+import { AccountTransactionService } from '../services/account-transaction.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import {AccountVoucherModel} from '../models/account-voucher-model';
