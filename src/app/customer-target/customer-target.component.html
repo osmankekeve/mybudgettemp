@@ -305,8 +305,8 @@
           <div class="form-row">
             <div class="col-sm-12">
               <div class="card">
-                <div class="card-body bg-orange">
-                  <small class="text-danger font-weight-bold">Hedefe Özeti</small>
+                <div class="card-body bg-white">
+                  <small class="text-orange font-weight-bold">Hedef Özeti</small>
                   <table class="table mb-0 mt-1">
                     <tbody>
                     <tr>
@@ -319,16 +319,14 @@
                     </tr>
                     <tr>
                       <td>Kalan Miktar</td>
-                      <td>{{selectedRecord.data.amount - currentAmount | currency:'₺'}}</td>
+                      <td [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">{{selectedRecord.data.amount - currentAmount | currency:'₺'}}</td>
                     </tr>
                     </tbody>
                   </table>
                   <small class="float-right">Belirli hedef doğrultusunda hedefe ulaşma sonucunuzun özetidir.</small>
                 </div>
-
               </div>
             </div>
-
           </div>
         </div>
         <div class="col">
@@ -339,7 +337,7 @@
             <div class="card-body work-area-4" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table">
                 <thead>
-                <tr class="bg-warning text-light">
+                <tr class="bg-indigo text-light">
                   <th>Fiş Numarası</th>
                   <th><span class="float-right">Tutar</span></th>
                   <th><span class="float-right">Tarih</span></th>

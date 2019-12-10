@@ -132,3 +132,34 @@ body {
   overflow: auto;
   scrollbar-width: thin;
 }
+
+.bg-orange {
+  background-color: #fd7e14 !important;
+}
+.bg-yellow {
+  background-color: #ffc107 !important;
+}
+.bg-red {
+  background-color: #dc3545 !important;
+}
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+.bg-indigo {
+  background-color: #6610f2 !important;
+}
+.text-orange {
+  color: #fd7e14 !important;
+}
+.text-yellow {
+  color: #ffc107 !important;
+}
+.text-red {
+  color: #dc3545 !important;
+}
+.text-purple {
+  color: #6f42c1 !important;
+}
+.text-indigo {
+  color: #6610f2 !important;
+}

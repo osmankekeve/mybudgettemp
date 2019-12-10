@@ -90,9 +90,8 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord = record as CustomerTargetMainModel;
       this.refModel = record as CustomerTargetMainModel;
+      this.currentAmount = 0;
 
-      //TODO: tahsilatlari toplayarak gerceklesen ve kalani hesapla
-      const date = new Date();
       let beginDate = new Date();
       let finishDate = new Date();
       if (this.selectedRecord.data.type === 'yearly') {
@@ -108,6 +107,15 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
       this.transactionList$ = this.colService.
       getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
+      this.transactionList$.subscribe(list => {
+        list.forEach((item: any) => {
+          if (item.actionType === 'added') {
+            this.currentAmount += item.data.amount;
+          } else if (item.actionType === 'removed') {
+            this.currentAmount -= item.data.amount;
+          }
+        });
+      });
     } catch (error) {
       this.infoService.error(error);
     }
