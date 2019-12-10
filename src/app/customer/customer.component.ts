@@ -429,9 +429,6 @@ export class CustomerComponent implements OnInit  {
     } else if (this.openedPanel === 'target') {
       this.targetList$ = undefined;
       this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
-      this.targetList$.subscribe(list => {
-        console.log(list);
-      });
     }  else if (this.openedPanel === 'accountSummary') {
       this.totalValues = 0;
       this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef  } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
@@ -25,10 +25,11 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   customerList$: Observable<CustomerModel[]>;
   refModel: CustomerTargetMainModel;
   transactionList$: Observable<CollectionModel[]>;
+  currentAmount = 0;
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public infoService: InformationService, public colService: CollectionService,
-              public cService: CustomerService,
+              public cService: CustomerService, private elementRef: ElementRef,
               public service: CustomerTargetService,
               public db: AngularFirestore) { }
 
@@ -90,6 +91,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
       this.selectedRecord = record as CustomerTargetMainModel;
       this.refModel = record as CustomerTargetMainModel;
 
+      //TODO: tahsilatlari toplayarak gerceklesen ve kalani hesapla
       const date = new Date();
       let beginDate = new Date();
       let finishDate = new Date();
