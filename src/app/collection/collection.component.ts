@@ -47,12 +47,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
   };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: CollectionService,
-              public cdService: CashDeskService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public excelService: ExcelService,
-              public cService: CustomerService, public db: AngularFirestore) { }
+              public service: CollectionService, public cdService: CashDeskService, public atService: AccountTransactionService,
+              public infoService: InformationService, public excelService: ExcelService, public cService: CustomerService,
+              public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();

@@ -7,9 +7,19 @@ import { CustomerTargetService } from '../services/customer-target.service';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
-import { getFloat, getNumber, getDateAndTime, getTodayForInput, getBeginOfYear, getEndOfYear } from '../core/correct-library';
+import {
+  getFloat,
+  getNumber,
+  getDateAndTime,
+  getTodayForInput,
+  getBeginOfYear,
+  getEndOfYear,
+  getEncriptionKey
+} from '../core/correct-library';
 import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
+import * as CryptoJS from 'crypto-js';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-customer-target',
@@ -26,17 +36,24 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   refModel: CustomerTargetMainModel;
   transactionList$: Observable<CollectionModel[]>;
   currentAmount = 0;
+  encryptSecretKey: string = getEncriptionKey();
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public infoService: InformationService, public colService: CollectionService,
-              public cService: CustomerService,
-              public service: CustomerTargetService,
-              public db: AngularFirestore) { }
+              public cService: CustomerService, public service: CustomerTargetService, public db: AngularFirestore) { }
 
   async ngOnInit() {
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem.returnData);
+      }
+    }
   }
 
   ngOnDestroy(): void { }
@@ -121,9 +138,10 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     try {
       this.selectedRecord = undefined;
+      await this.route.navigate(['customer-target', {}]);
     } catch (error) {
       this.infoService.error(error);
     }

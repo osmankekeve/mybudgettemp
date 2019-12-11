@@ -46,7 +46,7 @@
                       <span>Bildirimler</span>
                   </div>
                   <div class="card-body bg-light panelHeightControl">
-                      <div ng-show="notificationCount > 0; else elseBlock">
+                      <div *ngIf="notificationCount > 0; else elseBlock">
                           <div class="list-group">
                               <div class="list-group-item list-group-item-action list-group-item-light"
                                   *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
@@ -66,7 +66,6 @@
                               Bidiriminiz bulunmamaktadır.
                           </div>
                       </ng-template>
-
                   </div>
                   <div class="card-footer">
                       <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
@@ -79,7 +78,7 @@
                   <span>Etkinlikler</span>
                 </div>
                 <div class="card-body bg-light panelHeightControl">
-                  <div ng-show="actionCount > 0; else elseBlock2">
+                  <div *ngIf="actionCount > 0; else elseBlock2">
                     <div class="list-group">
                       <div class="list-group-item list-group-item-action list-group-item-light"
                            *ngFor="let item of actionList; index as i; trackBy: primaryKey"
@@ -107,7 +106,7 @@
                   <span>Hatırlatıcı</span>
                 </div>
                 <div class="card-body bg-light panelHeightControl">
-                  <div ng-show="reminderCount > 0; else elseBlock3">
+                  <div *ngIf="reminderCount > 0; else elseBlock3">
                     <div class="list-group">
                       <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer" (click)="showReminder(item)"
                            *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
@@ -145,9 +144,7 @@
                           <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
                       </button>
                   </div>
-
                 </div>
-
               </div>
             </div>
     </div>

@@ -20,7 +20,8 @@
 }
 .panelHeightControl {
     max-height: 380px;
-    overflow-y: scroll
+    overflow-y: scroll;
+  scrollbar-width: thin;
 }
 
 @media (min-width: 576px) { /*xs*/

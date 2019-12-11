@@ -958,7 +958,8 @@
   <div *ngIf="openedPanel=='target'">
     <div class="card-body">
       <div class="row" *ngIf="targetList$ | async; let targetList; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of targetList; index as i; trackBy: primaryKey">
+        <div class="col-sm-4" *ngFor="let item of targetList; index as i; trackBy: primaryKey"
+             (click)="showTargetRecord(item)">
             <div class="card-list-parent">
                 <div class="card mb-2 bg-light cursor-pointer">
 
@@ -1050,7 +1051,6 @@
 
                 </div>
             </div>
-
         </div>
       </div>
       <ng-template #elseBlock>
@@ -1058,7 +1058,6 @@
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
-
     </div>
   </div>
 </div>
