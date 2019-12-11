@@ -29,7 +29,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService,
               public infoService: InformationService, public colService: CollectionService,
-              public cService: CustomerService, private elementRef: ElementRef,
+              public cService: CustomerService,
               public service: CustomerTargetService,
               public db: AngularFirestore) { }
 

@@ -1,4 +1,4 @@
-<div class="card" *ngIf="!selectedReport">
+<div class="card work-area" *ngIf="!selectedReport">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-4">
@@ -6,7 +6,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body work-area">
+    <div class="card-body">
         <div class="row">
             <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
                 <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
@@ -77,7 +77,7 @@
     </div>
 </div>
 
-<div class="card" *ngIf="selectedReport">
+<div class="card work-area" *ngIf="selectedReport">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-12">
@@ -88,7 +88,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body work-area">
+    <div class="card-body">
             <div class="card mb-2" *ngIf="isMainFilterOpened">
               <div class="card-header">Filtreler</div>
               <div class="card-body bg-light">
@@ -161,7 +161,7 @@
                                     <div class="col-sm-2"><span class="float-right">Fatura</span></div>
                                     <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">Ödeme</span></div>
                                     <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">Bakiye</span></div>
-                
+
                                 </div>
                         </div>
                     <div class="list-group-item list-group-item-action list-group-item-light"
@@ -172,7 +172,7 @@
                             <div class="col-sm-2"><span class="float-right">{{item.numberField1 | number}} ₺</span></div>
                             <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">{{item.numberField2 | number}} ₺</span></div>
                             <div class="col-sm-2" *ngIf="selectedReport == 'purchaseReport' || selectedReport == 'salesReport'"><span class="float-right">{{item.numberField3 | number}} ₺</span></div>
-        
+
                         </div>
                     </div>
                 </div>

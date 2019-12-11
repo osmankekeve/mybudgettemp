@@ -148,7 +148,7 @@
                     </div>
                     <div class="col-sm-9">
                         <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
-                        [disabled]="f.valid"
+                        [disabled]="selectedRecord.visit.primaryKey"
                         [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
                             <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                         </select>
@@ -159,7 +159,7 @@
                     </div>
                     <div class="col-sm-3">
                         <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
-                        [disabled]="f.valid"
+                        [disabled]="selectedRecord.visit.primaryKey"
                         [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
                             <option value={{item.returnData.data.primaryKey}} *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
                         </select>
@@ -171,11 +171,11 @@
                     <div class="col-sm-3">
                         <div class="input-group">
                             <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
-                            [disabled]="f.valid"
+                            [disabled]="selectedRecord.visit.primaryKey"
                                 name="d2" #c2="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d2="ngbDatepicker">
                             <div class="input-group-append">
                                 <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"
-                                [disabled]="f.valid"><i class="fa fa-calendar"></i></button>
+                                [disabled]="selectedRecord.visit.primaryKey"><i class="fa fa-calendar"></i></button>
                             </div>
                         </div>
                     </div>
