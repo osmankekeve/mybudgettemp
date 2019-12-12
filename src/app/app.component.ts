@@ -79,9 +79,9 @@ export class AppComponent implements OnInit {
       .then(res => {
         this.userDetails = undefined;
         this.employeeDetail = undefined;
-        localStorage.removeItem('user');
-        localStorage.removeItem('employee');
-        localStorage.clear();
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('employee');
+        sessionStorage.clear();
       }, err => {
         this.infoService.error(err.message);
       });

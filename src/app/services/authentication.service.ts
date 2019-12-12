@@ -17,9 +17,9 @@ export class AuthenticationService {
   ) {
     this.angularFireAuth.authState.subscribe(userResponse => {
       if (userResponse) {
-        localStorage.setItem('user', JSON.stringify(userResponse));
+        sessionStorage.setItem('user', JSON.stringify(userResponse));
       } else {
-        localStorage.setItem('user', null);
+        sessionStorage.setItem('user', null);
       }
     });
   }
@@ -45,15 +45,15 @@ export class AuthenticationService {
   }
 
   isUserLoggedIn() {
-    if (localStorage.getItem('user')) {
-      return JSON.parse(localStorage.getItem('user'));
+    if (sessionStorage.getItem('user')) {
+      return JSON.parse(sessionStorage.getItem('user'));
     } else {
       return null;
     }
   }
 
   isEmployeeLoggedIn() {
-    return JSON.parse(localStorage.getItem('employee'));
+    return JSON.parse(sessionStorage.getItem('employee'));
   }
 
   async loginWithGoogle() {
@@ -61,12 +61,12 @@ export class AuthenticationService {
   }
 
   public getUid(): string {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(sessionStorage.getItem('user'));
     return user.uid;
   }
 
   public getEid(): string {
-    const user = JSON.parse(localStorage.getItem('employee')) as ProfileMainModel;
+    const user = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
     return user.data.primaryKey;
   }
 
@@ -106,11 +106,11 @@ export class AuthenticationService {
               returnData.typeTr = 'Kullanıcı';
             }
             returnData.data = data;
-            localStorage.setItem('employee', JSON.stringify(returnData));
+            sessionStorage.setItem('employee', JSON.stringify(returnData));
             resolve(doc.id);
           });
         } else {
-          localStorage.setItem('employee', null);
+          sessionStorage.setItem('employee', null);
           resolve(null);
         }
       });
