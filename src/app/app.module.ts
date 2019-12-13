@@ -20,6 +20,8 @@ import { AgmCoreModule } from '@agm/core';
 import { LocationDataFilterPipe } from './filters/location-data-filter.pipe';
 import { ProfileFilterPipe } from './filters/profile-filter.pipe';
 import { ExcelService } from './services/excel-service';
+import {LogService} from './services/log.service';
+import {AuthenticationService} from './services/authentication.service';
 
 
 @NgModule({
@@ -49,6 +51,8 @@ import { ExcelService } from './services/excel-service';
   ],
   providers: [
     InformationService,
+    LogService,
+    AuthenticationService,
     ExcelService
   ],
   bootstrap: [AppComponent]

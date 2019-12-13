@@ -14,8 +14,8 @@ export class LogService {
   mainList$: Observable<LogModel[]>;
   tableName = 'tblLogs';
 
-  constructor(public authServis: AuthenticationService,
-              public db: AngularFirestore) {
+  constructor(protected authService: AuthenticationService,
+              protected db: AngularFirestore) {
 
   }
 
@@ -25,7 +25,10 @@ export class LogService {
 
   getNotificationsBetweenDates(startDate: Date, endDate: Date): Observable < LogModel[] > {
    this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()).where('isActive', '==', true)
+    ref => ref.orderBy('insertDate')
+      .where('userPrimaryKey', '==', this.authService.getUid())
+      .where('isActive', '==', true)
+      .where('type', '==', 'notification')
     .startAt(startDate.getTime()).endAt(endDate.getTime()));
    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
    return changes.map( change => {
@@ -38,13 +41,13 @@ export class LogService {
    return this.mainList$;
  }
 
- async sendToLog(record: any, proccess: string, systemModule: string) {
+ async sendToLog(record: any, action: string, systemModule: string) {
    // main model mantigindaki modellerde problem olusuyor. main model icerisindeki modelden primary keyler alamiyor.
    const item = new LogModel();
    item.parentType = systemModule;
    item.parentPrimaryKey = record.primaryKey;
    item.type = 'notification';
-   item.userPrimaryKey = this.authServis.getUid();
+   item.userPrimaryKey = this.authService.getUid();
    item.isActive = true;
    item.insertDate = Date.now();
    if (systemModule === 'salesInvoice') {
@@ -89,15 +92,27 @@ export class LogService {
 
    }
 
-   if (proccess === 'insert') {
+   if (action === 'insert') {
      item.log += 'oluşturuldu.';
-   }  else if (proccess === 'update') {
+   }  else if (action === 'update') {
     item.log += 'güncellendi.';
-   } else if (proccess === 'delete') {
+   } else if (action === 'delete') {
     item.log += 'kaldırıldı.';
    } else {
      //
    }
+   return await this.setItem(item);
+ }
+
+ async addToLog(parentType: string, primaryKey: string, type: string, userPrimaryKey: string, log: string) {
+   const item = new LogModel();
+   item.parentType = parentType;
+   item.parentPrimaryKey = primaryKey;
+   item.type = type;
+   item.userPrimaryKey = userPrimaryKey;
+   item.isActive = true;
+   item.log = log;
+   item.insertDate = Date.now();
    return await this.setItem(item);
  }
 
@@ -107,7 +122,7 @@ export class LogService {
 
  getMainItems(): Observable<LogModel[]> {
    this.listCollection = this.db.collection(this.tableName,
-   ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+   ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
      return changes.map( change => {
        const data = change.payload.doc.data() as LogModel;
@@ -123,7 +138,7 @@ export class LogService {
  getNotifications(startDate: Date, endDate: Date): Observable<LogModel[]> {
    this.listCollection = this.db.collection(this.tableName,
    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-   .where('type', '==', 'notification').where('userPrimaryKey', '==', this.authServis.getUid()));
+   .where('type', '==', 'notification').where('userPrimaryKey', '==', this.authService.getUid()));
    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
      return changes.map( change => {
        const data = change.payload.doc.data() as LogModel;

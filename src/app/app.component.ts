@@ -75,6 +75,7 @@ export class AppComponent implements OnInit {
 
   // SignOut Firebase Session and Clean LocalStorage
   logoutUser() {
+    this.logService.addToLog('employee', this.authService.getEid(), 'logout', this.authService.getUid(), '');
     this.authService.logout()
       .then(res => {
         this.userDetails = undefined;
@@ -260,6 +261,7 @@ export class AppComponent implements OnInit {
     const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
     if (data) {
       this.isEmployeeLoggedIn();
+      await this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
       this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
     } else {
       this.infoService.error('Kullanıcı sistemde kayıtlı değil');

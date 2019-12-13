@@ -15,11 +15,10 @@ import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 export class CollectionService {
   listCollection: AngularFirestoreCollection<CollectionModel>;
   mainList$: Observable<CollectionModel[]>;
-  listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
   tableName = 'tblCollection';
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public logService: LogService,
               public db: AngularFirestore) {
 
@@ -27,28 +26,28 @@ export class CollectionService {
 
   getAllItems(): Observable<CollectionModel[]> {
     this.listCollection = this.db.collection<CollectionModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
     return this.mainList$;
   }
 
   async addItem(record: CollectionModel) {
-    this.logService.sendToLog(record, 'insert', 'collection');
+    await this.logService.sendToLog(record, 'insert', 'collection');
     return await this.listCollection.add(record);
   }
 
   async removeItem(record: CollectionModel) {
-    this.logService.sendToLog(record, 'delete', 'collection');
+    await this.logService.sendToLog(record, 'delete', 'collection');
     return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: CollectionModel) {
-    this.logService.sendToLog(record, 'update', 'collection');
+    await this.logService.sendToLog(record, 'update', 'collection');
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   async setItem(record: CollectionModel, primaryKey: string) {
-    this.logService.sendToLog(record, 'insert', 'collection');
+    await this.logService.sendToLog(record, 'insert', 'collection');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
@@ -83,7 +82,7 @@ export class CollectionService {
 
   getMainItems(): Observable<CollectionModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;
@@ -99,7 +98,7 @@ export class CollectionService {
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CollectionModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authServis.getUid()));
+        .where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CollectionModel;
@@ -117,7 +116,7 @@ export class CollectionService {
       ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-          .where('userPrimaryKey', '==', this.authServis.getUid());
+          .where('userPrimaryKey', '==', this.authService.getUid());
         if (customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
         }

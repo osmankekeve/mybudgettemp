@@ -3,17 +3,18 @@ import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import {ProfileModel} from '../models/profile-model';
+import { ProfileModel } from '../models/profile-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import { ProfileService } from './profile.service';
+import { LogService } from './log.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthenticationService {
 
-  constructor(public angularFireAuth: AngularFireAuth,
-              public db: AngularFirestore
+  constructor(protected angularFireAuth: AngularFireAuth,
+              protected db: AngularFirestore
   ) {
     this.angularFireAuth.authState.subscribe(userResponse => {
       if (userResponse) {
