@@ -20,40 +20,27 @@ import { AgmCoreModule } from '@agm/core';
 import { LocationDataFilterPipe } from './filters/location-data-filter.pipe';
 import { ProfileFilterPipe } from './filters/profile-filter.pipe';
 import { ExcelService } from './services/excel-service';
-import {LogService} from './services/log.service';
-import {AuthenticationService} from './services/authentication.service';
+import { LogService } from './services/log.service';
+import { AuthenticationService } from './services/authentication.service';
+import { CookieService } from 'ngx-cookie-service';
 
 
 @NgModule({
   declarations: [
-    AppComponent,
-    routingComponents,
-    NavBarComponent,
-    SideNavBarComponent,
-    CustomerDataFilterPipe,
-    CustomerFilterPipe,
-    LocationDataFilterPipe,
+    AppComponent, routingComponents,
+    NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
     ProfileFilterPipe
   ],
   imports: [
-    NgbModule,
-    BrowserModule,
-    FormsModule,
-    AppRoutingModule,
-    AngularFireModule.initializeApp(environment.firebase),
-    AngularFireAuthModule,
-    AngularFirestoreModule.enablePersistence(),
-    AngularFireStorageModule,
-    AngularFontAwesomeModule,
+    NgbModule, BrowserModule, FormsModule, AppRoutingModule,
+    AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
+    AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
     })
   ],
   providers: [
-    InformationService,
-    LogService,
-    AuthenticationService,
-    ExcelService
+    InformationService, CookieService, LogService, AuthenticationService, ExcelService
   ],
   bootstrap: [AppComponent]
 })

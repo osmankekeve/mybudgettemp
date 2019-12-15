@@ -1,152 +1,167 @@
 <div *ngIf="userDetails && employeeDetail">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
     <div class="container-fluid">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-            </button>
-            <a class="navbar-brand" href="#">My Budget Web</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
+              aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <a class="navbar-brand" href="#">My Budget Web</a>
 
-            <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-              <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
 
-              </ul>
-              <form class="form-inline my-2 my-lg-0">
-                  <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
-                    <li class="nav-item dropdown cursor-pointer">
-                      <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
-                        <i class="fa fa-2x fa-globe text-white mr-1"></i>
-                        <span class="notification text-white">{{actionCount}}</span>
-                      </a>
-                    </li>
-                    <li class="nav-item dropdown cursor-pointer">
-                      <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
-                        <i class="fa fa-2x fa-fw fa-bell text-white"></i>
-                        <span class="notification text-white">{{notificationCount}}</span>
-                      </a>
-                    </li>
-                    <li class="nav-item dropdown cursor-pointer">
-                      <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
-                        <i class="fa fa-2x fa-fw fa-clock-o text-white"></i>
-                        <span class="notification text-white">{{reminderCount}}</span>
-                      </a>
-                    </li>
-                    <li class="nav-item dropdown cursor-pointer">
-                      <a class="nav-link" (click)="showProfilePanel=true" title="Profil">
-                        <i class="fa fa-2x fa-user-circle text-white material-icons"></i>
-                      </a>
-                    </li>
-                  </ul>
-                  <button type="button" class="btn btn-danger" (click)="logoutUser()">
-                    <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
-                  </button>
-              </form>
-              <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
-                  <div class="card-header bg-warning text-wight">
-                    <i class="fa fa-fw fa-bell material-icons mr-1"></i>
-                      <span>Bildirimler</span>
-                  </div>
-                  <div class="card-body bg-light panelHeightControl">
-                      <div *ngIf="notificationCount > 0; else elseBlock">
-                          <div class="list-group">
-                              <div class="list-group-item list-group-item-action list-group-item-light"
-                                  *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
-                                  style="font-size: 85%">
-                                  <div class="row">
-                                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute" (click)="setNotificationToPassive(item)">
-                                      <i class="fa fa-fw fa-times text-danger"></i>
-                                    </a>
-                                      <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
-                                      <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      <ng-template #elseBlock>
-                          <div class="alert alert-danger" role="alert">
-                              Bidiriminiz bulunmamaktadır.
-                          </div>
-                      </ng-template>
-                  </div>
-                  <div class="card-footer">
-                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri Temizle</button>
-                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat</button>
-                  </div>
-              </div>
-              <div class="card notificationHeaderPanel" *ngIf="showActionPanel==true" (mouseleave)="showActionPanel=false">
-                <div class="card-header bg-warning text-wight">
-                  <i class="fa fa-globe material-icons mr-1"></i>
-                  <span>Etkinlikler</span>
-                </div>
-                <div class="card-body bg-light panelHeightControl">
-                  <div *ngIf="actionCount > 0; else elseBlock2">
-                    <div class="list-group">
-                      <div class="list-group-item list-group-item-action list-group-item-light"
-                           *ngFor="let item of actionList; index as i; trackBy: primaryKey"
-                           style="font-size: 85%">
-                        <div class="row">
-                          <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute" (click)="setNotificationToPassive(item)">
-                            <i class="fa fa-fw fa-times text-danger"></i>
-                          </a>
-                          <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</label>
-                          <label class="col-sm-12"><small class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <ng-template #elseBlock2>
-                    <div class="alert alert-danger" role="alert">
-                      Etkinliğiniz bulunmamaktadır.
-                    </div>
-                  </ng-template>
-                </div>
-              </div>
-              <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true" (mouseleave)="showReminderPanel=false">
-                <div class="card-header bg-warning text-wight">
-                  <i class="fa fa-globe material-icons mr-1"></i>
-                  <span>Hatırlatıcı</span>
-                </div>
-                <div class="card-body bg-light panelHeightControl">
-                  <div *ngIf="reminderCount > 0; else elseBlock3">
-                    <div class="list-group">
-                      <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer" (click)="showReminder(item)"
-                           *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
-                           style="font-size: 85%">
-                        <div class="row">
-                          <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</label>
-                          <label class="col-sm-6"><small class="float-left font-weight-bold">{{item.employeeName}}</small></label>
-                          <label class="col-sm-6"><small class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <ng-template #elseBlock3>
-                    <div class="alert alert-danger" role="alert">
-                      Hatırlatıcı bulunmamaktadır.
-                    </div>
-                  </ng-template>
-                </div>
-              </div>
-              <div class="card notificationHeaderPanel" *ngIf="showProfilePanel==true" (mouseleave)="showProfilePanel=false">
-                <div class="card">
-                  <div class="card-body bg-light">
-                      <div class="list-group">
-                          <a routerLink="/profile" class="list-group-item list-group-item-action list-group-item-light">
-                            <i class="fa fa-user-circle text-danger material-icons mr-1"></i> Profil
-                          </a>
-                        <a routerLink="/company" class="list-group-item list-group-item-action list-group-item-light">
-                          <i class="fa fa-building text-danger material-icons mr-1"></i> Firma
-                        </a>
-                          <a routerLink="/setting" class="list-group-item list-group-item-action list-group-item-light">Ayarlar</a>
-                      </div>
-                  </div>
-                  <div class="card-footer">
-                      <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="logoutUser()">
-                          <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
-                      </button>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
+            <li class="nav-item dropdown cursor-pointer">
+              <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
+                <i class="fa fa-2x fa-globe text-white mr-1"></i>
+                <span class="notification text-white">{{actionCount}}</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown cursor-pointer">
+              <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
+                <i class="fa fa-2x fa-fw fa-bell text-white"></i>
+                <span class="notification text-white">{{notificationCount}}</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown cursor-pointer">
+              <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
+                <i class="fa fa-2x fa-fw fa-clock-o text-white"></i>
+                <span class="notification text-white">{{reminderCount}}</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown cursor-pointer">
+              <a class="nav-link" (click)="showProfilePanel=true" title="Profil">
+                <i class="fa fa-2x fa-user-circle text-white material-icons"></i>
+              </a>
+            </li>
+          </ul>
+          <button type="button" class="btn btn-danger" (click)="logoutUser()">
+            <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
+          </button>
+        </form>
+        <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true"
+             (mouseleave)="showNotificationPanel=false">
+          <div class="card-header bg-warning text-wight">
+            <i class="fa fa-fw fa-bell material-icons mr-1"></i>
+            <span>Bildirimler</span>
+          </div>
+          <div class="card-body bg-light panelHeightControl">
+            <div *ngIf="notificationCount > 0; else elseBlock">
+              <div class="list-group">
+                <div class="list-group-item list-group-item-action list-group-item-light"
+                     *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
+                     style="font-size: 85%">
+                  <div class="row">
+                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
+                       (click)="setNotificationToPassive(item)">
+                      <i class="fa fa-fw fa-times text-danger"></i>
+                    </a>
+                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
+                    <label class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>
                   </div>
                 </div>
               </div>
             </div>
+            <ng-template #elseBlock>
+              <div class="alert alert-danger" role="alert">
+                Bidiriminiz bulunmamaktadır.
+              </div>
+            </ng-template>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="fa fa-trash mr-2"></i>Bildirimleri
+              Temizle
+            </button>
+            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
+                    (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
+            </button>
+          </div>
+        </div>
+        <div class="card notificationHeaderPanel" *ngIf="showActionPanel==true" (mouseleave)="showActionPanel=false">
+          <div class="card-header bg-warning text-wight">
+            <i class="fa fa-globe material-icons mr-1"></i>
+            <span>Etkinlikler</span>
+          </div>
+          <div class="card-body bg-light panelHeightControl">
+            <div *ngIf="actionCount > 0; else elseBlock2">
+              <div class="list-group">
+                <div class="list-group-item list-group-item-action list-group-item-light"
+                     *ngFor="let item of actionList; index as i; trackBy: primaryKey"
+                     style="font-size: 85%">
+                  <div class="row">
+                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
+                       (click)="setNotificationToPassive(item)">
+                      <i class="fa fa-fw fa-times text-danger"></i>
+                    </a>
+                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</label>
+                    <label class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #elseBlock2>
+              <div class="alert alert-danger" role="alert">
+                Etkinliğiniz bulunmamaktadır.
+              </div>
+            </ng-template>
+          </div>
+        </div>
+        <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true"
+             (mouseleave)="showReminderPanel=false">
+          <div class="card-header bg-warning text-wight">
+            <i class="fa fa-globe material-icons mr-1"></i>
+            <span>Hatırlatıcı</span>
+          </div>
+          <div class="card-body bg-light panelHeightControl">
+            <div *ngIf="reminderCount > 0; else elseBlock3">
+              <div class="list-group">
+                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                     (click)="showReminder(item)"
+                     *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
+                     style="font-size: 85%">
+                  <div class="row">
+                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</label>
+                    <label class="col-sm-6"><small
+                      class="float-left font-weight-bold">{{item.employeeName}}</small></label>
+                    <label class="col-sm-6"><small
+                      class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="alert alert-danger" role="alert">
+                Hatırlatıcı bulunmamaktadır.
+              </div>
+            </ng-template>
+          </div>
+        </div>
+        <div class="card notificationHeaderPanel" *ngIf="showProfilePanel==true" (mouseleave)="showProfilePanel=false">
+          <div class="card">
+            <div class="card-body bg-light">
+              <div class="list-group">
+                <a routerLink="/profile" class="list-group-item list-group-item-action list-group-item-light">
+                  <i class="fa fa-user-circle text-danger material-icons mr-1"></i> Profil
+                </a>
+                <a routerLink="/company" class="list-group-item list-group-item-action list-group-item-light">
+                  <i class="fa fa-building text-danger material-icons mr-1"></i> Firma
+                </a>
+                <a routerLink="/setting"
+                   class="list-group-item list-group-item-action list-group-item-light">Ayarlar</a>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="logoutUser()">
+                <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 </div>
@@ -174,74 +189,86 @@
 <div class="container pt-2" *ngIf="!userDetails">
   <div class="row">
     <div class="col-sm-8">
-        <div class="card" hidden>
-          <!-- When Uses is Not Logged In -->
-          <div class="card-body">
-            <div class="row">
-              <div class="col-sm-12 text-center">
-                <div class="btn-group">
-                  <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'login' }"
-                    (click)="onValChange('login')"><strong>Login</strong></button>
-                  <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'register' }"
-                    (click)="onValChange('register')"><strong>Register</strong></button>
-                </div>
+      <div class="card" hidden>
+        <!-- When Uses is Not Logged In -->
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-12 text-center">
+              <div class="btn-group">
+                <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'login' }"
+                        (click)="onValChange('login')"><strong>Login</strong></button>
+                <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'register' }"
+                        (click)="onValChange('register')"><strong>Register</strong></button>
               </div>
             </div>
+          </div>
 
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" [(ngModel)]="emailInput" id="email" placeholder="Email">
-            </div>
-            <div class="form-group" *ngIf="!isForgotPassword">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" [(ngModel)]="passwordInput" id="password" placeholder="Password">
-            </div>
-            <div class="form-group" *ngIf="!isForgotPassword">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="emailInput" id="email" placeholder="Email">
+          </div>
+          <div class="form-group" *ngIf="!isForgotPassword">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" [(ngModel)]="passwordInput" id="password"
+                   placeholder="Password">
+          </div>
+          <div class="form-group" *ngIf="!isForgotPassword">
 
               <span *ngIf="selectedVal == 'login'; else elseBlock">
-                <button type="button" class="btn btn-sm btn-primary" (click)="loginUser()">Log In</button>
+                <button type="button" class="btn btn-sm btn-primary" (click)="btnLoginUser_Click()">Log In</button>
               </span>
-              <ng-template #elseBlock>
-                <button type="button" class="btn btn-sm btn-primary" (click)="registerUser()">Register</button>
-              </ng-template>
-              &nbsp;
-              &nbsp;
-              &nbsp;
-              <a href="javascript:void(0)" (click)="this.isForgotPassword= true;">Forgot Password?</a>
+            <ng-template #elseBlock>
+              <button type="button" class="btn btn-sm btn-primary" (click)="registerUser()">Register</button>
+            </ng-template>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            <a href="javascript:void(0)" (click)="this.isForgotPassword= true;">Forgot Password?</a>
 
-            </div>
-            <div class="form-group" *ngIf="isForgotPassword">
-              <button type="button" class="btn btn-sm" (click)="this.isForgotPassword=false;">Cancel</button>
-              <button type="button" class="btn btn-sm btn-primary" (click)="forgotPassword()">Get email to reset passowrd</button>
-            </div>
-            <div class="form-group text-center">
-              <img src="../assets/images/googlebtn.png" alt="" srcset="" (click)="googleLogin()" style="cursor: pointer;">
-            </div>
+          </div>
+          <div class="form-group" *ngIf="isForgotPassword">
+            <button type="button" class="btn btn-sm" (click)="this.isForgotPassword=false;">Cancel</button>
+            <button type="button" class="btn btn-sm btn-primary" (click)="forgotPassword()">Get email to reset
+              passowrd
+            </button>
+          </div>
+          <div class="form-group text-center">
+            <img src="../assets/images/googlebtn.png" alt="" srcset="" (click)="googleLogin()" style="cursor: pointer;">
           </div>
         </div>
+      </div>
     </div>
     <div class="col-sm-4">
       <div class="card" style="border-radius: 25px;">
         <div class="card-body">
-            <div class="text-center">
-                <div style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
-                    <div style="font-size: 57px">#</div>
-                </div>
-                <h4>My Budget</h4>
+          <div class="text-center">
+            <div
+              style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
+              <div style="font-size: 57px">#</div>
             </div>
-            <div class="form-group">
-                <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="emailInput" id="companyEmail" placeholder="Firma Mail Adresi">
-            </div>
-            <div class="form-group">
-                <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="passwordInput" id="companyPassword" placeholder="Şifre">
-            </div>
-            <div class="form-group">
-                <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block" (click)="loginUser()">Sistem Girişi</button>
-            </div>
+            <h4>My Budget</h4>
+          </div>
+          <div class="form-group">
+            <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="emailInput"
+                   id="companyEmail" placeholder="Firma Mail Adresi">
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="passwordInput"
+                   id="companyPassword" placeholder="Şifre">
+          </div>
+          <div class="form-group form-check">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" [(ngModel)]="isCMAChecked">Mail Adresini Hatırla.
+            </label>
+          </div>
+          <div class="form-group">
+            <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block"
+                    (click)="btnLoginUser_Click()">Sistem Girişi
+            </button>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 <div class="container pt-2" *ngIf="userDetails && !employeeDetail">
@@ -250,29 +277,41 @@
 
     </div>
     <div class="col-sm-4">
-        <div class="card" style="border-radius: 25px;">
-          <div class="card-body">
-              <div class="text-center">
-                  <div style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
-                      <div style="font-size: 57px">#</div>
-                  </div>
-                  <h4>My Budget</h4>
-                  <h6>Sistem girişiniz tamamlandı, lütfen kullanıcı girişinizi yapınız.</h6>
-              </div>
-              <div class="form-group">
-                  <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeeEmail" id="employeeEmail" placeholder="Kullanıcı Mail Adresi">
-              </div>
-              <div class="form-group">
-                  <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeePassword" id="employeePassword" placeholder="Şifre">
-              </div>
-              <div class="form-group">
-                  <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block" (click)="btnLoginEmployee_Click()">Kullanıcı Girişi</button>
-              </div>
-              <div class="form-group">
-                  <button type="button p-4" style="border-radius: 25px;" class="btn btn-danger btn-block" (click)="logoutUser()">Sistem Çıkış</button>
-              </div>
+      <div class="card" style="border-radius: 25px;">
+        <div class="card-body">
+          <div class="text-center">
+            <div
+              style="width:100px; height:100px;margin-right:auto; margin-left:auto; padding:10px; border:1px solid #ccc; border-radius:50px;text-align:center">
+              <div style="font-size: 57px">#</div>
+            </div>
+            <h4>My Budget</h4>
+            <h6>Sistem girişiniz tamamlandı, lütfen kullanıcı girişinizi yapınız.</h6>
+          </div>
+          <div class="form-group">
+            <input type="email" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeeEmail"
+                   id="employeeEmail" placeholder="Kullanıcı Mail Adresi">
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control p-4" style="border-radius: 25px;" [(ngModel)]="employeePassword"
+                   id="employeePassword" placeholder="Şifre">
+          </div>
+          <div class="form-group form-check">
+            <label class="form-check-label">
+              <input type="checkbox" class="form-check-input" [(ngModel)]="isEMAChecked">Mail Adresini Hatırla.
+            </label>
+          </div>
+          <div class="form-group">
+            <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block"
+                    (click)="btnLoginEmployee_Click()">Kullanıcı Girişi
+            </button>
+          </div>
+          <div class="form-group">
+            <button type="button p-4" style="border-radius: 25px;" class="btn btn-danger btn-block"
+                    (click)="logoutUser()">Sistem Çıkış
+            </button>
           </div>
         </div>
+      </div>
     </div>
   </div>
 </div>

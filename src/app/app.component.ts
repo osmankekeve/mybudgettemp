@@ -3,13 +3,12 @@ import { AuthenticationService } from './services/authentication.service';
 import { LogModel } from './models/log-model';
 import { LogService } from './services/log.service';
 import { InformationService } from './services/information.service';
-import {CustomerRelationService} from './services/crm.service';
-import {CustomerRelationModel} from './models/customer-relation-model';
-import {getDateAndTime, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
-import {ReminderService} from './services/reminder.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {ReminderModel} from './models/reminder-model';
+import { CustomerRelationService } from './services/crm.service';
+import { CustomerRelationModel } from './models/customer-relation-model';
+import {getBool, getString, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
+import { ReminderService } from './services/reminder.service';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
@@ -23,7 +22,7 @@ export class AppComponent implements OnInit {
 
   title = 'MyBudgetWeb';
   selectedVal: string;
-  emailInput: string;
+  emailInput = '';
   passwordInput: string;
   isForgotPassword: boolean;
   userDetails: any;
@@ -37,16 +36,31 @@ export class AppComponent implements OnInit {
   employeeDetail: any;
   employeeEmail: string;
   employeePassword: string;
+  isCMAChecked = false;
+  cookieCMA = ''; // Company Mail Address
+  isEMAChecked = false;
+  cookieEMA = ''; // Company Mail Address
 
   constructor(
-    private authService: AuthenticationService, public infoService: InformationService, public router: Router,
-    private logService: LogService, private remService: ReminderService, public crmService: CustomerRelationService
+    private authService: AuthenticationService, private infoService: InformationService, private router: Router,
+    private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
+    private cookieService: CookieService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
   }
 
   ngOnInit() {
+    if (this.cookieService.check('cookieCMA')) {
+      const cookieCMA: string = getString(this.cookieService.get('cookieCMA'));
+      this.emailInput = cookieCMA;
+      this.isCMAChecked = true;
+    }
+    if (this.cookieService.check('cookieEMA')) {
+      const cookieEMA: string = getString(this.cookieService.get('cookieEMA'));
+      this.employeeEmail = cookieEMA;
+      this.isEMAChecked = true;
+    }
     this.isUserLoggedIn();
   }
 
@@ -75,7 +89,6 @@ export class AppComponent implements OnInit {
 
   // SignOut Firebase Session and Clean LocalStorage
   logoutUser() {
-    this.logService.addToLog('employee', this.authService.getEid(), 'logout', this.authService.getUid(), '');
     this.authService.logout()
       .then(res => {
         this.userDetails = undefined;
@@ -89,12 +102,15 @@ export class AppComponent implements OnInit {
   }
 
   // Login user with  provided Email/ Password
-  loginUser() {
+  btnLoginUser_Click() {
     this.authService.login(this.emailInput, this.passwordInput)
       .then(res => {
         this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
         this.populateActivityList();
+        if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
+          this.cookieService.set('cookieCMA', this.emailInput);
+        }
       }, err => {
         this.infoService.error(err.message);
       });
@@ -261,6 +277,9 @@ export class AppComponent implements OnInit {
     const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
     if (data) {
       this.isEmployeeLoggedIn();
+      if (!this.cookieService.check('cookieEMA') && this.isEMAChecked) {
+        this.cookieService.set('cookieEMA', this.employeeEmail);
+      }
       await this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
       this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
     } else {
