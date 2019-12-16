@@ -36,7 +36,7 @@ export class ProfileService {
   }
 
   async getItem(record: ProfileMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey);
+    return this.db.collection(this.tableName).doc(record.data.primaryKey);
   }
 
   clearProfileModel(): ProfileModel {
