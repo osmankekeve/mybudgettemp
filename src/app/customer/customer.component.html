@@ -23,13 +23,17 @@
   </div>
   <div class="card-body">
     <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="card mb-2 bg-light cursor-pointer"
-           *ngFor="let customer of mainList | filterDataCustomer : searchText; index as i; trackBy: primaryKey"
-           (click)="showSelectedCustomer(customer)">
-        <div class="card-body">
-          <div class="font-weight-500 text-dark">{{i + 1}}) {{customer.data.name}}</div>
-          <div class="text-small text-dark">{{customer.data.owner}}</div>
+      <div class="row">
+        <div class="col-sm-6"
+             *ngFor="let customer of mainList | filterDataCustomer : searchText; index as i; trackBy: primaryKey">
+          <div class="card mb-2 bg-light cursor-pointer"
+               (click)="showSelectedCustomer(customer)">
+            <div class="card-body">
+              <div class="font-weight-500 text-dark">{{i + 1}}) {{customer.data.name}}</div>
+              <div class="text-small text-dark">{{customer.data.owner}}</div>
 
+            </div>
+          </div>
         </div>
       </div>
     </div>
