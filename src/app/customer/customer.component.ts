@@ -26,7 +26,7 @@ import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { getEncriptionKey } from '../core/correct-library';
+import {getEncriptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
@@ -70,6 +70,8 @@ export class CustomerComponent implements OnInit {
   visitList$: Observable<VisitMainModel[]>;
   targetList$: Observable<CustomerTargetMainModel[]>;
   encryptSecretKey: string = getEncriptionKey();
+  isMainFilterOpened = false;
+  isActive = false;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
@@ -375,6 +377,23 @@ export class CustomerComponent implements OnInit {
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
+  }
+
+  btnMainFilter_Click(): void {
+    this.populateCustomerList();
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  clearMainFiler(): void {
+    this.isActive = true;
   }
 
   clearSelectedCustomer(): void {

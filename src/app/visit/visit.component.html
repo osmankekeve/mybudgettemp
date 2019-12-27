@@ -185,8 +185,8 @@
                     <div class="col-sm-3">
                       <select class="form-control form-control-sm w-100" id="isVisited" name="isVisited"
                               [(ngModel)]="selectedRecord.visit.isVisited">
-                        <option value="true">Yapıldı</option>
-                        <option value="false">Yapılmadı</option>
+                        <option [ngValue]="true">Yapıldı</option>
+                        <option [ngValue]="false">Yapılmadı</option>
                       </select>
                     </div>
                     <div class="col-sm-6"></div>

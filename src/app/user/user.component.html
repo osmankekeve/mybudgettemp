@@ -110,12 +110,12 @@
                         <div class="col-sm-9">
                           <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
                                   [(ngModel)]="selectedRecord.data.isActive">
-                            <option value="true">Aktif</option>
-                            <option value="false">Pasif</option>
+                            <option [ngValue]="true">Aktif</option>
+                            <option [ngValue]="false">Pasif</option>
                           </select>
                         </div>
                         <div class="col-sm-3">
-                            <label class="col-form-label float-left" for="actionDate">Doğum Tarihi</label>
+                            <label class="col-form-label float-left">Doğum Tarihi</label>
                         </div>
                         <div class="col-sm-9">
                             <div class="input-group">
