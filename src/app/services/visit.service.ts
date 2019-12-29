@@ -44,7 +44,7 @@ export class VisitService {
   }
 
   async updateItem(record: VisitMainModel) {
-    this.logService.sendToLog(record, 'update', 'visit');
+    await this.logService.sendToLog(record, 'update', 'visit');
     return await this.db.collection(this.tableName).doc(record.visit.primaryKey).update(record.visit);
   }
 

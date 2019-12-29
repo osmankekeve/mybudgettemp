@@ -179,7 +179,7 @@
                 <option value={{item.primaryKey}}
                         *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
               </select>
-              <div class="invalid-feedback invalid-inpput-info">Lütfen müşteri seçiniz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
             </div>
             <div class="col-sm-6">
               <label class="col-form-label float-left" for="type">Hedef Tipi</label>
@@ -193,7 +193,7 @@
                 <option value="yearly">Yıllık</option>
                 <option value="periodic">Periodic</option>
               </select>
-              <div class="invalid-feedback invalid-inpput-info">Lütfen tip seçiniz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
             </div>
             <div class="col-sm-6">
               <label class="col-form-label float-left" for="type">Yıl</label>
@@ -208,7 +208,7 @@
                 <option value="2021">2021</option>
                 <option value="2022">2022</option>
               </select>
-              <div class="invalid-feedback invalid-inpput-info">Yıl seçiniz.</div>
+              <div class="invalid-feedback invalid-input-info">Yıl seçiniz.</div>
             </div>
             <div class="col-sm-12"
                  *ngIf="selectedRecord.data.type == 'periodic' || selectedRecord.data.type == 'monthly'; else elseBlock1">
@@ -236,7 +236,7 @@
                     <option value="11">11</option>
                     <option value="12">12</option>
                   </select>
-                  <div class="invalid-feedback invalid-inpput-info">Başlangıç ayı seçiniz.</div>
+                  <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
                 </div>
               </div>
             </div>
@@ -268,7 +268,7 @@
                     <option value="11">11</option>
                     <option value="12">12</option>
                   </select>
-                  <div class="invalid-feedback invalid-inpput-info">Başlangıç ayı seçiniz.</div>
+                  <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
                 </div>
               </div>
             </div>
@@ -282,7 +282,7 @@
               <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" required
                      step="any"
                      [(ngModel)]="selectedRecord.data.amount">
-              <div class="invalid-feedback invalid-inpput-info">Lütfen alanı doldurunuz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
             </div>
             <div class="col-sm-6">
               <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>

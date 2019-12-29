@@ -1,5 +1,10 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, AngularFirestoreDocument } from '@angular/fire/firestore';
+import {
+  AngularFirestore,
+  AngularFirestoreCollection,
+  AngularFirestoreDocument,
+  CollectionReference, Query
+} from '@angular/fire/firestore';
 import { CustomerModel } from '../models/customer-model';
 import { Observable } from 'rxjs/internal/Observable';
 import { map, flatMap } from 'rxjs/operators';
@@ -61,9 +66,15 @@ export class CustomerService {
     });
   }
 
-  getMainItems(): Observable<CustomerModel[]> {
-    this.listCollection = this.db.collection(this.tableName, ref => ref.where('userPrimaryKey', '==', this.authServis.getUid())
-    .orderBy('name', 'asc'));
+  getMainItems(isActive: boolean): Observable<CustomerModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('name', 'asc')
+          .where('userPrimaryKey', '==', this.authServis.getUid())
+          .where('isActive', '==', isActive);
+        return query;
+      });
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CustomerModel;

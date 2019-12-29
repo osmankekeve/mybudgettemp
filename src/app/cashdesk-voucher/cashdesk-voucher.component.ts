@@ -23,16 +23,11 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   mainList: Array<CashdeskVoucherModel>;
-  mainList1: Array<CashdeskVoucherModel>;
-  mainList2: Array<CashdeskVoucherModel>;
-  mainList3: Array<CashdeskVoucherModel>;
-  mainList4: Array<CashdeskVoucherModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
   recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CashdeskVoucherModel;
   refModel: CashdeskVoucherModel;
   isRecordHasTransacton = false;
-  isShowAllRecords = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncriptionKey();
@@ -44,7 +39,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     amount: 0
   };
 
-  constructor(public authServis: AuthenticationService, public route: Router, public router: ActivatedRoute,
+  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: CashdeskVoucherService,
               public cdService: CashDeskService,
               public atService: AccountTransactionService,
@@ -53,6 +48,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
+    this.clearMainFiler();
     this.populateList();
     this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
@@ -70,61 +66,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    const date = new Date();
-    const start1 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const end1 = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 0, 0, 0);
-    const start2 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 0, 0, 0);
-    const end2 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const start3 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 2, 0, 0, 0);
-    const end3 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1, 0, 0, 0);
-    const start4 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 3, 0, 0, 0);
-    const end4 = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 2, 0, 0, 0);
-
-    this.mainList1 = [];
-    this.mainList2 = [];
-    this.mainList3 = [];
-    this.mainList4 = [];
-    this.service.getMainItemsBetweenDates(start4, end1).subscribe(list => {
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) { this.mainList1.push(item); }
-          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) { this.mainList2.push(item); }
-          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) { this.mainList3.push(item); }
-          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) { this.mainList4.push(item); }
-        } else if (item.actionType === 'removed') {
-          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) {
-            this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
-          }
-          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) {
-            this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
-           }
-          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) {
-            this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
-          }
-          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) {
-            this.mainList4.splice(this.mainList4.indexOf(this.refModel), 1);
-          }
-        } else if (item.actionType === 'modified') {
-          if (item.data.insertDate > start1.getTime() && item.data.insertDate < end1.getTime()) {
-            this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
-          }
-          if (item.data.insertDate > start2.getTime() && item.data.insertDate < end2.getTime()) {
-            this.mainList2[this.mainList2.indexOf(this.refModel)] = item.data;
-           }
-          if (item.data.insertDate > start3.getTime() && item.data.insertDate < end3.getTime()) {
-            this.mainList3[this.mainList3.indexOf(this.refModel)] = item.data;
-          }
-          if (item.data.insertDate > start4.getTime() && item.data.insertDate < end4.getTime()) {
-            this.mainList4[this.mainList4.indexOf(this.refModel)] = item.data;
-          }
-        } else {
-          // nothing
-        }
-      });
-    });
-  }
-
-  populateAllRecords(): void {
     this.mainList = [];
     this.totalValues = {
       amount: 0
@@ -241,16 +182,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
-  btnAllRecords_Click(): void {
-    if (this.isShowAllRecords) {
-      this.isShowAllRecords = false;
-    } else {
-      this.isShowAllRecords = true;
-      this.clearMainFiler();
-      this.populateAllRecords();
-    }
-  }
-
   btnShowMainFiler_Click(): void {
     if (this.isMainFilterOpened === true) {
       this.isMainFilterOpened = false;
@@ -266,7 +197,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     } else if (isNullOrEmpty(this.filterFinishDate)) {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
-      this.populateAllRecords();
+      this.populateList();
     }
   }
 
@@ -275,7 +206,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '',
-    receiptNo: '', type: '-1', description: '', userPrimaryKey: this.authServis.getUid()};
+    receiptNo: '', type: '-1', description: '', userPrimaryKey: this.authService.getUid()};
   }
 
   btnExportToExcel_Click(): void {

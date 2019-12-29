@@ -7,7 +7,13 @@ import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getTodayForInput, getDateForInput, getInputDataForInsert, getEncriptionKey } from '../core/correct-library';
+import {
+  getTodayForInput,
+  getDateForInput,
+  getInputDataForInsert,
+  getEncriptionKey,
+  getFirstDayOfMonthForInput, isNullOrEmpty
+} from '../core/correct-library';
 import { VisitService } from '../services/visit.service';
 import { ProfileService } from '../services/profile.service';
 import { ProfileModel } from '../models/profile-model';
@@ -22,9 +28,6 @@ import { ProfileMainModel } from '../models/profile-main-model';
 })
 export class VisitComponent implements OnInit, OnDestroy {
   mainList: Array<VisitMainModel> = [];
-  mainList1: Array<VisitMainModel> = [];
-  mainList2: Array<VisitMainModel> = [];
-  mainList3: Array<VisitMainModel> = [];
   collection: AngularFirestoreCollection<VisitMainModel>;
   customerList$: Observable<CustomerModel[]>;
   profileList$: Observable<ProfileMainModel[]>;
@@ -34,6 +37,9 @@ export class VisitComponent implements OnInit, OnDestroy {
   openedPanel: any;
   recordDate: any;
   encryptSecretKey: string = getEncriptionKey();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  isMainFilterOpened = false;
 
   constructor(public authService: AuthenticationService, public service: VisitService, public route: Router,
               public atService: AccountTransactionService, public infoService: InformationService,
@@ -42,7 +48,7 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-
+    this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.profileList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
@@ -61,61 +67,17 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    this.mainList1 = [];
-    this.mainList2 = [];
-    this.mainList3 = [];
-    const date = new Date();
-    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const tomorrowStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    this.service.getMainItemsBeforeDate(todayStart).subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as VisitMainModel;
-        if (item.actionType === 'added') {
-          this.mainList1.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList1[this.mainList1.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
-        }
-      });
-    });
-    this.service.getMainItemsBetweenDates(todayStart, tomorrowStart).subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as VisitMainModel;
-        if (item.actionType === 'added') {
-          this.mainList2.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList2[this.mainList2.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
-        }
-      });
-    });
-    this.service.getMainItemsAfterDate(tomorrowStart).subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as VisitMainModel;
-        if (item.actionType === 'added') {
-          this.mainList3.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList3[this.mainList3.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
-        }
-      });
-    });
-  }
-
-  populateAllRecords(): void {
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.mainList = [];
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       list.forEach((data: any) => {
         const item = data.returnData as VisitMainModel;
+        this.mainList.forEach(item2 => {
+          if (item2.visit.primaryKey === item.visit.primaryKey) {
+            this.refModel = item2;
+          }
+        });
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
@@ -191,16 +153,22 @@ export class VisitComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnAllRecords_Click(): void {
-    try {
-      if (this.isShowAllRecords) {
-        this.isShowAllRecords = false;
-      } else {
-        this.isShowAllRecords = true;
-        this.populateAllRecords();
-      }
-    } catch (err) {
-      this.infoService.error(err);
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
+  }
+
+  btnMainFilter_Click(): void {
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateList();
     }
   }
 
@@ -210,6 +178,11 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.recordDate = getTodayForInput();
 
     this.selectedRecord = this.service.clearVisitMainModel();
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
   }
 
 }

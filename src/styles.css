@@ -20,7 +20,7 @@ body {
     border-top-right-radius: 30px;
     border-bottom-right-radius: 30px;
 }
-.invalid-inpput-info {
+.invalid-input-info {
     margin-top: -25px !important;
     position: absolute;
     margin-left: 5px;
@@ -83,6 +83,9 @@ body {
 .head-filter .input-group-prepend + .form-control {
     border-left: none;
     padding-left: .5rem;
+}
+.main-list-item {
+  font-size: 13px !important;
 }
 
 .small-list-list-icon {

@@ -71,7 +71,7 @@ export class CustomerComponent implements OnInit {
   targetList$: Observable<CustomerTargetMainModel[]>;
   encryptSecretKey: string = getEncriptionKey();
   isMainFilterOpened = false;
-  isActive = false;
+  isActive = true;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
@@ -91,7 +91,7 @@ export class CustomerComponent implements OnInit {
   populateCustomerList(): void {
     this.openedPanel = 'dashboard';
     this.mainList = [];
-    this.customerService.getMainItems().subscribe(list => {
+    this.customerService.getMainItems(this.isActive).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);

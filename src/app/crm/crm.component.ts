@@ -12,7 +12,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import { getEncriptionKey } from '../core/correct-library';
+import {getEncriptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 
 @Component({
   selector: 'app-crm',
@@ -28,11 +28,13 @@ export class CRMComponent implements OnInit, OnDestroy {
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: CustomerRelationModel;
   refModel: CustomerRelationModel;
-  isShowAllRecords = false;
   openedPanel: any;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
   encryptSecretKey: string = getEncriptionKey();
+  filterBeginDate: any;
+  filterFinishDate: any;
+  isMainFilterOpened = false;
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
@@ -42,7 +44,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
+    this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
 
@@ -59,56 +61,11 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    this.mainList1 = [];
-    this.mainList2 = [];
-    this.mainList3 = [];
-    const date = new Date();
-    const todayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0);
-    const tomorrowStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    this.service.getMainItemsBeforeDate(todayStart).subscribe(list => {
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          this.mainList1.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList1[this.mainList1.indexOf(this.refModel)] = item.data;
-        } else {
-          // nothing
-        }
-      });
-    });
-    this.service.getMainItemsBetweenDates(todayStart, tomorrowStart).subscribe(list => {
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          this.mainList2.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList2[this.mainList2.indexOf(this.refModel)] = item.data;
-        } else {
-          // nothing
-        }
-      });
-    });
-    this.service.getMainItemsAfterDate(tomorrowStart).subscribe(list => {
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          this.mainList3.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList3[this.mainList3.indexOf(this.refModel)] = item.data;
-        } else {
-          // nothing
-        }
-      });
-    });
-  }
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-  populateAllRecords(): void {
     this.mainList = [];
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -171,13 +128,23 @@ export class CRMComponent implements OnInit, OnDestroy {
       }).catch(err => this.infoService.error(err));
   }
 
-  btnAllRecords_Click(): void {
-    if (this.isShowAllRecords) {
-      this.isShowAllRecords = false;
+  btnMainFilter_Click(): void {
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
-      this.isShowAllRecords = true;
-      this.populateAllRecords();
+      this.populateList();
     }
+  }
+
+  btnShowMainFiler_Click(): void {
+    if (this.isMainFilterOpened === true) {
+      this.isMainFilterOpened = false;
+    } else {
+      this.isMainFilterOpened = true;
+    }
+    this.clearMainFiler();
   }
 
   clearSelectedRecord(): void {
@@ -189,6 +156,11 @@ export class CRMComponent implements OnInit, OnDestroy {
       primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
       userPrimaryKey: this.authService.getUid(), insertDate: Date.now()
     };
+  }
+
+  clearMainFiler(): void {
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
   }
 
 }
