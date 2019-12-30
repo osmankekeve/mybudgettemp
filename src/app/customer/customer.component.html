@@ -894,7 +894,7 @@
   <div *ngIf="openedPanel=='accountSummary'">
     <div class="card-body">
       <div class="list-group" *ngIf="transactionList; else elseBlock">
-        <div class="list-group-item bg-success text-light">
+        <div class="list-group-item bg-success text-light main-list-item">
           <div class="row">
             <div class="col-sm-1">Sıra</div>
             <div class="col-sm-5">İşlem</div>
@@ -903,7 +903,7 @@
             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
           </div>
         </div>
-        <div class="list-group-item list-group-item-action list-group-item-light"
+        <div class="list-group-item list-group-item-action main-list-item"
              *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
           <div class="row">
             <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
@@ -913,7 +913,7 @@
             <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
           </div>
         </div>
-        <li class="list-group-item list-group-item-success">
+        <li class="list-group-item list-group-item-success main-list-item">
           <div class="row">
             <div class="col-sm-8">Toplam</div>
             <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
@@ -930,7 +930,7 @@
   <div *ngIf="openedPanel=='fileUpload'">
     <div class="card-body">
       <div class="list-group mb-2" *ngIf="filesList$ | async; let filesList; else elseBlock">
-        <div class="list-group-item bg-success text-light">
+        <div class="list-group-item bg-success text-light main-list-item">
           <div class="row">
             <div class="col-sm-2">Sıra</div>
             <div class="col-sm-6">Dosya Adı</div>
@@ -938,7 +938,7 @@
             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
           </div>
         </div>
-        <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of filesList; index as i; trackBy: primaryKey">
           <div class="row">
@@ -959,7 +959,7 @@
   <div *ngIf="openedPanel=='visit'">
     <div class="card-body">
       <div class="list-group mb-2" *ngIf="visitList$ | async; let visitList; else elseBlock">
-        <div class="list-group-item bg-success text-light">
+        <div class="list-group-item bg-success text-light main-list-item">
           <div class="row">
             <div class="col-sm-2">Sıra</div>
             <div class="col-sm-5">Personel</div>
@@ -967,7 +967,7 @@
             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
           </div>
         </div>
-        <div class="list-group-item list-group-item-action list-group-item-light"
+        <div class="list-group-item list-group-item-action main-list-item"
              *ngFor="let item of visitList; index as i; trackBy: primaryKey">
           <div class="row">
             <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
