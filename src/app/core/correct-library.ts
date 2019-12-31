@@ -146,7 +146,20 @@ export const getMonths = () => {
   ['7', 'Temmuz'], ['8', 'Ağustos'], ['9', 'Eylül'], ['10', 'Ekim'], ['11', 'Kasım'], ['12', 'Aralık']]);
 };
 
-export const getEncriptionKey = () => {
+export const getRelationTypes = () => {
+  return new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
+  ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
+};
+
+export const getEncryptionKey = () => {
   return '34OSman17';
 };
+
+export const numberOnly = (event) =>  {
+  const charCode = (event.which) ? event.which : event.keyCode;
+  if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+    return false;
+  }
+  return true;
+}
 

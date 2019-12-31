@@ -12,7 +12,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import {getEncriptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 
 @Component({
   selector: 'app-crm',
@@ -31,7 +31,7 @@ export class CRMComponent implements OnInit, OnDestroy {
   openedPanel: any;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
   filterBeginDate: any;
   filterFinishDate: any;
   isMainFilterOpened = false;

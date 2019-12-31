@@ -3,19 +3,38 @@ import * as XLSX from 'xlsx';
 const EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
 const EXCEL_EXTENSION = '.xlsx';
 import * as FileSaver from 'file-saver';
-import { getDateForExcel, getBoolStr, getTransactionTypes } from '../core/correct-library';
+import { getDateForExcel, getBoolStr, getTransactionTypes, getRelationTypes } from '../core/correct-library';
 
 @Injectable()
 export class ExcelService {
-  relationTypeMap = new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
-  ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
+  relationTypeMap = getRelationTypes();
   constructor() { }
 
   public exportAsExcelFile(json: any[], excelFileName: string): void {
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    const workbook: XLSX.WorkBook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
-    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    this.saveAsExcelFile(excelBuffer, excelFileName);
+    // const header = Object.keys(json[0]); // columns name
+    // const wscols = [];
+    // tslint:disable-next-line: prefer-for-of
+    // for (let i = 0; i < header.length; i++) {  // columns length added
+      // wscols.push({ wch: header[i].length + 5 });
+    // }
+    // worksheet['!cols'] = wscols;
+    // console.log(worksheet);
+    for (let i = 0; i !== json.length; ++i) { console.log(json[i]); }
+
+
+
+
+
+
+
+
+
+    
+    // const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
+    // const workbook: XLSX.WorkBook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+    // const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    // this.saveAsExcelFile(excelBuffer, excelFileName);
   }
 
   private saveAsExcelFile(buffer: any, fileName: string): void {

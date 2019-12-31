@@ -11,7 +11,7 @@ import {
   getTodayForInput,
   getDateForInput,
   getInputDataForInsert,
-  getEncriptionKey,
+  getEncryptionKey,
   getFirstDayOfMonthForInput, isNullOrEmpty
 } from '../core/correct-library';
 import { VisitService } from '../services/visit.service';
@@ -36,7 +36,7 @@ export class VisitComponent implements OnInit, OnDestroy {
   isShowAllRecords = false;
   openedPanel: any;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
   filterBeginDate: any;
   filterFinishDate: any;
   isMainFilterOpened = false;

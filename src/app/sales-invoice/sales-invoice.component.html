@@ -128,7 +128,7 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="form-row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="customerName">Müşteri</label>
+          <label class="col-form-label float-left" for="customerCode">Müşteri</label>
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
@@ -140,7 +140,7 @@
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="invoiceType">Fatura Tipi</label>
+          <label class="col-form-label float-left" for="type">Fatura Tipi</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
@@ -171,12 +171,13 @@
           <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax"
-                 type="number" step="any" [(ngModel)]="selectedRecord.totalPriceWithTax" required>
+          <input class="form-control form-control-sm w-100" type="text" step="any"
+                 id="totalPriceWithTax" name="totalPriceWithTax"
+                 [ngModel]="selectedRecord.totalPriceWithTax" required/>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+          <label class="col-form-label float-left">Kayıt Tarihi</label>
         </div>
         <div class="col-sm-3">
           <div class="input-group">
@@ -199,7 +200,6 @@
         </div>
       </div>
     </form>
-
   </div>
   <div class="card-footer">
     <div class="col-sm-3 float-right">

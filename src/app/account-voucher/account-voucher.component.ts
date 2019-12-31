@@ -11,7 +11,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty, getEncriptionKey
+import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty, getEncryptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -32,7 +32,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;

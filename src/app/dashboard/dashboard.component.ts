@@ -6,7 +6,7 @@ import { AccountTransactionService } from '../services/account-transaction.servi
 import { CustomerRelationService } from '../services/crm.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { Router } from '@angular/router';
-import { getFloat, getTodayStart, getTodayEnd, getEncriptionKey } from '../core/correct-library';
+import { getFloat, getTodayStart, getTodayEnd, getEncryptionKey } from '../core/correct-library';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -34,7 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   cvAmount: any = 0;
   transactionList: Array<AccountTransactionModel> = [];
   visitList: Array<VisitMainModel> = [];
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
               public siService: SalesInvoiceService, public colService: CollectionService,

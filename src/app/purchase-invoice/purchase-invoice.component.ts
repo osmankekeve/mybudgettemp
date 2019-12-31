@@ -10,7 +10,7 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import {
-  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel, getEncriptionKey
+  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel, getEncryptionKey
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -30,7 +30,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;

@@ -9,11 +9,12 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput, getEncriptionKey
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput, getEncryptionKey, numberOnly
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgxCurrencyModule } from 'ngx-currency';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -28,7 +29,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
+  numberOnlyControl = numberOnly;
 
   filterBeginDate: any;
   filterFinishDate: any;
@@ -135,59 +137,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.totalPrice <= 0) {
-      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (this.selectedRecord.totalPrice <= 0) {
-      this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
-    } else if (isNullOrEmpty(this.recordDate)) {
-      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
-    } else {
-      if (this.selectedRecord.primaryKey === undefined) {
-        const newId = this.db.createId();
-        this.selectedRecord.primaryKey = '';
+    console.log(this.selectedRecord);
 
-        this.service.setItem(this.selectedRecord, newId).then(() => {
-          const trans = {
-            primaryKey: '',
-            userPrimaryKey: this.selectedRecord.userPrimaryKey,
-            receiptNo: this.selectedRecord.receiptNo,
-            transactionPrimaryKey: newId,
-            transactionType: 'salesInvoice',
-            parentPrimaryKey: this.selectedRecord.customerCode,
-            parentType: 'customer',
-            cashDeskPrimaryKey: '-1',
-            amount: this.selectedRecord.type === 'sales' ? this.selectedRecord.totalPriceWithTax * -1 :
-            this.selectedRecord.totalPriceWithTax,
-            amountType: this.selectedRecord.type === 'sales' ? 'debit' : 'credit',
-            insertDate: this.selectedRecord.insertDate
-          };
-          this.db.collection('tblAccountTransaction').add(trans).then(() => {
-            this.infoService.success('Fatura başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-        }).catch(err => this.infoService.error(err));
-
-      } else {
-        this.service.updateItem(this.selectedRecord).then(() => {
-          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
-            list.forEach((item) => {
-              const trans = {
-                receiptNo: this.selectedRecord.receiptNo,
-                insertDate: this.selectedRecord.insertDate,
-                amount: this.selectedRecord.type === 'sales' ? this.selectedRecord.totalPriceWithTax * -1 :
-                this.selectedRecord.totalPriceWithTax,
-              };
-              this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-                this.infoService.success('Fatura başarıyla güncellendi.');
-                this.selectedRecord = undefined;
-              }).catch(err => this.infoService.error(err));
-            });
-          });
-        }).catch(err => this.infoService.error(err));
-      }
-    }
   }
 
   btnRemove_Click(): void {

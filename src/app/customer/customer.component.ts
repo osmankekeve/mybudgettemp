@@ -26,7 +26,7 @@ import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import {getEncriptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
@@ -69,7 +69,7 @@ export class CustomerComponent implements OnInit {
   filesList$: Observable<FileModel[]>;
   visitList$: Observable<VisitMainModel[]>;
   targetList$: Observable<CustomerTargetMainModel[]>;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   isActive = true;
 

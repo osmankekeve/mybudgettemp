@@ -14,7 +14,7 @@ import {
   getTodayForInput,
   getBeginOfYear,
   getEndOfYear,
-  getEncriptionKey
+  getEncryptionKey
 } from '../core/correct-library';
 import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
@@ -36,7 +36,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   refModel: CustomerTargetMainModel;
   transactionList$: Observable<CollectionModel[]>;
   currentAmount = 0;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public infoService: InformationService, public colService: CollectionService,

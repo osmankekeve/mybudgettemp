@@ -11,7 +11,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncriptionKey
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -31,7 +31,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;

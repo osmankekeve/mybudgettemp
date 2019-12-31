@@ -10,7 +10,7 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { CashdeskVoucherModel } from '../models/cashdesk-voucher-model';
 import { CashdeskVoucherService } from '../services/cashdesk-voucher.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncriptionKey
+import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -30,7 +30,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   isRecordHasTransacton = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;

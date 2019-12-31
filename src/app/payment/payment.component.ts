@@ -11,7 +11,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
-import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty, getEncriptionKey
+import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty, getEncryptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -32,7 +32,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
-  encryptSecretKey: string = getEncriptionKey();
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;
