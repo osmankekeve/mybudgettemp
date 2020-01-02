@@ -14,7 +14,6 @@ import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDa
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
-import { NgxCurrencyModule } from 'ngx-currency';
 
 @Component({
   selector: 'app-sales-invoice',

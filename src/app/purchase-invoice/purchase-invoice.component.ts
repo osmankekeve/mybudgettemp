@@ -228,6 +228,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnShowLastRecord_Click(): void {
+    const data = this.service.getLastRecord();
+    console.log(data);
+
+  }
+
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
