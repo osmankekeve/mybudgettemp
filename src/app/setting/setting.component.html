@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card work-area">
     <div class="card-header">
         <div class="row">
             <div class="col-sm-12">
@@ -7,6 +7,33 @@
         </div>
     </div>
     <div class="card-body">
-            Ayarlar
+      <div class="card">
+        <div class="card-header">
+          Alım Faturası Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-4">Ön Eki</div>
+            <div class="col-sm-4">Sıra</div>
+            <div class="col-sm-4">Son Eki</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-4">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.prefix">
+            </div>
+            <div class="col-sm-4">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.number">
+            </div>
+            <div class="col-sm-4">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.suffix">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSavePurchaseInvoiceAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
+
     </div>
 </div>
