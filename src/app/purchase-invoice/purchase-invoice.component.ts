@@ -16,6 +16,7 @@ import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import 'rxjs/add/operator/filter';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -42,7 +43,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: PurchaseInvoiceService,
+              public service: PurchaseInvoiceService, public sService: SettingService,
               public cService: CustomerService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
@@ -156,8 +157,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getPurchaseInvoiceCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

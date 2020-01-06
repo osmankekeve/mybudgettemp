@@ -14,6 +14,7 @@ import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class PurchaseInvoiceService {
   customerList$: Observable<CustomerModel[]>;
   tableName = 'tblPurchaseInvoice';
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public sService: SettingService,
               public logService: LogService,
               public db: AngularFirestore) {
 
@@ -39,11 +40,13 @@ export class PurchaseInvoiceService {
 
   async addItem(record: PurchaseInvoiceModel) {
     await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
+    await this.sService.increasePurchaseInvoiceNumber();
     return await this.listCollection.add(record);
   }
 
   async setItem(record: PurchaseInvoiceModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
+    await this.sService.increasePurchaseInvoiceNumber();
     return await this.listCollection.doc(primaryKey).set(record);
   }
 

@@ -7,25 +7,29 @@
         </div>
     </div>
     <div class="card-body">
-      <div class="card">
+      <div class="card mb-1">
         <div class="card-header">
           Alım Faturası Otomatik Kodu
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-sm-4">Ön Eki</div>
-            <div class="col-sm-4">Sıra</div>
-            <div class="col-sm-4">Son Eki</div>
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
           </div>
           <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
               <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.prefix">
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-3">
               <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.number">
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-3">
               <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseInvoice.length">
             </div>
           </div>
         </div>
@@ -34,6 +38,160 @@
                   (click)="btnSavePurchaseInvoiceAutoCode_Click()">Kaydet</button>
         </div>
       </div>
-
+      <div class="card mb-1">
+        <div class="card-header">
+          Ödeme Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="payment.prefix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="payment.number">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="payment.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="payment.length">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSavePaymentAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          Satış Faturası Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="salesInvoice.prefix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="salesInvoice.number">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="salesInvoice.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="salesInvoice.length">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSaveSalesInvoiceAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          Tahsilat Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="collection.prefix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="collection.number">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="collection.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="collection.length">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSaveCollectionAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          Cari Fiş Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="accountVoucher.prefix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="accountVoucher.number">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="accountVoucher.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="accountVoucher.length">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSaveAccountVoucherAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          Kasa Fişi Otomatik Kodu
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-sm-3">Ön Eki</div>
+            <div class="col-sm-3">Sıra</div>
+            <div class="col-sm-3">Son Eki</div>
+            <div class="col-sm-3">Uzunluk</div>
+          </div>
+          <div class="row">
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="cashDeskVoucher.prefix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="cashDeskVoucher.number">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="cashDeskVoucher.suffix">
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="cashDeskVoucher.length">
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button type="button" class="btn btn-sm btn-success"
+                  (click)="btnSaveCashDeskVoucherAutoCode_Click()">Kaydet</button>
+        </div>
+      </div>
     </div>
 </div>

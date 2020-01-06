@@ -15,6 +15,7 @@ import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateFor
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-cashdesk-voucher',
@@ -24,7 +25,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   mainList: Array<CashdeskVoucherModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
-  recordTransactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: CashdeskVoucherModel;
   refModel: CashdeskVoucherModel;
   isRecordHasTransacton = false;
@@ -40,11 +40,9 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: CashdeskVoucherService,
-              public cdService: CashDeskService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public excelService: ExcelService,
+              public service: CashdeskVoucherService, public cdService: CashDeskService,
+              public atService: AccountTransactionService, public infoService: InformationService,
+              public excelService: ExcelService, public sService: SettingService,
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -112,8 +110,12 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.route.navigate(['cashdesk-voucher', {}]);
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getCashDeskVoucherCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

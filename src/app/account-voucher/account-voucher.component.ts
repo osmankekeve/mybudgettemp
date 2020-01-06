@@ -16,6 +16,7 @@ import { getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, ge
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {SettingService} from "../services/setting.service";
 
 @Component({
   selector: 'app-account-voucher',
@@ -43,7 +44,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: AccountVoucherService, public cdService: CashDeskService, public atService: AccountTransactionService,
-              public infoService: InformationService, public excelService: ExcelService,
+              public infoService: InformationService, public excelService: ExcelService, public sService: SettingService,
               public cService: CustomerService, public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -108,8 +109,12 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.route.navigate(['account-voucher', {}]);
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getAccountVoucherCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

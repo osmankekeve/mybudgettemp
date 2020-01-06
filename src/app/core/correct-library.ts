@@ -161,5 +161,13 @@ export const numberOnly = (event) =>  {
     return false;
   }
   return true;
-}
+};
+
+export const padLeft = (str: string, size: number) => {
+  let s = str + '';
+  while (s.length < size) { s = '0' + s; }
+  return s;
+};
+
+
 

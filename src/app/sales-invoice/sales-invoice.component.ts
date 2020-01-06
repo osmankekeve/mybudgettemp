@@ -14,6 +14,7 @@ import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDa
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -42,6 +43,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
+              public sService: SettingService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -131,8 +133,12 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.route.navigate(['sales-invoice', {}]);
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getSalesInvoiceCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

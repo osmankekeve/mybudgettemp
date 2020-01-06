@@ -1,14 +1,11 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { AuthenticationService } from './authentication.service';
-import { NoteModel } from '../models/note-model';
+import {Injectable} from '@angular/core';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/Observable';
+import {AuthenticationService} from './authentication.service';
+import {NoteModel} from '../models/note-model';
 import {SettingModel} from '../models/setting-model';
-import {VisitMainModel} from "../models/visit-main-model";
-import {VisitModel} from "../models/visit-model";
-import {CustomerModel} from "../models/customer-model";
+import {getNumber, getString, padLeft} from '../core/correct-library';
+import {LogModel} from '../models/log-model';
 
 @Injectable({
   providedIn: 'root'
@@ -59,15 +56,215 @@ export class SettingService {
       const purchaseInvoicePrefix = this.getItem('purchaseInvoicePrefix');
       const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
       const purchaseInvoiceSuffix = this.getItem('purchaseInvoiceSuffix');
-      Promise.all([purchaseInvoicePrefix, purchaseInvoiceNumber, purchaseInvoiceSuffix]).then(values => {
-        console.log(values);
-        console.log(values[0].value);
-        if (values[0].data.value !== '') {
-
-        }
-      });
-
+      const purchaseInvoiceLength = this.getItem('purchaseInvoiceLength');
+      Promise.all([purchaseInvoicePrefix, purchaseInvoiceNumber, purchaseInvoiceSuffix, purchaseInvoiceLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
     });
+  }
+
+  async getPaymentCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const paymentPrefix = this.getItem('paymentPrefix');
+      const paymentNumber = this.getItem('paymentNumber');
+      const paymentSuffix = this.getItem('paymentSuffix');
+      const paymentLength = this.getItem('paymentLength');
+      Promise.all([paymentPrefix, paymentNumber, paymentSuffix, paymentLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async getSalesInvoiceCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const salesInvoicePrefix = this.getItem('salesInvoicePrefix');
+      const salesInvoiceNumber = this.getItem('salesInvoiceNumber');
+      const salesInvoiceSuffix = this.getItem('salesInvoiceSuffix');
+      const salesInvoiceLength = this.getItem('salesInvoiceLength');
+      Promise.all([salesInvoicePrefix, salesInvoiceNumber, salesInvoiceSuffix, salesInvoiceLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async getCollectionCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const collectionPrefix = this.getItem('collectionPrefix');
+      const collectionNumber = this.getItem('collectionNumber');
+      const collectionSuffix = this.getItem('collectionSuffix');
+      const collectionLength = this.getItem('collectionLength');
+      Promise.all([collectionPrefix, collectionNumber, collectionSuffix, collectionLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async getAccountVoucherCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const accountVoucherPrefix = this.getItem('accountVoucherPrefix');
+      const accountVoucherNumber = this.getItem('accountVoucherNumber');
+      const accountVoucherSuffix = this.getItem('accountVoucherSuffix');
+      const accountVoucherLength = this.getItem('accountVoucherLength');
+      Promise.all([accountVoucherPrefix, accountVoucherNumber, accountVoucherSuffix, accountVoucherLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async getCashDeskVoucherCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const cashDeskPrefix = this.getItem('cashDeskVoucherPrefix');
+      const cashDeskNumber = this.getItem('cashDeskVoucherNumber');
+      const cashDeskSuffix = this.getItem('cashDeskVoucherSuffix');
+      const cashDeskLength = this.getItem('cashDeskVoucherLength');
+      Promise.all([cashDeskPrefix, cashDeskNumber, cashDeskSuffix, cashDeskLength])
+        .then(values => {
+          // @ts-ignore
+          const prefix = values[0].data as SettingModel;
+          // @ts-ignore
+          const numb = values[1].data as SettingModel;
+          // @ts-ignore
+          const suffix = values[2].data as SettingModel;
+          // @ts-ignore
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async increasePurchaseInvoiceNumber() {
+    const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
+    Promise.all([ purchaseInvoiceNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'purchaseInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
+      });
+  }
+
+  async increasePaymentNumber() {
+    const paymentNumber = this.getItem('paymentNumber');
+    Promise.all([ paymentNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'paymentNumber', value: getString(getNumber(numb.value) + 1) });
+      });
+  }
+
+  async increaseSalesInvoiceNumber() {
+    const salesInvoiceNumber = this.getItem('salesInvoiceNumber');
+    Promise.all([ salesInvoiceNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'salesInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
+      });
+  }
+
+  async increaseCollectionNumber() {
+    const collectionNumber = this.getItem('collectionNumber');
+    Promise.all([ collectionNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'collectionNumber', value: getString(getNumber(numb.value) + 1) });
+      });
+  }
+
+  async increaseAccountVoucherNumber() {
+    const accountVoucherNumber = this.getItem('accountVoucherNumber');
+    Promise.all([ accountVoucherNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'accountVoucherNumber', value: getString(getNumber(numb.value) + 1) });
+      });
+  }
+
+  async increaseCashDeskNumber() {
+    const cashDeskNumber = this.getItem('cashDeskNumber');
+    Promise.all([ cashDeskNumber])
+      .then(values => {
+        // @ts-ignore
+        const numb = values[0].data as SettingModel;
+        return this.setItem({ key: 'cashDeskNumber', value: getString(getNumber(numb.value) + 1) });
+      });
   }
 
 }

@@ -16,6 +16,7 @@ import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateFor
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-collection',
@@ -44,7 +45,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: CollectionService, public cdService: CashDeskService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public cService: CustomerService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore, public sService: SettingService) { }
 
   ngOnInit() {
     this.clearMainFiler();
@@ -129,8 +130,12 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.route.navigate(['collection', {}]);
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getCollectionCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

@@ -11,26 +11,26 @@ import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
 import { PaymentService } from '../services/payment.service';
 import { PaymentModel } from '../models/payment-model';
-import { Pipe, PipeTransform } from '@angular/core';
 import { InformationService } from '../services/information.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
-import {AccountVoucherModel} from '../models/account-voucher-model';
-import {AccountVoucherService} from '../services/account-voucher.service';
-import {AuthenticationService} from '../services/authentication.service';
+import { AccountVoucherModel } from '../models/account-voucher-model';
+import { AccountVoucherService } from '../services/account-voucher.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
 import { FileModel } from '../models/file-model';
 import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import {getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import { getEncryptionKey} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { CustomerTargetService } from '../services/customer-target.service';
+import { SettingService } from '../services/setting.service';
 
 @Component({
   selector: 'app-customer',
@@ -77,7 +77,7 @@ export class CustomerComponent implements OnInit {
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
-              public router: ActivatedRoute, public ctService: CustomerTargetService,
+              public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router) {
   }
 
@@ -405,21 +405,29 @@ export class CustomerComponent implements OnInit {
     };
   }
 
-  clearNewSalesInvoice(): void {
+  async clearNewSalesInvoice(): Promise<void> {
     this.newSalesInvoice = {
       primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'sales',
       description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
     };
+    const receiptNoData = await this.sService.getSalesInvoiceCode();
+    if (receiptNoData !== null) {
+      this.newSalesInvoice.receiptNo = receiptNoData;
+    }
   }
 
-  clearNewPurchaseInvoice(): void {
+  async clearNewPurchaseInvoice(): Promise<void> {
     this.newPurchaseInvoice = {
       primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'purchase',
       description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
     };
+    const receiptNoData = await this.sService.getPurchaseInvoiceCode();
+    if (receiptNoData !== null) {
+      this.newPurchaseInvoice.receiptNo = receiptNoData;
+    }
   }
 
-  clearNewCollection(): void {
+  async clearNewCollection(): Promise<void> {
     this.newCollection = {
       primaryKey: undefined,
       customerCode: this.selectedCustomer.primaryKey,
@@ -429,9 +437,13 @@ export class CustomerComponent implements OnInit {
       insertDate: Date.now(),
       userPrimaryKey: this.selectedCustomer.userPrimaryKey
     };
+    const receiptNoData = await this.sService.getCollectionCode();
+    if (receiptNoData !== null) {
+      this.newCollection.receiptNo = receiptNoData;
+    }
   }
 
-  clearNewPayment(): void {
+  async clearNewPayment(): Promise<void> {
     this.newPayment = {
       primaryKey: undefined,
       customerCode: this.selectedCustomer.primaryKey,
@@ -441,13 +453,21 @@ export class CustomerComponent implements OnInit {
       insertDate: Date.now(),
       userPrimaryKey: this.selectedCustomer.userPrimaryKey
     };
+    const receiptNoData = await this.sService.getPaymentCode();
+    if (receiptNoData !== null) {
+      this.newPayment.receiptNo = receiptNoData;
+    }
   }
 
-  clearNewVoucher(): void {
+  async clearNewVoucher(): Promise<void> {
     this.newVoucher = {
       primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: '-1', description: '',
       insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
     };
+    const receiptNoData = await this.sService.getAccountVoucherCode();
+    if (receiptNoData !== null) {
+      this.newVoucher.receiptNo = receiptNoData;
+    }
   }
 
   btnOpenSubPanel_Click(panel: string): void {

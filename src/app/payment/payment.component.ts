@@ -16,6 +16,7 @@ import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOf
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-payment',
@@ -43,13 +44,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
   };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: PaymentService,
-              public cdService: CashDeskService,
-              public cService: CustomerService,
-              public db: AngularFirestore,
-              public excelService: ExcelService,
-              public infoService: InformationService,
-              public atService: AccountTransactionService) { }
+              public service: PaymentService, public sService: SettingService, public cdService: CashDeskService,
+              public cService: CustomerService, public db: AngularFirestore, public excelService: ExcelService,
+              public infoService: InformationService, public atService: AccountTransactionService) { }
 
   ngOnInit() {
     this.clearMainFiler();
@@ -135,8 +132,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.route.navigate(['payment', {}]);
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
+    const receiptNoData = await this.sService.getPaymentCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.receiptNo = receiptNoData;
+    }
   }
 
   btnSave_Click(): void {

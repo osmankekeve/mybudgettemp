@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { PaymentModel } from '../models/payment-model';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AuthenticationService } from './authentication.service';
-import { LogService } from './log.service';
+import {Observable} from 'rxjs/Observable';
+import {CustomerModel} from '../models/customer-model';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
+import {PaymentModel} from '../models/payment-model';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AuthenticationService} from './authentication.service';
+import {LogService} from './log.service';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +16,10 @@ import { LogService } from './log.service';
 export class PaymentService {
   listCollection: AngularFirestoreCollection<PaymentModel>;
   mainList$: Observable<PaymentModel[]>;
-  listCusttomer: AngularFirestoreCollection<CustomerModel>;
   customerList$: Observable<CustomerModel[]>;
-  transactionList$: Observable<PaymentModel[]>;
-  atMod: AccountTransactionModel;
   tableName = 'tblPayment';
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService, public sService: SettingService,
               public logService: LogService,
               public db: AngularFirestore) {
 
@@ -29,13 +27,14 @@ export class PaymentService {
 
   getAllItems(): Observable<PaymentModel[]> {
     this.listCollection = this.db.collection<PaymentModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
   async addItem(record: PaymentModel) {
-    this.logService.sendToLog(record, 'insert', 'payment');
+    await this.logService.sendToLog(record, 'insert', 'payment');
+    await this.sService.increasePaymentNumber();
     return await this.listCollection.add(record);
   }
 
@@ -46,17 +45,18 @@ export class PaymentService {
         }).then().catch(err => console.error(err));
       }); */
 
-      this.logService.sendToLog(record, 'delete', 'payment');
-      return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    await this.logService.sendToLog(record, 'delete', 'payment');
+    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: PaymentModel) {
-    this.logService.sendToLog(record, 'update', 'payment');
+    await this.logService.sendToLog(record, 'update', 'payment');
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   async setItem(record: PaymentModel, primaryKey: string) {
-    this.logService.sendToLog(record, 'insert', 'payment');
+    await this.logService.sendToLog(record, 'insert', 'payment');
+    await this.sService.increasePaymentNumber();
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
@@ -91,14 +91,15 @@ export class PaymentService {
 
   getMainItems(): Observable<PaymentModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as PaymentModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          .pipe(map((customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -106,15 +107,16 @@ export class PaymentService {
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PaymentModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as PaymentModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          .pipe(map((customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -122,21 +124,22 @@ export class PaymentService {
 
   getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PaymentModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-          .where('userPrimaryKey', '==', this.authServis.getUid());
-        if (customerPrimaryKey !== '-1') {
-          query = query.where('customerCode', '==', customerPrimaryKey);
-        }
-        return query;
-      });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      let query: CollectionReference | Query = ref;
+      query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authService.getUid());
+      if (customerPrimaryKey !== '-1') {
+        query = query.where('customerCode', '==', customerPrimaryKey);
+      }
+      return query;
+    });
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as PaymentModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          .pipe(map((customer: CustomerModel) => {
+            return Object.assign({data, customerName: customer.name, actionType: change.type});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

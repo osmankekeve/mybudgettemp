@@ -7,6 +7,7 @@ import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { LogService } from './log.service';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class CashdeskVoucherService {
   mainList$: Observable<CashdeskVoucherModel[]>;
   tableName = 'tblCashDeskVoucher';
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService, public sService: SettingService,
               public logService: LogService,
               public db: AngularFirestore) {
 
@@ -24,36 +25,30 @@ export class CashdeskVoucherService {
 
   getAllItems(): Observable<CashdeskVoucherModel[]> {
     this.listCollection = this.db.collection<CashdeskVoucherModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.valueChanges({ id : 'primaryKey'});
     return this.mainList$;
   }
 
-  getCustomerItems(customerCode: string): Observable<CashdeskVoucherModel[]> {
-    // valueChanges gercek zamanli guncelleme
-    this.listCollection = this.db.collection<CashdeskVoucherModel>
-    (this.tableName, ref => ref.where('customerCode', '==', customerCode));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
   async addItem(record: CashdeskVoucherModel) {
-    this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+    await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+    await this.sService.increaseCashDeskNumber();
     return await this.listCollection.add(record);
   }
 
   async removeItem(record: CashdeskVoucherModel) {
-    this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
+    await this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
     return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
   }
 
   async updateItem(record: CashdeskVoucherModel) {
-    this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
+    await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }
 
   async setItem(record: CashdeskVoucherModel, primaryKey: string) {
-    this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+    await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+    await this.sService.increaseCashDeskNumber();
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
@@ -73,7 +68,7 @@ export class CashdeskVoucherService {
 
   getMainItems(): Observable<CashdeskVoucherModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authServis.getUid()));
+    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;
@@ -88,7 +83,7 @@ export class CashdeskVoucherService {
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashdeskVoucherModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authServis.getUid()));
+    .where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;

@@ -7,7 +7,7 @@ import { combineLatest } from 'rxjs';
 import { CollectionModel } from '../models/collection-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
-import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class CollectionService {
   customerList$: Observable<CustomerModel[]>;
   tableName = 'tblCollection';
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public sService: SettingService,
               public logService: LogService,
               public db: AngularFirestore) {
 
@@ -33,6 +33,7 @@ export class CollectionService {
 
   async addItem(record: CollectionModel) {
     await this.logService.sendToLog(record, 'insert', 'collection');
+    await this.sService.increaseCollectionNumber();
     return await this.listCollection.add(record);
   }
 
@@ -48,6 +49,7 @@ export class CollectionService {
 
   async setItem(record: CollectionModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'collection');
+    await this.sService.increaseCollectionNumber();
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
