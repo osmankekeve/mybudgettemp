@@ -17,12 +17,11 @@ import { ExcelService } from '../services/excel-service';
 export class NoteComponent implements OnInit, OnDestroy {
   mainList: Array<NoteModel>;
   collection: AngularFirestoreCollection<NoteModel>;
-  transactionList$: Observable<AccountTransactionModel[]>;
   selectedRecord: NoteModel;
   refModel: NoteModel;
   openedPanel: any;
 
-  constructor(public authServis: AuthenticationService, public service: NoteService,
+  constructor(public authService: AuthenticationService, public service: NoteService,
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public excelService: ExcelService,
@@ -38,7 +37,6 @@ export class NoteComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -107,7 +105,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authServis.getUid(), insertDate: Date.now()};
+    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), insertDate: Date.now()};
   }
 
 }

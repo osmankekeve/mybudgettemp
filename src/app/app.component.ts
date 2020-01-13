@@ -1,14 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthenticationService } from './services/authentication.service';
-import { LogModel } from './models/log-model';
-import { LogService } from './services/log.service';
-import { InformationService } from './services/information.service';
-import { CustomerRelationService } from './services/crm.service';
-import { CustomerRelationModel } from './models/customer-relation-model';
+import {Component, OnInit} from '@angular/core';
+import {AuthenticationService} from './services/authentication.service';
+import {LogModel} from './models/log-model';
+import {LogService} from './services/log.service';
+import {InformationService} from './services/information.service';
+import {CustomerRelationService} from './services/crm.service';
+import {CustomerRelationModel} from './models/customer-relation-model';
 import {getBool, getString, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
-import { ReminderService } from './services/reminder.service';
-import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
+import {ReminderService} from './services/reminder.service';
+import {Router} from '@angular/router';
+import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
@@ -160,10 +160,10 @@ export class AppComponent implements OnInit {
     this.logService.getNotificationsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.notificationCount ++;
+          this.notificationCount++;
           this.notificationList.push(item);
         } else if (item.actionType === 'removed') {
-          this.notificationCount --;
+          this.notificationCount--;
           this.notificationList.splice(this.notificationList.indexOf(item), 1);
         } else {
           // nothing
@@ -178,10 +178,10 @@ export class AppComponent implements OnInit {
     this.crmService.getMainItemsBetweenDates(getTodayStart(), endDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.actionCount ++;
+          this.actionCount++;
           this.actionList.push(item);
         } else if (item.actionType === 'removed') {
-          this.actionCount --;
+          this.actionCount--;
           this.actionList.splice(this.actionList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.actionList[this.actionList.indexOf(item)] = item.data;
@@ -196,10 +196,10 @@ export class AppComponent implements OnInit {
     this.remService.getMainItemsBetweenDates(getTodayStart(), getTomorrowEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.reminderCount ++;
+          this.reminderCount++;
           this.reminderList.push(item);
         } else if (item.actionType === 'removed') {
-          this.reminderCount --;
+          this.reminderCount--;
           this.reminderList.splice(this.reminderList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.reminderList[this.reminderList.indexOf(item)] = item.data;
@@ -214,10 +214,10 @@ export class AppComponent implements OnInit {
     this.remService.getEmployeeDailyReminderCollection(getTodayStart()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.reminderCount ++;
+          this.reminderCount++;
           this.reminderList.push(item);
         } else if (item.actionType === 'removed') {
-          this.reminderCount --;
+          this.reminderCount--;
           this.reminderList.splice(this.reminderList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.reminderList[this.reminderList.indexOf(item)] = item.data;
@@ -230,10 +230,10 @@ export class AppComponent implements OnInit {
     this.remService.getEmployeeMonthlyReminderCollection(getTodayStart()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.reminderCount ++;
+          this.reminderCount++;
           this.reminderList.push(item);
         } else if (item.actionType === 'removed') {
-          this.reminderCount --;
+          this.reminderCount--;
           this.reminderList.splice(this.reminderList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.reminderList[this.reminderList.indexOf(item)] = item.data;
@@ -246,10 +246,10 @@ export class AppComponent implements OnInit {
     this.remService.getEmployeeYearlyReminderCollection(getTodayStart()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.reminderCount ++;
+          this.reminderCount++;
           this.reminderList.push(item);
         } else if (item.actionType === 'removed') {
-          this.reminderCount --;
+          this.reminderCount--;
           this.reminderList.splice(this.reminderList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.reminderList[this.reminderList.indexOf(item)] = item.data;
@@ -276,12 +276,13 @@ export class AppComponent implements OnInit {
   async btnLoginEmployee_Click() {
     const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
     if (data) {
+      this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
       this.isEmployeeLoggedIn();
+      this.cookieService.set('loginTime', Date.now().toString());
       if (!this.cookieService.check('cookieEMA') && this.isEMAChecked) {
         this.cookieService.set('cookieEMA', this.employeeEmail);
       }
       await this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
-      this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
     } else {
       this.infoService.error('Kullanıcı sistemde kayıtlı değil');
     }

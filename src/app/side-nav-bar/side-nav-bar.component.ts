@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewInit  } from '@angular/core';
 import * as $ from 'jquery';
 import { AuthenticationService } from '../services/authentication.service';
+import {CustomerRelationService} from "../services/crm.service";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-side-nav-bar',
@@ -10,9 +12,10 @@ import { AuthenticationService } from '../services/authentication.service';
 export class SideNavBarComponent implements OnInit, AfterViewInit {
   userDetails: any;
   employeeDetail: any;
+  loginTime: any;
 
-  constructor(
-    private authService: AuthenticationService) { }
+  constructor( private authService: AuthenticationService,
+               private cookieService: CookieService) {  }
 
   ngOnInit() {
     this.userDetails = this.authService.isUserLoggedIn();
@@ -20,6 +23,8 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
       this.employeeDetail = this.authService.isEmployeeLoggedIn();
       if (!this.employeeDetail) {
         this.employeeDetail = undefined;
+      } else {
+        this.loginTime = this.cookieService.get('loginTime');
       }
     }
   }

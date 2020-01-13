@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
@@ -16,7 +16,7 @@ import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateFor
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
-import {SettingService} from '../services/setting.service';
+import { SettingService } from '../services/setting.service';
 
 @Component({
   selector: 'app-collection',
@@ -212,6 +212,11 @@ export class CollectionComponent implements OnInit, OnDestroy {
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
+  }
+
+  btnExportToXml_Click(): void {
+
+
   }
 
   clearSelectedRecord(): void {
