@@ -136,6 +136,12 @@ body {
   scrollbar-width: thin;
 }
 
+.work-area-5 {
+  max-height: calc(100vh - 275px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .bg-orange {
   background-color: #fd7e14 !important;
 }

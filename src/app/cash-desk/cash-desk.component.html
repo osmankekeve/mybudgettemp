@@ -2,7 +2,8 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-8">
-        <h4 class="card-title float-left mr-2">Kasa Listesi</h4>
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h5 class="card-title float-left mr-2">Kasa Listesi</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Kasa"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
       </div>
@@ -43,128 +44,139 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-12">
-        <h4 class="card-title float-left mr-2">Kasa Detayı</h4>
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h5 class="card-title float-left mr-2">Kasa Detayı</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()" *ngIf="openedPanel=='transactionReport'"><i class="fa fa-filter"></i></button>
-                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                        (click)="btnExportToExcel_Click()" *ngIf="openedPanel=='transactionReport'"><i class="fa fa-file-excel-o"></i></button>
       </div>
     </div>
   </div>
   <div class="card-body">
-    <div *ngIf="openedPanel=='mainPanel'">
-      <form (ngSubmit)="btnSave_Click()" class="was-validated">
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="row form-inline">
-              <div class="col-sm-6">
-                <label class="col-form-label float-left" for="cashDeskName">Kasa Adı</label>
-              </div>
-              <div class="col-sm-6">
-                <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
-                       [(ngModel)]="selectedRecord.name" required>
-                <div class="invalid-feedback">Lütfen ad alanını doldurunuz.</div>
-              </div>
-              <div class="col-sm-6">
-                <label class="col-form-label float-left" for="description">Açıklama</label>
-              </div>
-              <div class="col-sm-6">
-                <input class="form-control form-control-sm" id="description" name="description" type="text"
-                       [(ngModel)]="selectedRecord.description">
-                <div class="invalid-feedback">Lütfen açıklama alanını doldurunuz.</div>
-              </div>
+    <form class="was-validated">
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header bg-warning">
+              <h5>Kasa Bilgileri</h5>
             </div>
-
-          </div>
-          <div class="col-sm-6">
-            <div class="pl-3 pt-1 pr-3" *ngIf="selectedRecord.primaryKey!=undefined">
-              <div class="row border p-2 border-right-radius cursor-pointer"
-                   (click)="onClickShowTransactionReport()">
-                <div class="col-sm-2">
-                  <img src="../../assets/images/report_icon_2.png" width="45px">
+            <div class="card-body">
+              <div class="row form-inline">
+                <div class="col-sm-6">
+                  <label class="col-form-label float-left" for="cashDeskName">Kasa Adı</label>
                 </div>
-                <div class="col-sm-10">
-                  <div class="text-dark">Kasa Hareket Raporu</div>
-                  <small class="text-muted">Kasaya ait hareketleri raporlar</small>
+                <div class="col-sm-6">
+                  <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
+                         [(ngModel)]="selectedRecord.name" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
+                </div>
+                <div class="col-sm-6">
+                  <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-6">
+                  <input class="form-control form-control-sm" id="description" name="description" type="text"
+                         [(ngModel)]="selectedRecord.description">
+                  <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </form>
-    </div>
-    <div *ngIf="openedPanel=='transactionReport'">
-      <div class="card mb-2" *ngIf="isMainFilterOpened">
-        <div class="card-header">Filtreler</div>
-        <div class="card-body bg-light">
-          <div class="row">
-            <div class="col-sm-3">
-              <label class="col-form-label float-left">Başlangıç Tarihi</label>
-            </div>
-            <div class="col-sm-3">
-              <div class="input-group">
-                <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
-                       [(ngModel)]="filterBeginDate" ngbDatepicker #d="ngbDatepicker">
-                <div class="input-group-append">
-                  <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
-                    class="fa fa-calendar"></i></button>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left">Bitiş Tarihi</label>
-            </div>
-            <div class="col-sm-3">
-              <div class="input-group">
-                <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
-                       [(ngModel)]="filterFinishDate" ngbDatepicker #d2="ngbDatepicker">
-                <div class="input-group-append">
-                  <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
-                    class="fa fa-calendar"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div class="row">
-            <div class="col-sm-2">
-              <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header bg-warning">
+              <h5 class="float-left mr-2">Kasa Hareketleri</h5>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Geniş Filtre"
+                      (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i>
               </button>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Excel'e Aktar"
+                      (click)="btnExportToExcel_Click()"><i
+                class="fa fa-file-excel-o"></i></button>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
-        <div class="list-group-item bg-dark text-light">
-          <div class="row">
-            <div class="col-sm-3">İşlem Tipi</div>
-            <div class="col-sm-3">Fiş Numarası</div>
-            <div class="col-sm-3"><span class="float-right">Tutar</span></div>
-            <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+            <div class="card-body work-area-5" *ngIf="selectedRecord.primaryKey!=undefined; else elseBlock2">
+              <div class="card mb-2" *ngIf="isMainFilterOpened">
+                <div class="card-header">Filtreler</div>
+                <div class="card-body bg-light">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <label class="col-form-label float-left">Başlangıç Tarihi</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="input-group">
+                        <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
+                               [(ngModel)]="filterBeginDate" ngbDatepicker #d="ngbDatepicker">
+                        <div class="input-group-append">
+                          <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
+                            class="fa fa-calendar"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label class="col-form-label float-left">Bitiş Tarihi</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="input-group">
+                        <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
+                               [(ngModel)]="filterFinishDate" ngbDatepicker #d2="ngbDatepicker">
+                        <div class="input-group-append">
+                          <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
+                            class="fa fa-calendar"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer">
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
+                <div class="list-group-item bg-dark text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-3">İşlem Tipi</div>
+                    <div class="col-sm-3">Fiş Numarası</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
 
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action list-group-item-light"
-             *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
-          <div class="row">
-            <div class="col-sm-3">{{item.transactionTypeTr}}</div>
-            <div class="col-sm-3">{{item.receiptNo}}</div>
-            <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-            <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item"
+                     *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-3">{{item.transactionTypeTr}}</div>
+                    <div class="col-sm-3">{{item.receiptNo}}</div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <li class="list-group-item list-group-item-success main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Toplam</div>
+                    <div class="col-sm-3"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
+                  </div>
+                </li>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock2>
+              <div class="card bg-danger text-white">
+                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+              </div>
+            </ng-template>
           </div>
         </div>
       </div>
-      <ng-template #elseBlock>
-        <div class="card bg-danger text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
-      </ng-template>
-    </div>
+    </form>
   </div>
-  <div class="card-footer" *ngIf="openedPanel=='mainPanel'">
+  <div class="card-footer">
     <div class="col-sm-3 float-right">
       <button type="button" class="btn btn-sm btn-success btn-block"
               (click)="btnSave_Click()">Kaydet
@@ -175,6 +187,5 @@
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>
-
   </div>
 </div>

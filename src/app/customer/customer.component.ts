@@ -25,7 +25,7 @@ import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import { getEncryptionKey} from '../core/correct-library';
+import {getBeginOfYear, getEncryptionKey, getEndOfYear, getNumber} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
@@ -207,189 +207,297 @@ export class CustomerComponent implements OnInit {
   }
 
   btnReturnList_Click(): void {
-    this.selectedCustomer = undefined;
+    try {
+      this.selectedCustomer = undefined;
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnNew_Click(): void {
-    this.clearSelectedCustomer();
+    try {
+      this.clearSelectedCustomer();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnSave_Click(): void {
-    if (this.selectedCustomer.primaryKey === undefined) {
-      this.selectedCustomer.primaryKey = '';
-      this.customerService.addItem(this.selectedCustomer)
-        .then(() => {
-          this.infoService.success('Müşteri başarıyla kaydedildi.');
-          this.selectedCustomer = undefined;
-          this.openedPanel = 'dashboard';
-        }).catch(err => this.infoService.error(err));
-    } else {
-      this.customerService.updateItem(this.selectedCustomer)
-        .then(() => {
-          this.infoService.success('Müşteri bilgileri başarıyla güncellendi.');
-          this.selectedCustomer = undefined;
-        }).catch(err => this.infoService.error(err));
+    try {
+      if (this.selectedCustomer.primaryKey === undefined) {
+        this.selectedCustomer.primaryKey = '';
+        this.customerService.addItem(this.selectedCustomer)
+          .then(() => {
+            this.infoService.success('Müşteri başarıyla kaydedildi.');
+            this.selectedCustomer = undefined;
+            this.openedPanel = 'dashboard';
+          }).catch(err => this.infoService.error(err));
+      } else {
+        this.customerService.updateItem(this.selectedCustomer)
+          .then(() => {
+            this.infoService.success('Müşteri bilgileri başarıyla güncellendi.');
+            this.selectedCustomer = undefined;
+          }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnRemove_Click(): void {
-    this.customerService.removeItem(this.selectedCustomer).then(() => {
-      this.infoService.success('Müşteri başarıyla kaldırıldı.');
-      this.selectedCustomer = undefined;
-    }).catch(err => this.infoService.error(err));
+    try {
+      this.customerService.removeItem(this.selectedCustomer).then(() => {
+        this.infoService.success('Müşteri başarıyla kaldırıldı.');
+        this.selectedCustomer = undefined;
+      }).catch(err => this.infoService.error(err));
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnSaveSalesInvoice_Click(): void {
-    if (this.newSalesInvoice.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.newSalesInvoice.primaryKey = '';
+    try {
+      if (this.newSalesInvoice.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.newSalesInvoice.primaryKey = '';
 
-      this.siService.setItem(this.newSalesInvoice, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.newSalesInvoice.userPrimaryKey,
-          receiptNo: this.newSalesInvoice.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'salesInvoice',
-          parentPrimaryKey: this.newSalesInvoice.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: '-1',
-          amount: this.newSalesInvoice.type === 'sales'
-            ? this.newSalesInvoice.totalPriceWithTax * -1 : this.newSalesInvoice.totalPriceWithTax,
-          amountType: this.newSalesInvoice.type === 'sales' ? 'debit' : 'credit',
-          insertDate: this.newSalesInvoice.insertDate,
-        }).then(() => {
-          this.infoService.success('Fatura başarıyla kaydedildi.');
-          this.clearNewSalesInvoice();
+        this.siService.setItem(this.newSalesInvoice, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.newSalesInvoice.userPrimaryKey,
+            receiptNo: this.newSalesInvoice.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'salesInvoice',
+            parentPrimaryKey: this.newSalesInvoice.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: '-1',
+            amount: this.newSalesInvoice.type === 'sales'
+              ? this.newSalesInvoice.totalPriceWithTax * -1 : this.newSalesInvoice.totalPriceWithTax,
+            amountType: this.newSalesInvoice.type === 'sales' ? 'debit' : 'credit',
+            insertDate: this.newSalesInvoice.insertDate,
+          }).then(() => {
+            this.infoService.success('Fatura başarıyla kaydedildi.');
+            this.clearNewSalesInvoice();
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnSavePurchaseInvoice_Click(): void {
-    if (this.newPurchaseInvoice.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.newPurchaseInvoice.primaryKey = '';
-      this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.newPurchaseInvoice.userPrimaryKey,
-          receiptNo: this.newPurchaseInvoice.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'purchaseInvoice',
-          parentPrimaryKey: this.newPurchaseInvoice.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: '-1',
-          amount: this.newPurchaseInvoice.type === 'purchase'
-            ? this.newPurchaseInvoice.totalPriceWithTax : this.newPurchaseInvoice.totalPriceWithTax * -1,
-          amountType: this.newPurchaseInvoice.type === 'purchase' ? 'credit' : 'debit',
-          insertDate: this.newPurchaseInvoice.insertDate,
-        }).then(() => {
-          this.infoService.success('Fatura başarıyla kaydedildi.');
-          this.clearNewPurchaseInvoice();
+    try {
+      if (this.newPurchaseInvoice.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.newPurchaseInvoice.primaryKey = '';
+        this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.newPurchaseInvoice.userPrimaryKey,
+            receiptNo: this.newPurchaseInvoice.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'purchaseInvoice',
+            parentPrimaryKey: this.newPurchaseInvoice.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: '-1',
+            amount: this.newPurchaseInvoice.type === 'purchase'
+              ? this.newPurchaseInvoice.totalPriceWithTax : this.newPurchaseInvoice.totalPriceWithTax * -1,
+            amountType: this.newPurchaseInvoice.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: this.newPurchaseInvoice.insertDate,
+          }).then(() => {
+            this.infoService.success('Fatura başarıyla kaydedildi.');
+            this.clearNewPurchaseInvoice();
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
 
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnSaveCollection_Click(): void {
-    if (this.newCollection.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.newCollection.primaryKey = '';
+    try {
+      if (this.newCollection.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.newCollection.primaryKey = '';
 
-      this.colService.setItem(this.newCollection, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.newCollection.userPrimaryKey,
-          receiptNo: this.newCollection.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'collection',
-          parentPrimaryKey: this.newCollection.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: this.newCollection.cashDeskPrimaryKey,
-          amount: this.newCollection.amount,
-          amountType: 'credit',
-          insertDate: this.newCollection.insertDate,
-        }).then(() => {
-          this.infoService.success('Tahsilat başarıyla kaydedildi.');
-          this.clearNewCollection();
+        this.colService.setItem(this.newCollection, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.newCollection.userPrimaryKey,
+            receiptNo: this.newCollection.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'collection',
+            parentPrimaryKey: this.newCollection.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: this.newCollection.cashDeskPrimaryKey,
+            amount: this.newCollection.amount,
+            amountType: 'credit',
+            insertDate: this.newCollection.insertDate,
+          }).then(() => {
+            this.infoService.success('Tahsilat başarıyla kaydedildi.');
+            this.clearNewCollection();
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnSavePayment_Click(): void {
-    if (this.newPayment.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.newPayment.primaryKey = '';
+    try {
+      if (this.newPayment.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.newPayment.primaryKey = '';
 
-      this.payService.setItem(this.newPayment, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.newPayment.userPrimaryKey,
-          receiptNo: this.newPayment.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'payment',
-          parentPrimaryKey: this.newPayment.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: this.newPayment.cashDeskPrimaryKey,
-          amount: this.newPayment.amount * -1,
-          amountType: 'debit',
-          insertDate: this.newPayment.insertDate,
-        }).then(() => {
-          this.infoService.success('Ödeme başarıyla kaydedildi.');
-          this.clearNewPayment();
+        this.payService.setItem(this.newPayment, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.newPayment.userPrimaryKey,
+            receiptNo: this.newPayment.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'payment',
+            parentPrimaryKey: this.newPayment.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: this.newPayment.cashDeskPrimaryKey,
+            amount: this.newPayment.amount * -1,
+            amountType: 'debit',
+            insertDate: this.newPayment.insertDate,
+          }).then(() => {
+            this.infoService.success('Ödeme başarıyla kaydedildi.');
+            this.clearNewPayment();
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnSaveVoucher_Click(): void {
-    if (this.newVoucher.primaryKey === undefined) {
-      const newId = this.db.createId();
-      this.newVoucher.primaryKey = '';
+    try {
+      if (this.newVoucher.primaryKey === undefined) {
+        const newId = this.db.createId();
+        this.newVoucher.primaryKey = '';
 
-      this.avService.setItem(this.newVoucher, newId).then(() => {
-        this.db.collection('tblAccountTransaction').add({
-          primaryKey: '',
-          userPrimaryKey: this.newVoucher.userPrimaryKey,
-          receiptNo: this.newVoucher.receiptNo,
-          transactionPrimaryKey: newId,
-          transactionType: 'accountVoucher',
-          parentPrimaryKey: this.newVoucher.customerCode,
-          parentType: 'customer',
-          cashDeskPrimaryKey: this.newVoucher.cashDeskPrimaryKey,
-          amount: this.newVoucher.type === 'creditVoucher' ? this.newVoucher.amount : this.newVoucher.amount * -1,
-          amountType: this.newVoucher.type === 'creditVoucher' ? 'credit' : 'debit',
-          insertDate: this.newVoucher.insertDate,
-        }).then(() => {
-          this.infoService.success('Fiş başarıyla kaydedildi.');
-          this.clearNewVoucher();
+        this.avService.setItem(this.newVoucher, newId).then(() => {
+          this.db.collection('tblAccountTransaction').add({
+            primaryKey: '',
+            userPrimaryKey: this.newVoucher.userPrimaryKey,
+            receiptNo: this.newVoucher.receiptNo,
+            transactionPrimaryKey: newId,
+            transactionType: 'accountVoucher',
+            parentPrimaryKey: this.newVoucher.customerCode,
+            parentType: 'customer',
+            cashDeskPrimaryKey: this.newVoucher.cashDeskPrimaryKey,
+            amount: this.newVoucher.type === 'creditVoucher' ? this.newVoucher.amount : this.newVoucher.amount * -1,
+            amountType: this.newVoucher.type === 'creditVoucher' ? 'credit' : 'debit',
+            insertDate: this.newVoucher.insertDate,
+          }).then(() => {
+            this.infoService.success('Fiş başarıyla kaydedildi.');
+            this.clearNewVoucher();
+          }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-      }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'customer');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'customer');
+      } else {
+        this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnMainFilter_Click(): void {
-    this.populateCustomerList();
+    try {
+      this.populateCustomerList();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+    try {
+      if (this.isMainFilterOpened === true) {
+        this.isMainFilterOpened = false;
+      } else {
+        this.isMainFilterOpened = true;
+      }
+      this.clearMainFiler();
+    } catch (error) {
+      this.infoService.error(error);
     }
-    this.clearMainFiler();
+  }
+
+  btnOpenSubPanel_Click(panel: string): void {
+    try {
+      this.openedPanel = panel;
+      if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
+        this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
+      }
+      if (this.openedPanel === 'salesInvoice') {
+        this.clearNewSalesInvoice();
+      } else if (this.openedPanel === 'collection') {
+        this.clearNewCollection();
+      } else if (this.openedPanel === 'purchaseInvoice') {
+        this.clearNewPurchaseInvoice();
+      } else if (this.openedPanel === 'payment') {
+        this.clearNewPayment();
+      } else if (this.openedPanel === 'accountVoucher') {
+        this.clearNewVoucher();
+      } else if (this.openedPanel === 'edit') {
+
+      } else if (this.openedPanel === 'target') {
+        this.targetList$ = undefined;
+        this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+      } else if (this.openedPanel === 'accountSummary') {
+        this.totalValues = 0;
+        this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
+          this.transactionList = list;
+          this.transactionList.forEach(item => {
+            this.totalValues += item.amount;
+          });
+        });
+      } else if (this.openedPanel === 'dashboard') {
+        if (!this.selectedCustomer.primaryKey) {
+          this.btnReturnList_Click();
+        }
+      } else if (this.openedPanel === 'fileUpload') {
+        this.filesList$ = undefined;
+        this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+      } else if (this.openedPanel === 'visit') {
+        this.visitList$ = undefined;
+        this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+
+      } else {
+
+      }
+    } catch (error) {
+      this.infoService.error(error);
+    }
+  }
+
+  btnAccountSummaryExportToExcel_Click(): void {
+    try {
+      if (this.transactionList.length > 0) {
+        this.excelService.exportToExcel(this.transactionList, 'customerAccountSummary');
+      } else {
+        this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   clearMainFiler(): void {
@@ -467,58 +575,6 @@ export class CustomerComponent implements OnInit {
     const receiptNoData = await this.sService.getAccountVoucherCode();
     if (receiptNoData !== null) {
       this.newVoucher.receiptNo = receiptNoData;
-    }
-  }
-
-  btnOpenSubPanel_Click(panel: string): void {
-    this.openedPanel = panel;
-    if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
-      this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
-    }
-    if (this.openedPanel === 'salesInvoice') {
-      this.clearNewSalesInvoice();
-    } else if (this.openedPanel === 'collection') {
-      this.clearNewCollection();
-    } else if (this.openedPanel === 'purchaseInvoice') {
-      this.clearNewPurchaseInvoice();
-    } else if (this.openedPanel === 'payment') {
-      this.clearNewPayment();
-    } else if (this.openedPanel === 'accountVoucher') {
-      this.clearNewVoucher();
-    } else if (this.openedPanel === 'edit') {
-
-    } else if (this.openedPanel === 'target') {
-      this.targetList$ = undefined;
-      this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
-    } else if (this.openedPanel === 'accountSummary') {
-      this.totalValues = 0;
-      this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
-        this.transactionList = list;
-        this.transactionList.forEach(item => {
-          this.totalValues += item.amount;
-        });
-      });
-    } else if (this.openedPanel === 'dashboard') {
-      if (!this.selectedCustomer.primaryKey) {
-        this.btnReturnList_Click();
-      }
-    } else if (this.openedPanel === 'fileUpload') {
-      this.filesList$ = undefined;
-      this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
-    } else if (this.openedPanel === 'visit') {
-      this.visitList$ = undefined;
-      this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
-
-    } else {
-
-    }
-  }
-
-  btnAccountSummaryExportToExcel_Click(): void {
-    if (this.transactionList.length > 0) {
-      this.excelService.exportToExcel(this.transactionList, 'customerAccountSummary');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

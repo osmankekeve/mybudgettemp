@@ -216,7 +216,6 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   btnExportToXml_Click(): void {
 
-
   }
 
   clearSelectedRecord(): void {

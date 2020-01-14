@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
@@ -22,8 +21,10 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   transactionList: Array<AccountTransactionModel>;
   selectedRecord: CashDeskModel;
   refModel: CashDeskModel;
-  openedPanel: any;
   isMainFilterOpened = false;
+  totalValues = {
+    amount: 0
+  };
 
   date = new Date();
   filterBeginDate: any;
@@ -36,6 +37,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
               public db: AngularFirestore) { }
 
   ngOnInit() {
+    this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
   }
@@ -60,78 +62,116 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.openedPanel = 'mainPanel';
     this.selectedRecord = record.data as CashDeskModel;
     this.refModel = record.data as CashDeskModel;
+    this.populateTransactions();
   }
 
   btnReturnList_Click(): void {
-    if (this.openedPanel === 'mainPanel') {
+    try {
       this.selectedRecord = undefined;
       this.route.navigate(['cash-desk', {}]);
-    } else {
-      this.openedPanel = 'mainPanel';
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnNew_Click(): void {
-    this.clearSelectedRecord();
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kasa başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
-    } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kasa başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    try {
+      if (this.selectedRecord.primaryKey === undefined) {
+        this.selectedRecord.primaryKey = '';
+        this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Kasa başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      } else {
+        this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Kasa başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
-    .then(() => {
-      this.infoService.success('Kasa başarıyla kaldırıldı.');
-      this.selectedRecord = undefined;
-    }).catch(err => this.infoService.error(err));
+    try {
+      this.service.removeItem(this.selectedRecord)
+        .then(() => {
+          this.infoService.success('Kasa başarıyla kaldırıldı.');
+          this.selectedRecord = undefined;
+        }).catch(err => this.infoService.error(err));
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+    try {
+      if (this.isMainFilterOpened === true) {
+        this.isMainFilterOpened = false;
+      } else {
+        this.isMainFilterOpened = true;
+      }
+      this.clearMainFiler();
+    } catch (error) {
+      this.infoService.error(error);
     }
-    this.clearMainFiler();
   }
 
   btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+    try {
+      if (isNullOrEmpty(this.filterBeginDate)) {
+        this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      } else if (isNullOrEmpty(this.filterFinishDate)) {
+        this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      } else {
+        this.populateTransactions();
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.transactionList, 'cashdeskTransaction');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.transactionList, 'cashdeskTransaction');
+      } else {
+        this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
+  populateTransactions(): void {
+    this.transactionList = [];
+    this.totalValues = {
+      amount: 0
+    };
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).then(list => {
+      list.forEach((item: any) => {
+        this.transactionList.push(item);
+        this.totalValues.amount += item.amount;
+      });
+    });
+  }
+
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authService.getUid()};
     console.log(this.selectedRecord);
@@ -141,17 +181,4 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
   }
-
-  onClickShowTransactionReport(): void {
-    this.openedPanel = 'transactionReport';
-    this.transactionList = [];
-    this.clearMainFiler();
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).then(list => {
-      this.transactionList = list;
-    });
-
-  }
-
 }

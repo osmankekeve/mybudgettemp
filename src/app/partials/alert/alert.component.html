@@ -1,1 +1,7 @@
-﻿<div *ngIf="message" class="text-center" [ngClass]="{ 'alert mt-3': message, 'alert-success': message.type === 'success', 'alert-danger': message.type === 'error' }">{{ message.text }}</div>
+﻿
+<div class="row" style="background-color: #31353D !important;">
+  <div class="col">
+    <div *ngIf="message" class="text-center"
+         [ngClass]="{ 'alert mt-4': message, 'alert-success': message.type === 'success', 'alert-danger': message.type === 'error' }">{{ message.text }}</div>
+  </div>
+</div>

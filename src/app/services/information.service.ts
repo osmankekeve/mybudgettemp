@@ -25,7 +25,7 @@ export class InformationService {
      * @param modalService: NgbModal
      */
     constructor(router: Router,
-                private authServis: AuthenticationService,
+                private authService: AuthenticationService,
                 private readonly modalService: NgbModal,
                 private logService: LogService) {
         // clear alert message on route change

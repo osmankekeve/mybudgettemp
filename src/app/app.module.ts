@@ -23,6 +23,7 @@ import { ExcelService } from './services/excel-service';
 import { LogService } from './services/log.service';
 import { AuthenticationService } from './services/authentication.service';
 import { CookieService } from 'ngx-cookie-service';
+import {ToastService} from './services/toast.service';
 
 export const customCurrencyMaskConfig = {
   align: 'right',
