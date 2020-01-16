@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
-import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import { AuthenticationService } from '../services/authentication.service';
@@ -17,6 +16,7 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import 'rxjs/add/operator/filter';
 import {SettingService} from '../services/setting.service';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -24,13 +24,14 @@ import {SettingService} from '../services/setting.service';
   styleUrls: ['./purchase-invoice.component.css']
 })
 export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
-  mainList: Array<PurchaseInvoiceModel>;
+  mainList: Array<PurchaseInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  selectedRecord: PurchaseInvoiceModel;
-  refModel: PurchaseInvoiceModel;
+  selectedRecord: PurchaseInvoiceMainModel;
+  refModel: PurchaseInvoiceMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
+  searchText: '';
   encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
@@ -89,7 +90,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.totalPrice += item.data.totalPrice;
@@ -99,9 +101,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           this.totalValues.totalPrice -= item.data.totalPrice;
           this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
-          this.totalValues.totalPrice -= this.refModel.totalPrice;
-          this.totalValues.totalPriceWithTax -= this.refModel.totalPriceWithTax;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
+          this.totalValues.totalPrice -= this.refModel.data.totalPrice;
+          this.totalValues.totalPriceWithTax -= this.refModel.data.totalPriceWithTax;
           this.totalValues.totalPrice += item.data.totalPrice;
           this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
         } else {
@@ -112,19 +114,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.data as PurchaseInvoiceModel;
-    this.refModel = record.data as PurchaseInvoiceModel;
-    this.selectedRecord.totalPrice = Math.abs(this.selectedRecord.totalPrice);
-    this.selectedRecord.totalPriceWithTax = Math.abs(this.selectedRecord.totalPriceWithTax);
-    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
+    this.selectedRecord = record as PurchaseInvoiceMainModel;
+    this.refModel = record as PurchaseInvoiceMainModel;
+    this.selectedRecord.data.totalPrice = Math.abs(this.selectedRecord.data.totalPrice);
+    this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
+    this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
     .subscribe(list => {
-      if (list.length > 0) {
-        this.isRecordHasTransaction = true;
-
-      } else {
-        this.isRecordHasTransaction = false;
-      }
+      this.isRecordHasTransaction = list.length > 0;
     });
   }
 
@@ -161,36 +158,36 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
     if (receiptNoData !== null) {
-      this.selectedRecord.receiptNo = receiptNoData;
+      this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.totalPrice <= 0) {
+    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (this.selectedRecord.totalPrice <= 0) {
+    } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
-      if (this.selectedRecord.primaryKey === undefined) {
+      if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.selectedRecord.primaryKey = '';
+        this.selectedRecord.data.primaryKey = '';
         this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
-            userPrimaryKey: this.selectedRecord.userPrimaryKey,
-            receiptNo: this.selectedRecord.receiptNo,
+            userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+            receiptNo: this.selectedRecord.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'purchaseInvoice',
-            parentPrimaryKey: this.selectedRecord.customerCode,
+            parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
             cashDeskPrimaryKey: '-1',
-            amount: this.selectedRecord.type === 'purchase' ?
-            this.selectedRecord.totalPriceWithTax : this.selectedRecord.totalPriceWithTax * -1,
-            amountType: this.selectedRecord.type === 'purchase' ? 'credit' : 'debit',
-            insertDate: this.selectedRecord.insertDate
+            amount: this.selectedRecord.data.type === 'purchase' ?
+            this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
+            amountType: this.selectedRecord.data.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: this.selectedRecord.data.insertDate
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
@@ -200,13 +197,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               const trans = {
-                receiptNo: this.selectedRecord.receiptNo,
-                insertDate: this.selectedRecord.insertDate,
-                amount: this.selectedRecord.type === 'purchase' ?
-                this.selectedRecord.totalPriceWithTax : this.selectedRecord.totalPriceWithTax * -1,
+                receiptNo: this.selectedRecord.data.receiptNo,
+                insertDate: this.selectedRecord.data.insertDate,
+                amount: this.selectedRecord.data.type === 'purchase' ?
+                this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
@@ -222,7 +219,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.infoService.success('Fatura başarıyla kaldırıldı.');
@@ -237,8 +234,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
-    this.selectedRecord = {primaryKey: undefined, customerCode: '', receiptNo: '', type: '-1',
-    description: '', userPrimaryKey: this.authService.getUid()};
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {

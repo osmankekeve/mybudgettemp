@@ -1,4 +1,5 @@
 import {isNullOrUndefined} from 'util';
+import * as CryptoJS from 'crypto-js';
 
 
 export const getNumber = (value: any) => {
@@ -167,6 +168,11 @@ export const padLeft = (str: string, size: number) => {
   let s = str + '';
   while (s.length < size) { s = '0' + s; }
   return s;
+};
+
+export const encryptData = (strData: any) => {
+  return CryptoJS.AES.encrypt(JSON.stringify(strData),
+    this.getEncryptionKey()).toString();
 };
 
 

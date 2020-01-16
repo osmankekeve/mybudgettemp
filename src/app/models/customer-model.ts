@@ -1,6 +1,7 @@
 export class CustomerModel {
   primaryKey?: string;
-  userPrimaryKey?: string;
+  userPrimaryKey: string;
+  employeePrimaryKey: string;
   code?: string;
   name?: string;
   owner?: string;

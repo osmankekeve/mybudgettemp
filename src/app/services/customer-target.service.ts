@@ -16,7 +16,6 @@ import { getTodayForInput, getMonths } from '../core/correct-library';
 export class CustomerTargetService {
   listCollection: AngularFirestoreCollection<CustomerTargetModel>;
   mainList$: Observable<CustomerTargetMainModel[]>;
-  mainList2$: Observable<CustomerTargetModel[]>;
   tableName = 'tblCustomerTarget';
   typeMap = new Map([['monthly', 'Aylık'], ['yearly', 'Yıllık'], ['periodic', 'Periyodik']]);
   months = getMonths();
@@ -28,22 +27,22 @@ export class CustomerTargetService {
   }
 
   async addItem(record: CustomerTargetMainModel) {
-    this.logService.sendToLog(record, 'insert', 'customerTarget');
+    await this.logService.sendToLog(record, 'insert', 'customerTarget');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerTargetMainModel) {
-    this.logService.sendToLog(record, 'delete', 'customerTarget');
+    await this.logService.sendToLog(record, 'delete', 'customerTarget');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerTargetMainModel) {
-    this.logService.sendToLog(record, 'update', 'customerTarget');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(record.data);
+    await this.logService.sendToLog(record, 'update', 'customerTarget');
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
   async getItem(record: CustomerTargetMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey);
+    return this.db.collection(this.tableName).doc(record.data.primaryKey);
   }
 
   clearSubModel(): CustomerTargetModel {
@@ -67,7 +66,6 @@ export class CustomerTargetService {
     returnData.typeTr = 'Yıllık';
     returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
     returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
-    returnData.typeTr = 'Yıllık';
     returnData.actionType = 'added';
     return returnData;
   }

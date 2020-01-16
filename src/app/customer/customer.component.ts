@@ -31,6 +31,11 @@ import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { CustomerTargetService } from '../services/customer-target.service';
 import { SettingService } from '../services/setting.service';
+import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {PaymentMainModel} from "../models/payment-main-model";
+import {PurchaseInvoiceMainModel} from "../models/purchase-invoice-main-model";
 
 @Component({
   selector: 'app-customer',
@@ -42,21 +47,21 @@ export class CustomerComponent implements OnInit {
   mainList: Array<CustomerModel>;
   selectedCustomer: CustomerModel;
   refModel: CustomerModel;
-  newSalesInvoice: SalesInvoiceModel;
-  newPurchaseInvoice: PurchaseInvoiceModel;
-  newCollection: CollectionModel;
-  newPayment: PaymentModel;
-  newVoucher: AccountVoucherModel;
+  newSalesInvoice: SalesInvoiceMainModel;
+  newPurchaseInvoice: PurchaseInvoiceMainModel;
+  newCollection: CollectionMainModel;
+  newPayment: PaymentMainModel;
+  newVoucher: AccountVoucherMainModel;
 
-  purchaseInvoiceList$: Observable<PurchaseInvoiceModel[]>;
+  purchaseInvoiceList$: Observable<PurchaseInvoiceMainModel[]>;
   purchaseInvoiceAmount: any;
-  siList$: Observable<SalesInvoiceModel[]>;
+  siList$: Observable<SalesInvoiceMainModel[]>;
   siAmount: any;
-  colList$: Observable<CollectionModel[]>;
+  colList$: Observable<CollectionMainModel[]>;
   colAmount: any;
-  payList$: Observable<PaymentModel[]>;
+  payList$: Observable<PaymentMainModel[]>;
   payAmount: any;
-  voucherList$: Observable<AccountVoucherModel[]>;
+  voucherList$: Observable<AccountVoucherMainModel[]>;
   voucherAmount: any;
   totalAmount: any;
   openedPanel: string;
@@ -116,7 +121,8 @@ export class CustomerComponent implements OnInit {
     this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.purchaseInvoiceAmount = 0;
     this.purchaseInvoiceList$.subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
           this.purchaseInvoiceAmount += Math.round(item.data.totalPriceWithTax);
           this.totalAmount += Math.round(item.data.totalPriceWithTax);
@@ -133,7 +139,8 @@ export class CustomerComponent implements OnInit {
     this.siList$ = this.siService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.siAmount = 0;
     this.siList$.subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as SalesInvoiceMainModel;
         if (item.actionType === 'added') {
           this.siAmount += Math.round(item.data.totalPriceWithTax);
           this.totalAmount -= Math.round(item.data.totalPriceWithTax);
@@ -150,7 +157,8 @@ export class CustomerComponent implements OnInit {
     this.colList$ = this.colService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.colAmount = 0;
     this.colList$.subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as CollectionMainModel;
         if (item.actionType === 'added') {
           this.colAmount += Math.round(item.data.amount);
           this.totalAmount += Math.round(item.data.amount);
@@ -167,7 +175,8 @@ export class CustomerComponent implements OnInit {
     this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.payAmount = 0;
     this.payList$.subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PaymentMainModel;
         if (item.actionType === 'added') {
           this.payAmount += Math.round(item.data.amount);
           this.totalAmount -= Math.round(item.data.amount);
@@ -184,7 +193,8 @@ export class CustomerComponent implements OnInit {
     this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.primaryKey);
     this.voucherAmount = 0;
     this.voucherList$.subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as AccountVoucherMainModel;
         if (item.actionType === 'added') {
           this.voucherAmount += Math.round(item.data.amount);
           if (item.data.type === 'debitVoucher') {
@@ -257,24 +267,24 @@ export class CustomerComponent implements OnInit {
 
   btnSaveSalesInvoice_Click(): void {
     try {
-      if (this.newSalesInvoice.primaryKey === undefined) {
+      if (this.newSalesInvoice.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.newSalesInvoice.primaryKey = '';
-
+        this.newSalesInvoice.data.primaryKey = '';
+        this.newSalesInvoice.data.customerCode = this.selectedCustomer.primaryKey;
         this.siService.setItem(this.newSalesInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.newSalesInvoice.userPrimaryKey,
-            receiptNo: this.newSalesInvoice.receiptNo,
+            userPrimaryKey: this.newSalesInvoice.data.userPrimaryKey,
+            receiptNo: this.newSalesInvoice.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'salesInvoice',
-            parentPrimaryKey: this.newSalesInvoice.customerCode,
+            parentPrimaryKey: this.newSalesInvoice.data.customerCode,
             parentType: 'customer',
             cashDeskPrimaryKey: '-1',
-            amount: this.newSalesInvoice.type === 'sales'
-              ? this.newSalesInvoice.totalPriceWithTax * -1 : this.newSalesInvoice.totalPriceWithTax,
-            amountType: this.newSalesInvoice.type === 'sales' ? 'debit' : 'credit',
-            insertDate: this.newSalesInvoice.insertDate,
+            amount: this.newSalesInvoice.data.type === 'sales'
+              ? this.newSalesInvoice.data.totalPriceWithTax * -1 : this.newSalesInvoice.data.totalPriceWithTax,
+            amountType: this.newSalesInvoice.data.type === 'sales' ? 'debit' : 'credit',
+            insertDate: this.newSalesInvoice.data.insertDate,
           }).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
             this.clearNewSalesInvoice();
@@ -288,29 +298,29 @@ export class CustomerComponent implements OnInit {
 
   btnSavePurchaseInvoice_Click(): void {
     try {
-      if (this.newPurchaseInvoice.primaryKey === undefined) {
+      if (this.newPurchaseInvoice.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.newPurchaseInvoice.primaryKey = '';
+        this.newPurchaseInvoice.data.primaryKey = '';
+        this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.primaryKey;
         this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.newPurchaseInvoice.userPrimaryKey,
-            receiptNo: this.newPurchaseInvoice.receiptNo,
+            userPrimaryKey: this.newPurchaseInvoice.data.userPrimaryKey,
+            receiptNo: this.newPurchaseInvoice.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'purchaseInvoice',
-            parentPrimaryKey: this.newPurchaseInvoice.customerCode,
+            parentPrimaryKey: this.newPurchaseInvoice.data.customerCode,
             parentType: 'customer',
             cashDeskPrimaryKey: '-1',
-            amount: this.newPurchaseInvoice.type === 'purchase'
-              ? this.newPurchaseInvoice.totalPriceWithTax : this.newPurchaseInvoice.totalPriceWithTax * -1,
-            amountType: this.newPurchaseInvoice.type === 'purchase' ? 'credit' : 'debit',
-            insertDate: this.newPurchaseInvoice.insertDate,
+            amount: this.newPurchaseInvoice.data.type === 'purchase'
+              ? this.newPurchaseInvoice.data.totalPriceWithTax : this.newPurchaseInvoice.data.totalPriceWithTax * -1,
+            amountType: this.newPurchaseInvoice.data.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: this.newPurchaseInvoice.data.insertDate,
           }).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
             this.clearNewPurchaseInvoice();
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
-
       }
     } catch (error) {
       this.infoService.error(error);
@@ -319,26 +329,27 @@ export class CustomerComponent implements OnInit {
 
   btnSaveCollection_Click(): void {
     try {
-      if (this.newCollection.primaryKey === undefined) {
+      if (this.newCollection.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.newCollection.primaryKey = '';
+        this.newCollection.data.primaryKey = '';
+        this.newCollection.data.customerCode = this.selectedCustomer.primaryKey;
 
         this.colService.setItem(this.newCollection, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.newCollection.userPrimaryKey,
-            receiptNo: this.newCollection.receiptNo,
+            userPrimaryKey: this.newCollection.data.userPrimaryKey,
+            receiptNo: this.newCollection.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'collection',
-            parentPrimaryKey: this.newCollection.customerCode,
+            parentPrimaryKey: this.newCollection.data.customerCode,
             parentType: 'customer',
-            cashDeskPrimaryKey: this.newCollection.cashDeskPrimaryKey,
-            amount: this.newCollection.amount,
+            cashDeskPrimaryKey: this.newCollection.data.cashDeskPrimaryKey,
+            amount: this.newCollection.data.amount,
             amountType: 'credit',
-            insertDate: this.newCollection.insertDate,
-          }).then(() => {
+            insertDate: this.newCollection.data.insertDate,
+          }).then(async () => {
             this.infoService.success('Tahsilat başarıyla kaydedildi.');
-            this.clearNewCollection();
+            await this.clearNewCollection();
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
       }
@@ -349,26 +360,27 @@ export class CustomerComponent implements OnInit {
 
   btnSavePayment_Click(): void {
     try {
-      if (this.newPayment.primaryKey === undefined) {
+      if (this.newPayment.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.newPayment.primaryKey = '';
+        this.newPayment.data.primaryKey = '';
+        this.newPayment.data.customerCode = this.selectedCustomer.primaryKey;
 
         this.payService.setItem(this.newPayment, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.newPayment.userPrimaryKey,
-            receiptNo: this.newPayment.receiptNo,
+            userPrimaryKey: this.newPayment.data.userPrimaryKey,
+            receiptNo: this.newPayment.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'payment',
-            parentPrimaryKey: this.newPayment.customerCode,
+            parentPrimaryKey: this.newPayment.data.customerCode,
             parentType: 'customer',
-            cashDeskPrimaryKey: this.newPayment.cashDeskPrimaryKey,
-            amount: this.newPayment.amount * -1,
+            cashDeskPrimaryKey: this.newPayment.data.cashDeskPrimaryKey,
+            amount: this.newPayment.data.amount * -1,
             amountType: 'debit',
-            insertDate: this.newPayment.insertDate,
-          }).then(() => {
+            insertDate: this.newPayment.data.insertDate,
+          }).then(async () => {
             this.infoService.success('Ödeme başarıyla kaydedildi.');
-            this.clearNewPayment();
+            await this.clearNewPayment();
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
       }
@@ -379,26 +391,28 @@ export class CustomerComponent implements OnInit {
 
   btnSaveVoucher_Click(): void {
     try {
-      if (this.newVoucher.primaryKey === undefined) {
+      if (this.newVoucher.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.newVoucher.primaryKey = '';
+        this.newVoucher.data.primaryKey = '';
+        this.newVoucher.data.customerCode = this.selectedCustomer.primaryKey;
 
         this.avService.setItem(this.newVoucher, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.newVoucher.userPrimaryKey,
-            receiptNo: this.newVoucher.receiptNo,
+            userPrimaryKey: this.newVoucher.data.userPrimaryKey,
+            receiptNo: this.newVoucher.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'accountVoucher',
-            parentPrimaryKey: this.newVoucher.customerCode,
+            parentPrimaryKey: this.newVoucher.data.customerCode,
             parentType: 'customer',
-            cashDeskPrimaryKey: this.newVoucher.cashDeskPrimaryKey,
-            amount: this.newVoucher.type === 'creditVoucher' ? this.newVoucher.amount : this.newVoucher.amount * -1,
-            amountType: this.newVoucher.type === 'creditVoucher' ? 'credit' : 'debit',
-            insertDate: this.newVoucher.insertDate,
-          }).then(() => {
+            cashDeskPrimaryKey: this.newVoucher.data.cashDeskPrimaryKey,
+            amount: this.newVoucher.data.type === 'creditVoucher' ?
+              this.newVoucher.data.amount : this.newVoucher.data.amount * -1,
+            amountType: this.newVoucher.data.type === 'creditVoucher' ? 'credit' : 'debit',
+            insertDate: this.newVoucher.data.insertDate,
+          }).then(async () => {
             this.infoService.success('Fiş başarıyla kaydedildi.');
-            this.clearNewVoucher();
+            await this.clearNewVoucher();
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
       }
@@ -509,72 +523,47 @@ export class CustomerComponent implements OnInit {
     this.refModel = undefined;
     this.selectedCustomer = {
       primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: '', isActive: true,
-      userPrimaryKey: this.authService.getUid()
+      userPrimaryKey: this.authService.getUid(), employeePrimaryKey: this.authService.getEid()
     };
   }
 
   async clearNewSalesInvoice(): Promise<void> {
-    this.newSalesInvoice = {
-      primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'sales',
-      description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
-    };
+    this.newSalesInvoice = this.siService.clearMainModel();
     const receiptNoData = await this.sService.getSalesInvoiceCode();
     if (receiptNoData !== null) {
-      this.newSalesInvoice.receiptNo = receiptNoData;
+      this.newSalesInvoice.data.receiptNo = receiptNoData;
     }
   }
 
   async clearNewPurchaseInvoice(): Promise<void> {
-    this.newPurchaseInvoice = {
-      primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: 'purchase',
-      description: '', insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
-    };
+    this.newPurchaseInvoice = this.piService.clearMainModel()
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
     if (receiptNoData !== null) {
-      this.newPurchaseInvoice.receiptNo = receiptNoData;
+      this.newPurchaseInvoice.data.receiptNo = receiptNoData;
     }
   }
 
   async clearNewCollection(): Promise<void> {
-    this.newCollection = {
-      primaryKey: undefined,
-      customerCode: this.selectedCustomer.primaryKey,
-      receiptNo: '',
-      type: 'cash',
-      description: '',
-      insertDate: Date.now(),
-      userPrimaryKey: this.selectedCustomer.userPrimaryKey
-    };
+    this.newCollection = this.colService.clearMainModel();
     const receiptNoData = await this.sService.getCollectionCode();
     if (receiptNoData !== null) {
-      this.newCollection.receiptNo = receiptNoData;
+      this.newCollection.data.receiptNo = receiptNoData;
     }
   }
 
   async clearNewPayment(): Promise<void> {
-    this.newPayment = {
-      primaryKey: undefined,
-      customerCode: this.selectedCustomer.primaryKey,
-      receiptNo: '',
-      type: 'cash',
-      description: '',
-      insertDate: Date.now(),
-      userPrimaryKey: this.selectedCustomer.userPrimaryKey
-    };
+    this.newPayment = this.payService.clearMainModel();
     const receiptNoData = await this.sService.getPaymentCode();
     if (receiptNoData !== null) {
-      this.newPayment.receiptNo = receiptNoData;
+      this.newPayment.data.receiptNo = receiptNoData;
     }
   }
 
   async clearNewVoucher(): Promise<void> {
-    this.newVoucher = {
-      primaryKey: undefined, customerCode: this.selectedCustomer.primaryKey, receiptNo: '', type: '-1', description: '',
-      insertDate: Date.now(), userPrimaryKey: this.selectedCustomer.userPrimaryKey
-    };
+    this.newVoucher = this.avService.clearMainModel();
     const receiptNoData = await this.sService.getAccountVoucherCode();
     if (receiptNoData !== null) {
-      this.newVoucher.receiptNo = receiptNoData;
+      this.newVoucher.data.receiptNo = receiptNoData;
     }
   }
 
@@ -585,7 +574,7 @@ export class CustomerComponent implements OnInit {
       data = await this.siService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.route.navigate(['sales-invoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
@@ -595,7 +584,7 @@ export class CustomerComponent implements OnInit {
       data = await this.colService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.route.navigate(['collection', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
@@ -605,7 +594,7 @@ export class CustomerComponent implements OnInit {
       data = await this.piService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.route.navigate(['purchaseInvoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
@@ -624,7 +613,7 @@ export class CustomerComponent implements OnInit {
       data = await this.payService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.route.navigate(['payment', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
@@ -634,7 +623,7 @@ export class CustomerComponent implements OnInit {
       data = await this.avService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.route.navigate(['account-voucher', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }

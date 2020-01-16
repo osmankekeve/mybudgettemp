@@ -154,7 +154,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
     this.selectedRecord = {
       primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
-      userPrimaryKey: this.authService.getUid(), insertDate: Date.now()
+      userPrimaryKey: this.authService.getUid(), insertDate: Date.now(), employeePrimaryKey: this.authService.getEid()
     };
   }
 

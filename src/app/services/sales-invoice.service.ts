@@ -7,71 +7,80 @@ import { combineLatest } from 'rxjs';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
-import { LogModel } from '../models/log-model';
 import {SettingService} from './setting.service';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {ProfileService} from './profile.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SalesInvoiceService {
   listCollection: AngularFirestoreCollection<SalesInvoiceModel>;
-  mainList$: Observable<SalesInvoiceModel[]>;
+  mainList$: Observable<SalesInvoiceMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
+  employeeMap = new Map();
   tableName = 'tblSalesInvoice';
+  searchText = '';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
-              public logService: LogService,
-              public db: AngularFirestore) {
-
-  }
-
-  getAllItems(): Observable<SalesInvoiceModel[]> {
-    this.listCollection = this.db.collection<SalesInvoiceModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: SalesInvoiceModel) {
-    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
-    await this.sService.increaseSalesInvoiceNumber();
-    return await this.listCollection.add(record);
-  }
-
-  async setItem(record: SalesInvoiceModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
-    await this.sService.increaseSalesInvoiceNumber();
-    return await this.listCollection.doc(primaryKey).set(record);
-  }
-
-  async removeItem(record: SalesInvoiceModel) {
-    await this.logService.sendToLog(record, 'delete', 'salesInvoice');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
-  }
-
-  async updateItem(record: SalesInvoiceModel) {
-    await this.logService.sendToLog(record, 'update', 'salesInvoice');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
-  }
-
-  async sendToLog(record: SalesInvoiceModel, proccess: string) {
-    const item = new LogModel();
-    item.parentType = 'salesInvoice';
-    item.parentPrimaryKey = record.primaryKey;
-    item.type = 'notification';
-    item.userPrimaryKey = this.authService.getUid();
-    item.isActive = true;
-    item.insertDate = Date.now();
-    if (proccess === 'insert') {
-      item.log = record.receiptNo + ' fiş numaralı Satış Faturası oluşturuldu.';
-    }  else if (proccess === 'update') {
-      item.log = record.receiptNo + ' fiş numaralı Satış Faturası güncellendi.';
-    } else if (proccess === 'delete') {
-      item.log = record.receiptNo + ' fiş numaralı Satış Faturası kaldırıldı.';
-    } else {
-      //
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
     }
-    return await this.logService.setItem(item);
+  }
+
+  async addItem(record: SalesInvoiceMainModel) {
+    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+    await this.sService.increaseSalesInvoiceNumber();
+    return await this.listCollection.add(Object.assign({}, record.data));
+  }
+
+  async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
+    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+    await this.sService.increaseSalesInvoiceNumber();
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  }
+
+  async removeItem(record: SalesInvoiceMainModel) {
+    await this.logService.sendToLog(record, 'delete', 'salesInvoice');
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+  }
+
+  async updateItem(record: SalesInvoiceMainModel) {
+    await this.logService.sendToLog(record, 'update', 'salesInvoice');
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  clearSubModel(): SalesInvoiceModel {
+
+    const returnData = new SalesInvoiceModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.customerCode = '-1';
+    returnData.receiptNo = '';
+    returnData.type = '-1';
+    returnData.totalPrice = null;
+    returnData.totalPriceWithTax = null;
+    returnData.description = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): SalesInvoiceMainModel {
+    const returnData = new SalesInvoiceMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.customerName = '';
+    returnData.employeeName = '';
+    returnData.actionType = 'added';
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -80,7 +89,10 @@ export class SalesInvoiceService {
         if (doc.exists) {
           const data = doc.data() as SalesInvoiceModel;
           data.primaryKey = doc.id;
-          resolve(Object.assign({data}));
+          const returnData = new SalesInvoiceMainModel();
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          return Object.assign({returnData});
         } else {
           resolve(null);
         }
@@ -88,7 +100,7 @@ export class SalesInvoiceService {
     });
   }
 
-  getCustomerItems(customerCode: string): Observable<SalesInvoiceModel[]> {
+  getCustomerItems(customerCode: string): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.stateChanges().pipe(
@@ -96,29 +108,40 @@ export class SalesInvoiceService {
         changes.map(c => {
           const data = c.payload.doc.data() as SalesInvoiceModel;
           data.primaryKey = c.payload.doc.id;
-          return Object.assign({data, actionType: c.type});
+          const returnData = new SalesInvoiceMainModel();
+          returnData.actionType = c.type;
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          return Object.assign({returnData});
         })
       )
     );
     return this.mainList$;
   }
 
-  getMainItems(): Observable<SalesInvoiceModel[]> {
+  getMainItems(): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new SalesInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<SalesInvoiceModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authService.getUid()));
@@ -126,15 +149,22 @@ export class SalesInvoiceService {
       return changes.map( change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new SalesInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<SalesInvoiceModel[]> {
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
@@ -149,9 +179,16 @@ export class SalesInvoiceService {
       return changes.map( change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new SalesInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map( (customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

@@ -20,6 +20,7 @@ import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-customer-target',
@@ -34,7 +35,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   selectedRecord: CustomerTargetMainModel;
   customerList$: Observable<CustomerModel[]>;
   refModel: CustomerTargetMainModel;
-  transactionList$: Observable<CollectionModel[]>;
+  transactionList$: Observable<CollectionMainModel[]>;
   currentAmount = 0;
   encryptSecretKey: string = getEncryptionKey();
 
@@ -125,7 +126,8 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
       this.transactionList$ = this.colService.
       getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
       this.transactionList$.subscribe(list => {
-        list.forEach((item: any) => {
+        list.forEach((data: any) => {
+          const item = data.returnData as CollectionMainModel;
           if (item.actionType === 'added') {
             this.currentAmount += item.data.amount;
           } else if (item.actionType === 'removed') {

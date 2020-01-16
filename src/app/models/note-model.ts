@@ -1,6 +1,7 @@
-export interface NoteModel {
-    primaryKey?: string;
-    userPrimaryKey: string;
-    note?: string;
-    insertDate: number;
+export class NoteModel {
+  primaryKey?: string;
+  userPrimaryKey: string;
+  employeePrimaryKey: string;
+  note?: string;
+  insertDate: number;
 }

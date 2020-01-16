@@ -173,8 +173,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authService.getUid()};
-    console.log(this.selectedRecord);
+    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authService.getUid(),
+      employeePrimaryKey: this.authService.getEid()};
   }
 
   clearMainFiler(): void {

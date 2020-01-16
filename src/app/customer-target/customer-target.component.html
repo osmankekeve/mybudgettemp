@@ -345,9 +345,9 @@
                 </thead>
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
-                  <td>{{item.data.receiptNo}}</td>
-                  <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+                  <td>{{item.returnData.data.receiptNo}}</td>
+                  <td><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></td>
+                  <td><span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
                 </tr>
                 </tbody>
               </table>

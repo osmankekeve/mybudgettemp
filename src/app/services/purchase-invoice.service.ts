@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {
   AngularFirestore,
   AngularFirestoreCollection,
-  AngularFirestoreDocument,
   CollectionReference,
   Query
 } from '@angular/fire/firestore';
@@ -13,51 +12,80 @@ import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {SettingService} from './setting.service';
+import {ProfileService} from './profile.service';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PurchaseInvoiceService {
   listCollection: AngularFirestoreCollection<PurchaseInvoiceModel>;
-  mainList$: Observable<PurchaseInvoiceModel[]>;
+  mainList$: Observable<PurchaseInvoiceMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
+  employeeMap = new Map();
   tableName = 'tblPurchaseInvoice';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
-              public logService: LogService,
-              public db: AngularFirestore) {
-
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+    }
   }
 
-  getAllItems(): Observable<PurchaseInvoiceModel[]> {
-    this.listCollection = this.db.collection<PurchaseInvoiceModel>(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: PurchaseInvoiceModel) {
+  async addItem(record: PurchaseInvoiceMainModel) {
     await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
     await this.sService.increasePurchaseInvoiceNumber();
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async setItem(record: PurchaseInvoiceModel, primaryKey: string) {
+  async setItem(record: PurchaseInvoiceMainModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
     await this.sService.increasePurchaseInvoiceNumber();
-    return await this.listCollection.doc(primaryKey).set(record);
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
-  async removeItem(record: PurchaseInvoiceModel) {
+  async removeItem(record: PurchaseInvoiceMainModel) {
     await this.logService.sendToLog(record, 'delete', 'purchaseInvoice');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: PurchaseInvoiceModel) {
+  async updateItem(record: PurchaseInvoiceMainModel) {
     await this.logService.sendToLog(record, 'update', 'purchaseInvoice');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  clearSubModel(): PurchaseInvoiceModel {
+
+    const returnData = new PurchaseInvoiceModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.customerCode = '-1';
+    returnData.receiptNo = '';
+    returnData.type = '-1';
+    returnData.totalPrice = null;
+    returnData.totalPriceWithTax = null;
+    returnData.description = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): PurchaseInvoiceMainModel {
+    const returnData = new AccountVoucherMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.customerName = '';
+    returnData.employeeName = '';
+    returnData.actionType = 'added';
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -66,7 +94,10 @@ export class PurchaseInvoiceService {
         if (doc.exists) {
           const data = doc.data() as PurchaseInvoiceModel;
           data.primaryKey = doc.id;
-          resolve(Object.assign({data}));
+          const returnData = new PurchaseInvoiceMainModel();
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          return Object.assign({returnData});
         } else {
           resolve(null);
         }
@@ -74,7 +105,7 @@ export class PurchaseInvoiceService {
     });
   }
 
-  getCustomerItems(customerCode: string): Observable<PurchaseInvoiceModel[]> {
+  getCustomerItems(customerCode: string): Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.stateChanges().pipe(
@@ -82,30 +113,40 @@ export class PurchaseInvoiceService {
         changes.map(c => {
           const data = c.payload.doc.data() as PurchaseInvoiceModel;
           data.primaryKey = c.payload.doc.id;
-          return Object.assign({data, actionType: c.type});
+
+          const returnData = new PurchaseInvoiceMainModel();
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          return Object.assign({returnData});
         })
       )
     );
     return this.mainList$;
   }
 
-  getMainItems(): Observable<PurchaseInvoiceModel[]> {
+  getMainItems(): Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new PurchaseInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name, actionType: change.type});
-          }));
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PurchaseInvoiceModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid()));
@@ -113,16 +154,22 @@ export class PurchaseInvoiceService {
       return changes.map(change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new PurchaseInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name, actionType: change.type});
-          }));
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PurchaseInvoiceModel[]> {
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {
       let query: CollectionReference | Query = ref;
       query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
@@ -136,10 +183,16 @@ export class PurchaseInvoiceService {
       return changes.map(change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new PurchaseInvoiceMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({data, customerName: customer.name, actionType: change.type});
-          }));
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

@@ -51,7 +51,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.cookieService.check('cookieCMA')) {
+    /*if (this.cookieService.check('cookieCMA')) {
       const cookieCMA: string = getString(this.cookieService.get('cookieCMA'));
       this.emailInput = cookieCMA;
       this.isCMAChecked = true;
@@ -59,6 +59,14 @@ export class AppComponent implements OnInit {
     if (this.cookieService.check('cookieEMA')) {
       const cookieEMA: string = getString(this.cookieService.get('cookieEMA'));
       this.employeeEmail = cookieEMA;
+      this.isEMAChecked = true;
+    }*/
+    if (localStorage.getItem('cookieCMA') !== null) {
+      this.emailInput = getString(localStorage.getItem('cookieCMA'));
+      this.isCMAChecked = true;
+    }
+    if (localStorage.getItem('cookieEMA') !== null) {
+      this.employeeEmail = getString(localStorage.getItem('cookieEMA'));
       this.isEMAChecked = true;
     }
     this.isUserLoggedIn();
@@ -108,8 +116,15 @@ export class AppComponent implements OnInit {
         this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
         this.populateActivityList();
-        if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
+        /*if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
           this.cookieService.set('cookieCMA', this.emailInput);
+        }*/
+        if (this.isCMAChecked) {
+          localStorage.setItem('cookieCMA', this.emailInput);
+        } else {
+          if (localStorage.getItem('cookieCMA') !== null) {
+            localStorage.removeItem('cookieCMA');
+          }
         }
       }, err => {
         this.infoService.error(err.message);
@@ -278,10 +293,19 @@ export class AppComponent implements OnInit {
     if (data) {
       this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
       this.isEmployeeLoggedIn();
-      this.cookieService.set('loginTime', Date.now().toString());
+      /*this.cookieService.set('loginTime', Date.now().toString());
       if (!this.cookieService.check('cookieEMA') && this.isEMAChecked) {
         this.cookieService.set('cookieEMA', this.employeeEmail);
+      }*/
+      this.cookieService.set('loginTime', Date.now().toString());
+      if (this.isEMAChecked) {
+        localStorage.setItem('cookieEMA', this.employeeEmail);
+      } else {
+        if (localStorage.getItem('cookieEMA') !== null) {
+          localStorage.removeItem('cookieEMA');
+        }
       }
+
       await this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
     } else {
       this.infoService.error('Kullanıcı sistemde kayıtlı değil');

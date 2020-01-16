@@ -74,7 +74,7 @@
           <div class="font-weight-500 text-dark">{{item.customerName}}</div>
           <div class="row">
             <div class="col">
-              <div class="text-small text-dark float-left">{{item.data.receiptNo}}</div>
+              <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
             </div>
             <div class="col">
               <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
@@ -109,24 +109,24 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="form-row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="customerName">Müşteri</label>
+          <label class="col-form-label float-left" for="customerCode">Müşteri</label>
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
                   [disabled]="f.valid"
-                  [(ngModel)]="selectedRecord.customerCode">
+                  [(ngModel)]="selectedRecord.data.customerCode">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
+          <label class="col-form-label float-left" for="type">Fiş Tipi</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
                   [disabled]="f.valid"
-                  [(ngModel)]="selectedRecord.type">
+                  [(ngModel)]="selectedRecord.data.type">
             <option value="creditVoucher">Alacaklandırma</option>
             <option value="debitVoucher">Borçlandırma</option>
           </select>
@@ -137,14 +137,14 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
-                  [(ngModel)]="selectedRecord.cashDeskPrimaryKey">
+                  [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
             <option value={{item.primaryKey}}
                     *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+          <label class="col-form-label float-left">Kayıt Tarihi</label>
         </div>
         <div class="col-sm-3">
           <div class="input-group">
@@ -161,15 +161,15 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                 [(ngModel)]="selectedRecord.receiptNo" required>
+                 [(ngModel)]="selectedRecord.data.receiptNo" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+          <label class="col-form-label float-left" for="amount">Tutar</label>
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
-                 [(ngModel)]="selectedRecord.amount" required>
+                 [(ngModel)]="selectedRecord.data.amount" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-6"></div>
@@ -178,7 +178,7 @@
         </div>
         <div class="col-sm-9">
           <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                 [(ngModel)]="selectedRecord.description">
+                 [(ngModel)]="selectedRecord.data.description">
         </div>
       </div>
     </form>
@@ -191,7 +191,7 @@
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
               (click)="btnRemove_Click()">Kaldır
       </button>

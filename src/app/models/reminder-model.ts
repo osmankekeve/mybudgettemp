@@ -1,4 +1,4 @@
-export interface ReminderModel {
+export class ReminderModel {
   primaryKey?: string;
   userPrimaryKey?: string;
   employeePrimaryKey?: string;

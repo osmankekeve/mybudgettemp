@@ -1,5 +1,5 @@
 <div class="card work-area" *ngIf="selectedCustomer==undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
         <h4 class="card-title float-left mr-2">Müşteri Listesi</h4>
@@ -66,7 +66,7 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedCustomer!=undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
         <h4 class="card-title float-left mr-2">{{selectedCustomer.name}}</h4>
@@ -314,7 +314,7 @@
                   </div>
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm" name="type"
-                            [(ngModel)]="newSalesInvoice.type" required>
+                            [(ngModel)]="newSalesInvoice.data.type" required>
                       <option value="sales">Satış</option>
                       <option value="return">İade</option>
                     </select>
@@ -325,7 +325,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="receiptNo" type="text"
-                           [(ngModel)]="newSalesInvoice.receiptNo" required>
+                           [(ngModel)]="newSalesInvoice.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -334,7 +334,7 @@
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="totalPrice" type="number"
                            step="any"
-                           [(ngModel)]="newSalesInvoice.totalPrice" required>
+                           [(ngModel)]="newSalesInvoice.data.totalPrice" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -343,7 +343,7 @@
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="totalPriceWithTax"
                            type="number" step="any"
-                           [(ngModel)]="newSalesInvoice.totalPriceWithTax" required>
+                           [(ngModel)]="newSalesInvoice.data.totalPriceWithTax" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -351,7 +351,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="description" type="text"
-                           [(ngModel)]="newSalesInvoice.description">
+                           [(ngModel)]="newSalesInvoice.data.description">
                   </div>
                 </div>
               </form>
@@ -400,7 +400,7 @@
       <div class="form-row">
         <div class="col-sm-7">
           <div class="card">
-            <div class="card-header bg-secondary text-light">
+            <div class="card-header bg-gray-gradient text-dark">
               <h6>Yeni Tahsilat Girişi</h6>
             </div>
             <div class="card-body">
@@ -411,7 +411,7 @@
                   </div>
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" name="type" required
-                            [(ngModel)]="newCollection.type">
+                            [(ngModel)]="newCollection.data.type">
                       <option value="cash">Nakit</option>
                       <option value="creditCard">Kredi Kartı</option>
                       <option value="pNote">Senet</option>
@@ -424,7 +424,7 @@
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" name="cashDeskPrimaryKey"
                             required
-                            [(ngModel)]="newCollection.cashDeskPrimaryKey">
+                            [(ngModel)]="newCollection.data.cashDeskPrimaryKey">
                       <option value={{item.primaryKey}}
                               *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
@@ -435,7 +435,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" name="receiptNo" type="text"
-                           [(ngModel)]="newCollection.receiptNo" required>
+                           [(ngModel)]="newCollection.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -443,22 +443,22 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" name="amount" type="number" step="any"
-                           [(ngModel)]="newCollection.amount" required>
+                           [(ngModel)]="newCollection.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                    <label class="col-form-label float-left" for="insertDateC">Kayıt Tarihi</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left"
-                           for="insertDate">{{newCollection.insertDate | date: 'yyyy.MM.dd'}}</label>
+                           for="insertDateC">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" name="description" type="text"
-                           [(ngModel)]="newCollection.description">
+                           [(ngModel)]="newCollection.data.description">
                   </div>
                 </div>
               </form>
@@ -475,14 +475,14 @@
         </div>
         <div class="col-sm-5">
           <div class="card bg-light">
-            <div class="card-header bg-secondary text-light">
+            <div class="card-header bg-gray-gradient text-dark">
               <h6 class="float-left">Önceki Tahsilatlar</h6>
               <span class="font-weight-bold float-right">{{colAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
               <table class="table table-hover table-striped table-bordered">
                 <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
+                <tr [class.main-list-item] *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"
                     (click)="showTransactionRecord(item)">
                   <td>{{item.receiptNo}}</td>
@@ -520,7 +520,7 @@
                   </div>
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm" name="type"
-                            [(ngModel)]="newPurchaseInvoice.type" required>
+                            [(ngModel)]="newPurchaseInvoice.data.type" required>
                       <option value="purchase">Alım</option>
                       <option value="return">İade</option>
                     </select>
@@ -530,7 +530,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="receiptNo" type="text"
-                           [(ngModel)]="newPurchaseInvoice.receiptNo" required>
+                           [(ngModel)]="newPurchaseInvoice.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -539,7 +539,7 @@
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="number"
                            step="any"
-                           [(ngModel)]="newPurchaseInvoice.totalPrice" required>
+                           [(ngModel)]="newPurchaseInvoice.data.totalPrice" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -548,7 +548,7 @@
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
                            type="number" step="any"
-                           [(ngModel)]="newPurchaseInvoice.totalPriceWithTax" required>
+                           [(ngModel)]="newPurchaseInvoice.data.totalPriceWithTax" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -556,7 +556,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="description" type="text"
-                           [(ngModel)]="newPurchaseInvoice.description">
+                           [(ngModel)]="newPurchaseInvoice.data.description">
                   </div>
                 </div>
               </form>
@@ -618,11 +618,12 @@
                   </div>
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" id="type" name="type" required
-                            [(ngModel)]="newPayment.type">
+                            [(ngModel)]="newPayment.data.type">
                       <option value="cash">Nakit</option>
                       <option value="creditCard">Kredi Kartı</option>
                       <option value="pNote">Senet</option>
                     </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen Tip seçiniz.</div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
@@ -630,7 +631,7 @@
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey"
                             required
-                            [(ngModel)]="newPayment.cashDeskPrimaryKey">
+                            [(ngModel)]="newPayment.data.cashDeskPrimaryKey">
                       <option value={{item.primaryKey}}
                               *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
@@ -641,7 +642,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                           [(ngModel)]="newPayment.receiptNo" required>
+                           [(ngModel)]="newPayment.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
@@ -649,22 +650,21 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
-                           [(ngModel)]="newPayment.amount" required>
+                           [(ngModel)]="newPayment.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left"
-                           for="insertDate">{{newPayment.insertDate | date: 'yyyy.MM.dd'}}</label>
+                    <label class="col-form-label float-left">{{newPayment.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                           [(ngModel)]="newPayment.description">
+                           [(ngModel)]="newPayment.data.description">
                   </div>
                 </div>
               </form>
@@ -721,11 +721,11 @@
               <form (ngSubmit)="btnSaveVoucher_Click()" class="was-validated" #v="ngForm">
                 <div class="form-row">
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left" for="typeTr">Fiş Tipi</label>
+                    <label class="col-form-label float-left" for="type">Fiş Tipi</label>
                   </div>
                   <div class="col-sm-6">
-                    <select class="form-control form-control-sm w-100" id="type" name="type" required
-                            [(ngModel)]="newVoucher.type">
+                    <select class="form-control form-control-sm w-100" id="typeAV" name="type" required
+                            [(ngModel)]="newVoucher.data.type">
                       <option value="creditVoucher">Alacaklandırma</option>
                       <option value="debitVoucher">Borçlandırma</option>
                     </select>
@@ -735,9 +735,9 @@
                     <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
                   </div>
                   <div class="col-sm-6">
-                    <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey"
+                    <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKeyAV" name="cashDeskPrimaryKey"
                             required
-                            [(ngModel)]="newVoucher.cashDeskPrimaryKey">
+                            [(ngModel)]="newVoucher.data.cashDeskPrimaryKey">
                       <option value={{item.primaryKey}}
                               *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                     </select>
@@ -747,24 +747,24 @@
                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                   </div>
                   <div class="col-sm-6">
-                    <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                           [(ngModel)]="newVoucher.receiptNo" required>
+                    <input class="form-control form-control-sm w-100" id="receiptNoAV" name="receiptNo" type="text"
+                           [(ngModel)]="newVoucher.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                   </div>
                   <div class="col-sm-6">
-                    <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
-                           [(ngModel)]="newVoucher.amount" required>
+                    <input class="form-control form-control-sm w-100" id="amountAV" name="amount" type="number" step="any"
+                           [(ngModel)]="newVoucher.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
                   </div>
                   <div class="col-sm-6">
-                    <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                           [(ngModel)]="newVoucher.description">
+                    <input class="form-control form-control-sm w-100" id="descriptionAV" name="description" type="text"
+                           [(ngModel)]="newVoucher.data.description">
                   </div>
                 </div>
               </form>

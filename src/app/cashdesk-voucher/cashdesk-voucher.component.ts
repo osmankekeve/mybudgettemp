@@ -208,7 +208,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '',
-    receiptNo: '', type: '-1', description: '', userPrimaryKey: this.authService.getUid()};
+    receiptNo: '', type: '-1', description: '', userPrimaryKey: this.authService.getUid(), employeePrimaryKey: this.authService.getEid()};
   }
 
   btnExportToExcel_Click(): void {

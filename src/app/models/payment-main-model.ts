@@ -1,7 +1,8 @@
-import { PaymentModel } from './payment-model';
+import {PaymentModel} from './payment-model';
 
 export class PaymentMainModel {
-    customerName?: string;
-    actionType?: string;
-    payment: PaymentModel;
+  data: PaymentModel;
+  customerName?: string;
+  employeeName?: string;
+  actionType?: string;
 }

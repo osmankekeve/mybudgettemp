@@ -1,5 +1,5 @@
 <div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
@@ -41,7 +41,7 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
@@ -56,7 +56,7 @@
       <div class="row">
         <div class="col-sm-6">
           <div class="card">
-            <div class="card-header bg-warning">
+            <div class="card-header bg-gray-gradient">
               <h5>Kasa Bilgileri</h5>
             </div>
             <div class="card-body">
@@ -83,7 +83,7 @@
         </div>
         <div class="col-sm-6">
           <div class="card">
-            <div class="card-header bg-warning">
+            <div class="card-header bg-gray-gradient">
               <h5 class="float-left mr-2">Kasa Hareketleri</h5>
               <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Geniş Filtre"
                       (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i>

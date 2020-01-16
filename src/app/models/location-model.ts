@@ -1,6 +1,7 @@
-export interface LocationModel {
+export class LocationModel {
   primaryKey?: string;
   userPrimaryKey: string;
+  employeePrimaryKey: string;
   customerPrimaryKey?: string;
   name?: string;
   longitude?: number;

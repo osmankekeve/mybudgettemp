@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
-import { AuthenticationService } from './authentication.service';
+import {Injectable} from '@angular/core';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/Observable';
+import {map, flatMap} from 'rxjs/operators';
+import {AuthenticationService} from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import { ProfileMainModel } from '../models/profile-main-model';
+import {ProfileMainModel} from '../models/profile-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,15 +26,15 @@ export class ReminderService {
               public eService: ProfileService,
               public db: AngularFirestore) {
 
-                if (this.authService.isUserLoggedIn()) {
-                  this.eService.getItems().subscribe(list => {
-                    this.employeeMap.clear();
-                    this.employeeMap.set('-1', 'Tüm Kullanıcılar');
-                    list.forEach(item => {
-                      this.employeeMap.set(item.primaryKey, item.longName);
-                    });
-                  });
-                }
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+    }
   }
 
   getAllItems(): Observable<ReminderModel[]> {

@@ -157,6 +157,9 @@ body {
 .bg-indigo {
   background-color: #6610f2 !important;
 }
+.bg-gray-gradient {
+  background-image: linear-gradient(to right, #f9f9f9, #e0e0e0);
+}
 .text-orange {
   color: #fd7e14 !important;
 }
@@ -171,4 +174,7 @@ body {
 }
 .text-indigo {
   color: #6610f2 !important;
+}
+.color-gray {
+  color: #aeaeae !important;
 }

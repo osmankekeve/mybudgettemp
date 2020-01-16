@@ -105,7 +105,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), insertDate: Date.now()};
+    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), insertDate: Date.now(), employeePrimaryKey: this.authService.getEid()};
   }
 
 }

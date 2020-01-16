@@ -8,49 +8,77 @@ import { AuthenticationService } from './authentication.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
 import { LogService } from './log.service';
 import {SettingService} from './setting.service';
+import {ProfileService} from './profile.service';
+import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountVoucherService {
   listCollection: AngularFirestoreCollection<AccountVoucherModel>;
-  mainList$: Observable<AccountVoucherModel[]>;
+  mainList$: Observable<AccountVoucherMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
+  employeeMap = new Map();
   tableName = 'tblAccountVoucher';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
-              public logService: LogService,
-              public db: AngularFirestore) {
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+    }
 
   }
 
-  getAllItems(): Observable<AccountVoucherModel[]> {
-    this.listCollection = this.db.collection<AccountVoucherModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: AccountVoucherModel) {
-    await this.logService.sendToLog(record, 'insert', 'accountVoucher');
+  async addItem(record: AccountVoucherMainModel) {
+    await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
     await this.sService.increaseAccountVoucherNumber();
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: AccountVoucherModel) {
-    await this.logService.sendToLog(record, 'delete', 'accountVoucher');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+  async removeItem(record: AccountVoucherMainModel) {
+    await this.logService.sendToLog(record.data, 'delete', 'accountVoucher');
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: AccountVoucherModel) {
-    await this.logService.sendToLog(record, 'update', 'accountVoucher');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  async updateItem(record: AccountVoucherMainModel) {
+    await this.logService.sendToLog(record.data, 'update', 'accountVoucher');
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: AccountVoucherModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'accountVoucher');
+  async setItem(record: AccountVoucherMainModel, primaryKey: string) {
+    await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
     await this.sService.increaseAccountVoucherNumber();
-    return await this.listCollection.doc(primaryKey).set(record);
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  }
+
+  clearSubModel(): AccountVoucherModel {
+
+    const returnData = new AccountVoucherModel();
+    returnData.primaryKey = null;
+    returnData.customerCode = '-1';
+    returnData.receiptNo = '';
+    returnData.type = '-1';
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.description = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): AccountVoucherMainModel {
+    const returnData = new AccountVoucherMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.customerName = '';
+    returnData.employeeName = '';
+    returnData.actionType = 'added';
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -59,7 +87,10 @@ export class AccountVoucherService {
         if (doc.exists) {
           const data = doc.data() as AccountVoucherModel;
           data.primaryKey = doc.id;
-          resolve(Object.assign({data}));
+          const returnData = new AccountVoucherMainModel();
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }
@@ -67,7 +98,7 @@ export class AccountVoucherService {
     });
   }
 
-  getCustomerItems(customerCode: string): Observable<AccountVoucherModel[]> {
+  getCustomerItems(customerCode: string): Observable<AccountVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.where('customerCode', '==', customerCode));
     this.mainList$ = this.listCollection.stateChanges().pipe(
@@ -75,29 +106,40 @@ export class AccountVoucherService {
         changes.map(c => {
           const data = c.payload.doc.data() as AccountVoucherModel;
           data.primaryKey = c.payload.doc.id;
-          return Object.assign({data, actionType: c.type});
+          const returnData = new AccountVoucherMainModel();
+          returnData.actionType = c.type;
+          returnData.data = data;
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          return Object.assign({returnData});
         })
       )
     );
     return this.mainList$;
   }
 
-  getMainItems(): Observable<AccountVoucherModel[]> {
+  getMainItems(): Observable<AccountVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as AccountVoucherModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new AccountVoucherMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<AccountVoucherModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<AccountVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authService.getUid()));
@@ -105,9 +147,16 @@ export class AccountVoucherService {
       return changes.map( change => {
         const data = change.payload.doc.data() as AccountVoucherModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new AccountVoucherMainModel();
+        returnData.actionType = change.type;
+        returnData.data = data;
+        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, customerName: customer.name, actionType: change.type}); }));
+          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kayıt';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

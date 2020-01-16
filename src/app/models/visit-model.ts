@@ -1,8 +1,8 @@
 export class VisitModel {
     primaryKey?: string;
     userPrimaryKey: string;
-    customerPrimaryKey?: string;
-    employeePrimaryKey?: string;
+    customerPrimaryKey: string;
+    employeePrimaryKey: string;
     description?: string;
     result?: string;
     isVisited?: boolean;

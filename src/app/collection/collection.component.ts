@@ -17,6 +17,7 @@ import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SettingService } from '../services/setting.service';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-collection',
@@ -24,15 +25,16 @@ import { SettingService } from '../services/setting.service';
   styleUrls: ['./collection.component.css']
 })
 export class CollectionComponent implements OnInit, OnDestroy {
-  mainList: Array<CollectionModel>;
+  mainList: Array<CollectionMainModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskModel[]>;
-  selectedRecord: CollectionModel;
-  refModel: CollectionModel;
+  selectedRecord: CollectionMainModel;
+  refModel: CollectionMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
+  searchText: '';
 
   date = new Date();
   filterBeginDate: any;
@@ -73,16 +75,17 @@ export class CollectionComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as CollectionMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.amount += item.data.amount;
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
           this.totalValues.amount -= item.data.amount;
-        } else if (item.returnData.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
-          this.totalValues.amount -= this.refModel.amount;
+        } else if (item.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
+          this.totalValues.amount -= this.refModel.data.amount;
           this.totalValues.amount += item.data.amount;
         } else {
           // nothing
@@ -92,10 +95,10 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.data as CollectionModel;
-    this.refModel = record.data as CollectionModel;
-    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
+    this.selectedRecord = record as CollectionMainModel;
+    this.refModel = record as CollectionMainModel;
+    this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
     .subscribe(list => {
       if (list.length > 0) {
         this.isRecordHasTransaction = true;
@@ -134,34 +137,34 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
     const receiptNoData = await this.sService.getCollectionCode();
     if (receiptNoData !== null) {
-      this.selectedRecord.receiptNo = receiptNoData;
+      this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.amount <= 0) {
+    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.data.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
-      if (this.selectedRecord.primaryKey === undefined) {
+      if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.selectedRecord.primaryKey = '';
+        this.selectedRecord.data.primaryKey = '';
 
         this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
-            userPrimaryKey: this.selectedRecord.userPrimaryKey,
-            receiptNo: this.selectedRecord.receiptNo,
+            userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+            receiptNo: this.selectedRecord.data.receiptNo,
             transactionPrimaryKey: newId,
             transactionType: 'collection',
-            parentPrimaryKey: this.selectedRecord.customerCode,
+            parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
-            cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
-            amount: this.selectedRecord.amount,
+            cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
+            amount: this.selectedRecord.data.amount,
             amountType: 'credit',
-            insertDate: this.selectedRecord.insertDate
+            insertDate: this.selectedRecord.data.insertDate
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Tahsilat başarıyla kaydedildi.');
@@ -172,13 +175,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               const trans = {
-                receiptNo: this.selectedRecord.receiptNo,
-                insertDate: this.selectedRecord.insertDate,
-                cashDeskPrimaryKey: this.selectedRecord.cashDeskPrimaryKey,
-                amount: this.selectedRecord.amount
+                receiptNo: this.selectedRecord.data.receiptNo,
+                insertDate: this.selectedRecord.data.insertDate,
+                cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
+                amount: this.selectedRecord.data.amount
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Tahsilat başarıyla kaydedildi.');
@@ -195,7 +198,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.infoService.success('Tahsilat başarıyla kaldırıldı.');
@@ -222,8 +225,8 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
-    this.selectedRecord = {primaryKey: undefined, customerCode: '-1', receiptNo: '', type: '-1', description: '',
-    userPrimaryKey: this.authService.getUid()};
+    this.selectedRecord = this.service.clearMainModel();
+    console.log(this.selectedRecord);
   }
 
   clearMainFiler(): void {
