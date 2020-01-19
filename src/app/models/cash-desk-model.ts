@@ -4,5 +4,5 @@ export class CashDeskModel {
   employeePrimaryKey: string;
   name?: string;
   description?: string;
-  insertDate?: Date;
+  insertDate?: number;
 }

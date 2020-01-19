@@ -66,7 +66,7 @@
                 </div>
                 <div class="col-sm-6">
                   <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
-                         [(ngModel)]="selectedRecord.name" required>
+                         [(ngModel)]="selectedRecord.data.name" required>
                   <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
                 </div>
                 <div class="col-sm-6">
@@ -74,7 +74,7 @@
                 </div>
                 <div class="col-sm-6">
                   <input class="form-control form-control-sm" id="description" name="description" type="text"
-                         [(ngModel)]="selectedRecord.description">
+                         [(ngModel)]="selectedRecord.data.description">
                   <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
                 </div>
               </div>
@@ -92,7 +92,7 @@
                       (click)="btnExportToExcel_Click()"><i
                 class="fa fa-file-excel-o"></i></button>
             </div>
-            <div class="card-body work-area-5" *ngIf="selectedRecord.primaryKey!=undefined; else elseBlock2">
+            <div class="card-body work-area-5" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
               <div class="card mb-2" *ngIf="isMainFilterOpened">
                 <div class="card-header">Filtreler</div>
                 <div class="card-body bg-light">
@@ -182,7 +182,7 @@
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
               (click)="btnRemove_Click()">Kaldır
       </button>

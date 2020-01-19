@@ -15,7 +15,7 @@ import { PaymentService } from '../services/payment.service';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
 import { CollectionService } from '../services/collection.service';
-import { CashdeskVoucherService } from '../services/cashdesk-voucher.service';
+import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
 import { AccountVoucherService } from '../services/account-voucher.service';
 
 @Component({
@@ -38,7 +38,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
               public siService: SalesInvoiceService, public colService: CollectionService,
-              public cdService: CashdeskVoucherService, public avService: AccountVoucherService,
+              public cdService: CashDeskVoucherService, public avService: AccountVoucherService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService,
               public puService: PurchaseInvoiceService, public pService: PaymentService) {  }
 

@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { PaymentModel } from '../models/payment-model';
 import { PaymentService } from '../services/payment.service';
-import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
@@ -18,6 +16,7 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-payment',
@@ -26,7 +25,7 @@ import {PaymentMainModel} from '../models/payment-main-model';
 })
 export class PaymentComponent implements OnInit, OnDestroy {
   mainList: Array<PaymentMainModel>;
-  cashDeskList$: Observable<CashDeskModel[]>;
+  cashDeskList$: Observable<CashDeskMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   collection: AngularFirestoreCollection<PaymentMainModel>;
   selectedRecord: PaymentMainModel;
@@ -55,7 +54,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.populateList();
     this.selectedRecord = undefined;
     this.customerList$ = this.cService.getAllItems();
-    this.cashDeskList$ = this.cdService.getAllItems();
+    this.cashDeskList$ = this.cdService.getMainItems();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -99,7 +98,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.selectedRecord = record as PaymentMainModel;
     this.refModel = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
-    console.log(this.selectedRecord);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
     .subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;

@@ -116,6 +116,7 @@ export class PurchaseInvoiceService {
 
           const returnData = new PurchaseInvoiceMainModel();
           returnData.data = data;
+          returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           return Object.assign({returnData});
         })

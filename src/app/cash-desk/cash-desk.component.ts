@@ -9,6 +9,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import { Router, ActivatedRoute } from '@angular/router';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-cash-desk',
@@ -16,11 +17,11 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./cash-desk.component.css']
 })
 export class CashDeskComponent implements OnInit, OnDestroy {
-  mainList: Array<CashDeskModel>;
+  mainList: Array<CashDeskMainModel>;
   collection: AngularFirestoreCollection<CashDeskModel>;
   transactionList: Array<AccountTransactionModel>;
-  selectedRecord: CashDeskModel;
-  refModel: CashDeskModel;
+  selectedRecord: CashDeskMainModel;
+  refModel: CashDeskMainModel;
   isMainFilterOpened = false;
   totalValues = {
     amount: 0
@@ -47,13 +48,14 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = [];
     this.service.getMainItems().subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as CashDeskMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
@@ -62,8 +64,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.data as CashDeskModel;
-    this.refModel = record.data as CashDeskModel;
+    this.selectedRecord = record as CashDeskMainModel;
+    this.refModel = record as CashDeskMainModel;
     this.populateTransactions();
   }
 
@@ -86,8 +88,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   btnSave_Click(): void {
     try {
-      if (this.selectedRecord.primaryKey === undefined) {
-        this.selectedRecord.primaryKey = '';
+      if (this.selectedRecord.data.primaryKey === null) {
+        this.selectedRecord.data.primaryKey = '';
         this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Kasa başarıyla kaydedildi.');
@@ -163,7 +165,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.atService.getCashDeskTransactions(this.selectedRecord.primaryKey, beginDate, finishDate).then(list => {
+    this.atService.getCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate).then(list => {
       list.forEach((item: any) => {
         this.transactionList.push(item);
         this.totalValues.amount += item.amount;
@@ -173,8 +175,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, name: '', description: '', userPrimaryKey: this.authService.getUid(),
-      employeePrimaryKey: this.authService.getEid()};
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {

@@ -77,7 +77,8 @@ export class LogService {
       item.log = record.receiptNo + ' fiş numaralı Hesap Fişi ';
 
     } else if (systemModule === 'cashdeskVoucher') {
-      item.log = record.receiptNo + ' fiş numaralı Kasa Fişi ';
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.receiptNo + ' fiş numaralı Kasa Fişi ';
 
     } else if (systemModule === 'crm') {
       item.log = ' Etkinlik ';

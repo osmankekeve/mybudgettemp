@@ -5,17 +5,17 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
-import { CashdeskVoucherModel } from '../models/cashdesk-voucher-model';
-import { CashdeskVoucherService } from '../services/cashdesk-voucher.service';
+import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
 import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
+import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-cashdesk-voucher',
@@ -23,13 +23,14 @@ import {SettingService} from '../services/setting.service';
   styleUrls: ['./cashdesk-voucher.component.css']
 })
 export class CashdeskVoucherComponent implements OnInit, OnDestroy {
-  mainList: Array<CashdeskVoucherModel>;
-  cashDeskList$: Observable<CashDeskModel[]>;
-  selectedRecord: CashdeskVoucherModel;
-  refModel: CashdeskVoucherModel;
-  isRecordHasTransacton = false;
+  mainList: Array<CashDeskVoucherMainModel>;
+  cashDeskList$: Observable<CashDeskMainModel[]>;
+  selectedRecord: CashDeskVoucherMainModel;
+  refModel: CashDeskVoucherMainModel;
+  isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
+  searchText: '';
   encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
@@ -40,7 +41,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: CashdeskVoucherService, public cdService: CashDeskService,
+              public service: CashDeskVoucherService, public cdService: CashDeskService,
               public atService: AccountTransactionService, public infoService: InformationService,
               public excelService: ExcelService, public sService: SettingService,
               public cService: CustomerService, public db: AngularFirestore) { }
@@ -48,7 +49,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
-    this.cashDeskList$ = this.cdService.getAllItems();
+    this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -71,7 +72,8 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as CashDeskVoucherMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.amount += item.data.amount;
@@ -79,8 +81,8 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
           this.totalValues.amount -= item.data.amount;
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.returnData;
-          this.totalValues.amount -= this.refModel.amount;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
+          this.totalValues.amount -= this.refModel.data.amount;
           this.totalValues.amount += item.data.amount;
         } else {
           // nothing
@@ -90,18 +92,13 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record.data as CashdeskVoucherModel;
-    this.refModel = record.data as CashdeskVoucherModel;
-    this.recordDate = getDateForInput(this.selectedRecord.insertDate);
-    if (this.selectedRecord.type === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
-    this.atService.getRecordTransactionItems(this.selectedRecord.primaryKey)
+    this.selectedRecord = record as CashDeskVoucherMainModel;
+    this.refModel = record as CashDeskVoucherMainModel;
+    this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
+    if (this.selectedRecord.data.type === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
     .subscribe(list => {
-      if (list.length > 0) {
-        this.isRecordHasTransacton = true;
-
-      } else {
-        this.isRecordHasTransacton = false;
-      }
+      this.isRecordHasTransaction = list.length > 0;
     });
   }
 
@@ -114,48 +111,50 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
     const receiptNoData = await this.sService.getCashDeskVoucherCode();
     if (receiptNoData !== null) {
-      this.selectedRecord.receiptNo = receiptNoData;
+      this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.amount <= 0) {
+    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+    if (this.selectedRecord.data.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
-      if (this.selectedRecord.primaryKey === undefined) {
+      if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
-        this.selectedRecord.primaryKey = '';
+        this.selectedRecord.data.primaryKey = '';
 
         this.service.setItem(this.selectedRecord, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
-            userPrimaryKey: this.selectedRecord.userPrimaryKey,
-            parentPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
+            userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+            parentPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
             parentType: 'cashDesk',
             transactionPrimaryKey: newId,
             transactionType: 'cashDeskVoucher',
-            amountType: this.selectedRecord.transactionType,
-            amount: this.selectedRecord.transactionType === 'credit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
-            cashDeskPrimaryKey: this.selectedRecord.type === 'open' ? '-1' : this.selectedRecord.secondCashDeskPrimaryKey,
-            receiptNo: this.selectedRecord.receiptNo,
-            insertDate: this.selectedRecord.insertDate
+            amountType: this.selectedRecord.data.transactionType,
+            amount: this.selectedRecord.data.transactionType === 'credit' ?
+              this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+            cashDeskPrimaryKey: this.selectedRecord.data.type === 'transfer' ? this.selectedRecord.data.secondCashDeskPrimaryKey : '-1' ,
+            receiptNo: this.selectedRecord.data.receiptNo,
+            insertDate: this.selectedRecord.data.insertDate
           }).then(() => {
-            if (this.selectedRecord.type === 'transfer') {
+            if (this.selectedRecord.data.type === 'transfer') {
               this.db.collection('tblAccountTransaction').add({
                 primaryKey: '',
-                userPrimaryKey: this.selectedRecord.userPrimaryKey,
-                parentPrimaryKey: this.selectedRecord.secondCashDeskPrimaryKey,
+                userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+                parentPrimaryKey: this.selectedRecord.data.secondCashDeskPrimaryKey,
                 parentType: 'cashDesk',
                 transactionPrimaryKey: newId,
                 transactionType: 'cashDeskVoucher',
-                amountType: this.selectedRecord.transactionType,
-                amount: this.selectedRecord.transactionType === 'debit' ? this.selectedRecord.amount : this.selectedRecord.amount * -1,
-                cashDeskPrimaryKey: this.selectedRecord.firstCashDeskPrimaryKey,
-                receiptNo: this.selectedRecord.receiptNo,
-                insertDate: this.selectedRecord.insertDate
+                amountType: this.selectedRecord.data.transactionType,
+                amount: this.selectedRecord.data.transactionType === 'debit' ?
+                  this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+                cashDeskPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
+                receiptNo: this.selectedRecord.data.receiptNo,
+                insertDate: this.selectedRecord.data.insertDate
               }).then(() => {
                 this.infoService.success('Fiş başarıyla kaydedildi.');
                 this.selectedRecord = undefined;
@@ -173,7 +172,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.primaryKey)).get().subscribe(list => {
+        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.infoService.success('Fiş başarıyla kaldırıldı.');
@@ -204,11 +203,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.isRecordHasTransacton = false;
+    this.isRecordHasTransaction = false;
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
-    this.selectedRecord = {primaryKey: undefined, firstCashDeskPrimaryKey: '-1', secondCashDeskPrimaryKey: '',
-    receiptNo: '', type: '-1', description: '', userPrimaryKey: this.authService.getUid(), employeePrimaryKey: this.authService.getEid()};
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   btnExportToExcel_Click(): void {
@@ -225,6 +223,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   onChangeVoucherType(record: any): void {
-    if (record === 'open') { this.selectedRecord.secondCashDeskPrimaryKey = '-1'; }
+    if (record === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
   }
 }

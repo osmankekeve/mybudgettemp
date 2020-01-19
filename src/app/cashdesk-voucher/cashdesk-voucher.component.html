@@ -1,5 +1,5 @@
 <div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
         <h4 class="card-title float-left mr-2">Kasa Fiş Listesi</h4>
@@ -68,9 +68,10 @@
     <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
       <div class="list-group-item bg-success text-light main-list-item">
         <div class="row">
-          <div class="col-sm-1">Sıra</div>
-          <div class="col-sm-3">Fiş Numarası</div>
-          <div class="col-sm-4">Ana Kasa</div>
+          <div class="col-sm-2">Fiş Numarası</div>
+          <div class="col-sm-2">Tip</div>
+          <div class="col-sm-2">Ana Kasa</div>
+          <div class="col-sm-2">Hedef Kasa</div>
           <div class="col-sm-2"><span class="float-right">Tutar</span></div>
           <div class="col-sm-2"><span class="float-right">Tarih</span></div>
 
@@ -80,9 +81,11 @@
            (click)="showSelectedRecord(item)"
            *ngFor="let item of mainList; index as i; trackBy: primaryKey">
         <div class="row">
-          <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
-          <div class="col-sm-3">{{item.data.receiptNo}}</div>
-          <div class="col-sm-4">{{item.casDeskName}}</div>
+          <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.data.receiptNo}}</div>
+          <div class="col-sm-2">{{item.typeTr}}</div>
+          <div class="col-sm-2">{{item.casDeskName}}</div>
+          <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey !=='-1'">{{item.secondCashDeskName}}</div>
+          <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey ==='-1'"><i class="fa fa-times-circle mr-2 text-danger"></i></div>
           <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
           <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
         </div>
@@ -102,11 +105,11 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
         <h4 class="card-title float-left mr-2">Fiş Detayı
-          <fa name="cog" animation="spin" *ngIf="isRecordHasTransacton"></fa>
+          <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
         </h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -124,9 +127,10 @@
           <select class="form-control form-control-sm w-100" id="type" name="type" required
                   (change)="onChangeVoucherType($event.target.value)"
                   [disabled]="f.valid"
-                  [(ngModel)]="selectedRecord.type">
+                  [(ngModel)]="selectedRecord.data.type">
             <option value="open">Açılış</option>
             <option value="transfer">Transfer</option>
+            <option value="voucher">Fiş</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
         </div>
@@ -136,7 +140,7 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="transactionType" name="transactionType" required
                   [disabled]="f.valid"
-                  [(ngModel)]="selectedRecord.transactionType">
+                  [(ngModel)]="selectedRecord.data.transactionType">
             <option value="credit">Alacaklandırma</option>
             <option value="debit">Borçlandırma</option>
           </select>
@@ -149,9 +153,9 @@
           <select class="form-control form-control-sm w-100" id="firstCashDeskPrimaryKey" name="firstCashDeskPrimaryKey"
                   required
                   [disabled]="f.valid"
-                  [(ngModel)]="selectedRecord.firstCashDeskPrimaryKey">
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                  [(ngModel)]="selectedRecord.data.firstCashDeskPrimaryKey">
+            <option value={{item.returnData.data.primaryKey}}
+                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
         </div>
@@ -161,12 +165,11 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="secondCashDeskPrimaryKey"
                   name="secondCashDeskPrimaryKey" required
-
-                  [disabled]="selectedRecord.type == 'open'"
-                  [(ngModel)]="selectedRecord.secondCashDeskPrimaryKey">
-            <option value="-1">Lütfen Seçiniz</option>
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                  [disabled]="selectedRecord.data.type == 'open'"
+                  [(ngModel)]="selectedRecord.data.secondCashDeskPrimaryKey">
+            <option value="-1">Kasa Seçilmedi</option>
+            <option value={{item.returnData.data.primaryKey}}
+                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
         </div>
@@ -175,11 +178,11 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                 [(ngModel)]="selectedRecord.receiptNo" required>
+                 [(ngModel)]="selectedRecord.data.receiptNo" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="insertDate">Kayıt Tarihi</label>
+          <label class="col-form-label float-left">Kayıt Tarihi</label>
         </div>
         <div class="col-sm-3">
           <div class="input-group">
@@ -192,11 +195,11 @@
           </div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="totalPrice">Tutar</label>
+          <label class="col-form-label float-left" for="amount">Tutar</label>
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
-                 [(ngModel)]="selectedRecord.amount" required>
+                 [(ngModel)]="selectedRecord.data.amount" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-6"></div>
@@ -205,20 +208,19 @@
         </div>
         <div class="col-sm-9">
           <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                 [(ngModel)]="selectedRecord.description">
+                 [(ngModel)]="selectedRecord.data.description">
         </div>
       </div>
     </form>
-
   </div>
   <div class="card-footer">
-    <div class="col-sm-3 float-right" *ngIf="selectedRecord.primaryKey==undefined">
+    <div class="col-sm-3 float-right" *ngIf="selectedRecord.data.primaryKey==undefined">
       <button type="button" class="btn btn-sm btn-success btn-block"
               [disabled]="!f.valid"
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
               (click)="btnRemove_Click()">Kaldır
       </button>

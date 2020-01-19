@@ -8,48 +8,80 @@ import { combineLatest } from 'rxjs';
 import { CashDeskModel } from '../models/cash-desk-model';
 import { LogService } from './log.service';
 import {SettingService} from './setting.service';
+import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
+import {CashDeskService} from './cash-desk.service';
+import {getCashDeskVoucherType} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CashdeskVoucherService {
+export class CashDeskVoucherService {
   listCollection: AngularFirestoreCollection<CashdeskVoucherModel>;
-  mainList$: Observable<CashdeskVoucherModel[]>;
+  mainList$: Observable<CashDeskVoucherMainModel[]>;
+  cashDeskMap = new Map();
+  cashDeskVoucherTypeMap = new Map();
   tableName = 'tblCashDeskVoucher';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
-              public logService: LogService,
-              public db: AngularFirestore) {
-
+              public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore) {
+    this.cdService.getItems().subscribe(list => {
+      this.cashDeskMap.clear();
+      list.forEach((data: any) => {
+        const item = data as CashDeskModel;
+        this.cashDeskMap.set(item.primaryKey, item.name);
+      });
+    });
+    this.cashDeskVoucherTypeMap = getCashDeskVoucherType();
   }
 
-  getAllItems(): Observable<CashdeskVoucherModel[]> {
-    this.listCollection = this.db.collection<CashdeskVoucherModel>(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ id : 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: CashdeskVoucherModel) {
+  async addItem(record: CashDeskVoucherMainModel) {
     await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
     await this.sService.increaseCashDeskNumber();
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: CashdeskVoucherModel) {
+  async removeItem(record: CashDeskVoucherMainModel) {
     await this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: CashdeskVoucherModel) {
+  async updateItem(record: CashDeskVoucherMainModel) {
     await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: CashdeskVoucherModel, primaryKey: string) {
+  async setItem(record: CashDeskVoucherMainModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
     await this.sService.increaseCashDeskNumber();
-    return await this.listCollection.doc(primaryKey).set(record);
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  }
+
+  clearSubModel(): CashdeskVoucherModel {
+
+    const returnData = new CashdeskVoucherModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.type = '-1';
+    returnData.transactionType = '';
+    returnData.receiptNo = '';
+    returnData.firstCashDeskPrimaryKey = '-1';
+    returnData.secondCashDeskPrimaryKey = '';
+    returnData.amount = null;
+    returnData.description = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): CashDeskVoucherMainModel {
+    const returnData = new CashDeskVoucherMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.employeeName = '';
+    returnData.casDeskName = '';
+    returnData.secondCashDeskName = '';
+    returnData.actionType = 'added';
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -58,7 +90,14 @@ export class CashdeskVoucherService {
         if (doc.exists) {
           const data = doc.data() as CashdeskVoucherModel;
           data.primaryKey = doc.id;
-          resolve(Object.assign({data}));
+
+          const returnData = new CashDeskVoucherMainModel();
+          returnData.data = data;
+          returnData.typeTr = this.cashDeskVoucherTypeMap.get(data.type);
+          returnData.casDeskName = this.cashDeskMap.get(data.firstCashDeskPrimaryKey);
+          returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ?
+            '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }
@@ -66,21 +105,29 @@ export class CashdeskVoucherService {
     });
   }
 
-  getMainItems(): Observable<CashdeskVoucherModel[]> {
+  getMainItems(): Observable<CashDeskVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new CashDeskVoucherMainModel();
+        returnData.data = data;
+        returnData.typeTr = this.cashDeskVoucherTypeMap.get(data.type);
+        returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
+        returnData.actionType = change.type;
+
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
-          return Object.assign({data, casDeskName: item.name, actionType: change.type}); }));
+          returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashdeskVoucherModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashDeskVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
     ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
     .where('userPrimaryKey', '==', this.authService.getUid()));
@@ -88,8 +135,17 @@ export class CashdeskVoucherService {
       return changes.map( change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;
         data.primaryKey = change.payload.doc.id;
+
+        const returnData = new CashDeskVoucherMainModel();
+        returnData.data = data;
+        returnData.typeTr = this.cashDeskVoucherTypeMap.get(data.type);
+        returnData.casDeskName = this.cashDeskMap.get(data.firstCashDeskPrimaryKey);
+        returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
+        returnData.actionType = change.type;
+
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
-          return Object.assign({data, casDeskName: item.name, actionType: change.type}); }));
+          // returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';
+          return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

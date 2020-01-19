@@ -152,6 +152,10 @@ export const getRelationTypes = () => {
   ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
 };
 
+export const getCashDeskVoucherType = () => {
+  return new Map([['open', 'Açılış'], ['transfer', 'Transfer']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };

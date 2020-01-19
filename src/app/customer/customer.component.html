@@ -425,8 +425,8 @@
                     <select class="form-control form-control-sm w-100" name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newCollection.data.cashDeskPrimaryKey">
-                      <option value={{item.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                      <option value={{item.returnData.data.primaryKey}}
+                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -447,11 +447,10 @@
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left" for="insertDateC">Kayıt Tarihi</label>
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left"
-                           for="insertDateC">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
+                    <label class="col-form-label float-left">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
@@ -524,6 +523,7 @@
                       <option value="purchase">Alım</option>
                       <option value="return">İade</option>
                     </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
@@ -632,8 +632,8 @@
                     <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newPayment.data.cashDeskPrimaryKey">
-                      <option value={{item.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                      <option value={{item.returnData.data.primaryKey}}
+                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -738,8 +738,8 @@
                     <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKeyAV" name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newVoucher.data.cashDeskPrimaryKey">
-                      <option value={{item.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                      <option value={{item.returnData.data.primaryKey}}
+                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>

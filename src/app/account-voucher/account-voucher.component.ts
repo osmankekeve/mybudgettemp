@@ -6,7 +6,6 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { AccountVoucherService } from '../services/account-voucher.service';
@@ -17,6 +16,7 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-account-voucher',
@@ -26,7 +26,7 @@ import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 export class AccountVoucherComponent implements OnInit, OnDestroy {
   mainList: Array<AccountVoucherMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  cashDeskList$: Observable<CashDeskModel[]>;
+  cashDeskList$: Observable<CashDeskMainModel[]>;
   selectedRecord: AccountVoucherMainModel;
   refModel: AccountVoucherMainModel;
   isRecordHasTransaction = false;
@@ -51,7 +51,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.populateList();
     this.customerList$ = this.cService.getAllItems();
-    this.cashDeskList$ = this.cdService.getAllItems();
+    this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {

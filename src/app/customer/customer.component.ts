@@ -3,20 +3,14 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../../app/services/customer.service';
-import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
-import { SalesInvoiceModel } from '../models/sales-invoice-model';
-import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
 import { PaymentService } from '../services/payment.service';
-import { PaymentModel } from '../models/payment-model';
 import { InformationService } from '../services/information.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
-import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
-import { AccountVoucherModel } from '../models/account-voucher-model';
 import { AccountVoucherService } from '../services/account-voucher.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
@@ -34,8 +28,9 @@ import { SettingService } from '../services/setting.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {PaymentMainModel} from "../models/payment-main-model";
-import {PurchaseInvoiceMainModel} from "../models/purchase-invoice-main-model";
+import {PaymentMainModel} from '../models/payment-main-model';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-customer',
@@ -67,7 +62,7 @@ export class CustomerComponent implements OnInit {
   openedPanel: string;
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
-  cashDeskList$: Observable<CashDeskModel[]>;
+  cashDeskList$: Observable<CashDeskMainModel[]>;
   transactionList: Array<AccountTransactionModel>;
   totalValues = 0;
   BarChart: any;
@@ -89,7 +84,7 @@ export class CustomerComponent implements OnInit {
   ngOnInit() {
     this.openedPanel = 'dashboard';
     this.populateCustomerList();
-    this.cashDeskList$ = this.cdService.getAllItems();
+    this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedCustomer = undefined;
   }
 
@@ -536,7 +531,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewPurchaseInvoice(): Promise<void> {
-    this.newPurchaseInvoice = this.piService.clearMainModel()
+    this.newPurchaseInvoice = this.piService.clearMainModel();
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
     if (receiptNoData !== null) {
       this.newPurchaseInvoice.data.receiptNo = receiptNoData;

@@ -1,14 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { CashDeskModel } from '../models/cash-desk-model';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey
@@ -18,6 +16,7 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SettingService } from '../services/setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Component({
   selector: 'app-collection',
@@ -27,7 +26,7 @@ import {CollectionMainModel} from '../models/collection-main-model';
 export class CollectionComponent implements OnInit, OnDestroy {
   mainList: Array<CollectionMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  cashDeskList$: Observable<CashDeskModel[]>;
+  cashDeskList$: Observable<CashDeskMainModel[]>;
   selectedRecord: CollectionMainModel;
   refModel: CollectionMainModel;
   isRecordHasTransaction = false;
@@ -53,7 +52,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.populateList();
     this.customerList$ = this.cService.getAllItems();
-    this.cashDeskList$ = this.cdService.getAllItems();
+    this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
