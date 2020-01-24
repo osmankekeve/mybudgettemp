@@ -16,6 +16,7 @@ import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {getString} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -90,15 +91,17 @@ export class PurchaseInvoiceService {
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName, ref => ref.orderBy('insertDate', 'desc')).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
           const data = doc.data() as PurchaseInvoiceModel;
           data.primaryKey = doc.id;
+
           const returnData = new PurchaseInvoiceMainModel();
           returnData.data = data;
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-          return Object.assign({returnData});
+          returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
+          resolve(Object.assign({returnData}));
         } else {
+          console.log('no data');
           resolve(null);
         }
       });

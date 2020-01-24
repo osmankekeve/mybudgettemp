@@ -92,7 +92,7 @@ export class SalesInvoiceService {
           const returnData = new SalesInvoiceMainModel();
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-          return Object.assign({returnData});
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }

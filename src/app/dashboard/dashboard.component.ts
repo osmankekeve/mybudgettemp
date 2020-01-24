@@ -208,38 +208,43 @@ export class DashboardComponent implements OnInit, OnDestroy {
       data = await this.siService.getItem(item.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['sales-invoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
     } else if  (item.transactionType === 'collection') {
       data = await this.colService.getItem(item.transactionPrimaryKey);
       if (data) {
-        await this.router.navigate(['collection', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+        await this.router.navigate(['collection',
+          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
           this.encryptSecretKey).toString() }]);
         }
     } else if  (item.transactionType === 'purchaseInvoice') {
       data = await this.puService.getItem(item.transactionPrimaryKey);
       if (data) {
-        await this.router.navigate(['purchaseInvoice', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+        await this.router.navigate(['purchaseInvoice',
+          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
           this.encryptSecretKey).toString() }]);
       }
     } else if  (item.transactionType === 'payment') {
       data = await this.pService.getItem(item.transactionPrimaryKey);
       if (data) {
-        await this.router.navigate(['payment', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+        await this.router.navigate(['payment',
+          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
           this.encryptSecretKey).toString() }]);
       }
     } else if  (item.transactionType === 'accountVoucher') {
       data = await this.avService.getItem(item.transactionPrimaryKey);
       if (data) {
-        await this.router.navigate(['account-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+        await this.router.navigate(['account-voucher',
+          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
           this.encryptSecretKey).toString() }]);
       }
     } else if  (item.transactionType === 'cashdeskVoucher') {
       data = await this.cdService.getItem(item.transactionPrimaryKey);
       if (data) {
-        await this.router.navigate(['cashdesk-voucher', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
+        await this.router.navigate(['cashdesk-voucher',
+          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
           this.encryptSecretKey).toString() }]);
       }
     } else {

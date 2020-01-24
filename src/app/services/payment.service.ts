@@ -11,6 +11,7 @@ import {SettingService} from './setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {getString} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -96,7 +97,7 @@ export class PaymentService {
           data.primaryKey = doc.id;
           const returnData = new PaymentMainModel();
           returnData.data = data;
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);

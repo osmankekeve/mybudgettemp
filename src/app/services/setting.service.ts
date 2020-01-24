@@ -58,14 +58,10 @@ export class SettingService {
       const purchaseInvoiceSuffix = this.getItem('purchaseInvoiceSuffix');
       const purchaseInvoiceLength = this.getItem('purchaseInvoiceLength');
       Promise.all([purchaseInvoicePrefix, purchaseInvoiceNumber, purchaseInvoiceSuffix, purchaseInvoiceLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -84,14 +80,10 @@ export class SettingService {
       const paymentSuffix = this.getItem('paymentSuffix');
       const paymentLength = this.getItem('paymentLength');
       Promise.all([paymentPrefix, paymentNumber, paymentSuffix, paymentLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -110,14 +102,10 @@ export class SettingService {
       const salesInvoiceSuffix = this.getItem('salesInvoiceSuffix');
       const salesInvoiceLength = this.getItem('salesInvoiceLength');
       Promise.all([salesInvoicePrefix, salesInvoiceNumber, salesInvoiceSuffix, salesInvoiceLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -136,14 +124,10 @@ export class SettingService {
       const collectionSuffix = this.getItem('collectionSuffix');
       const collectionLength = this.getItem('collectionLength');
       Promise.all([collectionPrefix, collectionNumber, collectionSuffix, collectionLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -162,14 +146,10 @@ export class SettingService {
       const accountVoucherSuffix = this.getItem('accountVoucherSuffix');
       const accountVoucherLength = this.getItem('accountVoucherLength');
       Promise.all([accountVoucherPrefix, accountVoucherNumber, accountVoucherSuffix, accountVoucherLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -188,14 +168,10 @@ export class SettingService {
       const cashDeskSuffix = this.getItem('cashDeskVoucherSuffix');
       const cashDeskLength = this.getItem('cashDeskVoucherLength');
       Promise.all([cashDeskPrefix, cashDeskNumber, cashDeskSuffix, cashDeskLength])
-        .then(values => {
-          // @ts-ignore
+        .then((values: any) => {
           const prefix = values[0].data as SettingModel;
-          // @ts-ignore
           const numb = values[1].data as SettingModel;
-          // @ts-ignore
           const suffix = values[2].data as SettingModel;
-          // @ts-ignore
           const length = values[3].data as SettingModel;
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
@@ -210,8 +186,7 @@ export class SettingService {
   async increasePurchaseInvoiceNumber() {
     const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
     Promise.all([ purchaseInvoiceNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'purchaseInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
       });
@@ -220,8 +195,7 @@ export class SettingService {
   async increasePaymentNumber() {
     const paymentNumber = this.getItem('paymentNumber');
     Promise.all([ paymentNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'paymentNumber', value: getString(getNumber(numb.value) + 1) });
       });
@@ -230,8 +204,7 @@ export class SettingService {
   async increaseSalesInvoiceNumber() {
     const salesInvoiceNumber = this.getItem('salesInvoiceNumber');
     Promise.all([ salesInvoiceNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'salesInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
       });
@@ -240,8 +213,7 @@ export class SettingService {
   async increaseCollectionNumber() {
     const collectionNumber = this.getItem('collectionNumber');
     Promise.all([ collectionNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'collectionNumber', value: getString(getNumber(numb.value) + 1) });
       });
@@ -250,8 +222,7 @@ export class SettingService {
   async increaseAccountVoucherNumber() {
     const accountVoucherNumber = this.getItem('accountVoucherNumber');
     Promise.all([ accountVoucherNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'accountVoucherNumber', value: getString(getNumber(numb.value) + 1) });
       });
@@ -260,8 +231,7 @@ export class SettingService {
   async increaseCashDeskNumber() {
     const cashDeskNumber = this.getItem('cashDeskNumber');
     Promise.all([ cashDeskNumber])
-      .then(values => {
-        // @ts-ignore
+      .then((values: any) => {
         const numb = values[0].data as SettingModel;
         return this.setItem({ key: 'cashDeskNumber', value: getString(getNumber(numb.value) + 1) });
       });

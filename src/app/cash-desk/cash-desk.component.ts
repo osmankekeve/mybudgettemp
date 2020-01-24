@@ -6,10 +6,11 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getFirstDayOfMonthForInput, getNumber, getTodayForInput, isNullOrEmpty, padLeft} from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import { Router, ActivatedRoute } from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-cash-desk',
@@ -165,12 +166,21 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.atService.getCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate).then(list => {
-      list.forEach((item: any) => {
-        this.transactionList.push(item);
-        this.totalValues.amount += item.amount;
+
+    Promise.all([this.atService.getCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate),
+      this.atService.getSingleCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
+      .then((item: any) => {
+
+        item[0].forEach((data: any) => {
+          this.transactionList.push(data);
+          this.totalValues.amount += data.amount;
+        });
+
+        item[1].forEach((data: any) => {
+          this.transactionList.push(data);
+          this.totalValues.amount += data.amount;
+        });
       });
-    });
   }
 
   clearSelectedRecord(): void {

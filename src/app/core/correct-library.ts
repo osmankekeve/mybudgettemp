@@ -17,6 +17,9 @@ export const getFloat = (value: any) => {
 };
 
 export const getString = (value: any) => {
+  if (value === undefined || value === null) {
+    return '';
+  }
   if (String(value)) {
     return value.toString();
   }

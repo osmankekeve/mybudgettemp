@@ -99,6 +99,34 @@ export class AccountTransactionService {
       }
   })
 
+  getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+          .where('parentPrimaryKey', '==', cashDeskPrimaryKey)
+          .where('parentType', '==', 'cashDesk')
+          .where('cashDeskPrimaryKey', '==', '-1')
+          .startAt(startDate.getTime())
+          .endAt(endDate.getTime()));
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
       // tslint:disable-next-line:cyclomatic-complexity
       Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
@@ -161,17 +189,6 @@ export class AccountTransactionService {
           reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
       }
   })
-
-  getCashDeskTransactions2(cashDeskPrimaryKey: string, startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
-    this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref
-      .orderBy('insertDate')
-      .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
-      .startAt(startDate.getTime())
-      .endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
-  }
 
   getOnDayTransactions(): Observable < AccountTransactionModel[] > {
     const date = new Date();
