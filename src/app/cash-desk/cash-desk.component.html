@@ -134,36 +134,41 @@
                   </div>
                 </div>
               </div>
-              <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
-                <div class="list-group-item bg-dark text-light main-list-item">
-                  <div class="row">
-                    <div class="col-sm-3">İşlem Tipi</div>
-                    <div class="col-sm-3">Fiş Numarası</div>
-                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
-                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+              <div *ngIf="transactionList != undefined; else elseBlock3">
+                <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
+                  <div class="list-group-item bg-dark text-light main-list-item">
+                    <div class="row">
+                      <div class="col-sm-3">İşlem Tipi</div>
+                      <div class="col-sm-3">Fiş Numarası</div>
+                      <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                      <div class="col-sm-3"><span class="float-right">Tarih</span></div>
 
+                    </div>
                   </div>
+                  <div class="list-group-item list-group-item-action main-list-item"
+                       *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                    <div class="row">
+                      <div class="col-sm-3">{{item.transactionTypeTr}}</div>
+                      <div class="col-sm-3">{{item.receiptNo}}</div>
+                      <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                      <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    </div>
+                  </div>
+                  <li class="list-group-item list-group-item-success main-list-item">
+                    <div class="row">
+                      <div class="col-sm-6">Toplam</div>
+                      <div class="col-sm-3"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
+                    </div>
+                  </li>
                 </div>
-                <div class="list-group-item list-group-item-action main-list-item"
-                     *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
-                  <div class="row">
-                    <div class="col-sm-3">{{item.transactionTypeTr}}</div>
-                    <div class="col-sm-3">{{item.receiptNo}}</div>
-                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
                   </div>
-                </div>
-                <li class="list-group-item list-group-item-success main-list-item">
-                  <div class="row">
-                    <div class="col-sm-6">Toplam</div>
-                    <div class="col-sm-3"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
-                  </div>
-                </li>
+                </ng-template>
               </div>
-              <ng-template #elseBlock>
-                <div class="card bg-danger text-white">
-                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                </div>
+              <ng-template #elseBlock3>
+                <div class="loader"></div>
               </ng-template>
             </div>
             <ng-template #elseBlock2>

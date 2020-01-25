@@ -160,7 +160,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   populateTransactions(): void {
-    this.transactionList = [];
+    this.transactionList = undefined;
     this.totalValues = {
       amount: 0
     };
@@ -170,6 +170,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     Promise.all([this.atService.getCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate),
       this.atService.getSingleCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
       .then((item: any) => {
+        this.transactionList = [];
 
         item[0].forEach((data: any) => {
           this.transactionList.push(data);
