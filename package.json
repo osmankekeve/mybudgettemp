@@ -27,6 +27,7 @@
     "bootstrap4": "0.0.1-security",
     "chart.js": "^2.9.3",
     "crypto-js": "^3.1.9-1",
+    "emailjs-com": "^2.4.1",
     "file-save": "^0.2.0",
     "file-saver": "^2.0.2",
     "firebase": "^6.6.2",
@@ -40,8 +41,7 @@
     "rxjs-compat": "^6.5.3",
     "tslib": "^1.9.0",
     "xlsx": "^0.15.3",
-    "zone.js": "~0.9.1",
-    "xml2json": "latest"
+    "zone.js": "~0.9.1"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.803.23",

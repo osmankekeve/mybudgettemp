@@ -28,6 +28,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { VisitComponent } from './visit/visit.component';
 import { CustomerTargetComponent } from './customer-target/customer-target.component';
 import { AccountTransactionComponent } from './account-transaction/account-transaction.component';
+import { ContactUsComponent } from './contact-us/contact-us.component';
 
 
 const routes: Routes = [
@@ -64,6 +65,7 @@ const routes: Routes = [
   {path: 'visit/:id', component: ReminderComponent, pathMatch: 'full'},
   {path: 'customer-target', component: CustomerTargetComponent, pathMatch: 'full'},
   {path: 'account-transaction', component: AccountTransactionComponent, pathMatch: 'full'},
+  {path: 'contact-us', component: ContactUsComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -74,34 +76,12 @@ const routes: Routes = [
 export class AppRoutingModule { }
 
 export const routingComponents = [
-  PageNotFoundComponent,
-  NavBarComponent,
-  SideNavBarComponent,
-  CustomerComponent,
-  PurchaseInvoiceComponent,
-  SalesInvoiceComponent,
-  CashDeskComponent,
-  CollectionComponent,
-  PaymentComponent,
-  DashboardComponent,
-  LoginComponent,
-  AlertComponent,
-  AccountVoucherComponent,
-  CashdeskVoucherComponent,
-  ReportsComponent,
-  TestModuleComponent,
-  NotificationComponent,
-  NoteComponent,
-  CRMComponent,
-  LocationComponent,
-  ProfileComponent,
-  SettingComponent,
-  UserComponent,
-  ReminderComponent,
-  FileUploadComponent,
-  VisitComponent,
-  CustomerTargetComponent,
-  AccountTransactionComponent
+  PageNotFoundComponent, NavBarComponent, SideNavBarComponent, CustomerComponent, PurchaseInvoiceComponent,
+  SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent,
+  LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent,
+  TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
+  SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
+  AccountTransactionComponent, ContactUsComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.
