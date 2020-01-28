@@ -1,4 +1,4 @@
-import {ContactUsModel} from "./contact-us-model";
+import {ContactUsModel} from './contact-us-model';
 
 export class ContactUsMainModel {
   data: ContactUsModel;

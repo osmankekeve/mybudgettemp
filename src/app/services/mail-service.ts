@@ -1,5 +1,6 @@
-import {Injectable} from '@angular/core';
+
 import * as nodemailer from 'nodemailer';
+import {Injectable} from '@angular/core';
 import {CONFIG} from 'src/mail.config';
 import {MailModel} from '../models/mail-model';
 
@@ -99,13 +100,14 @@ export class MailService {
       const transporter = nodemailer.createTransport(smtpConfig);
       // setup email data with unicode symbols
       // send mail with defined transport object
-      if (!mailContent.from) {
-        mailContent.from = CONFIG.mailFrom;
+      if (!mailContent.mailFrom) {
+        mailContent.mailFrom = CONFIG.mailFrom;
       }
       if (CONFIG.mailTo) {
-        mailContent.to = CONFIG.mailTo;
+        mailContent.mailTo = CONFIG.mailTo;
       }
-      mailContent.html = mailContent.html ? this.getHTMLTemplate(mailContent.html) : this.getHTMLTemplate(mailContent.text);
+      // mailContent.html = mailContent.html ? this.getHTMLTemplate(mailContent.html) : this.getHTMLTemplate(mailContent.text);
+      mailContent.html = mailContent.text;
 
       const info = await transporter.sendMail(mailContent);
       console.log('Mail send "%s", result: %s', mailContent.subject, JSON.stringify(info));

@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
-import { CollectionModel } from '../models/collection-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {ContactUsMainModel} from "../models/contact-us-main-model";
-import {ContactUsModel} from "../models/contact-us-model";
-import {ProfileModel} from "../models/profile-model";
+import {ContactUsMainModel} from '../models/contact-us-main-model';
+import {ContactUsModel} from '../models/contact-us-model';
+import {ProfileModel} from '../models/profile-model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,11 +18,20 @@ import {ProfileModel} from "../models/profile-model";
 export class ContactUsService {
   listCollection: AngularFirestoreCollection<ContactUsModel>;
   mainList$: Observable<ContactUsMainModel[]>;
+  employeeMap = new Map();
   tableName = 'tblContactUs';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
-              public logService: LogService, public db: AngularFirestore) {
-
+              public logService: LogService, public db: AngularFirestore, public eService: ProfileService) {
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+    }
   }
 
   async addItem(record: ContactUsMainModel) {
@@ -59,7 +65,7 @@ export class ContactUsService {
   clearMainModel(): ContactUsMainModel {
     const returnData = new ContactUsMainModel();
     returnData.data = this.clearSubModel();
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     return returnData;
   }

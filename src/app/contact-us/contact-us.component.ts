@@ -3,11 +3,11 @@ import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firest
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
-import {ContactUsMainModel} from "../models/contact-us-main-model";
-import {ContactUsService} from "../services/contact-us.service";
-import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput} from "../core/correct-library";
-import {CollectionMainModel} from "../models/collection-main-model";
-import {Router} from "@angular/router";
+import {ContactUsMainModel} from '../models/contact-us-main-model';
+import {ContactUsService} from '../services/contact-us.service';
+import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput} from '../core/correct-library';
+import {Router} from '@angular/router';
+import {CONFIG} from 'src/mail.config';
 
 @Component({
   selector: 'app-contact-us',
@@ -81,17 +81,19 @@ export class ContactUsComponent implements OnInit, OnDestroy {
     } else {
       this.service.addItem(this.selectedRecord).then(() => {
         this.infoService.success('Ticket başarıyla kaydedildi. En kısa süre de dönüş yapılacaktır.');
-        this.selectedRecord = undefined;
-
-        emailjs.send('gmail', 'template_ZOI4dmYR', {
-          employeeName: this.selectedRecord.employeeName,
-          content: this.selectedRecord.data.content
-        }, 'user_MnYHwTCq0NxsdQx7XCHoh').then((result: EmailJSResponseStatus) => {
-          console.log(result.text);
-        }, (error) => {
-          console.log(error.text);
-        });
-
+        if (CONFIG.isSendMail) {
+          emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsContactUsTemplateID, {
+            mailTo: CONFIG.mailTo,
+            mailToName: CONFIG.mailToName,
+            mailFromName: CONFIG.mailFromName,
+            employeeName: this.selectedRecord.employeeName,
+            content: this.selectedRecord.data.content
+          }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
+            console.log(result.text);
+          }, (error) => {
+            console.log(error.text);
+          });
+        }
       }).catch(err => this.infoService.error(err));
     }
   }

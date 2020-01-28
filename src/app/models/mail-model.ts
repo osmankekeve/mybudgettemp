@@ -1,8 +1,9 @@
 
 export class MailModel {
-  from?: string;
-  to?: string;
-  subject: string;
+  mailFrom?: string;
+  mailTo?: string;
+  employeeName?: string;
+  subject?: string;
   text?: string;
   html?: string;
 }

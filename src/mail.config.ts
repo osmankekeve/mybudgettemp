@@ -9,10 +9,15 @@ export const CONFIG = {
     port: 465,
     secure: true, // true for 465, false for other ports
     auth: {
-      user: 'kozayazilim@gmail.com',
-      pass: 'wBf3gRGx03I+XdoAemPd6HxYMkFb9431/yqe9X0eqvtQ+fikFmSW6eZ7go+/GJKl'
+      user: 'osmankekeve@gmail.com',
+      pass: '198800keK'
     }
   },
   mailFrom: '"My Budget Web"',
-  mailTo: 'murat@kozayazilim.com',
+  mailTo: 'osman.kekeve@gmail.com', // destek mail adresi olacak
+  mailToName: 'Osman KEKEVE', // destek ekibinin jargon ismi
+  mailFromName: 'My Budget Web System', // mailin nereden geldiği
+  mjsServiceID: 'gmail',
+  mjsUserID: 'user_MnYHwTCq0NxsdQx7XCHoh',
+  mjsContactUsTemplateID: 'template_ZOI4dmYR',
 };
