@@ -90,8 +90,9 @@ export class CustomerComponent implements OnInit {
 
   populateCustomerList(): void {
     this.openedPanel = 'dashboard';
-    this.mainList = [];
+    this.mainList = undefined;
     this.customerService.getMainItems(this.isActive).subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -104,7 +105,11 @@ export class CustomerComponent implements OnInit {
         }
       });
     });
-
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedCustomer(customer: any): void {

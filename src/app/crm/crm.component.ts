@@ -21,10 +21,8 @@ import {getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOr
 })
 export class CRMComponent implements OnInit, OnDestroy {
   mainList: Array<CustomerRelationModel>;
-  mainList1: Array<CustomerRelationModel>;
-  mainList2: Array<CustomerRelationModel>;
-  mainList3: Array<CustomerRelationModel>;
   collection: AngularFirestoreCollection<CustomerRelationModel>;
+  mainList$: Observable<CustomerRelationModel[]>;
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: CustomerRelationModel;
   refModel: CustomerRelationModel;
@@ -61,11 +59,12 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
+    this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-    this.mainList = [];
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -77,7 +76,14 @@ export class CRMComponent implements OnInit, OnDestroy {
           // nothing
         }
       });
+    }, error => {
+      this.infoService.error(error.toString())
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

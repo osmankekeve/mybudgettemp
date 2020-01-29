@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, flatMap, startWith} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {PaymentModel} from '../models/payment-model';
 import {AuthenticationService} from './authentication.service';
@@ -168,7 +168,7 @@ export class PaymentService {
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
-  }
+  }s
 
   getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PaymentMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {

@@ -44,24 +44,29 @@
         <button type="button" class="btn btn-sm btn-success" (click)="btnMainFilter_Click()">Filtrele</button>
       </div>
     </div>
-    <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="row">
-        <div class="col-sm-6"
-             *ngFor="let customer of mainList | filterDataCustomer : searchText; index as i; trackBy: primaryKey">
-          <div class="card mb-2 bg-light cursor-pointer"
-               (click)="showSelectedCustomer(customer)">
-            <div class="card-body">
-              <div class="font-weight-500 text-dark">{{i + 1}}) {{customer.data.name}}</div>
-              <div class="text-small text-dark">{{customer.data.owner}}</div>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="row">
+          <div class="col-sm-6"
+               *ngFor="let customer of mainList | filterDataCustomer : searchText; index as i; trackBy: primaryKey">
+            <div class="card mb-2 bg-light cursor-pointer"
+                 (click)="showSelectedCustomer(customer)">
+              <div class="card-body">
+                <div class="font-weight-500 text-dark">{{i + 1}}) {{customer.data.name}}</div>
+                <div class="text-small text-dark">{{customer.data.owner}}</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
     </div>
-    <ng-template #elseBlock>
-      <div class="card bg-danger text-white">
-        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-      </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
     </ng-template>
   </div>
 </div>
@@ -176,7 +181,7 @@
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="row">
                 <div class="col-sm-2">
-                  <img src="../../assets/images/customer-visit.png" width="50px">
+                  <img src="../../assets/images/customer-target.png" width="50px">
                 </div>
                 <div class="col-sm-10">
                   <div>Hedefler</div>
@@ -185,7 +190,19 @@
               </div>
             </div>
           </div>
-
+          <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('mail')">
+            <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+              <div class="row">
+                <div class="col-sm-2">
+                  <img src="../../assets/images/customer-mail.png" width="50px">
+                </div>
+                <div class="col-sm-10">
+                  <div>Mailler</div>
+                  <small class="text-secondary">Müşteriye Gönderilen Mailleri Listeler</small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="col-sm-6">
           <div id="panel-navigator">
@@ -893,37 +910,42 @@
   </div>
   <div *ngIf="openedPanel=='accountSummary'">
     <div class="card-body">
-      <div class="list-group" *ngIf="transactionList; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-1">Sıra</div>
-            <div class="col-sm-5">İşlem</div>
-            <div class="col-sm-2">Fiş Numarası</div>
-            <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+      <div *ngIf="transactionList != undefined; else elseBlock2">
+        <div class="list-group" *ngIf="transactionList; else elseBlock">
+          <div class="list-group-item bg-success text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-1">Sıra</div>
+              <div class="col-sm-5">İşlem</div>
+              <div class="col-sm-2">Fiş Numarası</div>
+              <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            </div>
           </div>
+          <div class="list-group-item list-group-item-action main-list-item"
+               *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+            <div class="row">
+              <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
+              <div class="col-sm-5">{{item.transactionTypeTr}}</div>
+              <div class="col-sm-2">{{item.receiptNo}}</div>
+              <div class="col-sm-2"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+              <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+            </div>
+          </div>
+          <li class="list-group-item list-group-item-success main-list-item">
+            <div class="row">
+              <div class="col-sm-8">Toplam</div>
+              <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
+            </div>
+          </li>
         </div>
-        <div class="list-group-item list-group-item-action main-list-item"
-             *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
-          <div class="row">
-            <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
-            <div class="col-sm-5">{{item.transactionTypeTr}}</div>
-            <div class="col-sm-2">{{item.receiptNo}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+        <ng-template #elseBlock>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
           </div>
-        </div>
-        <li class="list-group-item list-group-item-success main-list-item">
-          <div class="row">
-            <div class="col-sm-8">Toplam</div>
-            <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
-          </div>
-        </li>
+        </ng-template>
       </div>
-      <ng-template #elseBlock>
-        <div class="card bg-danger text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
+      <ng-template #elseBlock2>
+        <div class="loader"></div>
       </ng-template>
     </div>
   </div>
@@ -939,7 +961,6 @@
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)"
              *ngFor="let item of filesList; index as i; trackBy: primaryKey">
           <div class="row">
             <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>

@@ -65,13 +65,14 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.totalValues = {
       amount: 0
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+      this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as CashDeskVoucherMainModel;
         if (item.actionType === 'added') {
@@ -89,6 +90,11 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

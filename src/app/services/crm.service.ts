@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
+import { map, flatMap, startWith } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
@@ -15,7 +15,6 @@ import { CustomerRelationModel } from '../models/customer-relation-model';
 export class CustomerRelationService {
   listCollection: AngularFirestoreCollection<CustomerRelationModel>;
   mainList$: Observable<CustomerRelationModel[]>;
-  atMod: AccountTransactionModel;
   tableName = 'tblCustomerRelation';
   relationTypeMap = new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
   ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);

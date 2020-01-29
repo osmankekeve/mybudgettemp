@@ -182,6 +182,11 @@ export class CashDeskComponent implements OnInit, OnDestroy {
           this.totalValues.amount += data.amount;
         });
       });
+    setTimeout (() => {
+      if (this.transactionList === undefined) {
+        this.transactionList = [];
+      }
+    }, 1000);
   }
 
   clearSelectedRecord(): void {

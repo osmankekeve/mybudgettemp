@@ -40,8 +40,9 @@ export class FileUploadComponent implements OnInit {
   }
 
   populateAllRecords(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -54,6 +55,11 @@ export class FileUploadComponent implements OnInit {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   btnUploadFile_Click() {

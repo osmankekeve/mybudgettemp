@@ -28,7 +28,6 @@ import {CollectionMainModel} from '../models/collection-main-model';
   styleUrls: ['./customer-target.component.css']
 })
 export class CustomerTargetComponent implements OnInit, OnDestroy {
-  mainList: Array<CustomerTargetMainModel> = [];
   mainList1: Array<CustomerTargetMainModel> = [];
   mainList2: Array<CustomerTargetMainModel> = [];
   mainList3: Array<CustomerTargetMainModel> = [];
@@ -60,11 +59,13 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
-    this.mainList1 = [];
-    this.mainList2 = [];
-    this.mainList3 = [];
+    this.mainList1 = undefined;
+    this.mainList2 = undefined;
+    this.mainList3 = undefined;
     this.service.getMainItems().subscribe(list => {
+      this.mainList1 = [];
+      this.mainList2 = [];
+      this.mainList3 = [];
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
@@ -102,6 +103,11 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList1 === undefined) { this.mainList1 = []; }
+      if (this.mainList2 === undefined) { this.mainList2 = []; }
+      if (this.mainList3 === undefined) { this.mainList3 = []; }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

@@ -76,43 +76,48 @@
         </div>
       </div>
     </div>
-    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="list-group-item bg-warning text-light main-list-item">
-        <div class="row">
-          <div class="col-sm-3">Müşteri Adı</div>
-          <div class="col-sm-2">Personel</div>
-          <div class="col-sm-1">Fiş No</div>
-          <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-          <div class="col-sm-2"><span class="float-right">Tutar (+KDV)</span></div>
-          <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-warning text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-3">Müşteri Adı</div>
+            <div class="col-sm-2">Personel</div>
+            <div class="col-sm-1">Fiş No</div>
+            <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+            <div class="col-sm-2"><span class="float-right">Tutar (+KDV)</span></div>
+            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
 
-        </div>
-      </div>
-      <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-           (click)="showSelectedRecord(item)"
-           *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
-        <div class="row">
-          <div class="col-sm-3"><i class="fa fa-arrow-circle-right mr-2 text-warning"></i>{{item.customerName}}</div>
-          <div class="col-sm-2">{{item.employeeName}}</div>
-          <div class="col-sm-1">{{item.data.receiptNo}}</div>
-          <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-          <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
-          <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-        </div>
-      </div>
-      <li class="list-group-item list-group-item-success main-list-item">
-        <div class="row">
-          <div class="col-sm-6">Toplam</div>
-          <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
-          <div class="col-sm-2"><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
           </div>
         </div>
-      </li>
-    </div>
-    <ng-template #elseBlock>
-      <div class="card bg-danger text-white">
-        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-3"><i class="fa fa-arrow-circle-right mr-2 text-warning"></i>{{item.customerName}}</div>
+            <div class="col-sm-2">{{item.employeeName}}</div>
+            <div class="col-sm-1">{{item.data.receiptNo}}</div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+          </div>
+        </div>
+        <li class="list-group-item list-group-item-success main-list-item">
+          <div class="row">
+            <div class="col-sm-6">Toplam</div>
+            <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
+            </div>
+          </div>
+        </li>
       </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
     </ng-template>
   </div>
 </div>

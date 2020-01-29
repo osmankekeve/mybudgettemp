@@ -71,32 +71,37 @@
         </div>
       </div>
     </div>
-    <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-        <div class="card-list-parent">
-          <div class="card mb-2 bg-light cursor-pointer"
-               (click)="showSelectedRecord(item)" title="Kaydı Göster">
-            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-            <div class="card-body">
-              <div class="row">
-                <div class="col">
-                  <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
-                  <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</label>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+          <div class="card-list-parent">
+            <div class="card mb-2 bg-light cursor-pointer"
+                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
+              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
+                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</label>
+                  </div>
+                  <div class="col">
+                    <label class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
+                  </div>
                 </div>
-                <div class="col">
-                  <label class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
-                </div>
+                <div class="text-dark text-small">{{item.data.description}}</div>
               </div>
-              <div class="text-dark text-small">{{item.data.description}}</div>
             </div>
           </div>
         </div>
       </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
     </div>
-    <ng-template #elseBlock>
-      <div class="card bg-danger text-white">
-        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-      </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
     </ng-template>
   </div>
 </div>

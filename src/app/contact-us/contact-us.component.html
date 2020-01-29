@@ -7,8 +7,6 @@
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -64,27 +62,32 @@
         </div>
       </div>
     </div>
-    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="list-group-item bg-success text-light main-list-item">
-        <div class="row">
-          <div class="col-sm-10">Personel</div>
-          <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-success text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-10">Personel</div>
+            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+          </div>
         </div>
-      </div>
-      <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-           (click)="showSelectedRecord(item)"
-           *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-        <div class="row">
-          <div class="col-sm-10">{{item.employeeName}}</div>
-          <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-10">{{item.employeeName}}</div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+            </div>
           </div>
         </div>
       </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
     </div>
-    <ng-template #elseBlock>
-      <div class="card bg-danger text-white">
-        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-      </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
     </ng-template>
   </div>
 </div>
@@ -114,7 +117,7 @@
   </div>
   <div class="card-footer">
     <div class="col-sm-3 float-right">
-      <button type="button" class="btn btn-sm btn-success btn-block"
+      <button type="button" class="btn btn-sm btn-success btn-block" *ngIf="selectedRecord.data.primaryKey==null"
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>

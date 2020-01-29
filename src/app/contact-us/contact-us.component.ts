@@ -5,7 +5,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
 import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {ContactUsService} from '../services/contact-us.service';
-import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput} from '../core/correct-library';
+import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
 import {CONFIG} from 'src/mail.config';
 
@@ -14,7 +14,6 @@ import {CONFIG} from 'src/mail.config';
   templateUrl: './contact-us.component.html',
   styleUrls: ['./contact-us.component.css']
 })
-
 export class ContactUsComponent implements OnInit, OnDestroy {
   mainList: Array<ContactUsMainModel>;
   collection: AngularFirestoreCollection<ContactUsMainModel>;
@@ -24,6 +23,7 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   isMainFilterOpened = false;
   filterBeginDate: any;
   filterFinishDate: any;
+  searchText: '';
 
   constructor(public authService: AuthenticationService, public service: ContactUsService,
               public infoService: InformationService, public route: Router,
@@ -38,10 +38,11 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+      this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as ContactUsMainModel;
         if (item.actionType === 'added') {
@@ -55,6 +56,11 @@ export class ContactUsComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {
@@ -101,6 +107,16 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
     this.route.navigate(['contact-us', {}]);
+  }
+
+  btnMainFilter_Click(): void {
+    if (isNullOrEmpty(this.filterBeginDate)) {
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+    } else if (isNullOrEmpty(this.filterFinishDate)) {
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    } else {
+      this.populateList();
+    }
   }
 
   clearSelectedRecord(): void {

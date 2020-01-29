@@ -16,7 +16,6 @@ import {
 } from '../core/correct-library';
 import { VisitService } from '../services/visit.service';
 import { ProfileService } from '../services/profile.service';
-import { ProfileModel } from '../models/profile-model';
 import { VisitMainModel } from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
 import { ProfileMainModel } from '../models/profile-main-model';
@@ -33,7 +32,6 @@ export class VisitComponent implements OnInit, OnDestroy {
   profileList$: Observable<ProfileMainModel[]>;
   selectedRecord: VisitMainModel;
   refModel: VisitMainModel;
-  isShowAllRecords = false;
   openedPanel: any;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
@@ -67,10 +65,11 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
+    this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.mainList = [];
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+      this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as VisitMainModel;
         this.mainList.forEach(item2 => {
@@ -89,6 +88,11 @@ export class VisitComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: VisitMainModel): void {

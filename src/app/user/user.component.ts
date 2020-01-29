@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import { ProfileModel } from '../models/profile-model';
 import { ProfileService } from '../services/profile.service';
 import { getDateForInput, getInputDataForInsert, getTodayForInput } from '../core/correct-library';
 import { ProfileMainModel } from '../models/profile-main-model';
@@ -17,11 +15,9 @@ export class UserComponent implements OnInit, OnDestroy {
   selectedRecord: ProfileMainModel;
   refModel: ProfileMainModel;
   birthDate: any;
+  searchText: '';
 
-  constructor(public authServis: AuthenticationService,
-              public infoService: InformationService,
-              public service: ProfileService,
-              public db: AngularFirestore) { }
+  constructor(public infoService: InformationService, public service: ProfileService, public db: AngularFirestore) { }
 
   async ngOnInit() {
     this.populateList();
@@ -31,8 +27,9 @@ export class UserComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as ProfileMainModel;
         if (item.actionType === 'added') {
@@ -46,6 +43,11 @@ export class UserComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

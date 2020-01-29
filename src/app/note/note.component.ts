@@ -18,6 +18,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   selectedRecord: NoteModel;
   refModel: NoteModel;
   openedPanel: any;
+  searchText: '';
 
   constructor(public authService: AuthenticationService, public service: NoteService,
               public atService: AccountTransactionService,
@@ -33,8 +34,9 @@ export class NoteComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -47,6 +49,11 @@ export class NoteComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

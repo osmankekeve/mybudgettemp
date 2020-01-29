@@ -68,13 +68,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.totalValues = {
       amount: 0
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
+      this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as PaymentMainModel;
         if (item.actionType === 'added') {
@@ -92,6 +93,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

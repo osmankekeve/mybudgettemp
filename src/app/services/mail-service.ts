@@ -92,7 +92,6 @@ export class MailService {
       // create reusable transporter object using the default SMTP transport
       if (CONFIG.smtp === undefined || !CONFIG.isSendMail) {
         console.log('Mail send skipped: %s', mailContent.subject);
-
         return resolve('');
       }
       const smtpConfig = JSON.parse(JSON.stringify(CONFIG.smtp));

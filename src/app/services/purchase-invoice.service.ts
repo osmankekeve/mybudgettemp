@@ -8,7 +8,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, flatMap, startWith} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';

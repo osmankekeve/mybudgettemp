@@ -7,6 +7,7 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-8">
+        <div *ngIf="mainList != undefined; else elseBlock2">
           <div class="list-group mb-2" *ngIf="mainList.length > 0; else elseBlock">
             <div class="list-group-item bg-success text-light main-list-item">
               <div class="row">
@@ -17,8 +18,8 @@
               </div>
             </div>
             <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-            (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                 (click)="showSelectedRecord(item)"
+                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
               <div class="row">
                 <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
                 <div class="col-sm-6">{{item.data.fileName}}</div>
@@ -32,6 +33,10 @@
               <div class="card-body">Görüntülenecek veri bulunamadı.</div>
             </div>
           </ng-template>
+        </div>
+        <ng-template #elseBlock2>
+          <div class="loader"></div>
+        </ng-template>
       </div>
       <div class="col-sm-4">
         <form novalidate (ngSubmit)="btnUploadFile_Click()" *ngIf="!refModel">

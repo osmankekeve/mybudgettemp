@@ -44,6 +44,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
+    this.transactionList = undefined;
     this.atService.getOnDayTransactions().subscribe(list => {
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
         this.transactionList = list;
@@ -74,6 +75,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
         });
     });
+    setTimeout (() => {
+      if (this.transactionList === undefined) {
+        this.transactionList = [];
+      }
+    }, 1000);
 
     const date = new Date();
     const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
@@ -162,7 +168,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   populateActivityList(): void {
+    this.actionList = undefined;
     this.crmService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+      this.actionList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.actionList.push(item);
@@ -175,10 +183,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+    }, 1000);
   }
 
   populateVisitList(): void {
+    this.visitList = undefined;
     this.vService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+      this.visitList = [];
       list.forEach((data: any) => {
         const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
@@ -192,6 +207,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.visitList === undefined) {
+        this.visitList = [];
+      }
+    }, 1000);
   }
 
   showAction(item: any): void {

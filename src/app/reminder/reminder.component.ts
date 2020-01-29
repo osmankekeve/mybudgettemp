@@ -5,16 +5,8 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {ReminderService} from '../services/reminder.service';
-import {ProfileModel} from '../models/profile-model';
 import {ProfileService} from '../services/profile.service';
-import {
-  getBool,
-  getDateForInput,
-  getFirstDayOfMonthForInput,
-  getInputDataForInsert,
-  getTodayForInput,
-  isNullOrEmpty
-} from '../core/correct-library';
+import { getDateForInput, getInputDataForInsert, getTodayForInput } from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import { ProfileMainModel } from '../models/profile-main-model';
 
@@ -31,6 +23,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
   refModel: ReminderModel;
   openedPanel: any;
   recordDate: any;
+  searchText: '';
   isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
 
@@ -59,8 +52,9 @@ export class ReminderComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -73,6 +67,11 @@ export class ReminderComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {
