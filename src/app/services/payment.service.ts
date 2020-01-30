@@ -168,7 +168,7 @@ export class PaymentService {
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
-  }s
+  }
 
   getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PaymentMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {

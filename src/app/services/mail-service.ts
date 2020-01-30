@@ -5,10 +5,17 @@ import {CONFIG} from 'src/mail.config';
 import {MailModel} from '../models/mail-model';
 
 @Injectable()
-export class MailService {
+export class MailOldService {
 
   constructor() {
   }
+
+
+
+
+
+
+
 
   getHTMLTemplate = (mailContent: string): string => {
     const body = `
@@ -105,8 +112,9 @@ export class MailService {
       if (CONFIG.mailTo) {
         mailContent.mailTo = CONFIG.mailTo;
       }
+
       // mailContent.html = mailContent.html ? this.getHTMLTemplate(mailContent.html) : this.getHTMLTemplate(mailContent.text);
-      mailContent.html = mailContent.text;
+      mailContent.html = mailContent.content;
 
       const info = await transporter.sendMail(mailContent);
       console.log('Mail send "%s", result: %s', mailContent.subject, JSON.stringify(info));
