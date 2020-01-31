@@ -12,6 +12,9 @@ import {MailMainModel} from '../models/mail-main-model';
 import {Observable} from 'rxjs/internal/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
+import {ProfileModel} from '../models/profile-model';
+import {ProfileService} from '../services/profile.service';
+import {ProfileMainModel} from '../models/profile-main-model';
 
 @Component({
   selector: 'app-mail-sender',
@@ -21,6 +24,7 @@ import {CustomerService} from '../services/customer.service';
 export class MailSenderComponent implements OnInit, OnDestroy {
   mainList: Array<MailMainModel>;
   customerList$: Observable<CustomerModel[]>;
+  employeeList$: Observable<ProfileMainModel[]>;
   selectedRecord: MailMainModel;
   refModel: MailMainModel;
   employeeDetail: any;
@@ -29,13 +33,14 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   filterFinishDate: any;
   searchText: '';
 
-  constructor(public authService: AuthenticationService, public service: MailService,
+  constructor(public authService: AuthenticationService, public service: MailService, public eService: ProfileService,
               public infoService: InformationService, public route: Router, public cService: CustomerService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
+    this.employeeList$ = this.eService.getMainItems();
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
     this.populateList();
   }
@@ -87,8 +92,14 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click() {
-    if (this.selectedRecord.data.primaryKey === null) {
+    if (this.selectedRecord.data.mailTo === '') {
+      this.infoService.error('Lütfen alıcı adresi giriniz');
+    } else if (this.selectedRecord.data.content === '') {
+      this.infoService.error('Lütfen içerik giriniz');
+    } else {
+      if (this.selectedRecord.data.primaryKey === null) {
 
+      }
     }
   }
 

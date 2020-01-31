@@ -53,7 +53,8 @@ export class MailService {
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.customerPrimaryKey = '-1';
+    returnData.parentType = 'anyone';  // anyone, customer, employee
+    returnData.parentPrimaryKey = '-1';  // customer, employee primaryKey
     returnData.subject = '';
     returnData.content = '';
     returnData.html = '';

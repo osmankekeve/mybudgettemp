@@ -4,10 +4,11 @@ export class MailModel {
   mailFrom?: string;
   mailTo?: string;
   userPrimaryKey?: string;
-  employeePrimaryKey?: string;
-  customerPrimaryKey?: string;
+  employeePrimaryKey?: string; // mail sender employee primaryKey
   employeeName?: string;
   subject?: string;
+  parentType?: string; // anyone, customer, employee
+  parentPrimaryKey?: string;
   content?: string;
   html?: string;
   insertDate?: number;
