@@ -55,6 +55,7 @@ export class MailService {
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.parentType = 'anyone';  // anyone, customer, employee
     returnData.parentPrimaryKey = '-1';  // customer, employee primaryKey
+    returnData.mailTo = '';
     returnData.subject = '';
     returnData.content = '';
     returnData.html = '';

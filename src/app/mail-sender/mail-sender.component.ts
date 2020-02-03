@@ -103,8 +103,11 @@ export class MailSenderComponent implements OnInit, OnDestroy {
         this.infoService.error('Lütfen içerik giriniz');
       } else {
         if (this.selectedRecord.data.primaryKey === null) {
-          console.log(this.selectedRecord);
-
+          this.service.addItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Etkinlik başarıyla kaydedildi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
         }
       }
     } catch (err) {
@@ -112,10 +115,10 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     try {
       this.selectedRecord = undefined;
-      this.route.navigate(['contact-us', {}]);
+      await this.route.navigate(['mail-sender', {}]);
     } catch (err) {
       this.infoService.error(err);
     }
