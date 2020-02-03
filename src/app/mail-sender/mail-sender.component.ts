@@ -15,6 +15,7 @@ import {CustomerService} from '../services/customer.service';
 import {ProfileModel} from '../models/profile-model';
 import {ProfileService} from '../services/profile.service';
 import {ProfileMainModel} from '../models/profile-main-model';
+import {SimpleModel} from '../models/simple-model';
 
 @Component({
   selector: 'app-mail-sender',
@@ -24,7 +25,8 @@ import {ProfileMainModel} from '../models/profile-main-model';
 export class MailSenderComponent implements OnInit, OnDestroy {
   mainList: Array<MailMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  employeeList$: Observable<ProfileMainModel[]>;
+  employeeList$: Observable<ProfileModel[]>;
+  receivers: Array<SimpleModel>;
   selectedRecord: MailMainModel;
   refModel: MailMainModel;
   employeeDetail: any;
@@ -40,7 +42,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
-    this.employeeList$ = this.eService.getMainItems();
+    this.employeeList$ = this.eService.getItems();
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
     this.populateList();
   }
@@ -52,7 +54,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as MailMainModel;
         if (item.actionType === 'added') {
@@ -92,29 +94,65 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click() {
-    if (this.selectedRecord.data.mailTo === '') {
-      this.infoService.error('Lütfen alıcı adresi giriniz');
-    } else if (this.selectedRecord.data.content === '') {
-      this.infoService.error('Lütfen içerik giriniz');
-    } else {
-      if (this.selectedRecord.data.primaryKey === null) {
+    try {
+      if (this.selectedRecord.data.mailTo === '') {
+        this.infoService.error('Lütfen alıcı adresi giriniz');
+      } else if (this.selectedRecord.data.subject === '') {
+        this.infoService.error('Lütfen başlık giriniz');
+      } else if (this.selectedRecord.data.content === '') {
+        this.infoService.error('Lütfen içerik giriniz');
+      } else {
+        if (this.selectedRecord.data.primaryKey === null) {
+          console.log(this.selectedRecord);
 
+        }
       }
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
   btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
-    this.route.navigate(['contact-us', {}]);
+    try {
+      this.selectedRecord = undefined;
+      this.route.navigate(['contact-us', {}]);
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+    try {
+      if (isNullOrEmpty(this.filterBeginDate)) {
+        this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      } else if (isNullOrEmpty(this.filterFinishDate)) {
+        this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      } else {
+        this.populateList();
+      }
+    } catch (err) {
+      this.infoService.error(err);
+    }
+  }
+
+  onChangeType(record: any): void {
+    this.receivers = [];
+    if (record === 'customer') {
+      this.customerList$.subscribe(list => {
+        list.forEach(item => {
+          const key = item as CustomerModel;
+          this.receivers.push({key: key.primaryKey, value: key.name});
+        });
+      });
+    } else if (record === 'employee') {
+      this.employeeList$.subscribe(list => {
+        list.forEach(item => {
+          const key = item as ProfileModel;
+          this.receivers.push({key: key.primaryKey, value: key.longName});
+        });
+      });
     } else {
-      this.populateList();
+
     }
   }
 

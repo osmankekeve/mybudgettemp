@@ -112,12 +112,14 @@
                  [(ngModel)]="selectedRecord.data.mailTo" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
+
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="parentType">Alıcı Tipi</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="parentType" name="parentType" required
                   [disabled]="f.valid"
+                  (change)="onChangeType($event.target.value)"
                   [(ngModel)]="selectedRecord.data.parentType">
             <option value="anyone">Seçilmedi</option>
             <option value="customer">Müşteri</option>
@@ -125,35 +127,20 @@
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>
-        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType=='customer'">
+
+        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType!='anyone'">
           <div class="row">
             <div class="col-sm-6">
-              <label class="col-form-label float-left" for="parentPrimaryKey">Müşteri</label>
+              <label class="col-form-label float-left" for="parentPrimaryKey">Alıcı</label>
             </div>
             <div class="col-sm-6">
               <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required
                       [disabled]="f.valid"
                       [(ngModel)]="selectedRecord.data.parentPrimaryKey">
-                <option value={{item.primaryKey}}
-                        *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                <option value={{item.key}}
+                        *ngFor="let item of receivers;">{{item.value}}</option>
               </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType=='employee'">
-          <div class="row">
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="parentPrimaryKey">Personel</label>
-            </div>
-            <div class="col-sm-6">
-              <select class="form-control form-control-sm w-100" name="parentPrimaryKey" required
-                      [disabled]="f.valid"
-                      [(ngModel)]="selectedRecord.data.parentPrimaryKey">
-                <option value={{item.returnData.data.primaryKey}}
-                        *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen personel seçiniz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen Alıcı seçiniz.</div>
             </div>
           </div>
         </div>
@@ -171,8 +158,8 @@
         </div>
         <div class="col-sm-9">
             <textarea class="form-control form-control-sm w-100" id="content" name="content" type="text"
-                      cols="40" rows="5" [(ngModel)]="selectedRecord.data.content"></textarea>
-          <div class="invalid-feedback">Lütfen içerik alanını doldurunuz.</div>
+                      cols="40" rows="5" [(ngModel)]="selectedRecord.data.content" required></textarea>
+          <div class="invalid-feedback invalid-input-info">Lütfen içerik alanını doldurunuz.</div>
         </div>
       </div>
     </form>

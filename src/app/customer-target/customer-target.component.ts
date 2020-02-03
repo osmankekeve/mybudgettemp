@@ -63,9 +63,9 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     this.mainList2 = undefined;
     this.mainList3 = undefined;
     this.service.getMainItems().subscribe(list => {
-      if (this.mainList1 === undefined) this.mainList1 = [];
-      if (this.mainList2 === undefined) this.mainList2 = [];
-      if (this.mainList3 === undefined) this.mainList3 = [];
+      if (this.mainList1 === undefined) { this.mainList1 = []; }
+      if (this.mainList2 === undefined) { this.mainList2 = []; }
+      if (this.mainList3 === undefined) { this.mainList3 = []; }
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
