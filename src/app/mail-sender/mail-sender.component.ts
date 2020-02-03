@@ -52,7 +52,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as MailMainModel;
         if (item.actionType === 'added') {

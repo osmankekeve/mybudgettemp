@@ -143,8 +143,8 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
                   [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+            <option value={{item.returnData.data.primaryKey}}
+                    *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
         </div>

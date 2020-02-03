@@ -92,7 +92,7 @@ export class CustomerComponent implements OnInit {
     this.openedPanel = 'dashboard';
     this.mainList = undefined;
     this.customerService.getMainItems(this.isActive).subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);

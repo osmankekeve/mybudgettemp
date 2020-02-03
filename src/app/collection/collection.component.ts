@@ -74,7 +74,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as CollectionMainModel;
         if (item.actionType === 'added') {

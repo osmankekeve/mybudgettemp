@@ -77,7 +77,7 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-purple text-light main-list-item">
           <div class="row">
             <div class="col-sm-3">Müşteri Adı</div>
@@ -109,6 +109,11 @@
             </div>
           </div>
         </li>
+        <ng-template #elseBlock>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+          </div>
+        </ng-template>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

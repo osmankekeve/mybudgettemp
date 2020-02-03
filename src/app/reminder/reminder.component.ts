@@ -54,7 +54,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);

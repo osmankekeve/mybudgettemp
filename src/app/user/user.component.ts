@@ -29,7 +29,7 @@ export class UserComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as ProfileMainModel;
         if (item.actionType === 'added') {

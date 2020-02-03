@@ -168,7 +168,7 @@
           <label class="col-form-label float-left" for="totalPrice">Tutar</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number" step="any"
+          <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number"
                  [(ngModel)]="selectedRecord.data.totalPrice" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
@@ -176,9 +176,8 @@
           <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" type="text" step="any"
-                 id="totalPriceWithTax" name="totalPriceWithTax"
-                 [ngModel]="selectedRecord.data.totalPriceWithTax" required/>
+          <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" type="number"
+                 [(ngModel)]="selectedRecord.data.totalPriceWithTax" required/>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">

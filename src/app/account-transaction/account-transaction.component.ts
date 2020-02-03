@@ -16,6 +16,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
   isMainFilterOpened = false;
   filterBeginDate: any;
   filterFinishDate: any;
+  searchText: '';
 
   constructor(public infoService: InformationService,
               public service: AccountTransactionService,
@@ -31,10 +32,11 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItems(beginDate, finishDate).subscribe(list => {
+      this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -47,6 +49,11 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {
