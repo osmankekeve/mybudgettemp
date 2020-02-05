@@ -92,6 +92,7 @@ export class MailService {
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
           returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
+          returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
           resolve(Object.assign({returnData}));
 
           resolve(Object.assign({data}));
@@ -115,6 +116,7 @@ export class MailService {
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
         returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
+        returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -143,6 +145,7 @@ export class MailService {
         returnData.data = data;
         returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
+        returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
         if (returnData.data.parentType === 'customer') {
           return this.db.collection('tblCustomer').doc(returnData.data.parentPrimaryKey).valueChanges()
             .pipe(map((customer: CustomerModel) => {
@@ -181,6 +184,7 @@ export class MailService {
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
         returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
+        returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
           .pipe(map((customer: CustomerModel) => {

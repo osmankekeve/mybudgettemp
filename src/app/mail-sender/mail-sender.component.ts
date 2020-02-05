@@ -105,6 +105,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
           /*for (const item: string of mailAddress) {
             console.log(item);
           }*/
+          this.selectedRecord.data.primaryKey = '';
           this.service.addItem(this.selectedRecord)
             .then(() => {
               if (CONFIG.isSendMail) {
@@ -114,9 +115,12 @@ export class MailSenderComponent implements OnInit, OnDestroy {
                   senderName: this.selectedRecord.employeeName,
                   subject: this.selectedRecord.data.subject,
                   content: this.selectedRecord.data.content
-                }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
+                }, CONFIG.mjsUserID)
+                  .then((result: EmailJSResponseStatus) => {
                   if (result.text === 'OK') {
                     this.selectedRecord.data.isSend = true;
+                    this.selectedRecord.isSendTr = 'Gönderildi';
+                    console.log(this.selectedRecord);
                     this.service.updateItem(this.selectedRecord).then(() => {
                       this.infoService.success('Mail başarıyla gönderildi.');
                       this.selectedRecord = undefined;

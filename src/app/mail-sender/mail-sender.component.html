@@ -67,9 +67,10 @@
         <div class="list-group-item bg-success text-light main-list-item">
           <div class="row">
             <div class="col-sm-2">Personel</div>
-            <div class="col-sm-2">Kayıt Tipi</div>
+            <div class="col-sm-1">Kayıt Tipi</div>
             <div class="col-sm-2">Alıcı</div>
-            <div class="col-sm-5">Başlık</div>
+            <div class="col-sm-4">Başlık</div>
+            <div class="col-sm-1">Durum</div>
             <div class="col-sm-1"><span class="float-right">Tarih</span></div>
           </div>
         </div>
@@ -78,9 +79,10 @@
              *ngFor="let item of mainList; index as i; trackBy: primaryKey">
           <div class="row">
             <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.employeeName}}</div>
-            <div class="col-sm-2">{{item.parentTypeTr}}</div>
+            <div class="col-sm-1">{{item.parentTypeTr}}</div>
             <div class="col-sm-2">{{item.customerName}}</div>
-            <div class="col-sm-5">{{item.data.subject}}</div>
+            <div class="col-sm-4">{{item.data.subject}}</div>
+            <div class="col-sm-2">{{item.isSendTr}}</div>
             <div class="col-sm-1"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
             </div>
           </div>
