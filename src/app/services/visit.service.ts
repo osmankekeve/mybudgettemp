@@ -34,13 +34,13 @@ export class VisitService {
   }
 
   async addItem(record: VisitMainModel) {
-    this.logService.sendToLog(record, 'insert', 'visit');
+    await this.logService.sendToLog(record, 'insert', 'visit');
     return await this.listCollection.add(Object.assign({}, record.visit));
   }
 
   async removeItem(record: VisitMainModel) {
-      this.logService.sendToLog(record, 'delete', 'visit');
-      return await this.db.collection(this.tableName).doc(record.visit.primaryKey).delete();
+    await this.logService.sendToLog(record, 'delete', 'visit');
+    return await this.db.collection(this.tableName).doc(record.visit.primaryKey).delete();
   }
 
   async updateItem(record: VisitMainModel) {
@@ -49,7 +49,7 @@ export class VisitService {
   }
 
   async setItem(record: VisitMainModel, primaryKey: string) {
-    this.logService.sendToLog(record, 'insert', 'visit');
+    await this.logService.sendToLog(record, 'insert', 'visit');
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.visit));
   }
 
@@ -88,7 +88,7 @@ export class VisitService {
     const returnData = new VisitMainModel();
     returnData.visit = this.clearVisitModel();
     returnData.customerName = '';
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.visit.employeePrimaryKey);
     returnData.isVisitedTr = 'Ziyaret Edilmedi';
     returnData.actionType = 'added';
     return returnData;

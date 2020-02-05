@@ -93,6 +93,10 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.customerName + ' müşteriye Hedef ';
 
+    } else if (systemModule === 'mail') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.customerName + ' alıcısına mail  (' + record.isSendTr + ') ';
+
     } else {
       item.log = ' bilinmeyen modül ';
 

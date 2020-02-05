@@ -78,7 +78,7 @@ export class SalesInvoiceService {
     const returnData = new SalesInvoiceMainModel();
     returnData.data = this.clearSubModel();
     returnData.customerName = '';
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     return returnData;
   }

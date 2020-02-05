@@ -20,4 +20,5 @@ export const CONFIG = {
   mjsServiceID: 'gmail',
   mjsUserID: 'user_MnYHwTCq0NxsdQx7XCHoh',
   mjsContactUsTemplateID: 'template_ZOI4dmYR',
+  mjsMainTemplateID: 'main_template',
 };

@@ -1,8 +1,7 @@
 import { Component, OnInit, AfterViewInit  } from '@angular/core';
 import * as $ from 'jquery';
 import { AuthenticationService } from '../services/authentication.service';
-import {CustomerRelationService} from "../services/crm.service";
-import {CookieService} from "ngx-cookie-service";
+import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-side-nav-bar',

@@ -15,7 +15,7 @@
                             <i class="fa fa-filter"></i>
                         </span>
           </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Not Ara.." [(ngModel)]="searchText">
+          <input type="search" class="form-control filter-list-input" placeholder="Mail Ara.." [(ngModel)]="searchText">
         </div>
       </div>
     </div>
@@ -66,18 +66,22 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-success text-light main-list-item">
           <div class="row">
-            <div class="col-sm-4">Personel</div>
-            <div class="col-sm-6">Başlık</div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            <div class="col-sm-2">Personel</div>
+            <div class="col-sm-2">Kayıt Tipi</div>
+            <div class="col-sm-2">Alıcı</div>
+            <div class="col-sm-5">Başlık</div>
+            <div class="col-sm-1"><span class="float-right">Tarih</span></div>
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList; index as i; trackBy: primaryKey">
           <div class="row">
-            <div class="col-sm-4"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.employeeName}}</div>
-            <div class="col-sm-6">{{item.data.subject}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.employeeName}}</div>
+            <div class="col-sm-2">{{item.parentTypeTr}}</div>
+            <div class="col-sm-2">{{item.customerName}}</div>
+            <div class="col-sm-5">{{item.data.subject}}</div>
+            <div class="col-sm-1"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
             </div>
           </div>
         </div>
@@ -104,22 +108,12 @@
     </div>
   </div>
   <div class="card-body">
-    <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+    <form (ngSubmit)="btnSave_Click()" class="was-validated">
       <div class="row form-inline">
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="mailTo">Mail Adresi</label>
-        </div>
-        <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="mailTo" name="mailTo" type="text"
-                 [disabled]="selectedRecord.data.primaryKey!=null"
-                 [(ngModel)]="selectedRecord.data.mailTo" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-        </div>
-
-        <div class="col-sm-3">
+        <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey==null">
           <label class="col-form-label float-left" for="parentType">Alıcı Tipi</label>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey==null">
           <select class="form-control form-control-sm w-100" id="parentType" name="parentType" required
                   [disabled]="selectedRecord.data.primaryKey!=null"
                   (change)="onChangeType($event.target.value)"
@@ -130,8 +124,7 @@
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>
-
-        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType!='anyone'">
+        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType!='anyone' && selectedRecord.data.primaryKey==null">
           <div class="row">
             <div class="col-sm-6">
               <label class="col-form-label float-left" for="parentPrimaryKey">Alıcı</label>
@@ -139,15 +132,26 @@
             <div class="col-sm-6">
               <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required
                       [disabled]="selectedRecord.data.primaryKey!=null"
+                      (change)="onChangeReceiver($event)"
                       [(ngModel)]="selectedRecord.data.parentPrimaryKey">
                 <option value={{item.key}}
-                        *ngFor="let item of receivers;">{{item.value}}</option>
+                        *ngFor="let item of receiversList;">{{item.value}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen Alıcı seçiniz.</div>
             </div>
           </div>
         </div>
-        <div class="col-sm-6" *ngIf="selectedRecord.data.parentType!='anyone'"></div>
+        <div class="col-sm-6"
+             *ngIf="selectedRecord.data.parentType=='anyone' && selectedRecord.data.primaryKey==null"></div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="mailTo">Mail Adresi</label>
+        </div>
+        <div class="col-sm-9">
+          <input class="form-control form-control-sm w-100" id="mailTo" name="mailTo" type="text"
+                 [disabled]="selectedRecord.data.primaryKey!=null"
+                 [(ngModel)]="selectedRecord.data.mailTo" required>
+          <div class="invalid-feedback invalid-input-info">Lütfen mail adresi giriniz.</div>
+        </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="subject">Başlık</label>
         </div>

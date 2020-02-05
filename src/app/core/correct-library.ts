@@ -159,6 +159,10 @@ export const getCashDeskVoucherType = () => {
   return new Map([['open', 'Açılış'], ['transfer', 'Transfer']]);
 };
 
+export const getMailParents = () => {
+  return new Map([['anyone', 'Mail Adresi'], ['customer', 'Müşteri'], ['employee', 'Personel']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };

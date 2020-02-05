@@ -61,7 +61,7 @@ export class CashDeskService {
   clearMainModel(): CashDeskMainModel {
     const returnData = new CashDeskVoucherMainModel();
     returnData.data = this.clearSubModel();
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     return returnData;
   }

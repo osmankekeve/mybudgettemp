@@ -11,6 +11,7 @@ import {SettingService} from './setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
 import {getCashDeskVoucherType} from '../core/correct-library';
+import {ProfileService} from './profile.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +21,10 @@ export class CashDeskVoucherService {
   mainList$: Observable<CashDeskVoucherMainModel[]>;
   cashDeskMap = new Map();
   cashDeskVoucherTypeMap = new Map();
+  employeeMap = new Map();
   tableName = 'tblCashDeskVoucher';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService,
+  constructor(public authService: AuthenticationService, public sService: SettingService, public eService: ProfileService,
               public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore) {
     this.cdService.getItems().subscribe(list => {
       this.cashDeskMap.clear();
@@ -32,6 +34,15 @@ export class CashDeskVoucherService {
       });
     });
     this.cashDeskVoucherTypeMap = getCashDeskVoucherType();
+    if (this.authService.isUserLoggedIn()) {
+      this.eService.getItems().subscribe(list => {
+        this.employeeMap.clear();
+        this.employeeMap.set('-1', 'Tüm Kullanıcılar');
+        list.forEach(item => {
+          this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+    }
   }
 
   async addItem(record: CashDeskVoucherMainModel) {
@@ -77,7 +88,7 @@ export class CashDeskVoucherService {
   clearMainModel(): CashDeskVoucherMainModel {
     const returnData = new CashDeskVoucherMainModel();
     returnData.data = this.clearSubModel();
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.casDeskName = '';
     returnData.secondCashDeskName = '';
     returnData.actionType = 'added';

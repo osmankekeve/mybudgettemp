@@ -11,5 +11,6 @@ export class MailModel {
   parentPrimaryKey?: string;
   content?: string;
   html?: string;
+  isSend?: boolean;
   insertDate?: number;
 }

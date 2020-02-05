@@ -5,4 +5,6 @@ export class MailMainModel {
   actionType?: string;
   customerName?: string;
   employeeName?: string;
+  parentTypeTr?: string;
+  isSendTr?: string;
 }

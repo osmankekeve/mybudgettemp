@@ -84,7 +84,7 @@ export class PurchaseInvoiceService {
     const returnData = new AccountVoucherMainModel();
     returnData.data = this.clearSubModel();
     returnData.customerName = '';
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     return returnData;
   }

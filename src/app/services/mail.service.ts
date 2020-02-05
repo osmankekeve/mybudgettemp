@@ -1,18 +1,19 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { AuthenticationService } from './authentication.service';
-import { CustomerModel } from '../models/customer-model';
-import { MailModel } from '../models/mail-model';
+import {Observable} from 'rxjs/Observable';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
+import {AuthenticationService} from './authentication.service';
+import {CustomerModel} from '../models/customer-model';
+import {MailModel} from '../models/mail-model';
 import {PaymentModel} from '../models/payment-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {MailMainModel} from '../models/mail-main-model';
-import {getString} from '../core/correct-library';
+import {getCashDeskVoucherType, getMailParents, getString} from '../core/correct-library';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
+import {ProfileModel} from '../models/profile-model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +23,10 @@ export class MailService {
   mainList$: Observable<MailMainModel[]>;
   tableName = 'tblMail';
   employeeMap = new Map();
+  mailParentList = getMailParents();
 
-  constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore) {
+  constructor(public authService: AuthenticationService, public eService: ProfileService, public logService: LogService,
+              public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -36,6 +39,7 @@ export class MailService {
   }
 
   async addItem(record: MailMainModel) {
+    await this.logService.sendToLog(record, 'insert', 'mail');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
@@ -44,6 +48,7 @@ export class MailService {
   }
 
   async updateItem(record: MailMainModel) {
+    await this.logService.sendToLog(record, 'update', 'mail');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
@@ -59,6 +64,7 @@ export class MailService {
     returnData.subject = '';
     returnData.content = '';
     returnData.html = '';
+    returnData.isSend = false;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -68,8 +74,10 @@ export class MailService {
     const returnData = new MailMainModel();
     returnData.data = this.clearSubModel();
     returnData.customerName = '';
-    returnData.employeeName = '';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
     returnData.actionType = 'added';
+    returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
     return returnData;
   }
 
@@ -83,6 +91,7 @@ export class MailService {
           const returnData = new MailMainModel();
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
+          returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
           resolve(Object.assign({returnData}));
 
           resolve(Object.assign({data}));
@@ -95,9 +104,9 @@ export class MailService {
 
   getMainItems(): Observable<MailModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as MailModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -105,11 +114,13 @@ export class MailService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
+        returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-          return Object.assign({returnData}); }));
+          .pipe(map((customer: CustomerModel) => {
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -122,20 +133,29 @@ export class MailService {
         .where('userPrimaryKey', '==', this.authService.getUid());
       return query;
     });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as MailModel;
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new MailMainModel();
         returnData.actionType = change.type;
         returnData.data = data;
+        returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
-
-        return this.db.collection('tblCustomer').doc('-1').valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+        if (returnData.data.parentType === 'customer') {
+          return this.db.collection('tblCustomer').doc(returnData.data.parentPrimaryKey).valueChanges()
+            .pipe(map((customer: CustomerModel) => {
+              returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+              return Object.assign({returnData});
+            }));
+        } else {
+          return this.db.collection('tblProfile').doc(returnData.data.parentPrimaryKey).valueChanges()
+            .pipe(map((profile: ProfileModel) => {
+              returnData.customerName = profile !== undefined ? profile.longName : returnData.data.mailTo;
+              return Object.assign({returnData});
+            }));
+        }
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -151,8 +171,8 @@ export class MailService {
       }
       return query;
     });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as MailModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -160,11 +180,13 @@ export class MailService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
+        returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
+          .pipe(map((customer: CustomerModel) => {
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

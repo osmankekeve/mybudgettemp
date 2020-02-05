@@ -24,12 +24,11 @@ import {SimpleModel} from '../models/simple-model';
 })
 export class MailSenderComponent implements OnInit, OnDestroy {
   mainList: Array<MailMainModel>;
-  customerList$: Observable<CustomerModel[]>;
-  employeeList$: Observable<ProfileModel[]>;
-  receivers: Array<SimpleModel>;
+  receiversList: Array<SimpleModel>;
   selectedRecord: MailMainModel;
   refModel: MailMainModel;
   employeeDetail: any;
+  userDetails: any;
   isMainFilterOpened = false;
   filterBeginDate: any;
   filterFinishDate: any;
@@ -41,10 +40,9 @@ export class MailSenderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
-    this.employeeList$ = this.eService.getItems();
-    this.employeeDetail = this.authService.isEmployeeLoggedIn();
     this.populateList();
+    this.userDetails = this.authService.isUserLoggedIn();
+    this.employeeDetail = this.authService.isEmployeeLoggedIn();
   }
 
   ngOnDestroy(): void { }
@@ -103,10 +101,35 @@ export class MailSenderComponent implements OnInit, OnDestroy {
         this.infoService.error('Lütfen içerik giriniz');
       } else {
         if (this.selectedRecord.data.primaryKey === null) {
+          const mailAddress = this.selectedRecord.data.mailTo.split(';');
+          /*for (const item: string of mailAddress) {
+            console.log(item);
+          }*/
           this.service.addItem(this.selectedRecord)
             .then(() => {
-              this.infoService.success('Etkinlik başarıyla kaydedildi.');
-              this.selectedRecord = undefined;
+              if (CONFIG.isSendMail) {
+                emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, {
+                  receiverMailAddress: this.selectedRecord.data.mailTo,
+                  receiverName: this.selectedRecord.customerName,
+                  senderName: this.selectedRecord.employeeName,
+                  subject: this.selectedRecord.data.subject,
+                  content: this.selectedRecord.data.content
+                }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
+                  if (result.text === 'OK') {
+                    this.selectedRecord.data.isSend = true;
+                    this.service.updateItem(this.selectedRecord).then(() => {
+                      this.infoService.success('Mail başarıyla gönderildi.');
+                      this.selectedRecord = undefined;
+                    });
+                  } else {
+                    this.selectedRecord.data.isSend = false;
+                    this.infoService.success('Mail gönderilemedi.');
+                    this.selectedRecord = undefined;
+                  }
+                }, (error) => {
+                  console.log(error.text);
+                });
+              }
             }).catch(err => this.infoService.error(err));
         }
       }
@@ -139,23 +162,38 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   }
 
   onChangeType(record: any): void {
-    this.receivers = [];
+    this.receiversList = [];
     if (record === 'customer') {
-      this.customerList$.subscribe(list => {
+      this.cService.getAllItems().subscribe(list => {
         list.forEach(item => {
           const key = item as CustomerModel;
-          this.receivers.push({key: key.primaryKey, value: key.name});
+          if (key.email !== '') {
+            this.receiversList.push({key: key.primaryKey, value: key.name, text: key.email});
+          }
         });
       });
     } else if (record === 'employee') {
-      this.employeeList$.subscribe(list => {
+      this.eService.getItems().subscribe(list => {
         list.forEach(item => {
           const key = item as ProfileModel;
-          this.receivers.push({key: key.primaryKey, value: key.longName});
+          if (key.mailAddress !== '') {
+            this.receiversList.push({key: key.primaryKey, value: key.longName, text: key.mailAddress});
+          }
         });
       });
     } else {
 
+    }
+  }
+
+  onChangeReceiver($event: any): void {
+    try {
+      this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
+      const receiver = this.receiversList[$event.target.options.selectedIndex] as SimpleModel;
+      this.selectedRecord.data.mailTo = receiver.text;
+      // this.selectedRecord.data.mailTo += receiver.text + ';';
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
