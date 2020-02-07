@@ -1,5 +1,5 @@
 <div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/target_2.png" width="30px" class="float-left mr-2"/>
@@ -168,7 +168,7 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/target_2.png" width="30px" class="float-left mr-2"/>
@@ -347,7 +347,7 @@
         </div>
         <div class="col">
           <div class="card bg-light">
-            <div class="card-header bg-secondary text-light">
+            <div class="card-header bg-gray-gradient">
               <h6 class="float-left">Tahsilatlar</h6>
             </div>
             <div class="card-body work-area-4" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
