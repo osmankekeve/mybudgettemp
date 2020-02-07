@@ -31,6 +31,8 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
+import {MailMainModel} from '../models/mail-main-model';
+import {MailService} from '../services/mail.service';
 
 @Component({
   selector: 'app-customer',
@@ -69,6 +71,7 @@ export class CustomerComponent implements OnInit {
   filesList$: Observable<FileModel[]>;
   visitList$: Observable<VisitMainModel[]>;
   targetList$: Observable<CustomerTargetMainModel[]>;
+  mailList$: Observable<MailMainModel[]>;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   isActive = true;
@@ -78,7 +81,8 @@ export class CustomerComponent implements OnInit {
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
-              public payService: PaymentService, public atService: AccountTransactionService, public route: Router) {
+              public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
+              public mailService: MailService) {
   }
 
   ngOnInit() {
@@ -92,7 +96,7 @@ export class CustomerComponent implements OnInit {
     this.openedPanel = 'dashboard';
     this.mainList = undefined;
     this.customerService.getMainItems(this.isActive).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -214,6 +218,9 @@ export class CustomerComponent implements OnInit {
         }
       });
     });
+
+    this.mailList$ = undefined;
+    this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.primaryKey);
   }
 
   btnReturnList_Click(): void {

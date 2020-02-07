@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
+import emailjs, {EmailJSResponseStatus} from 'emailjs-com';
 import {ContactUsMainModel} from '../models/contact-us-main-model';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
 import {CONFIG} from 'src/mail.config';
 import {MailService} from '../services/mail.service';
@@ -36,7 +36,8 @@ export class MailSenderComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public service: MailService, public eService: ProfileService,
               public infoService: InformationService, public route: Router, public cService: CustomerService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
   ngOnInit() {
     this.clearMainFiler();
@@ -45,14 +46,17 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as MailMainModel;
         if (item.actionType === 'added') {
@@ -66,7 +70,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -105,36 +109,33 @@ export class MailSenderComponent implements OnInit, OnDestroy {
           /*for (const item: string of mailAddress) {
             console.log(item);
           }*/
-          this.selectedRecord.data.primaryKey = '';
-          this.service.addItem(this.selectedRecord)
-            .then(() => {
-              if (CONFIG.isSendMail) {
-                emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, {
-                  receiverMailAddress: this.selectedRecord.data.mailTo,
-                  receiverName: this.selectedRecord.customerName,
-                  senderName: this.selectedRecord.employeeName,
-                  subject: this.selectedRecord.data.subject,
-                  content: this.selectedRecord.data.content
-                }, CONFIG.mjsUserID)
-                  .then((result: EmailJSResponseStatus) => {
-                  if (result.text === 'OK') {
-                    this.selectedRecord.data.isSend = true;
-                    this.selectedRecord.isSendTr = 'Gönderildi';
-                    console.log(this.selectedRecord);
-                    this.service.updateItem(this.selectedRecord).then(() => {
-                      this.infoService.success('Mail başarıyla gönderildi.');
-                      this.selectedRecord = undefined;
-                    });
-                  } else {
-                    this.selectedRecord.data.isSend = false;
-                    this.infoService.success('Mail gönderilemedi.');
+
+          if (CONFIG.isSendMail) {
+            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, {
+              receiverMailAddress: this.selectedRecord.data.mailTo,
+              receiverName: this.selectedRecord.customerName,
+              senderName: this.selectedRecord.employeeName,
+              subject: this.selectedRecord.data.subject,
+              content: this.selectedRecord.data.content
+            }, CONFIG.mjsUserID)
+              .then((result: EmailJSResponseStatus) => {
+                if (result.text === 'OK') {
+                  this.selectedRecord.data.isSend = true;
+                  this.selectedRecord.isSendTr = 'Gönderildi';
+                } else {
+                  this.selectedRecord.data.isSend = false;
+                  this.selectedRecord.isSendTr = 'Gönderilemedi';
+                }
+                this.selectedRecord.data.primaryKey = '';
+                this.service.addItem(this.selectedRecord)
+                  .then((item) => {
+                    this.infoService.success('Mail başarıyla gönderildi.');
                     this.selectedRecord = undefined;
-                  }
-                }, (error) => {
-                  console.log(error.text);
-                });
-              }
-            }).catch(err => this.infoService.error(err));
+                  }).catch(err => this.infoService.error(err));
+              }, (error) => {
+                console.log(error.text);
+              });
+          }
         }
       }
     } catch (err) {

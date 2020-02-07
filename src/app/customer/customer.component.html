@@ -467,7 +467,8 @@
                     <label class="col-form-label float-left">Kayıt Tarihi</label>
                   </div>
                   <div class="col-sm-6">
-                    <label class="col-form-label float-left">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
+                    <label
+                      class="col-form-label float-left">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
@@ -752,7 +753,8 @@
                     <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
                   </div>
                   <div class="col-sm-6">
-                    <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKeyAV" name="cashDeskPrimaryKey"
+                    <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKeyAV"
+                            name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newVoucher.data.cashDeskPrimaryKey">
                       <option value={{item.returnData.data.primaryKey}}
@@ -772,7 +774,8 @@
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                   </div>
                   <div class="col-sm-6">
-                    <input class="form-control form-control-sm w-100" id="amountAV" name="amount" type="number" step="any"
+                    <input class="form-control form-control-sm w-100" id="amountAV" name="amount" type="number"
+                           step="any"
                            [(ngModel)]="newVoucher.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
@@ -1103,6 +1106,36 @@
                 </div>
               </div>
 
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='mail'">
+    <div class="card-body">
+      <div class="list-group mb-2" *ngIf="mailList$ | async; let visitList; else elseBlock">
+        <div class="list-group-item bg-success text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-2">Personel</div>
+            <div class="col-sm-8">Başlık</div>
+            <div class="col-sm-1">Durum</div>
+            <div class="col-sm-1"><span class="float-right">Tarih</span></div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item"
+             *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
+            <div class="col-sm-8">{{item.returnData.data.subject}}</div>
+            <div class="col-sm-1">{{item.returnData.isSendTr}}</div>
+            <div class="col-sm-1">
+              <span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span>
             </div>
           </div>
         </div>

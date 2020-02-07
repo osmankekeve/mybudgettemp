@@ -72,7 +72,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as CashDeskVoucherMainModel;
         if (item.actionType === 'added') {
@@ -133,6 +133,14 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
         this.selectedRecord.data.primaryKey = '';
 
         this.service.setItem(this.selectedRecord, newId).then(() => {
+          let calculatedAmount1 = this.selectedRecord.data.transactionType === 'credit' ?
+            this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1;
+          if (this.selectedRecord.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
+
+          let calculatedAmount2 = this.selectedRecord.data.transactionType === 'credit' ?
+            this.selectedRecord.data.amount * -1 : this.selectedRecord.data.amount;
+          if (this.selectedRecord.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
+
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
@@ -141,8 +149,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
             transactionPrimaryKey: newId,
             transactionType: 'cashDeskVoucher',
             amountType: this.selectedRecord.data.transactionType,
-            amount: this.selectedRecord.data.transactionType === 'credit' ?
-              this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+            amount: calculatedAmount1,
             cashDeskPrimaryKey: this.selectedRecord.data.type === 'transfer' ? this.selectedRecord.data.secondCashDeskPrimaryKey : '-1' ,
             receiptNo: this.selectedRecord.data.receiptNo,
             insertDate: this.selectedRecord.data.insertDate
@@ -156,8 +163,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
                 transactionPrimaryKey: newId,
                 transactionType: 'cashDeskVoucher',
                 amountType: this.selectedRecord.data.transactionType,
-                amount: this.selectedRecord.data.transactionType === 'debit' ?
-                  this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+                amount: calculatedAmount2,
                 cashDeskPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
                 receiptNo: this.selectedRecord.data.receiptNo,
                 insertDate: this.selectedRecord.data.insertDate

@@ -229,11 +229,11 @@ export class SettingService {
   }
 
   async increaseCashDeskNumber() {
-    const cashDeskNumber = this.getItem('cashDeskNumber');
-    Promise.all([ cashDeskNumber])
+    const cashDeskVoucherNumber = this.getItem('cashDeskVoucherNumber');
+    Promise.all([ cashDeskVoucherNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'cashDeskNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({ key: 'cashDeskVoucherNumber', value: getString(getNumber(numb.value) + 1) });
       });
   }
 

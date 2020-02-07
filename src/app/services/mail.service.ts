@@ -64,7 +64,7 @@ export class MailService {
     returnData.subject = '';
     returnData.content = '';
     returnData.html = '';
-    returnData.isSend = false;
+    returnData.isSend = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -164,14 +164,13 @@ export class MailService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<MailModel[]> {
+  getCustomerItems(customerPrimaryKey: any): Observable<MailMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {
       let query: CollectionReference | Query = ref;
-      query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid());
-      if (customerPrimaryKey !== '-1') {
-        query = query.where('customerCode', '==', customerPrimaryKey);
-      }
+      query = query.orderBy('insertDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('parentType', '==', 'customer');
+      if (customerPrimaryKey !== '-1') { query = query.where('parentPrimaryKey', '==', customerPrimaryKey); }
       return query;
     });
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
@@ -186,7 +185,7 @@ export class MailService {
         returnData.parentTypeTr = this.mailParentList.get(returnData.data.parentType);
         returnData.isSendTr = returnData.data.isSend === true ? 'Gönderildi' : 'Gönderilmedi';
 
-        return this.db.collection('tblCustomer').doc('-1').valueChanges()
+        return this.db.collection('tblCustomer').doc(returnData.data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
             return Object.assign({returnData});
