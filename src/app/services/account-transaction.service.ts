@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AuthenticationService } from './authentication.service';
-import { getTransactionTypes, getTodayStart, getTodayEnd } from '../core/correct-library';
-import { CustomerService } from './customer.service';
-import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/Observable';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AuthenticationService} from './authentication.service';
+import {getTransactionTypes, getTodayStart, getTodayEnd} from '../core/correct-library';
+import {CustomerService} from './customer.service';
+import {CustomerModel} from '../models/customer-model';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -26,24 +26,24 @@ export class AccountTransactionService {
 
   getAllItems(): Observable<AccountTransactionModel[]> {
     this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName);
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
   getRecordTransactionItems(primaryKey: string): Observable<AccountTransactionModel[]> {
     this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName,
       ref => ref.where('transactionPrimaryKey', '==', primaryKey));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
   getCustomerTransactionItems(customerPrimaryKey: string, transactionType: string): Observable<AccountTransactionModel[]> {
     this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName,
       ref => ref
-      .where('parentPrimaryKey', '==', customerPrimaryKey)
-      .where('parentType', '==', 'customer')
-      .where('transactionType', '==', transactionType).orderBy('insertDate'));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+        .where('parentPrimaryKey', '==', customerPrimaryKey)
+        .where('parentType', '==', 'customer')
+        .where('transactionType', '==', transactionType).orderBy('insertDate'));
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
@@ -74,29 +74,29 @@ export class AccountTransactionService {
   }
 
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
-      // tslint:disable-next-line:cyclomatic-complexity
-      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-      try {
-        const list = Array<AccountTransactionModel>();
-        const citiesRef = this.db.collection(this.tableName, ref =>
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
-        .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
-        .startAt(startDate.getTime())
-        .endAt(endDate.getTime()));
-        citiesRef.get().subscribe(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            data.primaryKey = doc.id;
-            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-            list.push(data);
-          });
-          resolve(list);
+          .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
+          .startAt(startDate.getTime())
+          .endAt(endDate.getTime()));
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          list.push(data);
         });
+        resolve(list);
+      });
 
-      } catch (error) {
-          console.error(error);
-          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-      }
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
   })
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
@@ -128,43 +128,43 @@ export class AccountTransactionService {
   })
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
-      // tslint:disable-next-line:cyclomatic-complexity
-      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-      try {
-        const list = Array<AccountTransactionModel>();
-        const citiesRef = this.db.collection(this.tableName, ref =>
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
-        .where('parentPrimaryKey', '==', customerPrimaryKey)
-        .where('parentType', '==', 'customer')
-        .startAt(startDate.getTime())
-        .endAt(endDate.getTime()));
-        citiesRef.get().subscribe(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            data.primaryKey = doc.id;
-            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-            list.push(data);
-          });
-          resolve(list);
+          .where('parentPrimaryKey', '==', customerPrimaryKey)
+          .where('parentType', '==', 'customer')
+          .startAt(startDate.getTime())
+          .endAt(endDate.getTime()));
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          list.push(data);
         });
+        resolve(list);
+      });
 
-      } catch (error) {
-          console.error(error);
-          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-      }
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
   })
 
   getCustomerTransactionsWithDateControl = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
-      // tslint:disable-next-line:cyclomatic-complexity
-      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-      try {
-        const returnList = Array<AccountTransactionModel>();
-        const refData = this.db.collection(this.tableName, ref => {
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const returnList = Array<AccountTransactionModel>();
+      const refData = this.db.collection(this.tableName, ref => {
 
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate')
-        .where('parentPrimaryKey', '==', customerPrimaryKey)
-        .where('parentType', '==', 'customer');
+          .where('parentPrimaryKey', '==', customerPrimaryKey)
+          .where('parentType', '==', 'customer');
 
         if (startDate !== undefined) {
           query = query.startAt(startDate.getTime());
@@ -174,33 +174,59 @@ export class AccountTransactionService {
         }
 
         return query;
+      });
+      refData.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          data.iconUrl = '../../assets/images/report_icon_2.png'; // TODO: core library e ekleyip oradan çekeriz
+          returnList.push(data);
         });
-        refData.get().subscribe(snapshot => {
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            data.primaryKey = doc.id;
-            data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-            returnList.push(data);
-          });
-          resolve(returnList);
-        });
-      } catch (error) {
-          console.error(error);
-          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-      }
+        resolve(returnList);
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
   })
 
-  getOnDayTransactions(): Observable < AccountTransactionModel[] > {
+  getOnDayTransactions(): Observable<AccountTransactionModel[]> {
     const date = new Date();
     const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     this.listCollection = this.db.collection<AccountTransactionModel>
     (this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }
 
-   getOnDayTransactionsBetweenDates(startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
+  getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+          .startAt(startDate.getTime())
+          .endAt(endDate.getTime()));
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getOnDayTransactionsBetweenDates(startDate: Date, endDate: Date): Observable < AccountTransactionModel[] > {
     this.listCollection = this.db.collection<AccountTransactionModel>
     (this.tableName, ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()));
     this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
@@ -208,28 +234,28 @@ export class AccountTransactionService {
   }
 
   getOnDayTransactionsBetweenDatesAsync = async (startDate: Date, endDate: Date):
-      // tslint:disable-next-line:cyclomatic-complexity
-      Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-      try {
-        const list = Array<AccountTransactionModel>();
-        const citiesRef = this.db.collection(this.tableName, ref =>
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()));
-        citiesRef.get().subscribe(snapshot => {
-          snapshot.forEach(doc => {
-            list.push(doc.data());
-          });
-          resolve(list);
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          list.push(doc.data());
         });
+        resolve(list);
+      });
 
-      } catch (error) {
-          console.error(error);
-          reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-      }
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
   })
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
-    .get().subscribe(list => {
+      .get().subscribe(list => {
       if (list.size > 0) {
         return true;
       }
@@ -269,15 +295,16 @@ export class AccountTransactionService {
 
   getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authServis.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authServis.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as AccountTransactionModel;
         data.primaryKey = change.payload.doc.id;
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, actionType: change.type}); }));
+          .pipe(map((customer: CustomerModel) => {
+            return Object.assign({data, actionType: change.type});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

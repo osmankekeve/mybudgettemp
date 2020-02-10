@@ -6,7 +6,7 @@ import { AccountTransactionService } from '../services/account-transaction.servi
 import { CustomerRelationService } from '../services/crm.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
 import { Router } from '@angular/router';
-import { getFloat, getTodayStart, getTodayEnd, getEncryptionKey } from '../core/correct-library';
+import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, padLeft, getNumber} from '../core/correct-library';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -17,6 +17,7 @@ import { SalesInvoiceService } from '../services/sales-invoice.service';
 import { CollectionService } from '../services/collection.service';
 import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
 import { AccountVoucherService } from '../services/account-voucher.service';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-dashboard',
@@ -90,73 +91,78 @@ export class DashboardComponent implements OnInit, OnDestroy {
     let payAmount2 = 0;
     let avAmount2 = 0;
     let cvAmount2 = 0;
-    this.atService.getOnDayTransactionsBetweenDates(todayStart, endDate).subscribe(list => {
-        list.forEach(item => {
+
+    Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
+      .then((values: any) => {
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<AccountTransactionModel>;
+          returnData.forEach(item => {
             if (item.transactionType === 'salesInvoice') {
-                siAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Satış Faturası';
+              siAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Satış Faturası';
             }
             if (item.transactionType === 'collection') {
-                colAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Tahsilat';
+              colAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Tahsilat';
             }
             if (item.transactionType === 'purchaseInvoice') {
-                purchaseInvoiceAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Alım Faturası';
+              purchaseInvoiceAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Alım Faturası';
             }
             if (item.transactionType === 'payment') {
-                payAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Ödeme';
+              payAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Ödeme';
             }
             if (item.transactionType === 'accountVoucher') {
-                avAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Hesap Fişi';
+              avAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Hesap Fişi';
             }
             if (item.transactionType === 'cashDeskVoucher') {
-                cvAmount2 += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Kasa Fişi';
+              cvAmount2 += getFloat(Math.abs(item.amount));
+              item.transactionTypeTr = 'Kasa Fişi';
             }
-        });
-
-        this.BarChart = new Chart('barChart', {
-          type: 'bar', // bar, pie, doughnut
-          data: {
-            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
-            datasets: [{
-              label: '# of Votes',
-              data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
-              backgroundColor: [
-                  'rgba(255, 99, 132, 0.2)',
-                  'rgba(54, 162, 235, 0.2)',
-                  'rgba(255, 206, 86, 0.2)',
-                  'rgba(75, 192, 192, 0.2)',
-                  'rgba(153, 102, 255, 0.2)',
-                  'rgba(255, 159, 64, 0.2)'
-              ],
-              borderColor: [
-                  'rgba(255,99,132,1)',
-                  'rgba(54, 162, 235, 1)',
-                  'rgba(255, 206, 86, 1)',
-                  'rgba(75, 192, 192, 1)',
-                  'rgba(153, 102, 255, 1)',
-                  'rgba(255, 159, 64, 1)'
-              ],
-              borderWidth: 1
-            }]
+          });
+        }
+      }).finally(() => {
+      this.BarChart = new Chart('barChart', {
+        type: 'bar', // bar, pie, doughnut
+        data: {
+          labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+          datasets: [{
+            label: '# of Votes',
+            data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          title: {
+            text: 'Aylık Cari Hareketler',
+            display: true
           },
-          options: {
-            title: {
-                text: 'Aylık Cari Hareketler',
-                display: true
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
           }
+        }
       });
     });
 
