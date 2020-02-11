@@ -926,8 +926,10 @@
           <div class="list-group-item list-group-item-action main-list-item"
                *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
             <div class="row">
-              <div class="col-sm-2"><img src='{{item.iconUrl}}' width="30px"></div> 
-              <div class="col-sm-4">{{item.transactionTypeTr}}</div>
+              <div class="col-sm-6">
+                <img src='{{item.iconUrl}}' width="30px" class="mr-2">
+                <span>{{item.transactionTypeTr}}</span>
+              </div>
               <div class="col-sm-2">{{item.receiptNo}}</div>
               <div class="col-sm-2"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
               <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
