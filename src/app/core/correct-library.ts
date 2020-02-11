@@ -186,5 +186,16 @@ export const encryptData = (strData: any) => {
     this.getEncryptionKey()).toString();
 };
 
+export const getModuleIcons = () => {
+  return new Map([
+    ['salesInvoice', '../../assets/images/sales_invoice.png'],
+    ['collection', '../../assets/images/collection.png'],
+    ['purchaseInvoice', '../../assets/images/purchase_invoice.png'],
+    ['payment', '../../assets/images/payment.png'],
+    ['accountVoucher', '../../assets/images/account_voucher.png'],
+    ['cashdeskVoucher', '../../assets/images/cash-desks.png']
+  ]);
+};
+
 
 

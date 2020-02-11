@@ -917,8 +917,7 @@
         <div class="list-group" *ngIf="transactionList; else elseBlock">
           <div class="list-group-item bg-success text-light main-list-item">
             <div class="row">
-              <div class="col-sm-1">Sıra</div>
-              <div class="col-sm-5">İşlem</div>
+              <div class="col-sm-6">İşlem</div>
               <div class="col-sm-2">Fiş Numarası</div>
               <div class="col-sm-2"><span class="float-right">Tutar</span></div>
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
@@ -927,8 +926,8 @@
           <div class="list-group-item list-group-item-action main-list-item"
                *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
             <div class="row">
-              <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
-              <div class="col-sm-5">{{item.transactionTypeTr}}</div>
+              <div class="col-sm-2"><img src='{{item.iconUrl}}' width="30px"></div> 
+              <div class="col-sm-4">{{item.transactionTypeTr}}</div>
               <div class="col-sm-2">{{item.receiptNo}}</div>
               <div class="col-sm-2"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
               <div class="col-sm-2"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>

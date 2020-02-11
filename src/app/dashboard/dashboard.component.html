@@ -210,8 +210,8 @@
                   <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
                     <div class="list-group-item bg-dark text-light">
                       <div class="row">
-                        <div class="col-sm-5">İşlem</div>
-                        <div class="col-sm-4">Fiş</div>
+                        <div class="col-sm-6">İşlem</div>
+                        <div class="col-sm-3">Fiş</div>
                         <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
                       </div>
                     </div>
@@ -220,9 +220,10 @@
                          (click)="showTransaction(item)"
                          style="font-size: 85%">
                       <div class="row">
-                        <label class="col-sm-5">{{item.transactionTypeTr}}</label>
-                        <label class="col-sm-4">{{item.receiptNo}}</label>
-                        <label class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></label>
+                        <div class="col-sm-2"><img src='{{item.iconUrl}}' width="30px"></div>
+                        <div class="col-sm-4 mt-1">{{item.transactionTypeTr}}</div>
+                        <div class="col-sm-3 mt-1">{{item.data.receiptNo}}</div>
+                        <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
                       </div>
                     </div>
                   </div>

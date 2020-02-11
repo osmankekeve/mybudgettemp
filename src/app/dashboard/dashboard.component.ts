@@ -1,23 +1,24 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Chart } from 'chart.js';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { CustomerRelationService } from '../services/crm.service';
-import { CustomerRelationModel } from '../models/customer-relation-model';
-import { Router } from '@angular/router';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Chart} from 'chart.js';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {CustomerRelationService} from '../services/crm.service';
+import {CustomerRelationModel} from '../models/customer-relation-model';
+import {Router} from '@angular/router';
 import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, padLeft, getNumber} from '../core/correct-library';
-import { VisitMainModel } from '../models/visit-main-model';
-import { VisitService } from '../services/visit.service';
+import {VisitMainModel} from '../models/visit-main-model';
+import {VisitService} from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
-import { InformationService } from '../services/information.service';
-import { PaymentService } from '../services/payment.service';
-import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
-import { SalesInvoiceService } from '../services/sales-invoice.service';
-import { CollectionService } from '../services/collection.service';
-import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
-import { AccountVoucherService } from '../services/account-voucher.service';
+import {InformationService} from '../services/information.service';
+import {PaymentService} from '../services/payment.service';
+import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
+import {SalesInvoiceService} from '../services/sales-invoice.service';
+import {CollectionService} from '../services/collection.service';
+import {CashDeskVoucherService} from '../services/cashdesk-voucher.service';
+import {AccountVoucherService} from '../services/account-voucher.service';
 import {SettingModel} from '../models/setting-model';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 
 @Component({
   selector: 'app-dashboard',
@@ -33,7 +34,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   payAmount: any = 0;
   avAmount: any = 0;
   cvAmount: any = 0;
-  transactionList: Array<AccountTransactionModel> = [];
+  transactionList: Array<AccountTransactionMainModel> = [];
   visitList: Array<VisitMainModel> = [];
   encryptSecretKey: string = getEncryptionKey();
 
@@ -41,48 +42,44 @@ export class DashboardComponent implements OnInit, OnDestroy {
               public siService: SalesInvoiceService, public colService: CollectionService,
               public cdService: CashDeskVoucherService, public avService: AccountVoucherService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService,
-              public puService: PurchaseInvoiceService, public pService: PaymentService) {  }
+              public puService: PurchaseInvoiceService, public pService: PaymentService) {
+  }
 
   async ngOnInit() {
-
+    const date = new Date();
     this.transactionList = undefined;
-    this.atService.getOnDayTransactions().subscribe(list => {
+    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    this.atService.getMainItems(start, end).subscribe(list => {
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
-        this.transactionList = list;
-        list.forEach(item => {
-            if (item.transactionType === 'salesInvoice') {
-                this.siAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Satış Faturası';
-            }
-            if (item.transactionType === 'collection') {
-                this.colAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Tahsilat';
-            }
-            if (item.transactionType === 'purchaseInvoice') {
-                this.purchaseInvoiceAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Alım Faturası';
-            }
-            if (item.transactionType === 'payment') {
-                this.payAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Ödeme';
-            }
-            if (item.transactionType === 'accountVoucher') {
-                this.avAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Hesap Fişi';
-            }
-            if (item.transactionType === 'cashDeskVoucher') {
-                this.cvAmount += getFloat(Math.abs(item.amount));
-                item.transactionTypeTr = 'Kasa Fişi';
-            }
-        });
+      this.transactionList = list;
+      list.forEach(item => {
+        if (item.data.transactionType === 'salesInvoice') {
+          this.siAmount += getFloat(Math.abs(item.data.amount));
+        }
+        if (item.data.transactionType === 'collection') {
+          this.colAmount += getFloat(Math.abs(item.data.amount));
+        }
+        if (item.data.transactionType === 'purchaseInvoice') {
+          this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+        }
+        if (item.data.transactionType === 'payment') {
+          this.payAmount += getFloat(Math.abs(item.data.amount));
+        }
+        if (item.data.transactionType === 'accountVoucher') {
+          this.avAmount += getFloat(Math.abs(item.data.amount));
+        }
+        if (item.data.transactionType === 'cashDeskVoucher') {
+          this.cvAmount += getFloat(Math.abs(item.data.amount));
+        }
+      });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
       }
     }, 1000);
 
-    const date = new Date();
     const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
     let siAmount2 = 0;
@@ -95,31 +92,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
     Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<AccountTransactionModel>;
+          const returnData = values[0] as Array<AccountTransactionMainModel>;
           returnData.forEach(item => {
-            if (item.transactionType === 'salesInvoice') {
-              siAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Satış Faturası';
+            if (item.data.transactionType === 'salesInvoice') {
+              siAmount2 += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'collection') {
-              colAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Tahsilat';
+            if (item.data.transactionType === 'collection') {
+              colAmount2 += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'purchaseInvoice') {
-              purchaseInvoiceAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Alım Faturası';
+            if (item.data.transactionType === 'purchaseInvoice') {
+              purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'payment') {
-              payAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Ödeme';
+            if (item.data.transactionType === 'payment') {
+              payAmount2 += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'accountVoucher') {
-              avAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Hesap Fişi';
+            if (item.data.transactionType === 'accountVoucher') {
+              avAmount2 += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'cashDeskVoucher') {
-              cvAmount2 += getFloat(Math.abs(item.amount));
-              item.transactionTypeTr = 'Kasa Fişi';
+            if (item.data.transactionType === 'cashDeskVoucher') {
+              cvAmount2 += getFloat(Math.abs(item.data.amount));
             }
           });
         }
@@ -189,7 +180,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.actionList === undefined) {
         this.actionList = [];
       }
@@ -213,7 +204,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.visitList === undefined) {
         this.visitList = [];
       }
@@ -221,57 +212,67 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   showAction(item: any): void {
-    this.router.navigate(['crm', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
+    this.router.navigate(['crm', {paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()}]);
   }
 
   showVisit(item: any): void {
-    this.router.navigate(['visit', { paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString() }]);
+    this.router.navigate(['visit', {paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()}]);
   }
 
-  async showTransaction(item: any): Promise<void> {
+  async showTransaction(item: AccountTransactionMainModel): Promise<void> {
     let data;
-    if (item.transactionType === 'salesInvoice') {
-      data = await this.siService.getItem(item.transactionPrimaryKey);
+    if (item.data.transactionType === 'salesInvoice') {
+      data = await this.siService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['sales-invoice', {
           paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
             this.encryptSecretKey).toString()
         }]);
       }
-    } else if  (item.transactionType === 'collection') {
-      data = await this.colService.getItem(item.transactionPrimaryKey);
+    } else if (item.data.transactionType === 'collection') {
+      data = await this.colService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['collection',
-          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-          this.encryptSecretKey).toString() }]);
-        }
-    } else if  (item.transactionType === 'purchaseInvoice') {
-      data = await this.puService.getItem(item.transactionPrimaryKey);
+          {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
+              this.encryptSecretKey).toString()
+          }]);
+      }
+    } else if (item.data.transactionType === 'purchaseInvoice') {
+      data = await this.puService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['purchaseInvoice',
-          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-          this.encryptSecretKey).toString() }]);
+          {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
+              this.encryptSecretKey).toString()
+          }]);
       }
-    } else if  (item.transactionType === 'payment') {
-      data = await this.pService.getItem(item.transactionPrimaryKey);
+    } else if (item.data.transactionType === 'payment') {
+      data = await this.pService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['payment',
-          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-          this.encryptSecretKey).toString() }]);
+          {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
+              this.encryptSecretKey).toString()
+          }]);
       }
-    } else if  (item.transactionType === 'accountVoucher') {
-      data = await this.avService.getItem(item.transactionPrimaryKey);
+    } else if (item.data.transactionType === 'accountVoucher') {
+      data = await this.avService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['account-voucher',
-          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-          this.encryptSecretKey).toString() }]);
+          {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
+              this.encryptSecretKey).toString()
+          }]);
       }
-    } else if  (item.transactionType === 'cashdeskVoucher') {
-      data = await this.cdService.getItem(item.transactionPrimaryKey);
+    } else if (item.data.transactionType === 'cashdeskVoucher') {
+      data = await this.cdService.getItem(item.data.transactionPrimaryKey);
       if (data) {
         await this.router.navigate(['cashdesk-voucher',
-          { paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-          this.encryptSecretKey).toString() }]);
+          {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
+              this.encryptSecretKey).toString()
+          }]);
       }
     } else {
       this.infoService.error('Modül bulunamadı.');
