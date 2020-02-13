@@ -10,6 +10,9 @@ import { Observable } from 'rxjs/internal/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {getModuleIcons, getTransactionTypes} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -86,5 +89,33 @@ export class CustomerService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getCustomersForReport = async (isActive: boolean):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<CustomerModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CustomerModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('name', 'asc')
+          .where('userPrimaryKey', '==', this.authServis.getUid())
+          .where('isActive', '==', isActive);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as CustomerModel;
+          data.primaryKey = doc.id;
+
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }
