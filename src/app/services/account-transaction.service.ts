@@ -3,12 +3,13 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import {Observable} from 'rxjs/Observable';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AuthenticationService} from './authentication.service';
-import {getTransactionTypes, getTodayStart, getTodayEnd, getModuleIcons} from '../core/correct-library';
+import {getTransactionTypes, getTodayStart, getTodayEnd, getModuleIcons, getFloat} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {Chart} from 'chart.js';
 
 @Injectable({
   providedIn: 'root'
@@ -100,7 +101,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -128,7 +129,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -155,7 +156,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getCustomerTransactionsWithDateControl = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -192,17 +193,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
-
-  getOnDayTransactions(): Observable<AccountTransactionModel[]> {
-    const date = new Date();
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
-    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
-    return this.mainList$;
-  }
+  })
 
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -231,34 +222,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
-
-  getOnDayTransactionsBetweenDates(startDate: Date, endDate: Date): Observable<AccountTransactionModel[]> {
-    this.listCollection = this.db.collection<AccountTransactionModel>
-    (this.tableName, ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
-    return this.mainList$;
-  }
-
-  getOnDayTransactionsBetweenDatesAsync = async (startDate: Date, endDate: Date):
-    // tslint:disable-next-line:cyclomatic-complexity
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<AccountTransactionModel>();
-      const citiesRef = this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()));
-      citiesRef.get().subscribe(snapshot => {
-        snapshot.forEach(doc => {
-          list.push(doc.data());
-        });
-        resolve(list);
-      });
-
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  });
+  })
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
@@ -269,36 +233,6 @@ export class AccountTransactionService {
     });
     return false;
   }
-
-  getNewPaymentTransactionItem(): AccountTransactionModel {
-    const data = new AccountTransactionModel();
-    data.userPrimaryKey = this.authServis.getUid();
-    data.parentPrimaryKey = '';
-    data.parentType = 'customer';
-    data.transactionPrimaryKey = undefined;
-    data.transactionType = 'payment';
-    data.amountType = 'debit';
-    data.amount = 0;
-    data.cashDeskPrimaryKey = '-1';
-    data.insertDate = Date.now();
-    data.receiptNo = '';
-    return data;
-  }
-
-  getAsyncOnDayTransactions = async (): Promise<AccountTransactionModel[]> => {
-    const list = Array<AccountTransactionModel>();
-    const date = new Date();
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    const citiesRef = this.db.collection(this.tableName, ref => ref.orderBy('insertDate').startAt(start.getTime()).endAt(end.getTime()));
-    citiesRef.get().subscribe(snapshot => {
-      snapshot.forEach(doc => {
-        list.push(doc.data());
-      });
-    });
-    return list;
-
-  };
 
   getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
@@ -323,5 +257,40 @@ export class AccountTransactionService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainMainList$;
   }
+
+  getAllAccountTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<any>();
+      Promise.all([this.cService.getCustomersForReport(undefined, true)])
+        .then((values: any) => {
+          if (values[0] !== undefined || values[0] !== null) {
+            const returnData = values[0] as Array<CustomerModel>;
+            returnData.forEach(item => {
+              const dataReport = {stringField1: item.name, numberField1 : 0, numberField2 : 0, numberField3 : 0};
+
+              Promise.all([this.getCustomerTransactionsWithDateControl(item.primaryKey, startDate, endDate)])
+                .then((values2: any) => {
+                  if (values2[0] !== undefined || values2[0] !== null) {
+                    const returnData2 = values2[0] as Array<AccountTransactionModel>;
+                    returnData2.forEach(item2 => {
+                      dataReport.numberField1 += item2.amount;
+                    });
+                    list.push(dataReport);
+                  }
+                }).finally(() => {
+                resolve(list);
+              });
+            });
+          }
+        });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
 
 }

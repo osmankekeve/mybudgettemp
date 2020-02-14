@@ -90,7 +90,7 @@ export class CustomerService {
     return this.mainList$;
   }
 
-  getCustomersForReport = async (isActive: boolean):
+  getCustomersForReport = async (customerPrimaryKey: string, isActive: boolean):
     // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<CustomerModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
@@ -100,13 +100,15 @@ export class CustomerService {
         query = query.orderBy('name', 'asc')
           .where('userPrimaryKey', '==', this.authServis.getUid())
           .where('isActive', '==', isActive);
+        /*if (customerPrimaryKey !== undefined && customerPrimaryKey !== null || customerPrimaryKey !== '-1') {
+          query = query.where('userPrimaryKey', '==', customerPrimaryKey);
+        }*/
         return query;
       })
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CustomerModel;
           data.primaryKey = doc.id;
-
           list.push(data);
         });
         resolve(list);

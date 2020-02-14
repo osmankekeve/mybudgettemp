@@ -5,8 +5,10 @@ import { Observable } from 'rxjs/internal/Observable';
 import { CustomerService } from '../services/customer.service';
 import { CustomerModel } from '../models/customer-model';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { getFirstDayOfMonthForInput, getTodayForInput } from '../core/correct-library';
+import {getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/correct-library';
 import { AccountTransactionService } from '../services/account-transaction.service';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {Chart} from 'chart.js';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -16,10 +18,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
   selectedReport: any;
   mainList: Array<any> = [];
   customerList$: Observable<CustomerModel[]>;
-  customerMap = new Map();
-  yearFilter = new Date().getFullYear();
-  monthFilter = new Date().getMonth();
-
   isMainFilterOpened = false;
   recordDate: any;
 
@@ -38,14 +36,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.selectedReport = undefined;
     this.customerList$ = this.customerService.getAllItems();
     this.clearMainFiler();
-
-    this.customerList$.subscribe(list => {
-      this.customerMap.clear();
-      this.customerMap.set('-1', 'Tüm Kullanıcılar');
-      list.forEach(item => {
-        this.customerMap.set(item.primaryKey, item.name);
-      });
-    });
   }
 
   ngOnDestroy(): void {
@@ -53,100 +43,18 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   onClickShowReport(data: any): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.selectedReport = data;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     if (data === 'accountReport') {
 
-      this.customerService.getAllActiveItems().subscribe(list => {
-        list.forEach(async customer => {
-          const dataReport = {stringField1: '', numberField1 : 0};
-          dataReport.stringField1 = customer.name;
-          await this.db.collection('tblAccountTransaction', ref =>
-          ref.where('parentPrimaryKey', '==', customer.primaryKey).where('parentType', '==', 'customer')).get()
-          .subscribe(listTrans => {
-            listTrans.forEach(item => {
-              dataReport.numberField1 += item.data().amount;
-            });
-            this.mainList.push(dataReport);
-          });
+      Promise.all([this.atService.getAllAccountTransactions(undefined, beginDate, finishDate)])
+        .then((values: any) => {
+          if (values[0] !== undefined || values[0] !== null) {
+            this.mainList = values[0] as Array<any>;
+          }
         });
-      });
-
-    } else if (data === 'purchaseReport') {
-
-      this.customerService.getAllActiveItems().subscribe(list => {
-        list.forEach(async customer => {
-          const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
-          dataReport.stringField1 = customer.name;
-
-          this.atService.getCustomerTransactions(customer.primaryKey, beginDate, finishDate).then(listTrans => {
-            listTrans.forEach(item => {
-              if (item.transactionType === 'purchaseInvoice' || item.transactionType === 'payment') {
-                if (item.amount > 0 ) {dataReport.numberField1 += item.amount; }
-                if (item.amount < 0 ) {dataReport.numberField2 += item.amount; }
-                dataReport.numberField3 += item.amount;
-              }
-            });
-
-            if (this.filterBalance === '-1') {
-              this.mainList.push(dataReport);
-            } else if (this.filterBalance === '0') {
-              if (dataReport.numberField3 === 0) {
-                this.mainList.push(dataReport);
-              }
-            } else if (this.filterBalance === '1') {
-              if (dataReport.numberField3 !== 0) {
-                this.mainList.push(dataReport);
-              }
-            } else {
-              // nothing
-            }
-          });
-        });
-      });
-
-    } else if (data === 'salesReport') {
-
-      this.customerService.getAllActiveItems().subscribe(list => {
-        list.forEach(async customer => {
-          const dataReport = {stringField1: '', numberField1 : 0, numberField2 : 0, numberField3 : 0};
-          dataReport.stringField1 = customer.name;
-
-          this.atService.getCustomerTransactions(customer.primaryKey, beginDate, finishDate).then(listTrans => {
-            listTrans.forEach(item => {
-              if (item.transactionType === 'salesInvoice' || item.transactionType === 'collection') {
-                if (item.amount > 0 ) {dataReport.numberField1 += item.amount; }
-                if (item.amount < 0 ) {dataReport.numberField2 += item.amount; }
-                dataReport.numberField3 += item.amount;
-              }
-            });
-
-            if (this.filterBalance === '-1') {
-              this.mainList.push(dataReport);
-            } else if (this.filterBalance === '0') {
-              if (dataReport.numberField3 === 0) {
-                this.mainList.push(dataReport);
-              }
-            } else if (this.filterBalance === '1') {
-              if (dataReport.numberField3 !== 0) {
-                this.mainList.push(dataReport);
-              }
-            } else {
-              // nothing
-            }
-          });
-        });
-      });
-
-    } else if (data === 'paymentReport') {
-
-      this.populateAccountTransactions(beginDate, finishDate, 'payment');
-
-    } else if (data === 'collectionReport') {
-
-      this.populateAccountTransactions(beginDate, finishDate, 'collection');
 
     } else {
       //
