@@ -132,6 +132,7 @@ export class AccountVoucherService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
+          returnData.customer = customer !== undefined ? customer : undefined;
           returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
           return Object.assign({returnData}); }));
       });
@@ -155,6 +156,7 @@ export class AccountVoucherService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
+          returnData.customer = customer !== undefined ? customer : undefined;
           returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kayıt';
           return Object.assign({returnData}); }));
       });

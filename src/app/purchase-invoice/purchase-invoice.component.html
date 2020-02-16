@@ -93,7 +93,9 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
           <div class="row">
-            <div class="col-sm-3"><i class="fa fa-arrow-circle-right mr-2 text-purple"></i>{{item.customerName}}</div>
+            <div class="col-sm-3">
+              <i class="fa fa-arrow-circle-right mr-2 text-purple"></i>{{item.customerName}}
+            </div>
             <div class="col-sm-2">{{item.employeeName}}</div>
             <div class="col-sm-1">{{item.data.receiptNo}}</div>
             <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>

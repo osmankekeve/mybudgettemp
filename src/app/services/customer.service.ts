@@ -13,6 +13,7 @@ import { AuthenticationService } from './authentication.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 import {getModuleIcons, getTransactionTypes} from '../core/correct-library';
+import {CollectionMainModel} from "../models/collection-main-model";
 
 @Injectable({
   providedIn: 'root'
@@ -24,20 +25,20 @@ export class CustomerService {
   customerDoc: AngularFirestoreDocument<CustomerModel>;
   tableName = 'tblCustomer';
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public db: AngularFirestore) {
   }
 
   getAllItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection<CustomerModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authServis.getUid()).orderBy('name', 'asc'));
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('name', 'asc'));
     return this.listCollection.valueChanges({ idField : 'primaryKey'});
   }
 
   getAllActiveItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection<CustomerModel>(this.tableName,
     ref => ref
-    .where('userPrimaryKey', '==', this.authServis.getUid())
+    .where('userPrimaryKey', '==', this.authService.getUid())
     .where('isActive', '==', true)
     .orderBy('name', 'asc'));
     return this.listCollection.valueChanges({ idField : 'primaryKey'});
@@ -45,6 +46,10 @@ export class CustomerService {
 
   async addItem(customer: CustomerModel) {
     return await this.listCollection.add(customer);
+  }
+
+  async setItem(customer: CustomerModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, customer));
   }
 
   async removeItem(customer: CustomerModel) {
@@ -74,7 +79,7 @@ export class CustomerService {
       ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('name', 'asc')
-          .where('userPrimaryKey', '==', this.authServis.getUid())
+          .where('userPrimaryKey', '==', this.authService.getUid())
           .where('isActive', '==', isActive);
         return query;
       });
@@ -98,11 +103,11 @@ export class CustomerService {
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('name', 'asc')
-          .where('userPrimaryKey', '==', this.authServis.getUid())
+          .where('userPrimaryKey', '==', this.authService.getUid())
           .where('isActive', '==', isActive);
-        /*if (customerPrimaryKey !== undefined && customerPrimaryKey !== null || customerPrimaryKey !== '-1') {
-          query = query.where('userPrimaryKey', '==', customerPrimaryKey);
-        }*/
+        if (customerPrimaryKey !== undefined && customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
+          query = query.where('primaryKey', '==', customerPrimaryKey);
+        }
         return query;
       })
         .get().subscribe(snapshot => {

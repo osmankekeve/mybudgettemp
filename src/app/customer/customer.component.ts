@@ -33,6 +33,7 @@ import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {MailMainModel} from '../models/mail-main-model';
 import {MailService} from '../services/mail.service';
+import {ReportService} from "../services/report.service";
 
 @Component({
   selector: 'app-customer',
@@ -82,6 +83,7 @@ export class CustomerComponent implements OnInit {
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
+              public rService: ReportService,
               public mailService: MailService) {
   }
 
@@ -242,8 +244,8 @@ export class CustomerComponent implements OnInit {
   btnSave_Click(): void {
     try {
       if (this.selectedCustomer.primaryKey === undefined) {
-        this.selectedCustomer.primaryKey = '';
-        this.customerService.addItem(this.selectedCustomer)
+        this.selectedCustomer.primaryKey = this.db.createId();
+        this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.primaryKey)
           .then(() => {
             this.infoService.success('Müşteri başarıyla kaydedildi.');
             this.selectedCustomer = undefined;
@@ -461,7 +463,7 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnOpenSubPanel_Click(panel: string): void {
+  async btnOpenSubPanel_Click(panel: string): Promise<void> {
     try {
       this.openedPanel = panel;
       if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
@@ -484,7 +486,7 @@ export class CustomerComponent implements OnInit {
         this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
       } else if (this.openedPanel === 'accountSummary') {
         this.totalValues = 0;
-        this.atService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
+        this.rService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
           this.transactionList = list;
           this.transactionList.forEach(item => {
             this.totalValues += item.amount;

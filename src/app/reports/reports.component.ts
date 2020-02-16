@@ -9,6 +9,7 @@ import {getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/co
 import { AccountTransactionService } from '../services/account-transaction.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {Chart} from 'chart.js';
+import {ReportService} from "../services/report.service";
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -27,9 +28,8 @@ export class ReportsComponent implements OnInit, OnDestroy {
   filterCustomerCode: any;
   filterBalance: any;
 
-  constructor(public infoService: InformationService,
-              public customerService: CustomerService,
-              public atService: AccountTransactionService,
+  constructor(public infoService: InformationService, public customerService: CustomerService,
+              public atService: AccountTransactionService, public rService: ReportService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -43,22 +43,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   onClickShowReport(data: any): void {
-    this.mainList = undefined;
+    this.clearMainFiler();
+    this.mainList = [];
     this.selectedReport = data;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    if (data === 'accountReport') {
-
-      Promise.all([this.atService.getAllAccountTransactions(undefined, beginDate, finishDate)])
-        .then((values: any) => {
-          if (values[0] !== undefined || values[0] !== null) {
-            this.mainList = values[0] as Array<any>;
-          }
-        });
-
-    } else {
-      //
-    }
   }
 
   populateAccountTransactions(startDate: Date, endDate: Date, transactionType: string): void {
@@ -86,7 +73,19 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   btnFilter_Click(): void {
-    this.onClickShowReport(this.selectedReport);
+    this.mainList = undefined;
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    if (this.selectedReport === 'accountReport') {
+      Promise.all([this.rService.getAllAccountTransactions(this.filterCustomerCode, beginDate, finishDate, this.filterBalance)])
+        .then((values: any) => {
+          if (values[0] !== undefined || values[0] !== null) {
+            this.mainList = values[0] as Array<any>;
+          }
+        });
+    } else {
+      //
+    }
   }
 
   btnReturnList_Click(): void {
@@ -107,5 +106,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
     this.filterBalance = '1';
+    this.isMainFilterOpened = true;
   }
 }

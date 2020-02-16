@@ -20,7 +20,6 @@ export class SalesInvoiceService {
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
   tableName = 'tblSalesInvoice';
-  searchText = '';
 
   constructor(public authService: AuthenticationService, public sService: SettingService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
@@ -134,6 +133,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
+          returnData.customer = customer !== undefined ? customer : undefined;
           returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
           return Object.assign({returnData}); }));
       });
@@ -157,6 +157,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
+          returnData.customer = customer !== undefined ? customer : undefined;
           returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
           return Object.assign({returnData}); }));
       });
@@ -187,6 +188,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map( (customer: CustomerModel) => {
+            returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
             return Object.assign({returnData}); }));
       });

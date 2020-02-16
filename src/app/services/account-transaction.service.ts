@@ -22,7 +22,7 @@ export class AccountTransactionService {
   tableName: any = 'tblAccountTransaction';
   transactionTypes = getTransactionTypes();
 
-  constructor(public authServis: AuthenticationService,
+  constructor(public authService: AuthenticationService,
               public cService: CustomerService,
               public db: AngularFirestore) {
 
@@ -158,43 +158,6 @@ export class AccountTransactionService {
     }
   })
 
-  getCustomerTransactionsWithDateControl = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
-    // tslint:disable-next-line:cyclomatic-complexity
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const returnList = Array<AccountTransactionModel>();
-      const refData = this.db.collection(this.tableName, ref => {
-
-        let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate')
-          .where('parentPrimaryKey', '==', customerPrimaryKey)
-          .where('parentType', '==', 'customer');
-
-        if (startDate !== undefined) {
-          query = query.startAt(startDate.getTime());
-        }
-        if (endDate !== undefined) {
-          query = query.endAt(endDate.getTime());
-        }
-
-        return query;
-      });
-      refData.get().subscribe(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data();
-          data.primaryKey = doc.id;
-          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-          data.iconUrl = getModuleIcons().get(data.transactionType);
-          returnList.push(data);
-        });
-        resolve(returnList);
-      });
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  })
-
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
@@ -237,7 +200,7 @@ export class AccountTransactionService {
   getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authServis.getUid()));
+        .where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainMainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as AccountTransactionModel;
@@ -257,40 +220,6 @@ export class AccountTransactionService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainMainList$;
   }
-
-  getAllAccountTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
-    // tslint:disable-next-line:cyclomatic-complexity
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<any>();
-      Promise.all([this.cService.getCustomersForReport(undefined, true)])
-        .then((values: any) => {
-          if (values[0] !== undefined || values[0] !== null) {
-            const returnData = values[0] as Array<CustomerModel>;
-            returnData.forEach(item => {
-              const dataReport = {stringField1: item.name, numberField1 : 0, numberField2 : 0, numberField3 : 0};
-
-              Promise.all([this.getCustomerTransactionsWithDateControl(item.primaryKey, startDate, endDate)])
-                .then((values2: any) => {
-                  if (values2[0] !== undefined || values2[0] !== null) {
-                    const returnData2 = values2[0] as Array<AccountTransactionModel>;
-                    returnData2.forEach(item2 => {
-                      dataReport.numberField1 += item2.amount;
-                    });
-                    list.push(dataReport);
-                  }
-                }).finally(() => {
-                resolve(list);
-              });
-            });
-          }
-        });
-
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  })
 
 
 }
