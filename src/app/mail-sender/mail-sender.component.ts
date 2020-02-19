@@ -109,15 +109,16 @@ export class MailSenderComponent implements OnInit, OnDestroy {
           /*for (const item: string of mailAddress) {
             console.log(item);
           }*/
+          const sendData = {
+            receiverMailAddress: this.selectedRecord.data.mailTo,
+            receiverName: this.selectedRecord.customerName,
+            senderName: this.selectedRecord.employeeName,
+            subject: this.selectedRecord.data.subject,
+            content: this.selectedRecord.data.content
+          };
 
           if (CONFIG.isSendMail) {
-            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, {
-              receiverMailAddress: this.selectedRecord.data.mailTo,
-              receiverName: this.selectedRecord.customerName,
-              senderName: this.selectedRecord.employeeName,
-              subject: this.selectedRecord.data.subject,
-              content: this.selectedRecord.data.content
-            }, CONFIG.mjsUserID)
+            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, sendData, CONFIG.mjsUserID)
               .then((result: EmailJSResponseStatus) => {
                 if (result.text === 'OK') {
                   this.selectedRecord.data.isSend = true;

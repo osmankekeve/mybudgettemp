@@ -90,7 +90,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
@@ -116,7 +116,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-    }, 1000);
+    }, 5000);
   }
 
   showSelectedRecord(record: any): void {
