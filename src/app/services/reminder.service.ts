@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {map, flatMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
@@ -7,6 +7,9 @@ import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
 import {ProfileMainModel} from '../models/profile-main-model';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
+import {combineLatest} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -113,14 +116,18 @@ export class ReminderService {
     return this.mainList$;
   }
 
-  getMainItemsOneTimeBetweenDates(startDate: Date, endDate: Date): Observable<ReminderModel[]> {
-    this.mainList$ = this.db.collection(this.tableName,
-      ref => ref.orderBy('reminderDate')
-        .where('userPrimaryKey', '==', this.authService.getUid())
-        .where('employeePrimaryKey', '==', '-1')
-        .where('isActive', '==', true)
-        .where('periodType', '==', 'oneTime')
-        .startAt(startDate.getTime()).endAt(endDate.getTime())).stateChanges().pipe(
+  getMainItemsTimeBetweenDates(startDate: Date, endDate: Date, isActive: string, periodType: string): Observable<ReminderModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('reminderDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('employeePrimaryKey', '==', this.authService.getEid());
+        if (isActive !== '-1') { query = query.where('isActive', '==', isActive === '1'); }
+        if (periodType !== '-1') { query = query.where('periodType', '==', periodType); }
+        return query;
+      });
+    this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
           const data = c.payload.doc.data() as ReminderModel;

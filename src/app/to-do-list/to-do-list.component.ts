@@ -9,31 +9,30 @@ import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import { ProfileMainModel } from '../models/profile-main-model';
+import {TodoListModel} from '../models/to-do-list-model';
+import {ToDoService} from '../services/to-do.service';
 
 @Component({
-  selector: 'app-reminder',
-  templateUrl: './reminder.component.html',
-  styleUrls: ['./reminder.component.css']
+  selector: 'app-to-do-list',
+  templateUrl: './to-do-list.component.html',
+  styleUrls: ['./to-do-list.component.css']
 })
-export class ReminderComponent implements OnInit, OnDestroy {
-  mainList: Array<ReminderModel>;
-  collection: AngularFirestoreCollection<ReminderModel>;
+export class ToDoListComponent implements OnInit, OnDestroy {
+  mainList: Array<TodoListModel>;
+  collection: AngularFirestoreCollection<TodoListModel>;
   employeeList$: Observable<ProfileMainModel[]>;
-  selectedRecord: ReminderModel;
-  refModel: ReminderModel;
+  selectedRecord: TodoListModel;
+  refModel: TodoListModel;
   openedPanel: any;
-  recordDate: any;
   searchText: '';
   isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
 
   filterBeginDate: any;
   filterFinishDate: any;
-  filterIsPersonal = '-1';
-  filterPeriodType = '-1';
   filterIsActive = '1';
 
-  constructor(public authService: AuthenticationService, public service: ReminderService,
+  constructor(public authService: AuthenticationService, public service: ToDoService,
               public proService: ProfileService, public router: ActivatedRoute,
               public infoService: InformationService, public route: Router,
               public db: AngularFirestore) { }
@@ -45,7 +44,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.employeeList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
     if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
-      const data = await this.service.getItem2(this.paramPrimaryKey);
+      const data = await this.service.getItem(this.paramPrimaryKey);
       if (data) {
         this.showSelectedRecord(data);
       }
@@ -58,7 +57,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive, this.filterPeriodType).subscribe(list => {
+    this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
@@ -81,14 +80,13 @@ export class ReminderComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as ReminderModel;
-    this.refModel = record.data as ReminderModel;
-    this.recordDate = getDateForInput(this.selectedRecord.reminderDate);
+    this.selectedRecord = record.data as TodoListModel;
+    this.refModel = record.data as TodoListModel;
   }
 
   btnReturnList_Click(): void {
     if (this.paramPrimaryKey !== undefined) {
-      this.route.navigate(['reminder', {}]);
+      this.route.navigate(['to-do-list', {}]);
     }
     if (this.openedPanel === 'mainPanel') {
       this.selectedRecord = undefined;
@@ -102,21 +100,17 @@ export class ReminderComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
-    this.selectedRecord.year = this.recordDate.year;
-    this.selectedRecord.month = this.recordDate.month;
-    this.selectedRecord.day = this.recordDate.day;
     if (this.selectedRecord.primaryKey === undefined) {
       this.selectedRecord.primaryKey = '';
       this.service.addItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Hatırlatma başarıyla kaydedildi.');
+        this.infoService.success('Kayıt başarıyla gerçekleşti.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     } else {
       this.service.updateItem(this.selectedRecord)
       .then(() => {
-        this.infoService.success('Hatırlatma başarıyla güncellendi.');
+        this.infoService.success('Kayıt başarıyla güncellendi.');
         this.selectedRecord = undefined;
       }).catch(err => this.infoService.error(err));
     }
@@ -125,7 +119,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
     .then(() => {
-      this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
+      this.infoService.success('Kayıt başarıyla kaldırıldı.');
       this.selectedRecord = undefined;
     }).catch(err => this.infoService.error(err));
   }
@@ -135,34 +129,20 @@ export class ReminderComponent implements OnInit, OnDestroy {
   }
 
   btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
+    this.isMainFilterOpened = this.isMainFilterOpened !== true;
     this.clearMainFiler();
-  }
-
-  onChangeVoucherType(isPersonal: any): void {
-    this.selectedRecord.employeePrimaryKey = '-1';
-    if (isPersonal === 'true') {
-      this.selectedRecord.employeePrimaryKey = this.authService.getEid();
-    }
   }
 
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.recordDate = getTodayForInput();
-    this.selectedRecord = {primaryKey: undefined, isPersonal: true, userPrimaryKey: this.authService.getUid(),
-      isActive: true, periodType: 'oneTime', employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()};
+    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), todoText: '',
+      isActive: true, employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()};
   }
 
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
-    this.filterPeriodType = '-1';
-    this.filterIsPersonal = '-1';
     this.filterIsActive = '1';
   }
 

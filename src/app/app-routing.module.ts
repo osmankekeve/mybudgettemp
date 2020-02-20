@@ -30,6 +30,7 @@ import { CustomerTargetComponent } from './customer-target/customer-target.compo
 import { AccountTransactionComponent } from './account-transaction/account-transaction.component';
 import { ContactUsComponent } from './contact-us/contact-us.component';
 import { MailSenderComponent } from './mail-sender/mail-sender.component';
+import { ToDoListComponent } from './to-do-list/to-do-list.component';
 
 
 const routes: Routes = [
@@ -68,6 +69,7 @@ const routes: Routes = [
   {path: 'account-transaction', component: AccountTransactionComponent, pathMatch: 'full'},
   {path: 'contact-us', component: ContactUsComponent, pathMatch: 'full'},
   {path: 'mail-sender', component: MailSenderComponent, pathMatch: 'full'},
+  {path: 'to-do-list', component: ToDoListComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -83,7 +85,7 @@ export const routingComponents = [
   LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent,
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
-  AccountTransactionComponent, ContactUsComponent, MailSenderComponent
+  AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

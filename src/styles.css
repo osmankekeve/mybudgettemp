@@ -200,3 +200,9 @@ body {
 .color-gray {
   color: #aeaeae !important;
 }
+
+.todo-list-item {
+  color: #999;
+  font-size: 12px;
+  line-height: 22px;
+}

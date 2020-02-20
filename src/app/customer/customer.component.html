@@ -390,7 +390,7 @@
               <span class="font-weight-bold float-right">{{siAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"
@@ -497,7 +497,7 @@
               <span class="font-weight-bold float-right">{{colAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <tbody>
                 <tr [class.main-list-item] *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"
@@ -596,7 +596,7 @@
               <span class="font-weight-bold float-right">{{purchaseInvoiceAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"
@@ -704,7 +704,7 @@
               <span class="font-weight-bold float-right">{{payAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"
@@ -806,7 +806,7 @@
               <span class="font-weight-bold float-right">{{voucherAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <tbody>
                 <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
                     class="cursor-pointer"

@@ -19,6 +19,8 @@ import {CashDeskVoucherService} from '../services/cashdesk-voucher.service';
 import {AccountVoucherService} from '../services/account-voucher.service';
 import {SettingModel} from '../models/setting-model';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {TodoListModel} from '../models/to-do-list-model';
+import {ToDoService} from '../services/to-do.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,6 +30,7 @@ import {AccountTransactionMainModel} from '../models/account-transaction-main-mo
 export class DashboardComponent implements OnInit, OnDestroy {
   BarChart: any;
   actionList: Array<CustomerRelationModel> = [];
+  todoList: Array<TodoListModel> = [];
   purchaseInvoiceAmount: any = 0;
   siAmount: any = 0;
   colAmount: any = 0;
@@ -39,7 +42,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   encryptSecretKey: string = getEncryptionKey();
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
-              public siService: SalesInvoiceService, public colService: CollectionService,
+              public siService: SalesInvoiceService, public colService: CollectionService, public tdService: ToDoService,
               public cdService: CashDeskVoucherService, public avService: AccountVoucherService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService,
               public puService: PurchaseInvoiceService, public pService: PaymentService) {
@@ -159,6 +162,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.populateActivityList();
     this.populateVisitList();
+    this.populateTodoList();
   }
 
   ngOnDestroy(): void {
@@ -209,6 +213,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.visitList = [];
       }
     }, 1000);
+  }
+
+  populateTodoList(): void {
+    this.todoList = undefined;
+    this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, undefined).subscribe(list => {
+      this.todoList = [];
+      list.forEach((record: any) => {
+        const item = record.data as TodoListModel;
+        if (record.actionType === 'added') {
+          this.todoList.push(item);
+        } else if (record.actionType === 'removed') {
+          this.todoList.splice(this.todoList.indexOf(item), 1);
+        } else if (record.actionType === 'modified') {
+          this.todoList[this.todoList.indexOf(item)] = item;
+        } else {
+          // nothing
+        }
+      });
+    });
+    setTimeout(() => {
+      if (this.todoList === undefined) {
+        this.todoList = [];
+      }
+    }, 5000);
   }
 
   showAction(item: any): void {
