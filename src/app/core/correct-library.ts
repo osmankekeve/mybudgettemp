@@ -193,7 +193,7 @@ export const getModuleIcons = () => {
     ['purchaseInvoice', '../../assets/images/purchase_invoice.png'],
     ['payment', '../../assets/images/payment.png'],
     ['accountVoucher', '../../assets/images/account_voucher.png'],
-    ['cashdeskVoucher', '../../assets/images/cash-desks.png']
+    ['cashDeskVoucher', '../../assets/images/account_voucher.png']
   ]);
 };
 

@@ -222,6 +222,7 @@
     text-decoration: none;
     position: relative;
     padding: 8px 30px 8px 20px;
+    font-size: 14px
   }
 
   .sidebar-wrapper .sidebar-menu ul li a i {
