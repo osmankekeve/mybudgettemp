@@ -1,14 +1,14 @@
 import {Component, OnInit, OnDestroy, OnChanges} from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/internal/Observable';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {ReminderService} from '../services/reminder.service';
 import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
-import { ProfileMainModel } from '../models/profile-main-model';
+import {ProfileMainModel} from '../models/profile-main-model';
 import {TodoListModel} from '../models/to-do-list-model';
 import {ToDoService} from '../services/to-do.service';
 
@@ -35,7 +35,8 @@ export class ToDoListComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public service: ToDoService,
               public proService: ProfileService, public router: ActivatedRoute,
               public infoService: InformationService, public route: Router,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
   async ngOnInit() {
     this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
@@ -51,14 +52,17 @@ export class ToDoListComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -71,7 +75,7 @@ export class ToDoListComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -100,28 +104,32 @@ export class ToDoListComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kayıt başarıyla gerçekleşti.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    if (this.selectedRecord.todoText === '') {
+      this.infoService.error('Lütfen açıklama giriniz.');
     } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kayıt başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+      if (this.selectedRecord.primaryKey === undefined) {
+        this.selectedRecord.primaryKey = '';
+        this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Kayıt başarıyla gerçekleşti.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      } else {
+        this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Kayıt başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      }
     }
   }
 
   btnRemove_Click(): void {
     this.service.removeItem(this.selectedRecord)
-    .then(() => {
-      this.infoService.success('Kayıt başarıyla kaldırıldı.');
-      this.selectedRecord = undefined;
-    }).catch(err => this.infoService.error(err));
+      .then(() => {
+        this.infoService.success('Kayıt başarıyla kaldırıldı.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
   }
 
   btnMainFilter_Click(): void {
@@ -136,8 +144,10 @@ export class ToDoListComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), todoText: '',
-      isActive: true, employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()};
+    this.selectedRecord = {
+      primaryKey: undefined, userPrimaryKey: this.authService.getUid(), todoText: '',
+      isActive: true, employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()
+    };
   }
 
   clearMainFiler(): void {

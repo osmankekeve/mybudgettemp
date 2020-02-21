@@ -40,6 +40,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactionList: Array<AccountTransactionMainModel> = [];
   visitList: Array<VisitMainModel> = [];
   encryptSecretKey: string = getEncryptionKey();
+  newTodoItem: TodoListModel;
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
               public siService: SalesInvoiceService, public colService: CollectionService, public tdService: ToDoService,
@@ -216,9 +217,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   populateTodoList(): void {
+    this.newTodoItem = this.tdService.clearModel();
     this.todoList = undefined;
     this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, undefined).subscribe(list => {
-      this.todoList = [];
+      if (this.todoList === undefined) { this.todoList = []; }
       list.forEach((record: any) => {
         const item = record.data as TodoListModel;
         if (record.actionType === 'added') {
@@ -304,6 +306,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     } else {
       this.infoService.error('Modül bulunamadı.');
+    }
+  }
+
+  btnSaveTodo_Click(): void {
+    if (this.newTodoItem.todoText !== '') {
+      if (this.newTodoItem.primaryKey === null) {
+        this.newTodoItem.primaryKey = '';
+        this.tdService.addItem(this.newTodoItem)
+          .then(() => {
+            this.newTodoItem = this.tdService.clearModel();
+          }).catch(err => this.infoService.error(err));
+      }
     }
   }
 }

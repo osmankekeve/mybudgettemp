@@ -11,6 +11,7 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {SalesInvoiceModel} from '../models/sales-invoice-model';
 import {combineLatest} from 'rxjs';
 import {TodoListModel} from '../models/to-do-list-model';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +38,7 @@ export class ToDoService {
   }
 
   async addItem(record: TodoListModel) {
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record));
   }
 
   async removeItem(record: TodoListModel) {
@@ -45,7 +46,7 @@ export class ToDoService {
   }
 
   async updateItem(record: TodoListModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -60,6 +61,20 @@ export class ToDoService {
         }
       });
     });
+  }
+
+  clearModel(): TodoListModel {
+
+    const returnData = new TodoListModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.todoText = '';
+    returnData.isActive = true;
+    returnData.result = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
   }
 
   getMainItemsTimeBetweenDates(startDate: Date, endDate: Date, isActive: string): Observable<TodoListModel[]> {
