@@ -12,13 +12,16 @@ import {SalesInvoiceModel} from '../models/sales-invoice-model';
 import {combineLatest} from 'rxjs';
 import {TodoListModel} from '../models/to-do-list-model';
 import {CollectionModel} from '../models/collection-model';
+import {TodoListMainModel} from '../models/to-do-list-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
+import {getBoolStr} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ToDoService {
   listCollection: AngularFirestoreCollection<TodoListModel>;
-  mainList$: Observable<TodoListModel[]>;
+  mainList$: Observable<TodoListMainModel[]>;
   employeeMap = new Map();
   tableName = 'tblTodoList';
 
@@ -31,31 +34,41 @@ export class ToDoService {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
-          this.employeeMap.set(item.primaryKey, item.longName);
+          this.employeeMap.set(item.primaryKey, item);
         });
       });
     }
   }
 
-  async addItem(record: TodoListModel) {
-    return await this.listCollection.add(Object.assign({}, record));
+  async addItem(record: TodoListMainModel) {
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: TodoListModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+  async removeItem(record: TodoListMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: TodoListModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
+  async updateItem(record: TodoListMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  async setItem(record: TodoListMainModel) {
+    return await this.listCollection.doc(record.data.primaryKey).set(Object.assign({}, record.data));
   }
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as ReminderModel;
+          const data = doc.data() as TodoListModel;
           data.primaryKey = doc.id;
-          resolve(Object.assign({data, employeeName: this.employeeMap.get(data.employeePrimaryKey)}));
+
+          const returnData = new TodoListMainModel();
+          returnData.data = data;
+          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+          returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }
@@ -63,7 +76,7 @@ export class ToDoService {
     });
   }
 
-  clearModel(): TodoListModel {
+  clearSubModel(): TodoListModel {
 
     const returnData = new TodoListModel();
     returnData.primaryKey = null;
@@ -77,7 +90,16 @@ export class ToDoService {
     return returnData;
   }
 
-  getMainItemsTimeBetweenDates(startDate: Date, endDate: Date, isActive: string): Observable<TodoListModel[]> {
+  clearMainModel(): TodoListMainModel {
+    const returnData = new TodoListMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    return returnData;
+  }
+
+  getMainItemsTimeBetweenDates(startDate: Date, endDate: Date, isActive: string): Observable<TodoListMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
@@ -94,7 +116,14 @@ export class ToDoService {
         changes.map(c => {
           const data = c.payload.doc.data() as TodoListModel;
           data.primaryKey = c.payload.doc.id;
-          return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
+
+          const returnData = new TodoListMainModel();
+          returnData.actionType = c.type;
+          returnData.data = data;
+          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+          returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
+
+          return Object.assign({returnData});
         })
       )
     );

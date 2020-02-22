@@ -55,7 +55,7 @@
                         <table class="table table-sm mb-0">
                           <tbody>
                           <tr class="todo-list-item" *ngFor="let item of todoList; index as i; trackBy: primaryKey">
-                            <td><i class="fa fa-trash mr-2 text-danger"></i>{{item.todoText}}</td>
+                            <td><i class="fa fa-trash mr-2 text-danger cursor-pointer" (click)="btnRemoveTodo_Click(item)"></i>{{item.data.todoText}}</td>
                           </tr>
                           </tbody>
                         </table>

@@ -1,16 +1,16 @@
 import {Component, OnInit, OnDestroy, OnChanges} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {ReminderModel} from '../models/reminder-model';
-import {ReminderService} from '../services/reminder.service';
 import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {TodoListModel} from '../models/to-do-list-model';
 import {ToDoService} from '../services/to-do.service';
+import {TodoListMainModel} from '../models/to-do-list-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-to-do-list',
@@ -18,11 +18,10 @@ import {ToDoService} from '../services/to-do.service';
   styleUrls: ['./to-do-list.component.css']
 })
 export class ToDoListComponent implements OnInit, OnDestroy {
-  mainList: Array<TodoListModel>;
-  collection: AngularFirestoreCollection<TodoListModel>;
+  mainList: Array<TodoListMainModel>;
   employeeList$: Observable<ProfileMainModel[]>;
-  selectedRecord: TodoListModel;
-  refModel: TodoListModel;
+  selectedRecord: TodoListMainModel;
+  refModel: TodoListMainModel;
   openedPanel: any;
   searchText: '';
   isMainFilterOpened = false;
@@ -60,16 +59,15 @@ export class ToDoListComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive).subscribe(list => {
-      if (this.mainList === undefined) {
-        this.mainList = [];
-      }
-      list.forEach((item: any) => {
+      if (this.mainList === undefined) { this.mainList = []; }
+      list.forEach((data: any) => {
+        const item = data.returnData as TodoListMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
         } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+          this.mainList[this.mainList.indexOf(this.refModel)] = item;
         } else {
           // nothing
         }
@@ -79,37 +77,45 @@ export class ToDoListComponent implements OnInit, OnDestroy {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-    }, 1000);
+    }, 5000);
   }
 
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as TodoListModel;
-    this.refModel = record.data as TodoListModel;
+    this.selectedRecord = record as TodoListMainModel;
+    this.refModel = record as TodoListMainModel;
   }
 
   btnReturnList_Click(): void {
-    if (this.paramPrimaryKey !== undefined) {
-      this.route.navigate(['to-do-list', {}]);
-    }
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-    } else {
-      this.openedPanel = 'mainPanel';
+    try {
+      if (this.paramPrimaryKey !== undefined) {
+        this.route.navigate(['to-do-list', {}]);
+      }
+      if (this.openedPanel === 'mainPanel') {
+        this.selectedRecord = undefined;
+      } else {
+        this.openedPanel = 'mainPanel';
+      }
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
   btnNew_Click(): void {
-    this.clearSelectedRecord();
+    try {
+      this.clearSelectedRecord();
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.todoText === '') {
+    if (this.selectedRecord.data.todoText === '') {
       this.infoService.error('Lütfen açıklama giriniz.');
     } else {
-      if (this.selectedRecord.primaryKey === undefined) {
-        this.selectedRecord.primaryKey = '';
-        this.service.addItem(this.selectedRecord)
+      if (this.selectedRecord.data.primaryKey === null) {
+        this.selectedRecord.data.primaryKey = this.db.createId();
+        this.service.setItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Kayıt başarıyla gerçekleşti.');
             this.selectedRecord = undefined;
@@ -125,29 +131,39 @@ export class ToDoListComponent implements OnInit, OnDestroy {
   }
 
   btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Kayıt başarıyla kaldırıldı.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    try {
+      this.service.removeItem(this.selectedRecord)
+        .then(() => {
+          this.infoService.success('Kayıt başarıyla kaldırıldı.');
+          this.selectedRecord = undefined;
+        })
+        .catch(err => this.infoService.error(err));
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnMainFilter_Click(): void {
-    this.populateList();
+    try {
+      this.populateList();
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
+    try {
+      this.isMainFilterOpened = this.isMainFilterOpened !== true;
+      this.clearMainFiler();
+    } catch (err) {
+      this.infoService.error(err);
+    }
   }
 
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {
-      primaryKey: undefined, userPrimaryKey: this.authService.getUid(), todoText: '',
-      isActive: true, employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()
-    };
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {

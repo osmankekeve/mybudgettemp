@@ -75,21 +75,21 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-          <div class="card-list-parent">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <label class="font-weight-bold text-dark">{{item.employeeName}}</label>
-                    <div class="text-dark text-small">{{item.data.todoText}}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-danger text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-2">Personel Adı</div>
+            <div class="col-sm-9">Açıklama</div>
+            <div class="col-sm-1">Aktiflik</div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.employee.longName}}</div>
+            <div class="col-sm-9">{{item.data.todoText}}</div>
+            <div class="col-sm-1">{{item.isActiveTr}}</div>
           </div>
         </div>
       </div>
@@ -123,8 +123,8 @@
           </div>
           <div class="col-sm-3">
             <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                    [disabled]="selectedRecord.primaryKey!=undefined && !selectedRecord.isActive"
-                    [(ngModel)]="selectedRecord.isActive">
+                    [disabled]="selectedRecord.data.primaryKey && selectedRecord.data.isActive === false"
+                    [(ngModel)]="selectedRecord.data.isActive">
               <option value="true">Aktif</option>
               <option value="false">Pasif</option>
             </select>
@@ -136,15 +136,15 @@
           <div class="col-sm-9 mb-2">
             <textarea class="form-control form-control-sm w-100" id="todoText" name="todoText" type="text"
                       cols="40" rows="5"
-                      [(ngModel)]="selectedRecord.todoText"
-                      [disabled]="selectedRecord.primaryKey!=undefined && !selectedRecord.isActive"
+                      [(ngModel)]="selectedRecord.data.todoText"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined && !selectedRecord.data.isActive"
                       required></textarea>
             <div class="invalid-feedback">Lütfen açıklama alanını doldurunuz.</div>
           </div>
-          <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+          <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
             <label class="col-form-label float-left" for="result">Sonuç</label>
           </div>
-          <div class="col-sm-9" *ngIf="selectedRecord.primaryKey!=undefined">
+          <div class="col-sm-9" *ngIf="selectedRecord.data.primaryKey!=undefined">
             <textarea class="form-control form-control-sm w-100" id="result" name="result" type="text"
                       cols="40" rows="5" [(ngModel)]="selectedRecord.result"></textarea>
           </div>
@@ -158,11 +158,10 @@
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
+    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>
-
   </div>
 </div>

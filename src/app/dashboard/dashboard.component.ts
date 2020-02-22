@@ -21,6 +21,7 @@ import {SettingModel} from '../models/setting-model';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {TodoListModel} from '../models/to-do-list-model';
 import {ToDoService} from '../services/to-do.service';
+import {TodoListMainModel} from '../models/to-do-list-main-model';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +31,7 @@ import {ToDoService} from '../services/to-do.service';
 export class DashboardComponent implements OnInit, OnDestroy {
   BarChart: any;
   actionList: Array<CustomerRelationModel> = [];
-  todoList: Array<TodoListModel> = [];
+  todoList: Array<TodoListMainModel> = [];
   purchaseInvoiceAmount: any = 0;
   siAmount: any = 0;
   colAmount: any = 0;
@@ -40,7 +41,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   transactionList: Array<AccountTransactionMainModel> = [];
   visitList: Array<VisitMainModel> = [];
   encryptSecretKey: string = getEncryptionKey();
-  newTodoItem: TodoListModel;
+  newTodoItem: TodoListMainModel;
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
               public siService: SalesInvoiceService, public colService: CollectionService, public tdService: ToDoService,
@@ -217,18 +218,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   populateTodoList(): void {
-    this.newTodoItem = this.tdService.clearModel();
+    this.newTodoItem = this.tdService.clearMainModel();
     this.todoList = undefined;
-    this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, undefined).subscribe(list => {
+    this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, '1').subscribe(list => {
       if (this.todoList === undefined) { this.todoList = []; }
-      list.forEach((record: any) => {
-        const item = record.data as TodoListModel;
-        if (record.actionType === 'added') {
+      list.forEach((data: any) => {
+        const item = data.returnData as TodoListMainModel;
+        if (item.actionType === 'added') {
           this.todoList.push(item);
-        } else if (record.actionType === 'removed') {
+        } else if (item.actionType === 'removed') {
           this.todoList.splice(this.todoList.indexOf(item), 1);
-        } else if (record.actionType === 'modified') {
-          this.todoList[this.todoList.indexOf(item)] = item;
+        } else if (item.actionType === 'modified') {
+          this.todoList.forEach(modifiedRecord => {
+            if (modifiedRecord.data.primaryKey === item.data.primaryKey) {
+              if (item.data.isActive === false) {
+                this.todoList.splice(this.todoList.indexOf(modifiedRecord), 1);
+              } else {
+                this.todoList[this.todoList.indexOf(modifiedRecord)] = item;
+              }
+            }
+          });
         } else {
           // nothing
         }
@@ -310,14 +319,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   btnSaveTodo_Click(): void {
-    if (this.newTodoItem.todoText !== '') {
-      if (this.newTodoItem.primaryKey === null) {
-        this.newTodoItem.primaryKey = '';
+    if (this.newTodoItem.data.todoText !== '') {
+      if (this.newTodoItem.data.primaryKey === null) {
+        this.newTodoItem.data.primaryKey = this.db.createId();
         this.tdService.addItem(this.newTodoItem)
           .then(() => {
-            this.newTodoItem = this.tdService.clearModel();
+            this.newTodoItem = this.tdService.clearMainModel();
           }).catch(err => this.infoService.error(err));
       }
     }
+  }
+
+  btnRemoveTodo_Click(item: TodoListMainModel): void {
+    this.tdService.removeItem(item).catch(err => this.infoService.error(err));
   }
 }

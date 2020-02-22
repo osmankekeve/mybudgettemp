@@ -1,5 +1,5 @@
 import {SalesInvoiceModel} from './sales-invoice-model';
-import {CustomerModel} from "./customer-model";
+import {CustomerModel} from './customer-model';
 
 export class SalesInvoiceMainModel {
   data: SalesInvoiceModel;
