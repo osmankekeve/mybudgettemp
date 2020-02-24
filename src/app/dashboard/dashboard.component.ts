@@ -221,7 +221,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.newTodoItem = this.tdService.clearMainModel();
     this.todoList = undefined;
     this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, '1').subscribe(list => {
-      if (this.todoList === undefined) { this.todoList = []; }
+      if (this.todoList === undefined) {
+        this.todoList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as TodoListMainModel;
         if (item.actionType === 'added') {
@@ -331,6 +333,19 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   btnRemoveTodo_Click(item: TodoListMainModel): void {
-    this.tdService.removeItem(item).catch(err => this.infoService.error(err));
+    try {
+      this.tdService.removeItem(item).catch(err => this.infoService.error(err));
+    } catch (e) {
+      this.infoService.error(e);
+    }
+  }
+
+  btnArchiveTodo_Click(item: TodoListMainModel): void {
+    try {
+      item.data.isActive = false;
+      this.tdService.updateItem(item).catch(err => this.infoService.error(err));
+    } catch (e) {
+      this.infoService.error(e);
+    }
   }
 }

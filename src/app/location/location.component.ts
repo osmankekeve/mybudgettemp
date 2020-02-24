@@ -44,7 +44,6 @@ export class LocationComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    console.log(record);
     this.lat = record.data.latitude;
     this.lng = record.data.longitude;
   }
