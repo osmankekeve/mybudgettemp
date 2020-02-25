@@ -321,14 +321,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   btnSaveTodo_Click(): void {
-    if (this.newTodoItem.data.todoText !== '') {
-      if (this.newTodoItem.data.primaryKey === null) {
-        this.newTodoItem.data.primaryKey = this.db.createId();
-        this.tdService.addItem(this.newTodoItem)
-          .then(() => {
-            this.newTodoItem = this.tdService.clearMainModel();
-          }).catch(err => this.infoService.error(err));
+    try {
+      if (this.newTodoItem.data.todoText !== '') {
+        if (this.newTodoItem.data.primaryKey === null) {
+          this.newTodoItem.data.primaryKey = this.db.createId();
+          this.tdService.addItem(this.newTodoItem)
+            .then(() => {
+              this.newTodoItem = this.tdService.clearMainModel();
+            }).catch(err => this.infoService.error(err));
+        }
       }
+    } catch (e) {
+      this.infoService.error(e);
     }
   }
 

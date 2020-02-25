@@ -2,6 +2,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
+        <img src="../../assets/images/purchase_invoice.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Alım Faturası Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fatura"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
@@ -21,6 +22,7 @@
                  [(ngModel)]="searchText">
         </div>
       </div>
+
     </div>
   </div>
   <div class="card-body">
@@ -130,12 +132,12 @@
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
+    <img src="../../assets/images/purchase_invoice.png" width="30px" class="float-left mr-2">
     <h4 class="card-title float-left mr-2">Alım Fatura Detayı
       <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
     </h4>
     <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
             (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-
   </div>
   <div class="card-body">
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
