@@ -23,16 +23,17 @@
   </div>
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row work-area" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-          <div class="card-list-parent">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.data.note}}</div>
-              </div>
-            </div>
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-indigo text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-12">Not</div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterNote: searchText; index as i; trackBy: primaryKey">
+          <div class="row">
+            <div class="col-sm-12"><i class="fa fa-arrow-circle-right mr-2 text-indigo"></i>{{item.data.note}}</div>
           </div>
         </div>
       </div>

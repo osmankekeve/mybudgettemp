@@ -31,6 +31,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   date = new Date();
   filterBeginDate: any;
   filterFinishDate: any;
+  searchText: '';
 
   constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,

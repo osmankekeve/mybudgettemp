@@ -164,6 +164,9 @@ body {
   scrollbar-width: thin;
 }
 
+.bg-body {
+  background-color: #eee !important;
+}
 .bg-orange {
   background-color: #fd7e14 !important;
 }
@@ -181,6 +184,9 @@ body {
 }
 .bg-gray-gradient {
   background-image: linear-gradient(to right, #f9f9f9, #e0e0e0);
+}
+.bg-dark-gray {
+  background-color: #6c7b88 !important;
 }
 .text-orange {
   color: #fd7e14 !important;

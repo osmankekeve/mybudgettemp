@@ -23,7 +23,10 @@ import { ExcelService } from './services/excel-service';
 import { LogService } from './services/log.service';
 import { AuthenticationService } from './services/authentication.service';
 import { CookieService } from 'ngx-cookie-service';
-import {ToastService} from './services/toast.service';
+import { ToastService } from './services/toast.service';
+import { NoteFilterPipe } from './filters/note-filter.pipe';
+import { CashDeskFilterPipe } from './filters/cashDesk-filter.pipe';
+import { CashDeskVoucherFilterPipe } from './filters/cashDeskVoucher-filter.pipe';
 
 export const customCurrencyMaskConfig = {
   align: 'right',
@@ -41,7 +44,7 @@ export const customCurrencyMaskConfig = {
   declarations: [
     AppComponent, routingComponents,
     NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
-    ProfileFilterPipe
+    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe
   ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule,

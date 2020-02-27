@@ -7,7 +7,7 @@
       </div>
     </div>
   </div>
-  <div class="card-body dashboard-work-area">
+  <div class="card-body bg-body dashboard-work-area">
     <div class="row">
       <div class="col-sm-6">
         <div class="row">
@@ -23,7 +23,7 @@
           </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
-              <div class="card-header bg-light">
+              <div class="card-header bg-white">
                 <div class="row">
                   <div class="col-sm-4">
                     <img src="../../assets/images/visit-2.png" width="25px" class="float-left mr-1">
@@ -44,7 +44,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body bg-light work-area-250">
+              <div class="card-body bg-white work-area-250">
                 <div *ngIf="todoList != undefined; else elseBlock2">
                   <div *ngIf="todoList.length > 0; else elseBlock">
                     <div class="card card-kanban mb-1">
@@ -80,11 +80,11 @@
           </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
-              <div class="card-header bg-light">
+              <div class="card-header bg-white">
                 <img src="../../assets/images/crm_2.png" width="25px" class="float-left mr-1">
                 <h5 class="card-title text-warning">Günlük Etkinlikler</h5>
               </div>
-              <div class="card-body bg-light work-area-250">
+              <div class="card-body bg-white work-area-250">
                 <div *ngIf="actionList != undefined; else elseBlock2">
                   <div *ngIf="actionList.length > 0; else elseBlock">
                     <div class="card card-kanban cursor-pointer mb-1"
@@ -123,11 +123,11 @@
           </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
-              <div class="card-header bg-light">
+              <div class="card-header bg-white">
                 <img src="../../assets/images/visit-2.png" width="25px" class="float-left mr-1">
                 <h5 class="card-title text-danger">Günlük Planlı Ziyaretler</h5>
               </div>
-              <div class="card-body bg-light work-area-250">
+              <div class="card-body bg-white work-area-250">
                 <div *ngIf="visitList != undefined; else elseBlock2">
                   <div *ngIf="visitList.length > 0; else elseBlock">
                     <div class="card card-kanban cursor-pointer mb-1"
@@ -171,7 +171,7 @@
             <div id="panel-navigator">
               <div class="row">
                 <div class="col-sm-6">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-warning card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/sales_invoice.png" width="30px">
@@ -185,7 +185,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-danger card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/collection.png" width="30px">
@@ -199,7 +199,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-success card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/purchase_invoice.png" width="30px">
@@ -213,7 +213,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-info card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/payment.png" width="30px">
@@ -227,7 +227,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-warning card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/account_voucher.png" width="30px">
@@ -241,7 +241,7 @@
                   </div>
                 </div>
                 <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-light">
+                  <div class="card card-stats bg-white">
                     <div class="card-header card-header-danger card-header-icon">
                       <div class="card-icon">
                         <img src="../../assets/images/cash-desks.png" width="30px">
@@ -260,13 +260,13 @@
           </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
-              <div class="card-header bg-light work-area-250">
+              <div class="card-header bg-white work-area-250">
                 <h5 class="card-title">Günlük İşlemler</h5>
               </div>
-              <div class="card-body bg-light work-area-2">
+              <div class="card-body bg-white work-area-2">
                 <div *ngIf="transactionList != undefined; else elseBlock2">
                   <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
-                    <div class="list-group-item bg-dark text-light">
+                    <div class="list-group-item bg-red text-light">
                       <div class="row">
                         <div class="col-sm-6">İşlem</div>
                         <div class="col-sm-3">Fiş</div>

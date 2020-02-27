@@ -17,11 +17,12 @@
           <input type="search" class="form-control filter-list-input" placeholder="Kasa Ara.." [(ngModel)]="searchText">
         </div>
       </div>
+
     </div>
   </div>
   <div class="card-body">
     <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+      <div class="col-sm-4" *ngFor="let item of mainList | filterCashDesk: searchText; index as i; trackBy: primaryKey">
         <div class="card-list-parent">
           <div class="card mb-2 bg-light cursor-pointer"
                (click)="showSelectedRecord(item)" title="Kaydı Göster">
@@ -128,7 +129,8 @@
                 <div class="card-footer">
                   <div class="row">
                     <div class="col-sm-4">
-                      <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+                      <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">
+                        Filtrele
                       </button>
                     </div>
                   </div>
@@ -151,7 +153,8 @@
                       <div class="col-sm-3">{{item.transactionTypeTr}}</div>
                       <div class="col-sm-3">{{item.receiptNo}}</div>
                       <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                      <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                      <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                      </div>
                     </div>
                   </div>
                   <li class="list-group-item list-group-item-success main-list-item">

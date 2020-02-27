@@ -44,7 +44,7 @@ describe('AlertComponent', () => {
             .toBeTruthy();
     }));
 
-    it("should add 'My success message' to alert.service and get 'My success message' from alert.service", async(() => {
+    it('should add \'My success message\' to alert.service and get \'My success message\' from alert.service', async(() => {
         comp.alertService.getMessage()
             .subscribe(message => {
                 expect(message.text)
@@ -54,7 +54,7 @@ describe('AlertComponent', () => {
         fixture.detectChanges();
     }));
 
-    it("should add 'My error message' to alert.service and get 'My error message' from alert.service", async(() => {
+    it('should add \'My error message\' to alert.service and get \'My error message\' from alert.service', async(() => {
         comp.alertService.getMessage()
             .subscribe(message => {
                 expect(message.text)
