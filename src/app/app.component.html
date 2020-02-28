@@ -175,15 +175,15 @@
         <app-side-nav-bar></app-side-nav-bar>
       </aside>
     </div>
-    <div class="col-sm-2 mt-4 pt-2 bg-white">
+    <div class="col-sm-2 mt-3 pt-2 bg-white">
       <h5 class="font-weight-500 mb-4">Canlı Cari Hareketler</h5>
       <div class="mb-4">
         <img src="../assets/images/sales_invoice.png" width="45px" class="float-left mr-2">
-        <div>
+        <div class="waves-effect">
           <span>Satış Faturası Hareketleri</span>
         </div>
         <div>
-          <strong class="text-orange font-weight-500">$8,459</strong>
+          <strong class="text-orange font-weight-500">{{siAmount | currency:'₺'}}</strong>
         </div>
       </div>
       <div class="mb-4">
@@ -192,7 +192,7 @@
           <span>Tahsilat Hareketleri</span>
         </div>
         <div>
-          <strong class="text-red font-weight-500">$8,459</strong>
+          <strong class="text-red font-weight-500">{{colAmount | currency:'₺'}}</strong>
         </div>
       </div>
       <div class="mb-4">
@@ -201,7 +201,7 @@
           <span>Alım Faturası Hareketleri</span>
         </div>
         <div>
-          <strong class="text-yellow font-weight-500">$8,459</strong>
+          <strong class="text-yellow font-weight-500">{{purchaseInvoiceAmount | currency:'₺'}}</strong>
         </div>
       </div>
       <div class="mb-4">
@@ -210,7 +210,7 @@
           <span>Ödeme Hareketleri</span>
         </div>
         <div>
-          <strong class="text-success font-weight-500">$8,459</strong>
+          <strong class="text-success font-weight-500">{{payAmount | currency:'₺'}}</strong>
         </div>
       </div>
     </div>

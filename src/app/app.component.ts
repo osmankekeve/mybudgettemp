@@ -5,10 +5,13 @@ import {LogService} from './services/log.service';
 import {InformationService} from './services/information.service';
 import {CustomerRelationService} from './services/crm.service';
 import {CustomerRelationModel} from './models/customer-relation-model';
-import {getBool, getString, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
+import {getBool, getFloat, getString, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
 import {ReminderService} from './services/reminder.service';
 import {Router} from '@angular/router';
 import {CookieService} from 'ngx-cookie-service';
+import {AccountTransactionMainModel} from './models/account-transaction-main-model';
+import {Chart} from 'chart.js';
+import {AccountTransactionService} from './services/account-transaction.service';
 
 @Component({
   selector: 'app-root',
@@ -40,11 +43,18 @@ export class AppComponent implements OnInit {
   cookieCMA = ''; // Company Mail Address
   isEMAChecked = false;
   cookieEMA = ''; // Company Mail Address
+  transactionList: Array<AccountTransactionMainModel> = [];
+  siAmount = 0;
+  colAmount = 0;
+  purchaseInvoiceAmount = 0;
+  payAmount = 0;
+  avAmount = 0;
+  cvAmount = 0;
 
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
-    private cookieService: CookieService
+    private cookieService: CookieService, public atService: AccountTransactionService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -82,6 +92,36 @@ export class AppComponent implements OnInit {
       this.populateNotificationList();
       this.populateReminderList();
       this.populateActivityList();
+
+      this.transactionList = undefined;
+      const date = new Date();
+      const start = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+      const end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+
+      this.atService.getMainItems(start, end).subscribe(list => {
+        // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
+        this.transactionList = list;
+        list.forEach(item => {
+          if (item.data.transactionType === 'salesInvoice') {
+            this.siAmount += getFloat(Math.abs(item.data.amount));
+          }
+          if (item.data.transactionType === 'collection') {
+            this.colAmount += getFloat(Math.abs(item.data.amount));
+          }
+          if (item.data.transactionType === 'purchaseInvoice') {
+            this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+          }
+          if (item.data.transactionType === 'payment') {
+            this.payAmount += getFloat(Math.abs(item.data.amount));
+          }
+          if (item.data.transactionType === 'accountVoucher') {
+            this.avAmount += getFloat(Math.abs(item.data.amount));
+          }
+          if (item.data.transactionType === 'cashDeskVoucher') {
+            this.cvAmount += getFloat(Math.abs(item.data.amount));
+          }
+        });
+      });
     }
   }
 
