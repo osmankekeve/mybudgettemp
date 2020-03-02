@@ -348,6 +348,19 @@
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                             [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                          class="fa fa-calendar"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                   </div>
                   <div class="col-sm-6">
@@ -458,19 +471,25 @@
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                             [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                          class="fa fa-calendar"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" name="amount" type="number" step="any"
                            [(ngModel)]="newCollection.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-                  </div>
-                  <div class="col-sm-6">
-                    <label class="col-form-label float-left">Kayıt Tarihi</label>
-                  </div>
-                  <div class="col-sm-6">
-                    <label
-                      class="col-form-label float-left">{{newCollection.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
@@ -552,6 +571,19 @@
                     <input class="form-control form-control-sm" name="receiptNo" type="text"
                            [(ngModel)]="newPurchaseInvoice.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                             [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                          class="fa fa-calendar"></i></button>
+                      </div>
+                    </div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
@@ -666,18 +698,25 @@
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                   </div>
                   <div class="col-sm-6">
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                             [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                          class="fa fa-calendar"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
                            [(ngModel)]="newPayment.data.amount" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-                  </div>
-                  <div class="col-sm-6">
-                    <label class="col-form-label float-left">Kayıt Tarihi</label>
-                  </div>
-                  <div class="col-sm-6">
-                    <label class="col-form-label float-left">{{newPayment.data.insertDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="description">Açıklama</label>
@@ -771,6 +810,19 @@
                     <input class="form-control form-control-sm w-100" id="receiptNoAV" name="receiptNo" type="text"
                            [(ngModel)]="newVoucher.data.receiptNo" required>
                     <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                  </div>
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left">Kayıt Tarihi</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="input-group">
+                      <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                             [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      <div class="input-group-append">
+                        <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
+                          class="fa fa-calendar"></i></button>
+                      </div>
+                    </div>
                   </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="totalPrice">Tutar</label>

@@ -19,7 +19,7 @@ import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import {getBeginOfYear, getEncryptionKey, getEndOfYear, getNumber} from '../core/correct-library';
+import {getBeginOfYear, getEncryptionKey, getEndOfYear, getInputDataForInsert, getNumber, getTodayForInput} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
@@ -76,6 +76,7 @@ export class CustomerComponent implements OnInit {
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   isActive = true;
+  recordDate: any;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
@@ -311,6 +312,7 @@ export class CustomerComponent implements OnInit {
         const newId = this.db.createId();
         this.newPurchaseInvoice.data.primaryKey = '';
         this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
         this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
@@ -342,6 +344,7 @@ export class CustomerComponent implements OnInit {
         const newId = this.db.createId();
         this.newCollection.data.primaryKey = '';
         this.newCollection.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.colService.setItem(this.newCollection, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
@@ -373,6 +376,7 @@ export class CustomerComponent implements OnInit {
         const newId = this.db.createId();
         this.newPayment.data.primaryKey = '';
         this.newPayment.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.payService.setItem(this.newPayment, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
@@ -404,6 +408,7 @@ export class CustomerComponent implements OnInit {
         const newId = this.db.createId();
         this.newVoucher.data.primaryKey = '';
         this.newVoucher.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.avService.setItem(this.newVoucher, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
@@ -537,6 +542,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewSalesInvoice(): Promise<void> {
+    this.recordDate = getTodayForInput();
     this.newSalesInvoice = this.siService.clearMainModel();
     const receiptNoData = await this.sService.getSalesInvoiceCode();
     if (receiptNoData !== null) {
@@ -545,6 +551,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewPurchaseInvoice(): Promise<void> {
+    this.recordDate = getTodayForInput();
     this.newPurchaseInvoice = this.piService.clearMainModel();
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
     if (receiptNoData !== null) {
@@ -553,6 +560,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewCollection(): Promise<void> {
+    this.recordDate = getTodayForInput();
     this.newCollection = this.colService.clearMainModel();
     const receiptNoData = await this.sService.getCollectionCode();
     if (receiptNoData !== null) {
@@ -561,6 +569,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewPayment(): Promise<void> {
+    this.recordDate = getTodayForInput();
     this.newPayment = this.payService.clearMainModel();
     const receiptNoData = await this.sService.getPaymentCode();
     if (receiptNoData !== null) {
@@ -569,6 +578,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewVoucher(): Promise<void> {
+    this.recordDate = getTodayForInput();
     this.newVoucher = this.avService.clearMainModel();
     const receiptNoData = await this.sService.getAccountVoucherCode();
     if (receiptNoData !== null) {
