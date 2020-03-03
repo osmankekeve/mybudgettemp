@@ -10,17 +10,114 @@
   <div class="card-body bg-body dashboard-work-area">
     <div class="row">
       <div class="col-sm-6">
+        <div class="card">
+          <div class="card-body">
+            <canvas id="barChart"></canvas>
+          </div>
+          <div class="card-footer">
+            <h5>Aylık Cari Hareketler</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
         <div class="row">
           <div class="col-sm-12">
-            <div class="card">
-              <div class="card-body">
-                <canvas id="barChart"></canvas>
-              </div>
-              <div class="card-footer">
-                <h5>Aylık Cari Hareketler</h5>
+            <div id="panel-navigator">
+              <div class="row">
+                <div class="col-sm-4">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/sales_invoice.png" width="30px">
+                      </div>
+                      <p class="card-category">Satış Faturası</p>
+                      <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-danger card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/collection.png" width="30px">
+                      </div>
+                      <p class="card-category">Tahsilat</p>
+                      <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-success card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/purchase_invoice.png" width="30px">
+                      </div>
+                      <p class="card-category">Alım Faturası</p>
+                      <h5 class="card-title">{{purchaseInvoiceAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4 mt-1">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-info card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/payment.png" width="30px">
+                      </div>
+                      <p class="card-category">Ödeme</p>
+                      <h5 class="card-title">{{payAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4 mt-1">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/account_voucher.png" width="30px">
+                      </div>
+                      <p class="card-category">Hesap Fişi</p>
+                      <h5 class="card-title">{{avAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-4 mt-1">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-danger card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/cash-desks.png" width="30px">
+                      </div>
+                      <p class="card-category">Kasa Fişi</p>
+                      <h5 class="card-title">{{cvAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">Son 24 Saatlik İşlemler</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="row">
           <div class="col-sm-12 mt-2">
             <div class="card">
               <div class="card-header bg-white">
@@ -152,99 +249,8 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-4">
         <div class="row">
-          <div class="col-sm-12">
-            <div id="panel-navigator">
-              <div class="row">
-                <div class="col-sm-6">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-warning card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/sales_invoice.png" width="30px">
-                      </div>
-                      <p class="card-category">Satış Faturası</p>
-                      <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-danger card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/collection.png" width="30px">
-                      </div>
-                      <p class="card-category">Tahsilat</p>
-                      <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-success card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/purchase_invoice.png" width="30px">
-                      </div>
-                      <p class="card-category">Alım Faturası</p>
-                      <h5 class="card-title">{{purchaseInvoiceAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-info card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/payment.png" width="30px">
-                      </div>
-                      <p class="card-category">Ödeme</p>
-                      <h5 class="card-title">{{payAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-warning card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/account_voucher.png" width="30px">
-                      </div>
-                      <p class="card-category">Hesap Fişi</p>
-                      <h5 class="card-title">{{avAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-sm-6 mt-1">
-                  <div class="card card-stats bg-white">
-                    <div class="card-header card-header-danger card-header-icon">
-                      <div class="card-icon">
-                        <img src="../../assets/images/cash-desks.png" width="30px">
-                      </div>
-                      <p class="card-category">Kasa Fişi</p>
-                      <h5 class="card-title">{{cvAmount | currency:'₺'}}</h5>
-                    </div>
-                    <div class="card-footer">
-                      <div class="stats">Son 24 Saatlik İşlemler</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
               <div class="card-header bg-white work-area-250">
@@ -266,9 +272,13 @@
                          style="font-size: 85%">
                       <div class="row">
                         <div class="col-sm-2"><img src='{{item.iconUrl}}' width="30px"></div>
-                        <div class="col-sm-4 mt-1">{{item.transactionTypeTr}}</div>
-                        <div class="col-sm-3 mt-1">{{item.data.receiptNo}}</div>
-                        <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
+                        <div class="col-sm-10 mt-1">
+                          <div class="row">
+                            <div class="col-sm-5">{{item.transactionTypeTr}}</div>
+                            <div class="col-sm-4">{{item.data.receiptNo}}</div>
+                            <div class="col-sm-3"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -286,6 +296,7 @@
           </div>
         </div>
       </div>
+      <div class="col-sm-4"></div>
     </div>
   </div>
 </div>

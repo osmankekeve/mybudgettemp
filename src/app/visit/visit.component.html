@@ -121,6 +121,7 @@
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
                   [disabled]="selectedRecord.visit.primaryKey"
+                  (change)="onChangeCustomer($event)"
                   [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -133,6 +134,7 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
                   [disabled]="selectedRecord.visit.primaryKey"
+                  (change)="onChangeEmployee($event)"
                   [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
             <option value={{item.returnData.data.primaryKey}}
                     *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>

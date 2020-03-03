@@ -19,6 +19,7 @@ import { ProfileService } from '../services/profile.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
 import { ProfileMainModel } from '../models/profile-main-model';
+import {SimpleModel} from '../models/simple-model';
 
 @Component({
   selector: 'app-visit',
@@ -125,7 +126,7 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   btnSave_Click(): void {
     try {
-      if (this.selectedRecord.visit.primaryKey === null) {
+      if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey == '') {
         this.selectedRecord.visit.primaryKey = '';
         this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
         this.service.addItem(this.selectedRecord)
@@ -173,6 +174,22 @@ export class VisitComponent implements OnInit, OnDestroy {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
+    }
+  }
+
+  onChangeEmployee($event: any): void {
+    try {
+      this.selectedRecord.employeeName = $event.target.options[$event.target.options.selectedIndex].text;
+    } catch (err) {
+      this.infoService.error(err);
+    }
+  }
+
+  onChangeCustomer($event: any): void {
+    try {
+      this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 

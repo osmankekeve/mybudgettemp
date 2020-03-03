@@ -216,3 +216,12 @@ body {
 .fs-15 {
   font-size: 15px !important;
 }
+
+.col-sm-2-5 {
+  flex: 0 0 17% !important;
+  max-width: 17% !important;;
+}
+.col-sm-7-5 {
+  flex: 0 0 83% !important;;
+  max-width: 83% !important;;
+}

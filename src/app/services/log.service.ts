@@ -84,6 +84,7 @@ export class LogService {
       item.log = ' Etkinlik ';
 
     } else if (systemModule === 'visit') {
+      item.parentPrimaryKey = record.visit.primaryKey;
       item.log = record.customerName + ' müşteriye Ziyaret ';
 
     } else if (systemModule === 'fileUpload') {
