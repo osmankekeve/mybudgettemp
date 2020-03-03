@@ -218,10 +218,10 @@ body {
 }
 
 .col-sm-2-5 {
-  flex: 0 0 17% !important;
-  max-width: 17% !important;;
+  flex: 0 0 20% !important;
+  max-width: 20% !important;;
 }
 .col-sm-7-5 {
-  flex: 0 0 83% !important;;
-  max-width: 83% !important;;
+  flex: 0 0 80% !important;;
+  max-width: 80% !important;;
 }
