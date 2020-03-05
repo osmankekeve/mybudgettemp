@@ -10,6 +10,9 @@ import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {Chart} from 'chart.js';
+import {PurchaseInvoiceService} from './purchase-invoice.service';
+import {PaymentService} from './payment.service';
+import {CashDeskService} from './cash-desk.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,11 +24,26 @@ export class AccountTransactionService {
   mainMainList$: Observable<AccountTransactionMainModel[]>;
   tableName: any = 'tblAccountTransaction';
   transactionTypes = getTransactionTypes();
+  customerMap = new Map();
+  cashDeskMap = new Map();
 
-  constructor(public authService: AuthenticationService,
+  constructor(public authService: AuthenticationService, public cdService: CashDeskService,
               public cService: CustomerService,
               public db: AngularFirestore) {
-
+    if (this.authService.isUserLoggedIn()) {
+      this.cService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
+        });
+      });
+      this.cdService.getItems().subscribe(list => {
+        this.cashDeskMap.clear();
+        list.forEach(item => {
+          this.cashDeskMap.set(item.primaryKey, item);
+        });
+      });
+    }
   }
 
   getAllItems(): Observable<AccountTransactionModel[]> {
@@ -101,7 +119,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -129,7 +147,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -156,7 +174,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -185,7 +203,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
@@ -211,6 +229,12 @@ export class AccountTransactionService {
         returnData.actionType = change.type;
         returnData.iconUrl = getModuleIcons().get(data.transactionType);
         returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+
+        if (returnData.data.transactionType === 'cashDeskVoucher') {
+          returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
+        } else {
+          returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
+        }
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
           .pipe(map((customer: CustomerModel) => {

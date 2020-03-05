@@ -8,7 +8,15 @@ import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey
+import {
+  getFirstDayOfMonthForInput,
+  getTodayForInput,
+  isNullOrEmpty,
+  getDateForInput,
+  getInputDataForInsert,
+  getEncryptionKey,
+  getFloat,
+  currencyFormat, moneyFormat
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -236,5 +244,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   onChangeVoucherType(record: any): void {
     if (record === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
+  }
+
+  format_amount($event): void {
+    this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
 }

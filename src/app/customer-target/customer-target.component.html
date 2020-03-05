@@ -188,7 +188,7 @@
             </div>
             <div class="col-sm-6">
               <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
-                      [disabled]="f.valid"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
                       (change)="onChangeCustomer($event)"
                       [(ngModel)]="selectedRecord.data.customerCode">
                 <option value={{item.primaryKey}}
@@ -202,7 +202,7 @@
             <div class="col-sm-6">
               <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.type" id="type"
                       name="type"
-                      [disabled]="f.valid"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
                       (change)="onChangeType($event.target.value)" required>
                 <option value="monthly">Aylık</option>
                 <option value="yearly">Yıllık</option>
@@ -294,10 +294,9 @@
               <label class="col-form-label float-left" for="amount">Hedef</label>
             </div>
             <div class="col-sm-6">
-              <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" required
-                     step="any"
-                     [(ngModel)]="selectedRecord.data.amount">
-              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+              <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                     (blur)="format_amount($event)"
+                     [(ngModel)]="selectedRecord.amountFormatted">
             </div>
             <div class="col-sm-6">
               <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>

@@ -7,4 +7,5 @@ export class CashDeskVoucherMainModel {
   secondCashDeskName?: string;
   actionType?: string;
   typeTr?: string;
+  amountFormatted?: string;
 }

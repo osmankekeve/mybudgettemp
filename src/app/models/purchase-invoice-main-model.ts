@@ -1,5 +1,5 @@
 import {PurchaseInvoiceModel} from './purchase-invoice-model';
-import {CustomerModel} from "./customer-model";
+import {CustomerModel} from './customer-model';
 
 export class PurchaseInvoiceMainModel {
   data: PurchaseInvoiceModel;
@@ -7,4 +7,6 @@ export class PurchaseInvoiceMainModel {
   customerName?: string;
   employeeName?: string;
   actionType?: string;
+  totalPriceFormatted?: string;
+  totalPriceWithTaxFormatted?: string;
 }

@@ -8,7 +8,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerTargetModel } from '../models/customer-target-model';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { LogService } from './log.service';
-import { getTodayForInput, getMonths } from '../core/correct-library';
+import {getTodayForInput, getMonths, currencyFormat} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +54,7 @@ export class CustomerTargetService {
     returnData.beginMonth = getTodayForInput().month;
     returnData.finishMonth = 12;
     returnData.year = getTodayForInput().year;
+    returnData.amount = 0;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -67,6 +68,7 @@ export class CustomerTargetService {
     returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
     returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
     returnData.actionType = 'added';
+    returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
 
@@ -84,6 +86,7 @@ export class CustomerTargetService {
         returnData.typeTr = this.typeMap.get(data.type);
         returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
         returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -110,6 +113,7 @@ export class CustomerTargetService {
         returnData.typeTr = this.typeMap.get(data.type);
         returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
         returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {

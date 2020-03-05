@@ -1,5 +1,5 @@
 import {CollectionModel} from './collection-model';
-import {CustomerModel} from "./customer-model";
+import {CustomerModel} from './customer-model';
 
 export class CollectionMainModel {
   data: CollectionModel;
@@ -7,4 +7,5 @@ export class CollectionMainModel {
   customerName?: string;
   employeeName?: string;
   actionType?: string;
+  amountFormatted?: string;
 }

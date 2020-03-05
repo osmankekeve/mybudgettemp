@@ -7,4 +7,6 @@ export class SalesInvoiceMainModel {
   customer?: CustomerModel;
   employeeName?: string;
   actionType?: string;
+  totalPriceFormatted?: string;
+  totalPriceWithTaxFormatted?: string;
 }

@@ -9,7 +9,14 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import {
-  getFirstDayOfMonthForInput, getTodayForInput, getDateForInput, getInputDataForInsert, isNullOrEmpty, getDateForExcel, getEncryptionKey
+  getFirstDayOfMonthForInput,
+  getTodayForInput,
+  getDateForInput,
+  getInputDataForInsert,
+  isNullOrEmpty,
+  getDateForExcel,
+  getEncryptionKey,
+  getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -236,6 +243,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }).catch(err => this.infoService.error(err));
   }
 
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
@@ -249,12 +264,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.filterCustomerCode = '-1';
   }
 
-  btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
-    }
+  format_totalPrice($event): void {
+    this.selectedRecord.data.totalPrice = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  format_totalPriceWithTax($event): void {
+    this.selectedRecord.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
 
 }

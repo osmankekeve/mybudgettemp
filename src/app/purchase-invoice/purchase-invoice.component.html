@@ -147,7 +147,7 @@
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.customerCode">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -159,7 +159,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.type">
             <option value="purchase">Alım</option>
             <option value="return">İade</option>
@@ -178,17 +178,17 @@
           <label class="col-form-label float-left" for="totalPrice">Tutar</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="number" step="any"
-                 [(ngModel)]="selectedRecord.data.totalPrice" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+          <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="text"
+                 (blur)="format_totalPrice($event)"
+                 [(ngModel)]="selectedRecord.totalPriceFormatted">
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" step="any"
-                 type="number" [(ngModel)]="selectedRecord.data.totalPriceWithTax" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+          <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" type="text"
+                 (blur)="format_totalPriceWithTax($event)"
+                 [(ngModel)]="selectedRecord.totalPriceWithTaxFormatted">
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="recordDate">Kayıt Tarihi</label>

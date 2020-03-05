@@ -10,6 +10,10 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
+import {currencyFormat, getFloat} from '../core/correct-library';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {Chart} from 'chart.js';
+import {CustomerService} from './customer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +25,7 @@ export class SalesInvoiceService {
   employeeMap = new Map();
   tableName = 'tblSalesInvoice';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService,
+  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
@@ -65,8 +69,8 @@ export class SalesInvoiceService {
     returnData.customerCode = '-1';
     returnData.receiptNo = '';
     returnData.type = '-1';
-    returnData.totalPrice = null;
-    returnData.totalPriceWithTax = null;
+    returnData.totalPrice = 0;
+    returnData.totalPriceWithTax = 0;
     returnData.description = '';
     returnData.insertDate = Date.now();
 
@@ -79,6 +83,8 @@ export class SalesInvoiceService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
   }
 
@@ -91,6 +97,16 @@ export class SalesInvoiceService {
           const returnData = new SalesInvoiceMainModel();
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+          returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+
+          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
+            .then((values: any) => {
+              if (values[0] !== undefined || values[0] !== null) {
+                returnData.customer = values[0] as CustomerModel;
+              }
+            });
+
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -111,6 +127,8 @@ export class SalesInvoiceService {
           returnData.actionType = c.type;
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+          returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
           return Object.assign({returnData});
         })
       )
@@ -130,6 +148,8 @@ export class SalesInvoiceService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -154,6 +174,8 @@ export class SalesInvoiceService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -185,6 +207,8 @@ export class SalesInvoiceService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map( (customer: CustomerModel) => {

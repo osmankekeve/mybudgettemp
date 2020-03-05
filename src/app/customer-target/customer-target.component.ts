@@ -14,7 +14,7 @@ import {
   getTodayForInput,
   getBeginOfYear,
   getEndOfYear,
-  getEncryptionKey
+  getEncryptionKey, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import { CollectionModel } from '../models/collection-model';
 import { CollectionService } from '../services/collection.service';
@@ -254,6 +254,11 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  format_amount($event): void {
+    this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
 
 }

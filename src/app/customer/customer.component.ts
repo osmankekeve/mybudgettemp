@@ -19,7 +19,16 @@ import { FileUploadService } from '../services/file-upload.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import { VisitService } from '../services/visit.service';
 import { Router, ActivatedRoute } from '@angular/router';
-import {getBeginOfYear, getEncryptionKey, getEndOfYear, getInputDataForInsert, getNumber, getTodayForInput} from '../core/correct-library';
+import {
+  currencyFormat,
+  getBeginOfYear,
+  getEncryptionKey,
+  getEndOfYear,
+  getFloat,
+  getInputDataForInsert,
+  getNumber,
+  getTodayForInput, moneyFormat
+} from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
@@ -33,7 +42,7 @@ import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {MailMainModel} from '../models/mail-main-model';
 import {MailService} from '../services/mail.service';
-import {ReportService} from "../services/report.service";
+import {ReportService} from '../services/report.service';
 
 @Component({
   selector: 'app-customer',
@@ -591,6 +600,7 @@ export class CustomerComponent implements OnInit {
     if (item.transactionType === 'salesInvoice') {
 
       data = await this.siService.getItem(item.transactionPrimaryKey);
+      console.log(data);
       if (data) {
         await this.route.navigate(['sales-invoice', {
           paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
@@ -669,5 +679,44 @@ export class CustomerComponent implements OnInit {
       paramItem: CryptoJS.AES.encrypt(JSON.stringify(item),
         this.encryptSecretKey).toString()
     }]);
+  }
+
+  format_totalPrice($event): void {
+    if (this.openedPanel === 'salesInvoice') {
+      this.newSalesInvoice.data.totalPrice = getFloat(moneyFormat($event.target.value));
+      this.newSalesInvoice.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else if (this.openedPanel === 'purchaseInvoice') {
+      this.newPurchaseInvoice.data.totalPrice = getFloat(moneyFormat($event.target.value));
+      this.newPurchaseInvoice.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else {
+      // nothing
+    }
+  }
+
+  format_totalPriceWithTax($event): void {
+    if (this.openedPanel === 'salesInvoice') {
+      this.newSalesInvoice.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
+      this.newSalesInvoice.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else if (this.openedPanel === 'purchaseInvoice') {
+      this.newPurchaseInvoice.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
+      this.newPurchaseInvoice.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else {
+      // nothing
+    }
+  }
+
+  format_amount($event): void {
+    if (this.openedPanel === 'collection') {
+      this.newCollection.data.amount = getFloat(moneyFormat($event.target.value));
+      this.newCollection.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else if (this.openedPanel === 'payment') {
+      this.newPayment.data.amount = getFloat(moneyFormat($event.target.value));
+      this.newPayment.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else if (this.openedPanel === 'accountVoucher') {
+      this.newVoucher.data.amount = getFloat(moneyFormat($event.target.value));
+      this.newVoucher.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+    } else {
+      // nothing
+    }
   }
 }

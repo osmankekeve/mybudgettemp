@@ -204,9 +204,9 @@
           <label class="col-form-label float-left" for="amount">Tutar</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="amount" name="amount" type="number" step="any"
-                 [(ngModel)]="selectedRecord.data.amount" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+          <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                 (blur)="format_amount($event)"
+                 [(ngModel)]="selectedRecord.amountFormatted">
         </div>
         <div class="col-sm-6"></div>
         <div class="col-sm-3">

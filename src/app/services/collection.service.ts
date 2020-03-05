@@ -11,6 +11,8 @@ import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {currencyFormat} from '../core/correct-library';
+import {CustomerService} from './customer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +24,7 @@ export class CollectionService {
   employeeMap = new Map();
   tableName = 'tblCollection';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService,
+  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
 
     if (this.authService.isUserLoggedIn()) {
@@ -67,7 +69,7 @@ export class CollectionService {
     returnData.type = '-1';
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.amount = null;
+    returnData.amount = 0;
     returnData.description = '';
     returnData.insertDate = Date.now();
 
@@ -80,6 +82,7 @@ export class CollectionService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
 
@@ -90,9 +93,18 @@ export class CollectionService {
           const data = doc.data() as CollectionModel;
           data.primaryKey = doc.id;
 
-          const returnData = new AccountVoucherMainModel();
+          const returnData = new CollectionMainModel();
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
+
+          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
+            .then((values: any) => {
+              if (values[0] !== undefined || values[0] !== null) {
+                returnData.customer = values[0] as CustomerModel;
+              }
+            });
+
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -114,6 +126,7 @@ export class CollectionService {
           returnData.actionType = c.type;
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
           return Object.assign({returnData});
         })
@@ -134,6 +147,7 @@ export class CollectionService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -158,6 +172,7 @@ export class CollectionService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map( (customer: CustomerModel) => {
@@ -189,6 +204,7 @@ export class CollectionService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map( (customer: CustomerModel) => {

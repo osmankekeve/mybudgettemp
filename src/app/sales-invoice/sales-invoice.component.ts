@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
@@ -9,7 +9,15 @@ import { CustomerService } from '../services/customer.service';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getInputDataForInsert, getDateForInput, getEncryptionKey, numberOnly
+import {
+  getFirstDayOfMonthForInput,
+  getTodayForInput,
+  isNullOrEmpty,
+  getInputDataForInsert,
+  getDateForInput,
+  getEncryptionKey,
+  numberOnly,
+  getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -230,6 +238,23 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+  }
+
+  format_totalPrice($event): void {
+    this.selectedRecord.data.totalPrice = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  format_totalPriceWithTax($event): void {
+    this.selectedRecord.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_totalPrice(): void {
+    if (this.selectedRecord.data.totalPrice === 0) {
+      this.selectedRecord.data.totalPrice = null;
+      this.selectedRecord.totalPriceFormatted = null;
+    }
   }
 
 }

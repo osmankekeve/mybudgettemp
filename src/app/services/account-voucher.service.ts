@@ -10,6 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {currencyFormat} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +68,7 @@ export class AccountVoucherService {
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.description = '';
+    returnData.amount = 0;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -78,6 +80,7 @@ export class AccountVoucherService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
 
@@ -90,6 +93,7 @@ export class AccountVoucherService {
           const returnData = new AccountVoucherMainModel();
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -110,6 +114,7 @@ export class AccountVoucherService {
           returnData.actionType = c.type;
           returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
           return Object.assign({returnData});
         })
       )
@@ -129,6 +134,7 @@ export class AccountVoucherService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -153,6 +159,7 @@ export class AccountVoucherService {
         returnData.actionType = change.type;
         returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {

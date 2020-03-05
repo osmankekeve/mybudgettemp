@@ -9,7 +9,14 @@ import { AuthenticationService } from '../services/authentication.service';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
 import { InformationService } from '../services/information.service';
-import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty, getEncryptionKey
+import {
+  getDateForInput,
+  getInputDataForInsert,
+  getTodayForInput,
+  getFirstDayOfMonthForInput,
+  isNullOrEmpty,
+  getEncryptionKey,
+  getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -75,7 +82,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as PaymentMainModel;
         if (item.actionType === 'added') {
@@ -229,6 +236,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+  }
+
+  format_amount($event): void {
+    this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
+    this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
 
 }

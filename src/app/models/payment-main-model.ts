@@ -1,5 +1,5 @@
 import {PaymentModel} from './payment-model';
-import {CustomerModel} from "./customer-model";
+import {CustomerModel} from './customer-model';
 
 export class PaymentMainModel {
   data: PaymentModel;
@@ -7,4 +7,5 @@ export class PaymentMainModel {
   customerName?: string;
   employeeName?: string;
   actionType?: string;
+  amountFormatted?: string;
 }

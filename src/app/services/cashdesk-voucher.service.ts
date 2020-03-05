@@ -10,7 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
-import {getCashDeskVoucherType} from '../core/correct-library';
+import {currencyFormat, getCashDeskVoucherType} from '../core/correct-library';
 import {ProfileService} from './profile.service';
 
 @Injectable({
@@ -78,7 +78,7 @@ export class CashDeskVoucherService {
     returnData.receiptNo = '';
     returnData.firstCashDeskPrimaryKey = '-1';
     returnData.secondCashDeskPrimaryKey = '';
-    returnData.amount = null;
+    returnData.amount = 0;
     returnData.description = '';
     returnData.insertDate = Date.now();
 
@@ -92,6 +92,7 @@ export class CashDeskVoucherService {
     returnData.casDeskName = '';
     returnData.secondCashDeskName = '';
     returnData.actionType = 'added';
+    returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
 
@@ -108,6 +109,7 @@ export class CashDeskVoucherService {
           returnData.casDeskName = this.cashDeskMap.get(data.firstCashDeskPrimaryKey);
           returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ?
             '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -129,6 +131,7 @@ export class CashDeskVoucherService {
         returnData.typeTr = this.cashDeskVoucherTypeMap.get(data.type);
         returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
         returnData.actionType = change.type;
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
           returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';
@@ -153,6 +156,7 @@ export class CashDeskVoucherService {
         returnData.casDeskName = this.cashDeskMap.get(data.firstCashDeskPrimaryKey);
         returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
         returnData.actionType = change.type;
+        returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
           // returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';

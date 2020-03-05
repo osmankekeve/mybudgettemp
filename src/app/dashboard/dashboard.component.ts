@@ -55,6 +55,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     this.atService.getMainItems(start, end).subscribe(list => {
+      console.log(list);
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
       this.transactionList = list;
       list.forEach(item => {

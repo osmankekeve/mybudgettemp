@@ -10,10 +10,6 @@ import { Observable } from 'rxjs/internal/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {AccountTransactionModel} from '../models/account-transaction-model';
-import {getModuleIcons, getTransactionTypes} from '../core/correct-library';
-import {CollectionMainModel} from "../models/collection-main-model";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +18,6 @@ export class CustomerService {
 
   listCollection: AngularFirestoreCollection<CustomerModel>;
   mainList$: Observable<CustomerModel[]>;
-  customerDoc: AngularFirestoreDocument<CustomerModel>;
   tableName = 'tblCustomer';
 
   constructor(public authService: AuthenticationService,

@@ -197,5 +197,13 @@ export const getModuleIcons = () => {
   ]);
 };
 
+export const currencyFormat = (data: any) => {
+  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY'}).format(data);
+};
+
+export const moneyFormat = (data: any) => {
+  return data.replace('₺', '').replace('.', '').replace(',', '.');
+};
+
 
 
