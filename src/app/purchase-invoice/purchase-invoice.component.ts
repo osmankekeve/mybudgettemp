@@ -1,29 +1,30 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
-import { CustomerModel } from '../models/customer-model';
-import { CustomerService } from '../services/customer.service';
-import { AuthenticationService } from '../services/authentication.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { InformationService } from '../services/information.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/internal/Observable';
+import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
+import {CustomerModel} from '../models/customer-model';
+import {CustomerService} from '../services/customer.service';
+import {AuthenticationService} from '../services/authentication.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {InformationService} from '../services/information.service';
+import {Chart} from 'chart.js';
 import {
   getFirstDayOfMonthForInput,
   getTodayForInput,
   getDateForInput,
   getInputDataForInsert,
   isNullOrEmpty,
-  getDateForExcel,
   getEncryptionKey,
   getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import 'rxjs/add/operator/filter';
 import {SettingService} from '../services/setting.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -49,6 +50,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
+  chart1: any;
+  chart2: any;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService, public sService: SettingService,
@@ -56,11 +59,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               public atService: AccountTransactionService,
               public infoService: InformationService,
               public excelService: ExcelService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
+    this.populateCharts();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
 
@@ -85,7 +90,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       }); */
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = undefined;
@@ -97,7 +103,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
@@ -119,11 +127,140 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
     }, 5000);
+  }
+
+  populateCharts(): void {
+    const date = new Date();
+    const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    const date1 = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const date2 = new Date(date.getFullYear(), date.getMonth(), 14, 0, 0, 0);
+    const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
+    const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
+
+    let chart1DataNames;
+    let chart1DataValues;
+    const chart2DataValues = [0 , 0 , 0, 0];
+    const creatingList = Array<any>();
+    const creatingData = new Map();
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(todayStart, endDate)])
+      .then((values: any) => {
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<PurchaseInvoiceMainModel>;
+          returnData.forEach(item => {
+            if (creatingData.has(item.customer.name)) {
+              let amount = creatingData.get(item.customer.name);
+              amount += item.data.totalPriceWithTax;
+              creatingData.delete(item.customer.name);
+              creatingData.set(item.customer.name, amount);
+            } else {
+              creatingData.set(item.customer.name, item.data.totalPriceWithTax);
+            }
+            if (item.data.insertDate >= date1.getTime() && item.data.insertDate < date2.getTime()) {
+              chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.totalPriceWithTax;
+            } else if (item.data.insertDate >= date2.getTime() && item.data.insertDate < date3.getTime()) {
+              chart2DataValues[1] = getFloat(chart2DataValues[1]) + item.data.totalPriceWithTax;
+            } else if (item.data.insertDate >= date3.getTime() && item.data.insertDate < date4.getTime()) {
+              chart2DataValues[2] = getFloat(chart2DataValues[2]) + item.data.totalPriceWithTax;
+            } else {
+              chart2DataValues[3] = getFloat(chart2DataValues[3]) + item.data.totalPriceWithTax;
+            }
+          });
+          chart1DataNames = [];
+          chart1DataValues = [];
+          creatingData.forEach((value, key) => {
+            creatingList.push({itemKey: key, itemValue: value});
+          });
+          creatingList.sort((a, b) => {
+            return b.itemValue - a.itemValue;
+          });
+          let i = 1;
+          creatingList.forEach(x => {
+            if (i === 10) {
+              return;
+            } else {
+              chart1DataNames.push(x.itemKey);
+              chart1DataValues.push(x.itemValue.toFixed(2));
+            }
+            i++;
+          });
+        }
+      }).finally(() => {
+      this.chart1 = new Chart('chart1', {
+        type: 'bar', // bar, pie, doughnut
+        data: {
+          labels: chart1DataNames,
+          datasets: [{
+            label: '# of Votes',
+            data: chart1DataValues,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          title: {
+            text: 'En Çok Alım Yapılan Cari Hareketler',
+            display: true
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+      this.chart2 = new Chart('chart2', {
+        type: 'doughnut', // bar, pie, doughnut
+        data: {
+          labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+          datasets: [{
+            label: '# of Votes',
+            data: chart2DataValues,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+            ],
+            borderWidth: 1
+          }]
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
@@ -133,9 +270,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-    .subscribe(list => {
-      this.isRecordHasTransaction = list.length > 0;
-    });
+      .subscribe(list => {
+        this.isRecordHasTransaction = list.length > 0;
+      });
   }
 
   btnReturnList_Click(): void {
@@ -146,6 +283,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       this.route.navigate(['purchaseInvoice', {}]);
     } */
     this.route.navigate(['purchaseInvoice', {}]);
+    this.populateCharts();
   }
 
   btnMainFilter_Click(): void {
@@ -198,7 +336,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             parentType: 'customer',
             cashDeskPrimaryKey: '-1',
             amount: this.selectedRecord.data.type === 'purchase' ?
-            this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
+              this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
             amountType: this.selectedRecord.data.type === 'purchase' ? 'credit' : 'debit',
             insertDate: this.selectedRecord.data.insertDate
           };
@@ -210,13 +348,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       } else {
         this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+            ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               const trans = {
                 receiptNo: this.selectedRecord.data.receiptNo,
                 insertDate: this.selectedRecord.data.insertDate,
                 amount: this.selectedRecord.data.type === 'purchase' ?
-                this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
+                  this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
@@ -233,13 +371,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-              this.infoService.success('Fatura başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-          });
+        list.forEach((item) => {
+          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+            this.infoService.success('Fatura başarıyla kaldırıldı.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
         });
+      });
     }).catch(err => this.infoService.error(err));
   }
 

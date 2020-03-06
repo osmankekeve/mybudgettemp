@@ -1,12 +1,11 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Chart} from 'chart.js';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {CustomerRelationService} from '../services/crm.service';
 import {CustomerRelationModel} from '../models/customer-relation-model';
 import {Router} from '@angular/router';
-import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, padLeft, getNumber} from '../core/correct-library';
+import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey} from '../core/correct-library';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -17,9 +16,7 @@ import {SalesInvoiceService} from '../services/sales-invoice.service';
 import {CollectionService} from '../services/collection.service';
 import {CashDeskVoucherService} from '../services/cashdesk-voucher.service';
 import {AccountVoucherService} from '../services/account-voucher.service';
-import {SettingModel} from '../models/setting-model';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {TodoListModel} from '../models/to-do-list-model';
 import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
 

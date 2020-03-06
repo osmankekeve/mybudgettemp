@@ -16,8 +16,10 @@ import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, getString} from '../core/correct-library';
+import {currencyFormat, getModuleIcons, getString, getTransactionTypes} from '../core/correct-library';
 import {CustomerService} from './customer.service';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,6 +29,7 @@ export class PurchaseInvoiceService {
   mainList$: Observable<PurchaseInvoiceMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
+  customerMap = new Map();
   tableName = 'tblPurchaseInvoice';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
@@ -37,6 +40,12 @@ export class PurchaseInvoiceService {
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
           this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+      this.cusService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
         });
       });
     }
@@ -225,5 +234,32 @@ export class PurchaseInvoiceService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<PurchaseInvoiceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<PurchaseInvoiceMainModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as PurchaseInvoiceModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new PurchaseInvoiceMainModel();
+          returnData.data = data;
+          returnData.actionType = 'added';
+          returnData.customer = this.customerMap.get(returnData.data.customerCode);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }

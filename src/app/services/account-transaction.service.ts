@@ -28,8 +28,7 @@ export class AccountTransactionService {
   cashDeskMap = new Map();
 
   constructor(public authService: AuthenticationService, public cdService: CashDeskService,
-              public cService: CustomerService,
-              public db: AngularFirestore) {
+              public cService: CustomerService, public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
       this.cService.getAllItems().subscribe(list => {
         this.customerMap.clear();
@@ -119,7 +118,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -147,7 +146,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -174,7 +173,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -203,7 +202,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
