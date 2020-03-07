@@ -256,7 +256,7 @@
                     <div class="list-group-item bg-red text-light">
                       <div class="row">
                         <div class="col-sm-6">İşlem</div>
-                        <div class="col-sm-3">Fiş</div>
+                        <div class="col-sm-3"><span class="float-right">Fiş</span></div>
                         <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
                       </div>
                     </div>
@@ -265,13 +265,13 @@
                          (click)="showTransaction(item)"
                          style="font-size: 85%">
                       <div class="row">
-                        <div class="col-sm-1"><img src='{{item.iconUrl}}' width="40px"></div>
-                        <div class="col-sm-11">
+                        <div class="col-sm-2"><img src='{{item.iconUrl}}' width="40px"></div>
+                        <div class="col-sm-10">
                           <div class="row">
                             <div class="col-sm-6 mt-1 text-red">{{item.transactionTypeTr}}</div>
-                            <div class="col-sm-3 mt-1">{{item.data.receiptNo}}</div>
+                            <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.receiptNo}}</span></div>
                             <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                            <div class="col-sm-12"><small>{{item.parentData.name}}</small></div>
+                            <div class="col-sm-12"><small>{{item?.parentData.name}}</small></div>
                           </div>
                         </div>
                       </div>

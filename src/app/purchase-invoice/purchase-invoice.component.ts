@@ -24,7 +24,6 @@ import {Router, ActivatedRoute} from '@angular/router';
 import 'rxjs/add/operator/filter';
 import {SettingService} from '../services/setting.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -55,11 +54,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService, public sService: SettingService,
-              public cService: CustomerService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public excelService: ExcelService,
-              public db: AngularFirestore) {
+              public cService: CustomerService, public atService: AccountTransactionService, public infoService: InformationService,
+              public excelService: ExcelService, public db: AngularFirestore) {
   }
 
   ngOnInit() {
@@ -145,7 +141,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
     let chart1DataNames;
     let chart1DataValues;
-    const chart2DataValues = [0 , 0 , 0, 0];
+    const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(todayStart, endDate)])
@@ -260,6 +256,85 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           }]
         }
       });
+      // sessionStorage.setItem('purchase_invoice_chart_1', JSON.stringify({nameValue : chart1DataNames, dataValue: chart1DataValues}));
+      // sessionStorage.setItem('purchase_invoice_chart_2', JSON.stringify({dataValue: chart2DataValues}));
+    });
+  }
+
+  setChart1Data(): void {
+    const chart1Data = JSON.parse(sessionStorage.getItem('purchase_invoice_chart_1'));
+    this.chart1 = new Chart('chart1', {
+      type: 'bar', // bar, pie, doughnut
+      data: {
+        labels: chart1Data.nameValue,
+        datasets: [{
+          label: '# of Votes',
+          data: chart1Data.dataValue,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+          ],
+          borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        title: {
+          text: 'En Çok Alım Yapılan Cari Hareketler',
+          display: true
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+  }
+
+  setChart2Data(): void {
+    const chart2Data = JSON.parse(sessionStorage.getItem('purchase_invoice_chart_2'));
+    this.chart2 = new Chart('chart2', {
+      type: 'doughnut', // bar, pie, doughnut
+      data: {
+        labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+        datasets: [{
+          label: '# of Votes',
+          data: chart2Data.dataValue,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 206, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)'
+          ],
+          borderColor: [
+            'rgba(255,99,132,1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+          ],
+          borderWidth: 1
+        }]
+      }
     });
   }
 
@@ -284,6 +359,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     } */
     this.route.navigate(['purchaseInvoice', {}]);
     this.populateCharts();
+    // this.setChart1Data();
+    // this.setChart2Data();
   }
 
   btnMainFilter_Click(): void {
