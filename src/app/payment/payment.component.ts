@@ -24,6 +24,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-payment',
@@ -50,6 +52,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   totalValues = {
     amount: 0
   };
+  chart1: any;
+  chart2: any;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PaymentService, public sService: SettingService, public cdService: CashDeskService,
@@ -59,6 +63,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
+    this.populateCharts();
     this.selectedRecord = undefined;
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
@@ -107,6 +112,135 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  populateCharts(): void {
+    const date = new Date();
+    const startDate = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    const date1 = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const date2 = new Date(date.getFullYear(), date.getMonth(), 14, 0, 0, 0);
+    const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
+    const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
+
+    let chart1DataNames;
+    let chart1DataValues;
+    const chart2DataValues = [0 , 0 , 0, 0];
+    const creatingList = Array<any>();
+    const creatingData = new Map();
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
+      .then((values: any) => {
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<PaymentMainModel>;
+          returnData.forEach(item => {
+            if (creatingData.has(item.customer.name)) {
+              let amount = creatingData.get(item.customer.name);
+              amount += item.data.amount;
+              creatingData.delete(item.customer.name);
+              creatingData.set(item.customer.name, amount);
+            } else {
+              creatingData.set(item.customer.name, item.data.amount);
+            }
+            if (item.data.insertDate >= date1.getTime() && item.data.insertDate < date2.getTime()) {
+              chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.amount;
+            } else if (item.data.insertDate >= date2.getTime() && item.data.insertDate < date3.getTime()) {
+              chart2DataValues[1] = getFloat(chart2DataValues[1]) + item.data.amount;
+            } else if (item.data.insertDate >= date3.getTime() && item.data.insertDate < date4.getTime()) {
+              chart2DataValues[2] = getFloat(chart2DataValues[2]) + item.data.amount;
+            } else {
+              chart2DataValues[3] = getFloat(chart2DataValues[3]) + item.data.amount;
+            }
+          });
+          chart1DataNames = [];
+          chart1DataValues = [];
+          creatingData.forEach((value, key) => {
+            creatingList.push({itemKey: key, itemValue: value});
+          });
+          creatingList.sort((a, b) => {
+            return b.itemValue - a.itemValue;
+          });
+          let i = 1;
+          creatingList.forEach(x => {
+            if (i === 7) {
+              return;
+            } else {
+              chart1DataNames.push(x.itemKey);
+              chart1DataValues.push(x.itemValue.toFixed(2));
+            }
+            i++;
+          });
+        }
+      }).finally(() => {
+      this.chart1 = new Chart('chart1', {
+        type: 'bar', // bar, pie, doughnut
+        data: {
+          labels: chart1DataNames,
+          datasets: [{
+            label: '# of Votes',
+            data: chart1DataValues,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          title: {
+            text: 'En Çok Ödeme Yapılan Cari Hareketler',
+            display: true
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+      this.chart2 = new Chart('chart2', {
+        type: 'doughnut', // bar, pie, doughnut
+        data: {
+          labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+          datasets: [{
+            label: '# of Votes',
+            data: chart2DataValues,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+            ],
+            borderWidth: 1
+          }]
+        }
+      });
+    });
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PaymentMainModel;
     this.refModel = record as PaymentMainModel;
@@ -139,6 +273,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
     this.route.navigate(['payment', {}]);
+    this.populateCharts();
   }
 
   async btnNew_Click(): Promise<void> {

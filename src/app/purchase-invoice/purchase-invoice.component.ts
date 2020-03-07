@@ -181,7 +181,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           });
           let i = 1;
           creatingList.forEach(x => {
-            if (i === 10) {
+            if (i === 7) {
               return;
             } else {
               chart1DataNames.push(x.itemKey);

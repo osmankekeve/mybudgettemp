@@ -10,7 +10,6 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {currencyFormat, getString} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 
@@ -22,6 +21,7 @@ export class PaymentService {
   mainList$: Observable<PaymentMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
+  customerMap = new Map();
   tableName = 'tblPayment';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
@@ -32,6 +32,12 @@ export class PaymentService {
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
           this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+      this.cusService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
         });
       });
     }
@@ -217,4 +223,31 @@ export class PaymentService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<PaymentMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<PaymentMainModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as PaymentModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new PaymentMainModel();
+          returnData.data = data;
+          returnData.actionType = 'added';
+          returnData.customer = this.customerMap.get(returnData.data.customerCode);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

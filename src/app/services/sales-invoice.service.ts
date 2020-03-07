@@ -11,8 +11,6 @@ import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
 import {currencyFormat, getFloat} from '../core/correct-library';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {Chart} from 'chart.js';
 import {CustomerService} from './customer.service';
 
 @Injectable({
@@ -23,6 +21,7 @@ export class SalesInvoiceService {
   mainList$: Observable<SalesInvoiceMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
+  customerMap = new Map();
   tableName = 'tblSalesInvoice';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
@@ -33,6 +32,12 @@ export class SalesInvoiceService {
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
           this.employeeMap.set(item.primaryKey, item.longName);
+        });
+      });
+      this.cusService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
         });
       });
     }
@@ -219,4 +224,31 @@ export class SalesInvoiceService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<SalesInvoiceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<SalesInvoiceMainModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as SalesInvoiceModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new SalesInvoiceMainModel();
+          returnData.data = data;
+          returnData.actionType = 'added';
+          returnData.customer = this.customerMap.get(returnData.data.customerCode);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }
