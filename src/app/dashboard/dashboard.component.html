@@ -271,7 +271,9 @@
                             <div class="col-sm-6 mt-1 text-red">{{item.transactionTypeTr}}</div>
                             <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.receiptNo}}</span></div>
                             <div class="col-sm-3 mt-1"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                            <div class="col-sm-12"><small>{{item?.parentData.name}}</small></div>
+                            <div class="col-sm-12" *ngIf="item.parentData != undefined">
+                              <small>{{item?.parentData.name}}</small>
+                            </div>
                           </div>
                         </div>
                       </div>
