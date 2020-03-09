@@ -67,23 +67,45 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="card mb-2 bg-light cursor-pointer"
-             *ngFor="let item of mainList | filterCustomer : searchText; index as i; trackBy: primaryKey"
-             (click)="showSelectedRecord(item)" title="Kaydı Göster">
-          <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-          <div class="card-body">
-            <div class="font-weight-500 text-dark">{{item.customerName}}</div>
-            <div class="row">
-              <div class="col">
-                <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
+      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="chart1"></canvas>
+                </div>
               </div>
-              <div class="col">
-                <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-              </div>
-
             </div>
-            <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
+            <div class="col-sm-12 mt-4">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="chart2"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-list-parent" *ngIf="mainList.length > 0; else elseBlock">
+            <div class="card mb-2 bg-light cursor-pointer"
+                 *ngFor="let item of mainList | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
+              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+              <div class="card-body">
+                <div class="font-weight-500 text-red"><i class="fa fa-arrow-circle-right mr-2"></i>{{item.customerName}}</div>
+                <div class="row">
+                  <div class="col">
+                    <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
+                  </div>
+                  <div class="col">
+                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                  </div>
+
+                </div>
+                <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

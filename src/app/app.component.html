@@ -181,59 +181,11 @@
     </div>
   </div>
 </div>
-<div class="container pt-2" *ngIf="!userDetails">
+<div class="container-fluid pt-2" *ngIf="!userDetails">
   <div class="row">
-    <div class="col-sm-8">
-      <div class="card" hidden>
-        <!-- When Uses is Not Logged In -->
-        <div class="card-body">
-          <div class="row">
-            <div class="col-sm-12 text-center">
-              <div class="btn-group">
-                <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'login' }"
-                        (click)="onValChange('login')"><strong>Login</strong></button>
-                <button type="button" class="btn btn-sm" [ngClass]="{'btn-primary active': selectedVal == 'register' }"
-                        (click)="onValChange('register')"><strong>Register</strong></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" class="form-control" [(ngModel)]="emailInput" id="email" placeholder="Email">
-          </div>
-          <div class="form-group" *ngIf="!isForgotPassword">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" [(ngModel)]="passwordInput" id="password"
-                   placeholder="Password">
-          </div>
-          <div class="form-group" *ngIf="!isForgotPassword">
-
-              <span *ngIf="selectedVal == 'login'; else elseBlock">
-                <button type="button" class="btn btn-sm btn-primary" (click)="btnLoginUser_Click()">Log In</button>
-              </span>
-            <ng-template #elseBlock>
-              <button type="button" class="btn btn-sm btn-primary" (click)="registerUser()">Register</button>
-            </ng-template>
-            &nbsp;
-            &nbsp;
-            &nbsp;
-            <a href="javascript:void(0)" (click)="this.isForgotPassword= true;">Forgot Password?</a>
-
-          </div>
-          <div class="form-group" *ngIf="isForgotPassword">
-            <button type="button" class="btn btn-sm" (click)="this.isForgotPassword=false;">Cancel</button>
-            <button type="button" class="btn btn-sm btn-primary" (click)="forgotPassword()">Get email to reset
-              passowrd
-            </button>
-          </div>
-          <div class="form-group text-center">
-            <img src="../assets/images/googlebtn.png" alt="" srcset="" (click)="googleLogin()" style="cursor: pointer;">
-          </div>
-        </div>
-      </div>
+    <div class="col-sm-9">
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3 col-sm-2-5">
       <div class="card" style="border-radius: 25px;">
         <div class="card-body">
           <div class="text-center">
@@ -266,12 +218,12 @@
     </div>
   </div>
 </div>
-<div class="container pt-2" *ngIf="userDetails && !employeeDetail">
+<div class="container-fluid pt-2" *ngIf="userDetails && !employeeDetail">
   <div class="row">
-    <div class="col-sm-8">
+    <div class="col-sm-9">
 
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-3 col-sm-2-5">
       <div class="card" style="border-radius: 25px;">
         <div class="card-body">
           <div class="text-center">
@@ -310,3 +262,4 @@
     </div>
   </div>
 </div>
+<div class="main-process-panel" hidden>Prossecc Screen</div>

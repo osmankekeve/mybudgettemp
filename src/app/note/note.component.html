@@ -67,8 +67,8 @@
             <label class="col-form-label float-left" for="note">Note</label>
           </div>
           <div class="col-sm-10">
-            <textarea class="form-control form-control-sm w-100" id="note" name="note" type="text"
-                                          cols="40" rows="5" [(ngModel)]="selectedRecord.note"></textarea>
+            <textarea class="form-control form-control-sm w-100" id="note" name="note" type="text" required
+                      cols="40" rows="5" [(ngModel)]="selectedRecord.note"></textarea>
             <div class="invalid-feedback">Lütfen not alanını doldurunuz.</div>
           </div>
         </div>
@@ -78,7 +78,8 @@
   <div class="card-footer" *ngIf="openedPanel=='mainPanel'">
     <div class="col-sm-3 float-right">
       <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
+              [disabled]="onTransaction"
+              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
       </button>
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
@@ -86,6 +87,5 @@
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>
-
   </div>
 </div>

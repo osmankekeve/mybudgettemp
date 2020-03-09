@@ -25,8 +25,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { SettingService } from '../services/setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {PaymentMainModel} from "../models/payment-main-model";
-import {Chart} from "chart.js";
+import {PaymentMainModel} from '../models/payment-main-model';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-collection',
@@ -203,7 +203,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
         },
         options: {
           title: {
-            text: 'En Çok Ödeme Yapılan Cari Hareketler',
+            text: 'En Çok Tahsilat Yapılan Cari Hareketler',
             display: true
           },
           scales: {

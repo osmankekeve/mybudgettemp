@@ -11,6 +11,9 @@ import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {currencyFormat} from '../core/correct-library';
+import {CollectionMainModel} from '../models/collection-main-model';
+import {CollectionModel} from '../models/collection-model';
+import {CustomerService} from './customer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,9 +23,10 @@ export class AccountVoucherService {
   mainList$: Observable<AccountVoucherMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
+  customerMap = new Map();
   tableName = 'tblAccountVoucher';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService,
+  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
@@ -32,8 +36,13 @@ export class AccountVoucherService {
           this.employeeMap.set(item.primaryKey, item.longName);
         });
       });
+      this.cusService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
+        });
+      });
     }
-
   }
 
   async addItem(record: AccountVoucherMainModel) {
@@ -170,4 +179,31 @@ export class AccountVoucherService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<AccountVoucherMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountVoucherMainModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as AccountVoucherModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new AccountVoucherMainModel();
+          returnData.data = data;
+          returnData.actionType = 'added';
+          returnData.customer = this.customerMap.get(returnData.data.customerCode);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

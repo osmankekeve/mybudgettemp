@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
@@ -19,12 +19,10 @@ export class NoteComponent implements OnInit, OnDestroy {
   refModel: NoteModel;
   openedPanel: any;
   searchText: '';
+  onTransaction = false;
 
-  constructor(public authService: AuthenticationService, public service: NoteService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public excelService: ExcelService,
-              public db: AngularFirestore) { }
+  constructor(public authService: AuthenticationService, public service: NoteService, public atService: AccountTransactionService,
+              public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore) { }
 
   ngOnInit() {
     this.populateList();
@@ -36,7 +34,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -75,19 +73,27 @@ export class NoteComponent implements OnInit, OnDestroy {
   }
 
   btnSave_Click(): void {
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hatırlatma başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    this.onTransaction = true;
+    if (this.selectedRecord.note === '') {
+      this.infoService.error('Lütfen not giriniz.');
+      this.onTransaction = false;
     } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hatırlatma başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+      if (this.selectedRecord.primaryKey === null) {
+        this.selectedRecord.primaryKey = '';
+        this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hatırlatma başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+            this.onTransaction = false;
+          }).catch(err => this.infoService.error(err));
+      } else {
+        this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hatırlatma başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+            this.onTransaction = false;
+          }).catch(err => this.infoService.error(err));
+      }
     }
   }
 
@@ -110,7 +116,7 @@ export class NoteComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, userPrimaryKey: this.authService.getUid(), insertDate: Date.now(), employeePrimaryKey: this.authService.getEid()};
+    this.selectedRecord = this.service.clearMainModel();
   }
 
 }
