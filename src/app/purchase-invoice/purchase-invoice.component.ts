@@ -51,6 +51,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   };
   chart1: any;
   chart2: any;
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService, public sService: SettingService,
@@ -390,7 +391,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
     if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
@@ -399,10 +400,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
+      this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
         this.selectedRecord.data.primaryKey = '';
-        this.service.setItem(this.selectedRecord, newId).then(() => {
+        await this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
             userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
@@ -419,11 +421,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
+        }).finally(() => {
+          this.selectedRecord = undefined;
+          this.onTransaction = false;
         }).catch(err => this.infoService.error(err));
       } else {
-        this.service.updateItem(this.selectedRecord).then(() => {
+        await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
             ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
@@ -439,8 +443,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               }).catch(err => this.infoService.error(err));
             });
           });
+        }).finally(() => {
+          this.selectedRecord = undefined;
+          this.onTransaction = false;
         }).catch(err => this.infoService.error(err));
       }
+      this.populateCharts();
     }
   }
 

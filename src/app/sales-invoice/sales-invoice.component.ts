@@ -1,7 +1,6 @@
-import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
-import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { SalesInvoiceService } from '../services/sales-invoice.service';
 import { CustomerModel } from '../models/customer-model';
 import { AuthenticationService } from '../services/authentication.service';
@@ -24,8 +23,7 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {PaymentMainModel} from "../models/payment-main-model";
-import {Chart} from "chart.js";
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -53,6 +51,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   };
   chart1: any;
   chart2: any;
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
@@ -288,7 +287,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
     if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
@@ -297,10 +296,11 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
+      this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
         this.selectedRecord.data.primaryKey = '';
-        this.service.setItem(this.selectedRecord, newId).then(() => {
+        await this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
             userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
@@ -317,11 +317,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fatura başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.selectedRecord = undefined;
+          this.onTransaction = false;
+        });
       } else {
-        this.service.updateItem(this.selectedRecord).then(() => {
+        await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
             ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
@@ -333,11 +335,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
-                this.selectedRecord = undefined;
               }).catch(err => this.infoService.error(err));
             });
           });
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.selectedRecord = undefined;
+          this.onTransaction = false;
+        });
       }
     }
   }
