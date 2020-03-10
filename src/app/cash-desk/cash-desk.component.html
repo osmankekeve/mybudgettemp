@@ -56,27 +56,39 @@
     <form class="was-validated">
       <div class="row">
         <div class="col-sm-6">
-          <div class="card">
-            <div class="card-header bg-gray-gradient">
-              <h5>Kasa Bilgileri</h5>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card">
+                <div class="card-header bg-gray-gradient">
+                  <h5>Kasa Bilgileri</h5>
+                </div>
+                <div class="card-body">
+                  <div class="row form-inline">
+                    <div class="col-sm-6">
+                      <label class="col-form-label float-left" for="cashDeskName">Kasa Adı</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
+                             [(ngModel)]="selectedRecord.data.name" required>
+                      <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
+                    </div>
+                    <div class="col-sm-6">
+                      <label class="col-form-label float-left" for="description">Açıklama</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <input class="form-control form-control-sm" id="description" name="description" type="text"
+                             [(ngModel)]="selectedRecord.data.description">
+                      <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="card-body">
-              <div class="row form-inline">
-                <div class="col-sm-6">
-                  <label class="col-form-label float-left" for="cashDeskName">Kasa Adı</label>
-                </div>
-                <div class="col-sm-6">
-                  <input class="form-control form-control-sm" id="cashDeskName" name="cashDeskName" type="text"
-                         [(ngModel)]="selectedRecord.data.name" required>
-                  <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
-                </div>
-                <div class="col-sm-6">
-                  <label class="col-form-label float-left" for="description">Açıklama</label>
-                </div>
-                <div class="col-sm-6">
-                  <input class="form-control form-control-sm" id="description" name="description" type="text"
-                         [(ngModel)]="selectedRecord.data.description">
-                  <div class="invalid-feedback invalid-input-info">Lütfen doldurunuz.</div>
+            <div class="col-sm-12 mt-5">
+              <div class="card">
+                <div class="card-body">
+                  <div class="loader" *ngIf="transactionList == undefined"></div>
+                  <canvas id="chart1"></canvas>
                 </div>
               </div>
             </div>

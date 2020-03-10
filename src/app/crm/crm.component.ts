@@ -12,7 +12,10 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import {getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {PaymentMainModel} from '../models/payment-main-model';
+import {Chart} from 'chart.js';
+import {VisitMainModel} from '../models/visit-main-model';
 
 @Component({
   selector: 'app-crm',
@@ -33,6 +36,10 @@ export class CRMComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   isMainFilterOpened = false;
+  searchText = '';
+  chart1: any;
+  chart2: any;
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService,
@@ -45,6 +52,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
+    this.populateCharts();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -64,7 +72,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) this.mainList = [];
+      if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -77,13 +85,84 @@ export class CRMComponent implements OnInit, OnDestroy {
         }
       });
     }, error => {
-      this.infoService.error(error.toString())
+      this.infoService.error(error.toString());
     });
     setTimeout (() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  populateCharts(): void {
+    const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+
+    const chart1DataValues = [0 , 0 , 0, 0 , 0 , 0];
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
+      .then((values: any) => {
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<CustomerRelationModel>;
+          returnData.forEach(item => {
+            if (item.relationType === 'meeting') {
+              chart1DataValues[0] += 1;
+            } else if (item.relationType === 'mailSending') {
+              chart1DataValues[1] += 1;
+            } else if (item.relationType === 'faxSending') {
+              chart1DataValues[2] += 1;
+            } else if (item.relationType === 'phoneCall') {
+              chart1DataValues[3] += 1;
+            } else if (item.relationType === 'visit') {
+              chart1DataValues[4] += 1;
+            } else if (item.relationType === 'travel') {
+              chart1DataValues[5] += 1;
+            } else {
+              // nothing
+            }
+          });
+        }
+      }).finally(() => {
+      this.chart1 = new Chart('chart1', {
+        type: 'horizontalBar', // bar, pie, doughnut, horizontalBar
+        data: {
+          labels: ['Toplantı', 'Mail Gönderim', 'Fax Gönderim', 'Telefon Görüşmesi', 'Ziyaret', 'Seyahat'],
+          datasets: [{
+            label: '# of Votes',
+            data: chart1DataValues,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          title: {
+            text: 'Etkinlik Chart',
+            display: true
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true
+              }
+            }]
+          }
+        }
+      });
+    });
   }
 
   showSelectedRecord(record: any): void {
@@ -94,44 +173,50 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
   }
 
-  btnReturnList_Click(): void {
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-      this.route.navigate(['crm', {}]);
-    } else {
-      this.openedPanel = 'mainPanel';
-    }
-  }
-
   btnNew_Click(): void {
     this.clearSelectedRecord();
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     const date = new Date(this.today.year, this.today.month - 1, this.today.day);
     if (this.selectedRecord.primaryKey === undefined) {
+      this.onTransaction = true;
       this.selectedRecord.primaryKey = '';
       this.selectedRecord.actionDate = date.getTime();
-      this.service.addItem(this.selectedRecord)
+      await this.service.addItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Etkinlik başarıyla kaydedildi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
     } else {
-      this.service.updateItem(this.selectedRecord)
+      await this.service.updateItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Etkinlik başarıyla güncellendi.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
+  async btnRemove_Click(): Promise<void> {
+    this.onTransaction = true;
+    await this.service.removeItem(this.selectedRecord)
       .then(() => {
         this.infoService.success('Etkinlik başarıyla kaldırıldı.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err)).finally(() => {
+        this.finishRecordProcess();
+      });
+  }
+
+  async btnReturnList_Click(): Promise<void> {
+    if (this.openedPanel === 'mainPanel') {
+      this.selectedRecord = undefined;
+      await this.route.navigate(['crm', {}]);
+      this.populateCharts();
+    } else {
+      this.openedPanel = 'mainPanel';
+    }
   }
 
   btnMainFilter_Click(): void {
@@ -141,6 +226,7 @@ export class CRMComponent implements OnInit, OnDestroy {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
+      this.populateCharts();
     }
   }
 
@@ -167,6 +253,13 @@ export class CRMComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishRecordProcess(): void {
+    this.populateCharts();
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
 }

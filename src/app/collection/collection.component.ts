@@ -318,10 +318,9 @@ export class CollectionComponent implements OnInit, OnDestroy {
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Tahsilat başarıyla kaydedildi.');
           }).catch(err => this.infoService.error(err));
-        }).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       } else {
         await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -338,26 +337,26 @@ export class CollectionComponent implements OnInit, OnDestroy {
               }).catch(err => this.infoService.error(err));
             });
           });
-        }).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       }
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord).then(() => {
+  async btnRemove_Click(): Promise<void> {
+    await this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-              this.infoService.success('Tahsilat başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-          });
+        list.forEach((item) => {
+          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+            this.infoService.success('Tahsilat başarıyla kaldırıldı.');
+          }).catch(err => this.infoService.error(err));
         });
-    }).catch(err => this.infoService.error(err));
+      });
+    }).catch(err => this.infoService.error(err)).finally(() => {
+      this.finishRecordProcess();
+    });
   }
 
   btnExportToExcel_Click(): void {
@@ -383,6 +382,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+  }
+
+  finishRecordProcess(): void {
+    this.populateCharts();
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
   format_amount($event): void {

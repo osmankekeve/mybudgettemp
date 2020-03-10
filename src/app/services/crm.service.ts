@@ -8,6 +8,8 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
 import { CustomerRelationModel } from '../models/customer-relation-model';
+import {VisitMainModel} from '../models/visit-main-model';
+import {VisitModel} from '../models/visit-model';
 
 @Injectable({
   providedIn: 'root'
@@ -140,4 +142,26 @@ export class CustomerRelationService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<CustomerRelationModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CustomerRelationModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const returnData = doc.data() as CustomerRelationModel;
+          returnData.primaryKey = doc.id;
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

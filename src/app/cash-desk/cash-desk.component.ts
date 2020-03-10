@@ -1,16 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { CashDeskModel } from '../models/cash-desk-model';
-import { CashDeskService } from '../services/cash-desk.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import {getFirstDayOfMonthForInput, getNumber, getTodayForInput, isNullOrEmpty, padLeft} from '../core/correct-library';
-import { ExcelService } from '../services/excel-service';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {CashDeskModel} from '../models/cash-desk-model';
+import {CashDeskService} from '../services/cash-desk.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
+import {getFirstDayOfMonthForInput, getFloat, getNumber, getTodayForInput, isNullOrEmpty, padLeft} from '../core/correct-library';
+import {ExcelService} from '../services/excel-service';
+import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {SettingModel} from '../models/setting-model';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-cash-desk',
@@ -32,12 +34,14 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   searchText: '';
+  chart1: any;
 
   constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
               public infoService: InformationService, public route: Router, public router: ActivatedRoute,
               public excelService: ExcelService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
   ngOnInit() {
     this.clearMainFiler();
@@ -45,7 +49,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = [];
@@ -167,23 +172,64 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    let totalCollectionAmount = 0;
+    let totalPaymentAmount = 0;
+    let totalAccountVoucherAmount = 0;
+    let totalCashDeskVoucherAmount = 0;
 
     Promise.all([this.atService.getCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate),
       this.atService.getSingleCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
       .then((item: any) => {
         this.transactionList = [];
-
         item[0].forEach((data: any) => {
           this.transactionList.push(data);
           this.totalValues.amount += data.amount;
+          if (data.transactionType === 'collection') {
+            totalCollectionAmount += data.amount;
+          } else if (data.transactionType === 'payment') {
+            totalPaymentAmount += data.amount;
+          } else if (data.transactionType === 'accountVoucher') {
+            totalAccountVoucherAmount += data.amount;
+          } else {
+            // nothing
+          }
         });
-
         item[1].forEach((data: any) => {
           this.transactionList.push(data);
           this.totalValues.amount += data.amount;
+          totalCashDeskVoucherAmount += data.amount;
         });
+      }).finally(() => {
+      this.chart1 = new Chart('chart1', {
+        type: 'pie', // bar, pie, doughnut
+        data: {
+          labels: ['Tahsilat', 'Ödeme', 'Cari Fiş', 'Kasa Fişi'],
+          datasets: [{
+            label: '# of Votes',
+            data: [
+              getFloat(totalCollectionAmount.toFixed(2)),
+              getFloat(totalPaymentAmount.toFixed(2)),
+              getFloat(totalAccountVoucherAmount.toFixed(2)),
+              getFloat(totalCashDeskVoucherAmount.toFixed(2))
+            ],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+            ],
+            borderWidth: 1
+          }]
+        }
       });
-    setTimeout (() => {
+    });
+    setTimeout(() => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
       }

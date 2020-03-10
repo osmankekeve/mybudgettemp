@@ -273,9 +273,9 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     this.selectedRecord = undefined;
-    this.route.navigate(['sales-invoice', {}]);
+    await this.route.navigate(['sales-invoice', {}]);
     this.populateCharts();
   }
 
@@ -319,8 +319,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
             this.infoService.success('Fatura başarıyla kaydedildi.');
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err)).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
+          this.finishRecordProcess();
         });
       } else {
         await this.service.updateItem(this.selectedRecord).then(() => {
@@ -339,25 +338,25 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
             });
           });
         }).catch(err => this.infoService.error(err)).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
+          this.finishRecordProcess();
         });
       }
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord).then(() => {
+  async btnRemove_Click(): Promise<void> {
+    await this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-              this.infoService.success('Fatura başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-          });
+        list.forEach((item) => {
+          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+            this.infoService.success('Fatura başarıyla kaldırıldı.');
+          }).catch(err => this.infoService.error(err));
         });
-    }).catch(err => this.infoService.error(err));
+      });
+    }).catch(err => this.infoService.error(err)).finally(() => {
+      this.finishRecordProcess();
+    });
   }
 
   btnExportToExcel_Click(): void {
@@ -388,6 +387,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   format_totalPriceWithTax($event): void {
     this.selectedRecord.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  finishRecordProcess(): void {
+    this.populateCharts();
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
   focus_totalPrice(): void {

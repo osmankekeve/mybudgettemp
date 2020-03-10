@@ -66,8 +66,26 @@
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-6" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
-          <div class="card-list-parent">
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="chart1"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-12 mt-4">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="chart2"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
@@ -76,7 +94,7 @@
                      *ngIf="item.visit.isVisited"/>
                 <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2"
                      *ngIf="!item.visit.isVisited"/>
-                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
+                <div class="font-weight-500 text-dark">{{item.customer.name}}</div>
                 <div class="row">
                   <div class="col">
                     <div class="text-small text-dark float-left">{{item.employeeName}}</div>
@@ -189,7 +207,8 @@
   <div class="card-footer">
     <div class="col-sm-3 float-right">
       <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
+              [disabled]="onTransaction || !f.valid"
+              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
       </button>
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.visit.primaryKey!=undefined">
@@ -197,6 +216,5 @@
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>
-
   </div>
 </div>

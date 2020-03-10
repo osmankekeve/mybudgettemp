@@ -24,7 +24,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {Chart} from 'chart.js';
 
 @Component({
@@ -271,9 +270,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     this.selectedRecord = undefined;
-    this.route.navigate(['payment', {}]);
+    await this.route.navigate(['payment', {}]);
     this.populateCharts();
   }
 
@@ -313,10 +312,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Ödeme başarıyla kaydedildi.');
           }).catch(err => this.infoService.error(err));
-        }).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       } else {
         await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
@@ -333,12 +331,10 @@ export class PaymentComponent implements OnInit, OnDestroy {
               }).catch(err => this.infoService.error(err));
             });
           });
-        }).finally(() => {
-          this.selectedRecord = undefined;
-          this.onTransaction = false;
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       }
-      this.populateCharts();
     }
   }
 
@@ -352,10 +348,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
           }).catch(err => this.infoService.error(err));
         });
       });
-    }).finally(() => {
-      this.selectedRecord = undefined;
-      this.onTransaction = false;
-    }).catch(err => this.infoService.error(err));
+    }).catch(err => this.infoService.error(err)).finally(() => {
+      this.finishRecordProcess();
+    });
   }
 
   btnExportToExcel_Click(): void {
@@ -377,6 +372,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+  }
+
+  finishRecordProcess(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
   format_amount($event): void {

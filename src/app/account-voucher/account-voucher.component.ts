@@ -53,6 +53,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   };
   chart1: any;
   chart2: any;
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: AccountVoucherService, public cdService: CashDeskService, public atService: AccountTransactionService,
@@ -266,18 +267,18 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
     if (this.selectedRecord.data.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
     } else {
+      this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
         this.selectedRecord.data.primaryKey = '';
-
-        this.service.setItem(this.selectedRecord, newId).then(() => {
+        await this.service.setItem(this.selectedRecord, newId).then(() => {
           const trans = {
             primaryKey: '',
             userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
@@ -294,14 +295,14 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
           };
           this.db.collection('tblAccountTransaction').add(trans).then(() => {
             this.infoService.success('Fiş başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
           }).catch(err => this.infoService.error(err));
-        }).catch(err => this.infoService.error(err));
-
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       } else {
-        this.service.updateItem(this.selectedRecord).then(() => {
+        await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+            ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
             list.forEach((item) => {
               this.db.collection('tblAccountTransaction').doc(item.id).update({
                 receiptNo: this.selectedRecord.data.receiptNo,
@@ -315,23 +316,26 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
 
             });
           });
-        }).catch(err => this.infoService.error(err));
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       }
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord).then(() => {
+  async btnRemove_Click(): Promise<void> {
+    await this.service.removeItem(this.selectedRecord).then(() => {
       this.db.collection<AccountTransactionModel>('tblAccountTransaction',
         ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-          list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-              this.infoService.success('Fiş başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-          });
+        list.forEach((item) => {
+          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+            this.infoService.success('Fiş başarıyla kaldırıldı.');
+          }).catch(err => this.infoService.error(err));
         });
-    }).catch(err => this.infoService.error(err));
+      });
+    }).catch(err => this.infoService.error(err)).finally(() => {
+      this.finishRecordProcess();
+    });
   }
 
   btnShowMainFiler_Click(): void {
@@ -371,6 +375,13 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  finishRecordProcess(): void {
+    this.populateCharts();
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
   format_amount($event): void {

@@ -66,8 +66,19 @@
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-6" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
-          <div class="card-list-parent">
+        <div class="col-sm-6">
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card">
+                <div class="card-body">
+                  <canvas id="chart1"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
@@ -167,7 +178,8 @@
   <div class="card-footer">
     <div class="col-sm-3 float-right">
       <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
+              [disabled]="onTransaction || !f.valid"
+              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
       </button>
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
@@ -175,6 +187,5 @@
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>
-
   </div>
 </div>
