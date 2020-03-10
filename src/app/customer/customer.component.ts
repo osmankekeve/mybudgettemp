@@ -43,6 +43,8 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {MailMainModel} from '../models/mail-main-model';
 import {MailService} from '../services/mail.service';
 import {ReportService} from '../services/report.service';
+import {ProfileMainModel} from '../models/profile-main-model';
+import {ProfileService} from '../services/profile.service';
 
 @Component({
   selector: 'app-customer',
@@ -75,6 +77,7 @@ export class CustomerComponent implements OnInit {
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
+  executiveList$: Observable<ProfileMainModel[]>;
   transactionList: Array<AccountTransactionModel>;
   totalValues = 0;
   BarChart: any;
@@ -93,7 +96,7 @@ export class CustomerComponent implements OnInit {
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
-              public rService: ReportService,
+              public rService: ReportService, public proService: ProfileService,
               public mailService: MailService) {
   }
 
@@ -101,6 +104,7 @@ export class CustomerComponent implements OnInit {
     this.openedPanel = 'dashboard';
     this.populateCustomerList();
     this.cashDeskList$ = this.cdService.getMainItems();
+    this.executiveList$ = this.proService.getMainItems();
     this.selectedCustomer = undefined;
   }
 
@@ -109,7 +113,9 @@ export class CustomerComponent implements OnInit {
     this.mainList = undefined;
     this.customerService.getMainItems(this.isActive).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
+      console.log(list);
       list.forEach((item: any) => {
+        if (item.data.executivePrimary === undefined) { item.data.executivePrimary = '-1'; }
         if (item.actionType === 'added') {
           this.mainList.push(item);
         } else if (item.actionType === 'removed') {
@@ -544,10 +550,7 @@ export class CustomerComponent implements OnInit {
   clearSelectedCustomer(): void {
     this.openedPanel = 'edit';
     this.refModel = undefined;
-    this.selectedCustomer = {
-      primaryKey: undefined, name: '', owner: '', phone1: '', phone2: '', email: '', isActive: true,
-      userPrimaryKey: this.authService.getUid(), employeePrimaryKey: this.authService.getEid()
-    };
+    this.selectedCustomer = this.customerService.clearModel();
   }
 
   async clearNewSalesInvoice(): Promise<void> {

@@ -2,6 +2,7 @@ export class CustomerModel {
   primaryKey?: string;
   userPrimaryKey: string;
   employeePrimaryKey: string;
+  executivePrimary?: string;
   code?: string;
   name?: string;
   owner?: string;
@@ -10,4 +11,6 @@ export class CustomerModel {
   email?: string;
   address?: string;
   isActive?: boolean;
+  taxOffice?: string;
+  taxNumber?: string;
 }

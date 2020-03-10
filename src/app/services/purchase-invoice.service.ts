@@ -8,18 +8,15 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap, startWith} from 'rxjs/operators';
+import {map, flatMap,} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, getModuleIcons, getString, getTransactionTypes} from '../core/correct-library';
+import {currencyFormat, getString} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'

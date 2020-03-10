@@ -10,6 +10,7 @@ import { Observable } from 'rxjs/internal/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
+import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +54,27 @@ export class CustomerService {
 
   async updateItem(customer: CustomerModel) {
     return await this.db.collection(this.tableName).doc(customer.primaryKey).update(customer);
+  }
+
+  clearModel(): CustomerModel {
+
+    const returnData = new CustomerModel();
+    returnData.primaryKey = undefined;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.executivePrimary = '-1';
+    returnData.code = '';
+    returnData.name = null;
+    returnData.owner = null;
+    returnData.phone1 = '';
+    returnData.phone2 = '';
+    returnData.email = '';
+    returnData.address = '';
+    returnData.isActive = true;
+    returnData.taxOffice = '';
+    returnData.taxNumber = '';
+
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -119,5 +141,4 @@ export class CustomerService {
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
-
 }

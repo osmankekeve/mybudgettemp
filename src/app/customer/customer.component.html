@@ -890,7 +890,7 @@
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="customerName" name="customerName" type="text"
                        [(ngModel)]="selectedCustomer.name" required>
-                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="customerCode">Kod</label>
@@ -915,7 +915,7 @@
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="phone1" name="phone1" type="text"
                        [(ngModel)]="selectedCustomer.phone1" required>
-                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="phone2">Fax</label>
@@ -932,14 +932,38 @@
                        [(ngModel)]="selectedCustomer.email">
               </div>
               <div class="col-sm-3">
+                <label class="col-form-label float-left" for="taxOffice">Vergi Dairesi</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control form-control-sm w-100" id="taxOffice" name="taxOffice" type="text"
+                       [(ngModel)]="selectedCustomer.taxOffice">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="taxNumber">Vergi Numarası</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control form-control-sm w-100" id="taxNumber" name="taxNumber" type="text"
+                       [(ngModel)]="selectedCustomer.taxNumber">
+              </div>
+              <div class="col-sm-3">
                 <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="owner" name="owner" type="text"
                        [(ngModel)]="selectedCustomer.owner" required>
-                <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
-              <div class="col-sm-6"></div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="executivePrimary">Temsilci</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="executivePrimary" name="executivePrimary"
+                        [(ngModel)]="selectedCustomer.executivePrimary">
+                  <option [value]="-1">Seçilmedi</option>
+                  <option value={{item.returnData.data.primaryKey}}
+                          *ngFor="let item of executiveList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
+                </select>
+              </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="address">Adres</label>
               </div>
