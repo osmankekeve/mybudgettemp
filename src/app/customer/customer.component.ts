@@ -45,6 +45,7 @@ import {MailService} from '../services/mail.service';
 import {ReportService} from '../services/report.service';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ProfileService} from '../services/profile.service';
+import {CustomerMainModel} from '../models/customer-main-model';
 
 @Component({
   selector: 'app-customer',
@@ -53,9 +54,9 @@ import {ProfileService} from '../services/profile.service';
 })
 
 export class CustomerComponent implements OnInit {
-  mainList: Array<CustomerModel>;
-  selectedCustomer: CustomerModel;
-  refModel: CustomerModel;
+  mainList: Array<CustomerMainModel>;
+  selectedCustomer: CustomerMainModel;
+  refModel: CustomerMainModel;
   newSalesInvoice: SalesInvoiceMainModel;
   newPurchaseInvoice: PurchaseInvoiceMainModel;
   newCollection: CollectionMainModel;
@@ -113,15 +114,14 @@ export class CustomerComponent implements OnInit {
     this.mainList = undefined;
     this.customerService.getMainItems(this.isActive).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
-      console.log(list);
       list.forEach((item: any) => {
-        if (item.data.executivePrimary === undefined) { item.data.executivePrimary = '-1'; }
-        if (item.actionType === 'added') {
-          this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
+        const data = item.returnData as CustomerMainModel;
+        if (data.actionType === 'added') {
+          this.mainList.push(data);
+        } else if (data.actionType === 'removed') {
           this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
+        } else if (data.actionType === 'modified') {
+          this.mainList[this.mainList.indexOf(this.refModel)] = data;
         } else {
           // nothing
         }
@@ -135,12 +135,12 @@ export class CustomerComponent implements OnInit {
   }
 
   showSelectedCustomer(customer: any): void {
-    this.selectedCustomer = customer.data as CustomerModel;
-    this.refModel = customer.data as CustomerModel;
+    this.selectedCustomer = customer as CustomerMainModel;
+    this.refModel = customer as CustomerMainModel;
 
     this.totalAmount = 0;
     this.purchaseInvoiceList$ = undefined;
-    this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.purchaseInvoiceAmount = 0;
     this.purchaseInvoiceList$.subscribe(list => {
       list.forEach((data: any) => {
@@ -158,7 +158,7 @@ export class CustomerComponent implements OnInit {
     });
 
     this.siList$ = undefined;
-    this.siList$ = this.siService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.siList$ = this.siService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.siAmount = 0;
     this.siList$.subscribe(list => {
       list.forEach((data: any) => {
@@ -176,7 +176,7 @@ export class CustomerComponent implements OnInit {
     });
 
     this.colList$ = undefined;
-    this.colList$ = this.colService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.colList$ = this.colService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.colAmount = 0;
     this.colList$.subscribe(list => {
       list.forEach((data: any) => {
@@ -194,7 +194,7 @@ export class CustomerComponent implements OnInit {
     });
 
     this.payList$ = undefined;
-    this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.payAmount = 0;
     this.payList$.subscribe(list => {
       list.forEach((data: any) => {
@@ -212,7 +212,7 @@ export class CustomerComponent implements OnInit {
     });
 
     this.voucherList$ = undefined;
-    this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.voucherAmount = 0;
     this.voucherList$.subscribe(list => {
       list.forEach((data: any) => {
@@ -238,7 +238,7 @@ export class CustomerComponent implements OnInit {
     });
 
     this.mailList$ = undefined;
-    this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.primaryKey);
+    this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.data.primaryKey);
   }
 
   btnReturnList_Click(): void {
@@ -259,9 +259,9 @@ export class CustomerComponent implements OnInit {
 
   btnSave_Click(): void {
     try {
-      if (this.selectedCustomer.primaryKey === undefined) {
-        this.selectedCustomer.primaryKey = this.db.createId();
-        this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.primaryKey)
+      if (this.selectedCustomer.data.primaryKey === undefined) {
+        this.selectedCustomer.data.primaryKey = this.db.createId();
+        this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
           .then(() => {
             this.infoService.success('Müşteri başarıyla kaydedildi.');
             this.selectedCustomer = undefined;
@@ -295,7 +295,7 @@ export class CustomerComponent implements OnInit {
       if (this.newSalesInvoice.data.primaryKey === null) {
         const newId = this.db.createId();
         this.newSalesInvoice.data.primaryKey = '';
-        this.newSalesInvoice.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newSalesInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.siService.setItem(this.newSalesInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
@@ -326,7 +326,7 @@ export class CustomerComponent implements OnInit {
       if (this.newPurchaseInvoice.data.primaryKey === null) {
         const newId = this.db.createId();
         this.newPurchaseInvoice.data.primaryKey = '';
-        this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
         this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
@@ -358,7 +358,7 @@ export class CustomerComponent implements OnInit {
       if (this.newCollection.data.primaryKey === null) {
         const newId = this.db.createId();
         this.newCollection.data.primaryKey = '';
-        this.newCollection.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newCollection.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.colService.setItem(this.newCollection, newId).then(() => {
@@ -390,7 +390,7 @@ export class CustomerComponent implements OnInit {
       if (this.newPayment.data.primaryKey === null) {
         const newId = this.db.createId();
         this.newPayment.data.primaryKey = '';
-        this.newPayment.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newPayment.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.payService.setItem(this.newPayment, newId).then(() => {
@@ -422,7 +422,7 @@ export class CustomerComponent implements OnInit {
       if (this.newVoucher.data.primaryKey === null) {
         const newId = this.db.createId();
         this.newVoucher.data.primaryKey = '';
-        this.newVoucher.data.customerCode = this.selectedCustomer.primaryKey;
+        this.newVoucher.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
 
         this.avService.setItem(this.newVoucher, newId).then(() => {
@@ -486,8 +486,8 @@ export class CustomerComponent implements OnInit {
   async btnOpenSubPanel_Click(panel: string): Promise<void> {
     try {
       this.openedPanel = panel;
-      if (this.selectedCustomer.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
-        this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.primaryKey, panel);
+      if (this.selectedCustomer.data.primaryKey && this.openedPanel !== 'accountSummary' && this.openedPanel !== 'target') {
+        this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.data.primaryKey, panel);
       }
       if (this.openedPanel === 'salesInvoice') {
         this.clearNewSalesInvoice();
@@ -503,25 +503,25 @@ export class CustomerComponent implements OnInit {
 
       } else if (this.openedPanel === 'target') {
         this.targetList$ = undefined;
-        this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+        this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
       } else if (this.openedPanel === 'accountSummary') {
         this.totalValues = 0;
-        this.rService.getCustomerTransactionsWithDateControl(this.selectedCustomer.primaryKey, undefined, undefined).then(list => {
+        this.rService.getCustomerTransactionsWithDateControl(this.selectedCustomer.data.primaryKey, undefined, undefined).then(list => {
           this.transactionList = list;
           this.transactionList.forEach(item => {
             this.totalValues += item.amount;
           });
         });
       } else if (this.openedPanel === 'dashboard') {
-        if (!this.selectedCustomer.primaryKey) {
+        if (!this.selectedCustomer.data.primaryKey) {
           this.btnReturnList_Click();
         }
       } else if (this.openedPanel === 'fileUpload') {
         this.filesList$ = undefined;
-        this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+        this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
       } else if (this.openedPanel === 'visit') {
         this.visitList$ = undefined;
-        this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.primaryKey);
+        this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
 
       } else {
 
@@ -550,7 +550,7 @@ export class CustomerComponent implements OnInit {
   clearSelectedCustomer(): void {
     this.openedPanel = 'edit';
     this.refModel = undefined;
-    this.selectedCustomer = this.customerService.clearModel();
+    this.selectedCustomer = this.customerService.clearMainModel();
   }
 
   async clearNewSalesInvoice(): Promise<void> {

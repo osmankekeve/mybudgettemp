@@ -13,4 +13,7 @@ export class CustomerModel {
   isActive?: boolean;
   taxOffice?: string;
   taxNumber?: string;
+  postCode?: string;
+  paymentTypeKey?: string;
+  termKey?: string;
 }

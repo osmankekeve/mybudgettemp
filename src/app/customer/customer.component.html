@@ -76,7 +76,7 @@
     <div class="row">
       <div class="col-sm-12">
         <h4 class="card-title float-left mr-2">Müşteri Listesi</h4>
-        <h4 class="card-title float-left mr-2">{{selectedCustomer.name}}</h4>
+        <h4 class="card-title float-left mr-2">{{selectedCustomer.data.name}}</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'"><i class="fa fa-arrow-left"></i>
         </button>
@@ -92,36 +92,39 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='dashboard'">
-    <div class="card-body" *ngIf="selectedCustomer.primaryKey!=undefined">
+    <div class="card-body" *ngIf="selectedCustomer.data.primaryKey!=undefined">
       <div class="row">
         <div class="col-sm-6">
           <div class="row mb-2">
             <div class="col-sm-12">
-              <div class="card card-stats">
-                <div class="card-body">
-                  <div class="row" style="border-bottom: thin solid #eee">
-                    <label class="col-sm-4 col-form-label font-weight-bold">Adı</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.name}}</label>
-                  </div>
-                  <div class="row" style="border-bottom: thin solid #eee">
-                    <label class="col-sm-4 col-form-label font-weight-bold">Yetkili Kişi</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.owner}}</label>
-                  </div>
-                  <div class="row" style="border-bottom: thin solid #eee">
-                    <label class="col-sm-4 col-form-label font-weight-bold">E-Mail</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.email}}</label>
-                  </div>
-                  <div class="row" style="border-bottom: thin solid #eee">
-                    <label class="col-sm-4 col-form-label font-weight-bold">Telefon</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone1}}</label>
-                  </div>
-                  <div class="row" style="border-bottom: thin solid #eee">
-                    <label class="col-sm-4 col-form-label font-weight-bold">Fax</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.phone2}}</label>
+              <div class="list-group">
+                <div class="list-group-item fs-14">
+                  <div class="row">
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Cair Adı</div>
+                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.name}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Yetkili Kişi</div>
+                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.owner}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">E-Mail</div>
+                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.email}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Telefon</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone1}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Fax</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone2}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Dairesi</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxOffice}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Numarası</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxNumber}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Ödeme Tipi</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.paymentTypeTr}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vade</div>
+                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.termTr}}</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Temsilci</div>
+                    <div class="col-sm-3 text-secondary mb-1" *ngIf="selectedCustomer.executive==undefined">Seçilmedi</div>
+                    <div class="col-sm-3 text-secondary mb-1" *ngIf="selectedCustomer.executive!=undefined">{{selectedCustomer.executive.longName}}</div>
                   </div>
                   <div class="row">
-                    <label class="col-sm-4 col-form-label font-weight-bold">Adres</label>
-                    <label class="col-sm-8 col-form-label text-muted">{{selectedCustomer.address}}</label>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Adres</div>
+                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.address}}</div>
                   </div>
                 </div>
               </div>
@@ -887,9 +890,9 @@
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
               </div>
-              <div class="col-sm-3">
+              <div class="col-sm-9">
                 <input class="form-control form-control-sm w-100" id="customerName" name="customerName" type="text"
-                       [(ngModel)]="selectedCustomer.name" required>
+                       [(ngModel)]="selectedCustomer.data.name" required>
                 <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
               <div class="col-sm-3">
@@ -897,14 +900,14 @@
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
-                       [(ngModel)]="selectedCustomer.code">
+                       [(ngModel)]="selectedCustomer.data.code">
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
               </div>
               <div class="col-sm-3">
                 <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                        [(ngModel)]="selectedCustomer.isActive">
+                        [(ngModel)]="selectedCustomer.data.isActive">
                   <option [ngValue]="true">Aktif</option>
                   <option [ngValue]="false">Pasif</option>
                 </select>
@@ -914,7 +917,7 @@
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="phone1" name="phone1" type="text"
-                       [(ngModel)]="selectedCustomer.phone1" required>
+                       [(ngModel)]="selectedCustomer.data.phone1" required>
                 <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
               <div class="col-sm-3">
@@ -922,35 +925,35 @@
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="phone2" name="phone2" type="text"
-                       [(ngModel)]="selectedCustomer.phone2">
+                       [(ngModel)]="selectedCustomer.data.phone2">
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="eMail">E-Mail</label>
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="eMail" name="eMail" type="email"
-                       [(ngModel)]="selectedCustomer.email">
+                       [(ngModel)]="selectedCustomer.data.email">
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="taxOffice">Vergi Dairesi</label>
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="taxOffice" name="taxOffice" type="text"
-                       [(ngModel)]="selectedCustomer.taxOffice">
+                       [(ngModel)]="selectedCustomer.data.taxOffice">
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="taxNumber">Vergi Numarası</label>
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="taxNumber" name="taxNumber" type="text"
-                       [(ngModel)]="selectedCustomer.taxNumber">
+                       [(ngModel)]="selectedCustomer.data.taxNumber">
               </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
               </div>
               <div class="col-sm-3">
                 <input class="form-control form-control-sm w-100" id="owner" name="owner" type="text"
-                       [(ngModel)]="selectedCustomer.owner" required>
+                       [(ngModel)]="selectedCustomer.data.owner" required>
                 <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
               </div>
               <div class="col-sm-3">
@@ -958,24 +961,60 @@
               </div>
               <div class="col-sm-3">
                 <select class="form-control form-control-sm w-100" id="executivePrimary" name="executivePrimary"
-                        [(ngModel)]="selectedCustomer.executivePrimary">
+                        [(ngModel)]="selectedCustomer.data.executivePrimary">
                   <option [value]="-1">Seçilmedi</option>
                   <option value={{item.returnData.data.primaryKey}}
                           *ngFor="let item of executiveList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
                 </select>
               </div>
               <div class="col-sm-3">
+                <label class="col-form-label float-left" for="postCode">Posta Kodu</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control form-control-sm w-100" id="postCode" name="postCode" type="text"
+                       [(ngModel)]="selectedCustomer.data.postCode">
+              </div>
+              <div class="col-sm-3">
                 <label class="col-form-label float-left" for="address">Adres</label>
               </div>
               <div class="col-sm-9">
                 <input class="form-control form-control-sm w-100" id="address" name="address" type="text"
-                       [(ngModel)]="selectedCustomer.address">
+                       [(ngModel)]="selectedCustomer.data.address">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="paymentTypeKey">Ödeme Tipi</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="paymentTypeKey" name="paymentTypeKey"
+                        [(ngModel)]="selectedCustomer.data.paymentTypeKey">
+                  <option value="-1">Seçilmedi</option>
+                  <option value="cash">Nakit</option>
+                  <option value="creditCard">Kredi Kartı</option>
+                  <option value="transfer">Havale</option>
+                  <option value="cheque">Çek</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="termKey">Vade</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="termKey" name="termKey"
+                        [(ngModel)]="selectedCustomer.data.termKey">
+                  <option value="-1">Seçilmedi</option>
+                  <option value="cash">Nakit</option>
+                  <option value="15G">15 Gün</option>
+                  <option value="30G">30 Gün</option>
+                  <option value="45G">45 Gün</option>
+                  <option value="60G">60 Gün</option>
+                  <option value="90G">90 Gün</option>
+                  <option value="120G">120 Gün</option>
+                </select>
               </div>
             </div>
           </form>
         </div>
         <div class="card-footer">
-          <div class="col-sm-3" *ngIf="selectedCustomer.primaryKey!=undefined">
+          <div class="col-sm-3" *ngIf="selectedCustomer.data.primaryKey!=undefined">
             <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
           </div>
           <div class="col-sm-3 float-right">
@@ -1206,7 +1245,8 @@
         <div class="list-group-item list-group-item-action main-list-item"
              *ngFor="let item of visitList; index as i; trackBy: primaryKey">
           <div class="row">
-            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
+            <div class="col-sm-2"><i
+              class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
             <div class="col-sm-8">{{item.returnData.data.subject}}</div>
             <div class="col-sm-1">{{item.returnData.isSendTr}}</div>
             <div class="col-sm-1">

@@ -47,6 +47,10 @@ body {
   font-weight: 500 !important
 }
 
+.font-weight-600 {
+  font-weight: 600 !important
+}
+
 .text-small {
   font-size: .875rem;
   line-height: 1.3125rem;
@@ -261,6 +265,14 @@ body {
   color: #aeaeae !important;
 }
 
+.text-dark-blue {
+  color: #3c6f96 !important;
+}
+
+.text-darker-blue {
+  color: #3e576e !important;
+}
+
 .todo-list-item {
   color: #31353d;
   font-size: 12px;
@@ -269,6 +281,10 @@ body {
 
 .fs-15 {
   font-size: 15px !important;
+}
+
+.fs-14 {
+  font-size: 14px !important;
 }
 
 .col-sm-2-5 {
