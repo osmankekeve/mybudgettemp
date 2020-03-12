@@ -46,6 +46,7 @@ export class SettingComponent implements OnInit, OnDestroy {
     suffix: '',
     length: ''
   };
+  openedPanel = 'general';
 
   constructor(public authService: AuthenticationService, public service: SettingService,
               public infoService: InformationService,
