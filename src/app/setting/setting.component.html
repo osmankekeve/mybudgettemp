@@ -114,6 +114,28 @@
                         (click)="btnSaveSalesInvoiceAutoCode_Click()">Kaydet</button>
               </div>
             </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch1"
+                             [(ngModel)]="salesInvoice.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed()">
+                      <label class="custom-control-label" for="switch1">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch2"
+                             [(ngModel)]="salesInvoice.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed()">
+                      <label class="custom-control-label" for="switch2">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div *ngIf="openedPanel=='collection'">
             <div class="card mb-1">

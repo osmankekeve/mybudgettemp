@@ -1,4 +1,6 @@
-export interface SettingModel {
-    key?: string;
-    value: string;
+export class SettingModel {
+  key?: string;
+  value: string;
+  valueBool: boolean;
+  valueNumber: number;
 }

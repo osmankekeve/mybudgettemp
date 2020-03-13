@@ -6,6 +6,7 @@ import {NoteModel} from '../models/note-model';
 import {SettingModel} from '../models/setting-model';
 import {getNumber, getString, padLeft} from '../core/correct-library';
 import {LogModel} from '../models/log-model';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +27,16 @@ export class SettingService {
       .collection('settings');
     this.mainList$ = this.listCollection.valueChanges();
     return this.mainList$;
+  }
+
+  cleanModel(): SettingModel {
+    const returnData = new SettingModel();
+    returnData.key = '';
+    returnData.value = '';
+    returnData.valueBool = false;
+    returnData.valueNumber = 0;
+
+    return returnData;
   }
 
   async setItem(record: SettingModel) {
@@ -188,7 +199,12 @@ export class SettingService {
     Promise.all([ purchaseInvoiceNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'purchaseInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'purchaseInvoiceNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false,
+          valueNumber: 0
+        });
       });
   }
 
@@ -197,7 +213,11 @@ export class SettingService {
     Promise.all([ paymentNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'paymentNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'paymentNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false, valueNumber: 0
+        });
       });
   }
 
@@ -206,7 +226,12 @@ export class SettingService {
     Promise.all([ salesInvoiceNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'salesInvoiceNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'salesInvoiceNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false,
+          valueNumber: 0
+        });
       });
   }
 
@@ -215,7 +240,12 @@ export class SettingService {
     Promise.all([ collectionNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'collectionNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'collectionNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false,
+          valueNumber: 0
+        });
       });
   }
 
@@ -224,7 +254,12 @@ export class SettingService {
     Promise.all([ accountVoucherNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'accountVoucherNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'accountVoucherNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false,
+          valueNumber: 0
+        });
       });
   }
 
@@ -233,7 +268,12 @@ export class SettingService {
     Promise.all([ cashDeskVoucherNumber])
       .then((values: any) => {
         const numb = values[0].data as SettingModel;
-        return this.setItem({ key: 'cashDeskVoucherNumber', value: getString(getNumber(numb.value) + 1) });
+        return this.setItem({
+          key: 'cashDeskVoucherNumber',
+          value: getString(getNumber(numb.value) + 1),
+          valueBool: false,
+          valueNumber: 0
+        });
       });
   }
 

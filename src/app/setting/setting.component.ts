@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { SettingService } from '../services/setting.service';
+import {getBool} from '../core/correct-library';
 
 @Component({
   selector: 'app-setting',
@@ -26,7 +27,9 @@ export class SettingComponent implements OnInit, OnDestroy {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   collection = {
     prefix: '',
@@ -79,6 +82,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.salesInvoice.suffix = item.value;
         } else if (item.key === 'salesInvoiceLength') {
           this.salesInvoice.length = item.value;
+        } else if (item.key === 'chart1Visibility') {
+          this.salesInvoice.chart1Visibility = item.valueBool;
+        } else if (item.key === 'chart2Visibility') {
+          this.salesInvoice.chart2Visibility = item.valueBool;
         } else if (item.key === 'collectionPrefix') {
           this.collection.prefix = item.value;
         } else if (item.key === 'collectionNumber') {
@@ -113,54 +120,79 @@ export class SettingComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void { }
 
   async btnSavePurchaseInvoiceAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'purchaseInvoicePrefix', value: this.purchaseInvoice.prefix });
-    await this.service.setItem({ key: 'purchaseInvoiceNumber', value: this.purchaseInvoice.number });
-    await this.service.setItem({ key: 'purchaseInvoiceSuffix', value: this.purchaseInvoice.suffix });
-    await this.service.setItem({ key: 'purchaseInvoiceLength', value: this.purchaseInvoice.length });
+    await this.service.setItem({ key: 'purchaseInvoicePrefix', value: this.purchaseInvoice.prefix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'purchaseInvoiceNumber', value: this.purchaseInvoice.number, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'purchaseInvoiceSuffix', value: this.purchaseInvoice.suffix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'purchaseInvoiceLength', value: this.purchaseInvoice.length, valueBool: false, valueNumber: 0 });
     this.infoService.success('Alım faturası ayarları kaydedildi.');
 
   }
 
   async btnSavePaymentAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'paymentPrefix', value: this.payment.prefix });
-    await this.service.setItem({ key: 'paymentNumber', value: this.payment.number });
-    await this.service.setItem({ key: 'paymentSuffix', value: this.payment.suffix });
-    await this.service.setItem({ key: 'paymentLength', value: this.payment.length });
+    await this.service.setItem({ key: 'paymentPrefix', value: this.payment.prefix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'paymentNumber', value: this.payment.number, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'paymentSuffix', value: this.payment.suffix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'paymentLength', value: this.payment.length, valueBool: false, valueNumber: 0 });
     this.infoService.success('Ödeme ayarları kaydedildi.');
 
   }
 
   async btnSaveSalesInvoiceAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'salesInvoicePrefix', value: this.salesInvoice.prefix });
-    await this.service.setItem({ key: 'salesInvoiceNumber', value: this.salesInvoice.number });
-    await this.service.setItem({ key: 'salesInvoiceSuffix', value: this.salesInvoice.suffix });
-    await this.service.setItem({ key: 'salesInvoiceLength', value: this.salesInvoice.length });
+    await this.service.setItem({ key: 'salesInvoicePrefix', value: this.salesInvoice.prefix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'salesInvoiceNumber', value: this.salesInvoice.number, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'salesInvoiceSuffix', value: this.salesInvoice.suffix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'salesInvoiceLength', value: this.salesInvoice.length, valueBool: false, valueNumber: 0 });
     this.infoService.success('Satış faturası ayarları kaydedildi.');
 
   }
 
   async btnSaveCollectionAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'collectionPrefix', value: this.collection.prefix });
-    await this.service.setItem({ key: 'collectionNumber', value: this.collection.number });
-    await this.service.setItem({ key: 'collectionSuffix', value: this.collection.suffix });
-    await this.service.setItem({ key: 'collectionLength', value: this.collection.length });
+    await this.service.setItem({ key: 'collectionPrefix', value: this.collection.prefix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'collectionNumber', value: this.collection.number, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'collectionSuffix', value: this.collection.suffix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'collectionLength', value: this.collection.length, valueBool: false, valueNumber: 0 });
     this.infoService.success('Tahsilat ayarları kaydedildi.');
   }
 
   async btnSaveAccountVoucherAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'accountVoucherPrefix', value: this.accountVoucher.prefix });
-    await this.service.setItem({ key: 'accountVoucherNumber', value: this.accountVoucher.number });
-    await this.service.setItem({ key: 'accountVoucherSuffix', value: this.accountVoucher.suffix });
-    await this.service.setItem({ key: 'accountVoucherLength', value: this.accountVoucher.length });
+    await this.service.setItem({ key: 'accountVoucherPrefix', value: this.accountVoucher.prefix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'accountVoucherNumber', value: this.accountVoucher.number, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'accountVoucherSuffix', value: this.accountVoucher.suffix, valueBool: false, valueNumber: 0 });
+    await this.service.setItem({ key: 'accountVoucherLength', value: this.accountVoucher.length, valueBool: false, valueNumber: 0 });
     this.infoService.success('Cari fiş ayarları kaydedildi.');
   }
 
   async btnSaveCashDeskVoucherAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'cashDeskVoucherPrefix', value: this.cashDeskVoucher.prefix });
-    await this.service.setItem({ key: 'cashDeskVoucherNumber', value: this.cashDeskVoucher.number });
-    await this.service.setItem({ key: 'cashDeskVoucherSuffix', value: this.cashDeskVoucher.suffix });
-    await this.service.setItem({ key: 'cashDeskVoucherLength', value: this.cashDeskVoucher.length });
-    this.infoService.success('Kasa fiş ayarları kaydedildi.');
+    Promise.all([
+      await this.service.setItem({ key: 'cashDeskVoucherPrefix', value: this.cashDeskVoucher.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'cashDeskVoucherNumber', value: this.cashDeskVoucher.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'cashDeskVoucherSuffix', value: this.cashDeskVoucher.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'cashDeskVoucherLength', value: this.cashDeskVoucher.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.infoService.success('Kasa fiş ayarları kaydedildi.');
+    });
+  }
+
+  async cbChart1Visibility_Changed(): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'chart1Visibility';
+    data.valueBool = this.salesInvoice.chart1Visibility;
+    await this.service.setItem(data)
+      .then(() => {
+        this.infoService.success('Cari Hareketler Grafik Gösterimi ayarları kaydedildi.');
+      })
+      .catch(err => this.infoService.error(err));
+  }
+
+  async cbChart2Visibility_Changed(): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'chart2Visibility';
+    data.valueBool = this.salesInvoice.chart2Visibility;
+    await this.service.setItem(data)
+      .then(() => {
+        this.infoService.success('Dönem Hareketler Grafik Gösterimi ayarları kaydedildi.');
+      })
+      .catch(err => this.infoService.error(err));
   }
 
 }

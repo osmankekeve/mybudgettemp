@@ -392,8 +392,9 @@
             <div class="card-footer">
               <div class="col-sm-3 float-right">
                 <button type="button" class="btn btn-sm btn-success btn-block"
-                        [disabled]="!fs.valid"
-                        (click)="btnSaveSalesInvoice_Click()">Kaydet
+                        [disabled]="onTransaction || !fs.valid"
+                        (click)="btnSaveSalesInvoice_Click()">
+                  <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
                 </button>
               </div>
             </div>
@@ -505,8 +506,9 @@
             <div class="card-footer">
               <div class="col-sm-3 float-right">
                 <button type="button" class="btn btn-sm btn-success btn-block"
-                        [disabled]="!fc.valid"
-                        (click)="btnSaveCollection_Click()">Kaydet
+                        [disabled]="onTransaction || !fc.valid"
+                        (click)="btnSaveCollection_Click()">
+                  <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
                 </button>
               </div>
             </div>
@@ -616,8 +618,9 @@
             <div class="card-footer">
               <div class="col-sm-3 float-right">
                 <button type="button" class="btn btn-sm btn-success btn-block"
-                        [disabled]="!fa.valid"
-                        (click)="btnSavePurchaseInvoice_Click()">Kaydet
+                        [disabled]="onTransaction || !fa.valid"
+                        (click)="btnSavePurchaseInvoice_Click()">
+                  <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
                 </button>
               </div>
             </div>
@@ -731,8 +734,9 @@
             <div class="card-footer">
               <div class="col-sm-3 float-right">
                 <button type="button" class="btn btn-sm btn-success btn-block"
-                        [disabled]="!fp.valid"
-                        (click)="btnSavePayment_Click()">Kaydet
+                        [disabled]="onTransaction || !fp.valid"
+                        (click)="btnSavePayment_Click()">
+                  <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
                 </button>
               </div>
             </div>
@@ -845,8 +849,9 @@
             <div class="card-footer">
               <div class="col-sm-3 float-right">
                 <button type="button" class="btn btn-sm btn-success btn-block"
-                        [disabled]="!v.valid"
-                        (click)="btnSaveVoucher_Click()">Kaydet
+                        [disabled]="onTransaction || !v.valid"
+                        (click)="btnSaveVoucher_Click()">
+                  <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
                 </button>
               </div>
             </div>
@@ -1018,7 +1023,11 @@
             <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
           </div>
           <div class="col-sm-3 float-right">
-            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnSave_Click()">Kaydet</button>
+            <button type="button" class="btn btn-sm btn-success btn-block"
+                    [disabled]="onTransaction"
+                    (click)="btnSave_Click()">
+              <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
+            </button>
           </div>
         </div>
       </div>

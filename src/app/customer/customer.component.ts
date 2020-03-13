@@ -90,6 +90,7 @@ export class CustomerComponent implements OnInit {
   isMainFilterOpened = false;
   isActive = true;
   recordDate: any;
+  onTransaction = false;
 
   constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
@@ -257,15 +258,17 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     try {
       if (this.selectedCustomer.data.primaryKey === undefined) {
+        this.onTransaction = true;
         this.selectedCustomer.data.primaryKey = this.db.createId();
-        this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
+        await this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
           .then(() => {
             this.infoService.success('Müşteri başarıyla kaydedildi.');
             this.selectedCustomer = undefined;
             this.openedPanel = 'dashboard';
+            this.onTransaction = false;
           }).catch(err => this.infoService.error(err));
       } else {
         this.customerService.updateItem(this.selectedCustomer)
@@ -279,9 +282,9 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnRemove_Click(): void {
+  async btnRemove_Click(): Promise<void> {
     try {
-      this.customerService.removeItem(this.selectedCustomer).then(() => {
+      await this.customerService.removeItem(this.selectedCustomer).then(() => {
         this.infoService.success('Müşteri başarıyla kaldırıldı.');
         this.selectedCustomer = undefined;
       }).catch(err => this.infoService.error(err));
@@ -290,13 +293,15 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSaveSalesInvoice_Click(): void {
+  async btnSaveSalesInvoice_Click(): Promise<void> {
     try {
       if (this.newSalesInvoice.data.primaryKey === null) {
+        this.onTransaction = true;
         const newId = this.db.createId();
         this.newSalesInvoice.data.primaryKey = '';
         this.newSalesInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
-        this.siService.setItem(this.newSalesInvoice, newId).then(() => {
+
+        await this.siService.setItem(this.newSalesInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.newSalesInvoice.data.userPrimaryKey,
@@ -321,14 +326,16 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSavePurchaseInvoice_Click(): void {
+  async btnSavePurchaseInvoice_Click(): Promise<void> {
     try {
       if (this.newPurchaseInvoice.data.primaryKey === null) {
+        this.onTransaction = true;
         const newId = this.db.createId();
         this.newPurchaseInvoice.data.primaryKey = '';
         this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
-        this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
+
+        await this.piService.setItem(this.newPurchaseInvoice, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.newPurchaseInvoice.data.userPrimaryKey,
@@ -353,15 +360,16 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSaveCollection_Click(): void {
+  async btnSaveCollection_Click(): Promise<void> {
     try {
       if (this.newCollection.data.primaryKey === null) {
+        this.onTransaction = true;
         const newId = this.db.createId();
         this.newCollection.data.primaryKey = '';
         this.newCollection.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
 
-        this.colService.setItem(this.newCollection, newId).then(() => {
+        await this.colService.setItem(this.newCollection, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.newCollection.data.userPrimaryKey,
@@ -385,15 +393,16 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSavePayment_Click(): void {
+  async btnSavePayment_Click(): Promise<void> {
     try {
       if (this.newPayment.data.primaryKey === null) {
+        this.onTransaction = true;
         const newId = this.db.createId();
         this.newPayment.data.primaryKey = '';
         this.newPayment.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
 
-        this.payService.setItem(this.newPayment, newId).then(() => {
+        await this.payService.setItem(this.newPayment, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.newPayment.data.userPrimaryKey,
@@ -417,15 +426,16 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnSaveVoucher_Click(): void {
+  async btnSaveVoucher_Click(): Promise<void> {
     try {
       if (this.newVoucher.data.primaryKey === null) {
+        this.onTransaction = true;
         const newId = this.db.createId();
         this.newVoucher.data.primaryKey = '';
         this.newVoucher.data.customerCode = this.selectedCustomer.data.primaryKey;
         this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
 
-        this.avService.setItem(this.newVoucher, newId).then(() => {
+        await this.avService.setItem(this.newVoucher, newId).then(() => {
           this.db.collection('tblAccountTransaction').add({
             primaryKey: '',
             userPrimaryKey: this.newVoucher.data.userPrimaryKey,
@@ -554,6 +564,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewSalesInvoice(): Promise<void> {
+    this.onTransaction = false;
     this.recordDate = getTodayForInput();
     this.newSalesInvoice = this.siService.clearMainModel();
     const receiptNoData = await this.sService.getSalesInvoiceCode();
@@ -563,6 +574,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewPurchaseInvoice(): Promise<void> {
+    this.onTransaction = false;
     this.recordDate = getTodayForInput();
     this.newPurchaseInvoice = this.piService.clearMainModel();
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
@@ -572,6 +584,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewCollection(): Promise<void> {
+    this.onTransaction = false;
     this.recordDate = getTodayForInput();
     this.newCollection = this.colService.clearMainModel();
     const receiptNoData = await this.sService.getCollectionCode();
@@ -581,6 +594,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewPayment(): Promise<void> {
+    this.onTransaction = false;
     this.recordDate = getTodayForInput();
     this.newPayment = this.payService.clearMainModel();
     const receiptNoData = await this.sService.getPaymentCode();
@@ -590,6 +604,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async clearNewVoucher(): Promise<void> {
+    this.onTransaction = false;
     this.recordDate = getTodayForInput();
     this.newVoucher = this.avService.clearMainModel();
     const receiptNoData = await this.sService.getAccountVoucherCode();
