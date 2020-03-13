@@ -177,22 +177,14 @@ export class SettingComponent implements OnInit, OnDestroy {
     const data = this.service.cleanModel();
     data.key = 'chart1Visibility';
     data.valueBool = this.salesInvoice.chart1Visibility;
-    await this.service.setItem(data)
-      .then(() => {
-        this.infoService.success('Cari Hareketler Grafik Gösterimi ayarları kaydedildi.');
-      })
-      .catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 
   async cbChart2Visibility_Changed(): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'chart2Visibility';
     data.valueBool = this.salesInvoice.chart2Visibility;
-    await this.service.setItem(data)
-      .then(() => {
-        this.infoService.success('Dönem Hareketler Grafik Gösterimi ayarları kaydedildi.');
-      })
-      .catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 
 }

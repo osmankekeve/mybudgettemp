@@ -1,13 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { SalesInvoiceService } from '../services/sales-invoice.service';
-import { CustomerModel } from '../models/customer-model';
-import { AuthenticationService } from '../services/authentication.service';
-import { CustomerService } from '../services/customer.service';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { InformationService } from '../services/information.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/internal/Observable';
+import {SalesInvoiceService} from '../services/sales-invoice.service';
+import {CustomerModel} from '../models/customer-model';
+import {AuthenticationService} from '../services/authentication.service';
+import {CustomerService} from '../services/customer.service';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {InformationService} from '../services/information.service';
 import {
   getFirstDayOfMonthForInput,
   getTodayForInput,
@@ -16,14 +16,15 @@ import {
   getDateForInput,
   getEncryptionKey,
   numberOnly,
-  getFloat, currencyFormat, moneyFormat
+  getFloat, currencyFormat, moneyFormat, padLeft, getNumber
 } from '../core/correct-library';
-import { ExcelService } from '../services/excel-service';
+import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {Chart} from 'chart.js';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -52,20 +53,36 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   chart1: any;
   chart2: any;
   onTransaction = false;
+  chart1Visibility = null;
+  chart2Visibility = null;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
               public sService: SettingService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.clearMainFiler();
-    this.populateList();
-    this.populateCharts();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
-
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('chart1Visibility');
+      const chart2Visibility = this.sService.getItem('chart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
+    this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -75,7 +92,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = undefined;
@@ -86,8 +104,10 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
-     if (this.mainList === undefined) { this.mainList = []; }
-     list.forEach((data: any) => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+      list.forEach((data: any) => {
         const item = data.returnData as SalesInvoiceMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
@@ -108,7 +128,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -126,7 +146,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
     let chart1DataNames;
     let chart1DataValues;
-    const chart2DataValues = [0 , 0 , 0, 0];
+    const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
@@ -172,75 +192,79 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      this.chart1 = new Chart('chart1', {
-        type: 'bar', // bar, pie, doughnut
-        data: {
-          labels: chart1DataNames,
-          datasets: [{
-            label: '# of Votes',
-            data: chart1DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          title: {
-            text: 'En Çok Satış Yapılan Cari Hareketler',
-            display: true
+      if (this.chart1Visibility) {
+        this.chart1 = new Chart('chart1', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: chart1DataNames,
+            datasets: [{
+              label: '# of Votes',
+              data: chart1DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+              ],
+              borderWidth: 1
+            }]
           },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
+          options: {
+            title: {
+              text: 'En Çok Satış Yapılan Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      }
+      if (this.chart2Visibility) {
+        this.chart2 = new Chart('chart2', {
+          type: 'doughnut', // bar, pie, doughnut
+          data: {
+            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+            datasets: [{
+              label: '# of Votes',
+              data: chart2DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+              ],
+              borderWidth: 1
             }]
           }
-        }
-      });
-      this.chart2 = new Chart('chart2', {
-        type: 'doughnut', // bar, pie, doughnut
-        data: {
-          labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-          datasets: [{
-            label: '# of Votes',
-            data: chart2DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-            ],
-            borderWidth: 1
-          }]
-        }
-      });
+        });
+      }
     });
   }
 
@@ -249,9 +273,9 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.refModel = record as SalesInvoiceMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-    .subscribe(list => {
-      this.isRecordHasTransaction = list.length > 0;
-    });
+      .subscribe(list => {
+        this.isRecordHasTransaction = list.length > 0;
+      });
   }
 
   btnShowMainFiler_Click(): void {

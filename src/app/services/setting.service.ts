@@ -39,6 +39,23 @@ export class SettingService {
     return returnData;
   }
 
+  fillSettingsToSession(): void {
+    if (sessionStorage.getItem('settings') !== null) {
+      const sessionData = [];
+      this.getAllItems().subscribe(list => {
+        list.forEach((item: any) => {
+          sessionData.push({key: item.key, value: item});
+        });
+        sessionStorage.setItem('settings', JSON.stringify(sessionData));
+      });
+    }
+  }
+
+  getSettingValueFromSession(): any {
+    const  data = JSON.parse(sessionStorage.getItem('settings'));
+    console.log(data);
+  }
+
   async setItem(record: SettingModel) {
     return await this.db.collection(this.tableName)
       .doc(this.authService.getUid())

@@ -12,6 +12,7 @@ import {CookieService} from 'ngx-cookie-service';
 import {AccountTransactionMainModel} from './models/account-transaction-main-model';
 import {Chart} from 'chart.js';
 import {AccountTransactionService} from './services/account-transaction.service';
+import {SettingService} from './services/setting.service';
 
 @Component({
   selector: 'app-root',
@@ -47,7 +48,7 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
-    private cookieService: CookieService, public atService: AccountTransactionService
+    private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -119,6 +120,7 @@ export class AppComponent implements OnInit {
         this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
         this.isUserLoggedIn();
         this.populateActivityList();
+        this.populateSettings();
         /*if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
           this.cookieService.set('cookieCMA', this.emailInput);
         }*/
@@ -276,6 +278,10 @@ export class AppComponent implements OnInit {
         }
       });
     });
+  }
+
+  populateSettings(): void {
+
   }
 
   setNotificationToPassive(item: any): void {
