@@ -69,8 +69,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     if (this.chart1Visibility === null && this.chart2Visibility === null) {
       const chart1Visibility = this.sService.getItem('purchaseChart1Visibility');
       const chart2Visibility = this.sService.getItem('purchaseChart2Visibility');
-      console.log(chart1Visibility);
-      console.log(chart2Visibility);
       Promise.all([chart1Visibility, chart2Visibility])
         .then((values: any) => {
           const data1 = values[0].data as SettingModel;

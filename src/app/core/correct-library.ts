@@ -159,6 +159,10 @@ export const getPaymentTypes = () => {
   return new Map([['cash', 'Nakit'], ['creditCard', 'Kredi Kartı'], ['transfer', 'Havale'], ['cheque', 'Çek'], ['-1', 'Seçilmedi']]);
 };
 
+export const getCurrencyTypes = () => {
+  return new Map([['lira', 'Lira'], ['dollar', 'Dolar'], ['euro', 'Avro']]);
+};
+
 export const getTerms = () => {
   return new Map([['cash', 'Nakit'], ['15G', '15 Gün'], ['30G', '30 Gün'], ['45G', '45 Gün'], ['60G', '60 Gün'], ['90G', '90 Gün'],
     ['120G', '120 Gün'], ['-1', 'Seçilmedi']]);

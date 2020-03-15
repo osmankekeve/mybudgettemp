@@ -8,7 +8,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap,} from 'rxjs/operators';
+import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
@@ -98,6 +98,19 @@ export class PurchaseInvoiceService {
     return returnData;
   }
 
+  checkFields(model: PurchaseInvoiceModel): PurchaseInvoiceModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = '-1'; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
+    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -106,7 +119,7 @@ export class PurchaseInvoiceService {
           data.primaryKey = doc.id;
 
           const returnData = new PurchaseInvoiceMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
           returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -137,7 +150,7 @@ export class PurchaseInvoiceService {
           data.primaryKey = c.payload.doc.id;
 
           const returnData = new PurchaseInvoiceMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -158,8 +171,8 @@ export class PurchaseInvoiceService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PurchaseInvoiceMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -184,8 +197,8 @@ export class PurchaseInvoiceService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PurchaseInvoiceMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -216,8 +229,8 @@ export class PurchaseInvoiceService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PurchaseInvoiceMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -244,7 +257,7 @@ export class PurchaseInvoiceService {
           data.primaryKey = doc.id;
 
           const returnData = new PurchaseInvoiceMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
 
