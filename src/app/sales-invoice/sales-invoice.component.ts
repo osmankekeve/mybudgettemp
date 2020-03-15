@@ -68,8 +68,10 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
     if (this.chart1Visibility === null && this.chart2Visibility === null) {
-      const chart1Visibility = this.sService.getItem('chart1Visibility');
-      const chart2Visibility = this.sService.getItem('chart2Visibility');
+      const chart1Visibility = this.sService.getItem('salesChart1Visibility');
+      const chart2Visibility = this.sService.getItem('salesChart2Visibility');
+      console.log(chart1Visibility);
+      console.log(chart2Visibility);
       Promise.all([chart1Visibility, chart2Visibility])
         .then((values: any) => {
           const data1 = values[0].data as SettingModel;
@@ -84,7 +86,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     }
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
-      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
         this.showSelectedRecord(paramItem);
@@ -358,11 +360,11 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
-              }).catch(err => this.infoService.error(err));
+              }).catch(err => this.infoService.error(err)).catch(err => this.infoService.error(err)).finally(() => {
+                this.finishRecordProcess();
+              });
             });
           });
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
         });
       }
     }

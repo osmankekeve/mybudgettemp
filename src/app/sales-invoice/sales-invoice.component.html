@@ -79,17 +79,17 @@
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div *ngIf="mainList.length > 0; else elseBlock">
-        <div class="row" *ngIf="chart1Visibility != null && chart1Visibility == true || chart2Visibility != null && chart2Visibility == true">
+        <div class="row" *ngIf="chart1Visibility == true || chart2Visibility == true; else elseBlock3">
           <div class="col-sm-6">
             <div class="row">
-              <div class="col-sm-12" *ngIf="chart1Visibility != null && chart1Visibility == true">
+              <div class="col-sm-12" *ngIf="chart1Visibility == true">
                 <div class="card">
                   <div class="card-body">
                     <canvas id="chart1"></canvas>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-12 mt-4" *ngIf="chart2Visibility != null && chart2Visibility == true">
+              <div class="col-sm-12 mt-4" *ngIf="chart2Visibility == true">
                 <div class="card">
                   <div class="card-body">
                     <canvas id="chart2"></canvas>
@@ -147,7 +147,7 @@
             </div>
           </div>
         </div>
-        <div *ngIf="chart1Visibility != null && chart1Visibility == false && chart2Visibility != null && chart2Visibility == false">
+        <ng-template #elseBlock3>
           <div class="list-group">
             <div class="list-group-item bg-purple text-light main-list-item">
               <div class="row">
@@ -172,7 +172,6 @@
                   <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
                 </div>
-
               </div>
               <li class="list-group-item list-group-item-success main-list-item">
                 <div class="row">
@@ -189,7 +188,7 @@
               </div>
             </ng-template>
           </div>
-        </div>
+        </ng-template>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

@@ -24,6 +24,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import 'rxjs/add/operator/filter';
 import {SettingService} from '../services/setting.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -52,6 +53,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   chart1: any;
   chart2: any;
   onTransaction = false;
+  chart1Visibility = null;
+  chart2Visibility = null;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService, public sService: SettingService,
@@ -61,11 +64,26 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.clearMainFiler();
-    this.populateList();
-    this.populateCharts();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
-
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('purchaseChart1Visibility');
+      const chart2Visibility = this.sService.getItem('purchaseChart2Visibility');
+      console.log(chart1Visibility);
+      console.log(chart2Visibility);
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
+    this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
@@ -73,18 +91,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         this.showSelectedRecord(paramItem);
       }
     }
-
-    /* this.router.queryParams.subscribe(params => {
-        this.fromModule = params.from;
-
-        if (params.data !== null) {
-          const bytes = CryptoJS.AES.decrypt(params.data, this.encryptSecretKey);
-          const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-          if (paramItem) {
-            this.showSelectedRecord(paramItem);
-          }
-        }
-      }); */
   }
 
   ngOnDestroy(): void {
@@ -188,75 +194,79 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      this.chart1 = new Chart('chart1', {
-        type: 'bar', // bar, pie, doughnut
-        data: {
-          labels: chart1DataNames,
-          datasets: [{
-            label: '# of Votes',
-            data: chart1DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          title: {
-            text: 'En Çok Alım Yapılan Cari Hareketler',
-            display: true
+      if (this.chart1Visibility) {
+        this.chart1 = new Chart('chart1', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: chart1DataNames,
+            datasets: [{
+              label: '# of Votes',
+              data: chart1DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+              ],
+              borderWidth: 1
+            }]
           },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
+          options: {
+            title: {
+              text: 'En Çok Alım Yapılan Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      }
+      if (this.chart2Visibility) {
+        this.chart2 = new Chart('chart2', {
+          type: 'doughnut', // bar, pie, doughnut
+          data: {
+            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+            datasets: [{
+              label: '# of Votes',
+              data: chart2DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+              ],
+              borderWidth: 1
             }]
           }
-        }
-      });
-      this.chart2 = new Chart('chart2', {
-        type: 'doughnut', // bar, pie, doughnut
-        data: {
-          labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-          datasets: [{
-            label: '# of Votes',
-            data: chart2DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-            ],
-            borderWidth: 1
-          }]
-        }
-      });
+        });
+      }
       // sessionStorage.setItem('purchase_invoice_chart_1', JSON.stringify({nameValue : chart1DataNames, dataValue: chart1DataValues}));
       // sessionStorage.setItem('purchase_invoice_chart_2', JSON.stringify({dataValue: chart2DataValues}));
     });
@@ -429,20 +439,20 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         await this.service.updateItem(this.selectedRecord).then(() => {
           this.db.collection<AccountTransactionModel>('tblAccountTransaction',
             ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-            list.forEach((item) => {
+            list.forEach(async (item) => {
               const trans = {
                 receiptNo: this.selectedRecord.data.receiptNo,
                 insertDate: this.selectedRecord.data.insertDate,
                 amount: this.selectedRecord.data.type === 'purchase' ?
                   this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
               };
-              this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+              await this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
+              }).finally(() => {
+                this.finishRecordProcess();
               }).catch(err => this.infoService.error(err));
             });
           });
-        }).finally(() => {
-          this.finishRecordProcess();
         }).catch(err => this.infoService.error(err));
       }
     }

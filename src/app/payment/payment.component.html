@@ -78,30 +78,70 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="card">
-                <div class="card-body">
-                  <canvas id="chart1"></canvas>
+      <div *ngIf="mainList.length > 0; else elseBlock">
+        <div class="row" *ngIf="chart1Visibility == true || chart2Visibility == true; else elseBlock3">
+          <div class="col-sm-6">
+            <div class="row">
+              <div class="col-sm-12" *ngIf="chart1Visibility == true">
+                <div class="card">
+                  <div class="card-body">
+                    <canvas id="chart1"></canvas>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-sm-12 mt-4">
-              <div class="card">
-                <div class="card-body">
-                  <canvas id="chart2"></canvas>
+              <div class="col-sm-12 mt-4" *ngIf="chart2Visibility == true">
+                <div class="card">
+                  <div class="card-body">
+                    <canvas id="chart2"></canvas>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="col-sm-6">
+            <div class="list-group">
+              <div class="list-group-item bg-danger text-light main-list-item">
+                <div class="row">
+                  <div class="col-sm-6">Müşteri Adı</div>
+                  <div class="col-sm-2">Fiş No</div>
+                  <div class="col-sm-2"><span class="float-right">Tutar</span></div>
+                  <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+                </div>
+              </div>
+              <div class="work-area-6">
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showSelectedRecord(item)"
+                     *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
+                      <span class="text-danger">{{item.customerName}}</span>
+                      <small> - {{item.customer.owner}}</small>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6"></div>
+                    <div class="col-sm-2">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <li class="list-group-item list-group-item-success main-list-item">
+                  <div class="row">
+                    <div class="col-sm-8">Toplam</div>
+                    <div class="col-sm-2"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
+                  </div>
+                </li>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-sm-6">
+        <ng-template #elseBlock3>
           <div class="list-group">
             <div class="list-group-item bg-danger text-light main-list-item">
               <div class="row">
-                <div class="col-sm-6">Müşteri Adı</div>
+                <div class="col-sm-3">Müşteri Adı</div>
+                <div class="col-sm-3">Yetkili</div>
                 <div class="col-sm-2">Fiş No</div>
                 <div class="col-sm-2"><span class="float-right">Tutar</span></div>
                 <div class="col-sm-2"><span class="float-right">Tarih</span></div>
@@ -112,14 +152,8 @@
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
-                  <div class="col-sm-12">
-                    <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
-                    <span class="text-danger">{{item.customerName}}</span>
-                    <small> - {{item.customer.owner}}</small>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-sm-6"></div>
+                  <div class="col-sm-3"><span class="text-danger">{{item.customerName}}</span></div>
+                  <div class="col-sm-3">{{item.customer.owner}}</div>
                   <div class="col-sm-2">{{item.data.receiptNo}}</div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
@@ -133,7 +167,7 @@
               </li>
             </div>
           </div>
-        </div>
+        </ng-template>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

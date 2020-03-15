@@ -15,13 +15,17 @@ export class SettingComponent implements OnInit, OnDestroy {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   payment = {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   salesInvoice = {
     prefix: '',
@@ -35,19 +39,25 @@ export class SettingComponent implements OnInit, OnDestroy {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   accountVoucher = {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   cashDeskVoucher = {
     prefix: '',
     number: '',
     suffix: '',
-    length: ''
+    length: '',
+    chart1Visibility: false,
+    chart2Visibility: false
   };
   openedPanel = 'general';
 
@@ -66,6 +76,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.purchaseInvoice.suffix = item.value;
         } else if (item.key === 'purchaseInvoiceLength') {
           this.purchaseInvoice.length = item.value;
+        } else if (item.key === 'purchaseChart1Visibility') {
+          this.purchaseInvoice.chart1Visibility = item.valueBool;
+        } else if (item.key === 'purchaseChart2Visibility') {
+          this.purchaseInvoice.chart2Visibility = item.valueBool;
         } else if (item.key === 'paymentPrefix') {
           this.payment.prefix = item.value;
         } else if (item.key === 'paymentNumber') {
@@ -74,6 +88,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.payment.suffix = item.value;
         } else if (item.key === 'paymentLength') {
           this.payment.length = item.value;
+        } else if (item.key === 'paymentChart1Visibility') {
+          this.payment.chart1Visibility = item.valueBool;
+        } else if (item.key === 'paymentChart2Visibility') {
+          this.payment.chart2Visibility = item.valueBool;
         } else if (item.key === 'salesInvoicePrefix') {
           this.salesInvoice.prefix = item.value;
         } else if (item.key === 'salesInvoiceNumber') {
@@ -82,9 +100,9 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.salesInvoice.suffix = item.value;
         } else if (item.key === 'salesInvoiceLength') {
           this.salesInvoice.length = item.value;
-        } else if (item.key === 'chart1Visibility') {
+        } else if (item.key === 'salesChart1Visibility') {
           this.salesInvoice.chart1Visibility = item.valueBool;
-        } else if (item.key === 'chart2Visibility') {
+        } else if (item.key === 'salesChart2Visibility') {
           this.salesInvoice.chart2Visibility = item.valueBool;
         } else if (item.key === 'collectionPrefix') {
           this.collection.prefix = item.value;
@@ -94,6 +112,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.collection.suffix = item.value;
         } else if (item.key === 'collectionLength') {
           this.collection.length = item.value;
+        } else if (item.key === 'collectionChart1Visibility') {
+          this.collection.chart1Visibility = item.valueBool;
+        } else if (item.key === 'collectionChart2Visibility') {
+          this.collection.chart2Visibility = item.valueBool;
         } else if (item.key === 'accountVoucherPrefix') {
           this.accountVoucher.prefix = item.value;
         } else if (item.key === 'accountVoucherNumber') {
@@ -102,6 +124,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.accountVoucher.suffix = item.value;
         } else if (item.key === 'accountVoucherLength') {
           this.accountVoucher.length = item.value;
+        } else if (item.key === 'accountChart1Visibility') {
+          this.accountVoucher.chart1Visibility = item.valueBool;
+        } else if (item.key === 'accountChart2Visibility') {
+          this.accountVoucher.chart2Visibility = item.valueBool;
         } else if (item.key === 'cashDeskVoucherPrefix') {
           this.cashDeskVoucher.prefix = item.value;
         } else if (item.key === 'cashDeskVoucherNumber') {
@@ -110,6 +136,10 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.cashDeskVoucher.suffix = item.value;
         } else if (item.key === 'cashDeskVoucherLength') {
           this.cashDeskVoucher.length = item.value;
+        } else if (item.key === 'cashDeskChart1Visibility') {
+          this.cashDeskVoucher.chart1Visibility = item.valueBool;
+        } else if (item.key === 'cashDeskChart2Visibility') {
+          this.cashDeskVoucher.chart2Visibility = item.valueBool;
         } else {
 
         }
@@ -173,17 +203,55 @@ export class SettingComponent implements OnInit, OnDestroy {
     });
   }
 
-  async cbChart1Visibility_Changed(): Promise<void> {
+  async cbChart1Visibility_Changed(module: string): Promise<void> {
     const data = this.service.cleanModel();
-    data.key = 'chart1Visibility';
-    data.valueBool = this.salesInvoice.chart1Visibility;
+    if (module === 'salesInvoice') {
+      data.key = 'salesChart1Visibility';
+      data.valueBool = this.salesInvoice.chart1Visibility;
+    } else if (module === 'collection') {
+      data.key = 'collectionChart1Visibility';
+      data.valueBool = this.collection.chart1Visibility;
+    } else if (module === 'purchaseInvoice') {
+      data.key = 'purchaseChart1Visibility';
+      data.valueBool = this.purchaseInvoice.chart1Visibility;
+    } else if (module === 'payment') {
+      data.key = 'paymentChart1Visibility';
+      data.valueBool = this.payment.chart1Visibility;
+    } else if (module === 'accountVoucher') {
+      data.key = 'accountChart1Visibility';
+      data.valueBool = this.accountVoucher.chart1Visibility;
+    } else if (module === 'cashDeskVoucher') {
+      data.key = 'cashDeskChart1Visibility';
+      data.valueBool = this.cashDeskVoucher.chart1Visibility;
+    } else {
+      // nothing
+    }
     await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 
-  async cbChart2Visibility_Changed(): Promise<void> {
+  async cbChart2Visibility_Changed(module: string): Promise<void> {
     const data = this.service.cleanModel();
-    data.key = 'chart2Visibility';
-    data.valueBool = this.salesInvoice.chart2Visibility;
+    if (module === 'salesInvoice') {
+      data.key = 'salesChart2Visibility';
+      data.valueBool = this.salesInvoice.chart2Visibility;
+    } else if (module === 'collection') {
+      data.key = 'collectionChart2Visibility';
+      data.valueBool = this.collection.chart2Visibility;
+    } else if (module === 'purchaseInvoice') {
+      data.key = 'purchaseChart2Visibility';
+      data.valueBool = this.purchaseInvoice.chart2Visibility;
+    } else if (module === 'payment') {
+      data.key = 'paymentChart2Visibility';
+      data.valueBool = this.payment.chart2Visibility;
+    } else if (module === 'accountVoucher') {
+      data.key = 'accountChart2Visibility';
+      data.valueBool = this.accountVoucher.chart2Visibility;
+    } else if (module === 'cashDeskVoucher') {
+      data.key = 'cashDeskChart2Visibility';
+      data.valueBool = this.cashDeskVoucher.chart2Visibility;
+    } else {
+      // nothing
+    }
     await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 

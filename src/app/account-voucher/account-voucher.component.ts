@@ -1,39 +1,33 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs/internal/Observable';
-import { CustomerModel } from '../models/customer-model';
-import { CustomerService } from '../services/customer.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { AuthenticationService } from '../services/authentication.service';
-import { CashDeskService } from '../services/cash-desk.service';
-import { InformationService } from '../services/information.service';
-import { AccountVoucherService } from '../services/account-voucher.service';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Observable} from 'rxjs/internal/Observable';
+import {CustomerModel} from '../models/customer-model';
+import {CustomerService} from '../services/customer.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {AuthenticationService} from '../services/authentication.service';
+import {CashDeskService} from '../services/cash-desk.service';
+import {InformationService} from '../services/information.service';
+import {AccountVoucherService} from '../services/account-voucher.service';
 import {
-  getFirstDayOfMonthForInput,
-  getTodayForInput,
-  getInputDataForInsert,
-  getDateForInput,
-  isNullOrEmpty,
-  getEncryptionKey,
-  getFloat,
+  getFirstDayOfMonthForInput, getTodayForInput, getInputDataForInsert, getDateForInput, isNullOrEmpty, getEncryptionKey, getFloat,
   currencyFormat, moneyFormat
 } from '../core/correct-library';
-import { ExcelService } from '../services/excel-service';
+import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {Chart} from 'chart.js';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-account-voucher',
   templateUrl: './account-voucher.component.html',
   styleUrls: ['./account-voucher.component.css']
 })
-export class AccountVoucherComponent implements OnInit, OnDestroy {
+export class AccountVoucherComponent implements OnInit {
   mainList: Array<AccountVoucherMainModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
@@ -54,19 +48,36 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   chart1: any;
   chart2: any;
   onTransaction = false;
+  chart1Visibility = null;
+  chart2Visibility = null;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: AccountVoucherService, public cdService: CashDeskService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public sService: SettingService,
-              public cService: CustomerService, public db: AngularFirestore) { }
+              public cService: CustomerService, public db: AngularFirestore) {
+  }
 
   ngOnInit() {
     this.clearMainFiler();
-    this.populateList();
-    this.populateCharts();
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('accountChart1Visibility');
+      const chart2Visibility = this.sService.getItem('accountChart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
+    this.populateList();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -77,15 +88,14 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-  }
-
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as AccountVoucherMainModel;
         if (item.actionType === 'added') {
@@ -103,7 +113,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -121,7 +131,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
 
     let chart1DataNames;
     let chart1DataValues;
-    const chart2DataValues = [0 , 0 , 0, 0];
+    const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
@@ -167,75 +177,79 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      this.chart1 = new Chart('chart1', {
-        type: 'bar', // bar, pie, doughnut
-        data: {
-          labels: chart1DataNames,
-          datasets: [{
-            label: '# of Votes',
-            data: chart1DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          title: {
-            text: 'En Çok Yapılan Cari Fiş Hareketleri',
-            display: true
+      if (this.chart1Visibility) {
+        this.chart1 = new Chart('chart1', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: chart1DataNames,
+            datasets: [{
+              label: '# of Votes',
+              data: chart1DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+              ],
+              borderWidth: 1
+            }]
           },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
+          options: {
+            title: {
+              text: 'En Çok Yapılan Cari Fiş Hareketleri',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      }
+      if (this.chart2Visibility) {
+        this.chart2 = new Chart('chart2', {
+          type: 'doughnut', // bar, pie, doughnut
+          data: {
+            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+            datasets: [{
+              label: '# of Votes',
+              data: chart2DataValues,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+              ],
+              borderWidth: 1
             }]
           }
-        }
-      });
-      this.chart2 = new Chart('chart2', {
-        type: 'doughnut', // bar, pie, doughnut
-        data: {
-          labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-          datasets: [{
-            label: '# of Votes',
-            data: chart2DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-            ],
-            borderWidth: 1
-          }]
-        }
-      });
+        });
+      }
     });
   }
 
@@ -244,13 +258,13 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
     this.refModel = record as AccountVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-    .subscribe(list => {
-      if (list.length > 0) {
-        this.isRecordHasTransaction = true;
-      } else {
-        this.isRecordHasTransaction = false;
-      }
-    });
+      .subscribe(list => {
+        if (list.length > 0) {
+          this.isRecordHasTransaction = true;
+        } else {
+          this.isRecordHasTransaction = false;
+        }
+      });
   }
 
   async btnReturnList_Click(): Promise<void> {

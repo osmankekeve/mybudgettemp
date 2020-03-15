@@ -121,7 +121,7 @@
                     <div class="custom-control custom-switch">
                       <input type="checkbox" class="custom-control-input" id="switch1"
                              [(ngModel)]="salesInvoice.chart1Visibility"
-                             (change)="cbChart1Visibility_Changed()">
+                             (change)="cbChart1Visibility_Changed('salesInvoice')">
                       <label class="custom-control-label" for="switch1">Cari Hareketler Grafik Gösterimi</label>
                     </div>
                   </div>
@@ -129,7 +129,7 @@
                     <div class="custom-control custom-switch">
                       <input type="checkbox" class="custom-control-input" id="switch2"
                              [(ngModel)]="salesInvoice.chart2Visibility"
-                             (change)="cbChart2Visibility_Changed()">
+                             (change)="cbChart2Visibility_Changed('salesInvoice')">
                       <label class="custom-control-label" for="switch2">Dönem Hareketler Grafik Gösterimi</label>
                     </div>
                   </div>
@@ -169,6 +169,28 @@
                         (click)="btnSaveCollectionAutoCode_Click()">Kaydet</button>
               </div>
             </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch3"
+                             [(ngModel)]="collection.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed('collection')">
+                      <label class="custom-control-label" for="switch3">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch4"
+                             [(ngModel)]="collection.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed('collection')">
+                      <label class="custom-control-label" for="switch4">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div *ngIf="openedPanel=='purchaseInvoice'">
             <div class="card mb-1">
@@ -200,6 +222,28 @@
               <div class="card-footer">
                 <button type="button" class="btn btn-sm btn-success"
                         (click)="btnSavePurchaseInvoiceAutoCode_Click()">Kaydet</button>
+              </div>
+            </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch5"
+                             [(ngModel)]="purchaseInvoice.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed('purchaseInvoice')">
+                      <label class="custom-control-label" for="switch5">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch6"
+                             [(ngModel)]="purchaseInvoice.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed('purchaseInvoice')">
+                      <label class="custom-control-label" for="switch6">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -235,6 +279,28 @@
                         (click)="btnSavePaymentAutoCode_Click()">Kaydet</button>
               </div>
             </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch7"
+                             [(ngModel)]="payment.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed('payment')">
+                      <label class="custom-control-label" for="switch7">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch8"
+                             [(ngModel)]="payment.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed('payment')">
+                      <label class="custom-control-label" for="switch8">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div *ngIf="openedPanel=='accountVoucher'">
             <div class="card mb-1">
@@ -268,6 +334,28 @@
                         (click)="btnSaveAccountVoucherAutoCode_Click()">Kaydet</button>
               </div>
             </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch9"
+                             [(ngModel)]="accountVoucher.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed('accountVoucher')">
+                      <label class="custom-control-label" for="switch9">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch10"
+                             [(ngModel)]="accountVoucher.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed('accountVoucher')">
+                      <label class="custom-control-label" for="switch10">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div *ngIf="openedPanel=='cashDeskVoucher'">
             <div class="card mb-1">
@@ -299,6 +387,28 @@
               <div class="card-footer">
                 <button type="button" class="btn btn-sm btn-success"
                         (click)="btnSaveCashDeskVoucherAutoCode_Click()">Kaydet</button>
+              </div>
+            </div>
+            <div class="card mb-1">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch11"
+                             [(ngModel)]="cashDeskVoucher.chart1Visibility"
+                             (change)="cbChart1Visibility_Changed('cashDeskVoucher')">
+                      <label class="custom-control-label" for="switch11">Cari Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch12"
+                             [(ngModel)]="cashDeskVoucher.chart2Visibility"
+                             (change)="cbChart2Visibility_Changed('cashDeskVoucher')">
+                      <label class="custom-control-label" for="switch12">Dönem Hareketler Grafik Gösterimi</label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
