@@ -8,6 +8,7 @@ import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 
 @Injectable()
 export class ExcelService {
@@ -37,7 +38,6 @@ export class ExcelService {
     let fileName = 'default';
     if (record === 'purchaseInvoice') {
       fileName = 'purchase_invoice';
-
       list.forEach((data: any) => {
         const item = data as PurchaseInvoiceMainModel;
         excelList.push({
@@ -51,7 +51,6 @@ export class ExcelService {
       });
     } else if (record === 'payment') {
       fileName = 'payment';
-
       list.forEach((data: any) => {
         const item = data as PaymentMainModel;
         excelList.push({
@@ -62,10 +61,8 @@ export class ExcelService {
           Description: item.data.description
         });
       });
-
     } else if (record === 'salesInvoice') {
       fileName = 'sales_invoice';
-
       list.forEach((item: any) => {
         console.log(item);
         const data = item as SalesInvoiceMainModel;
@@ -78,10 +75,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-
     } else if (record === 'collection') {
       fileName = 'collection';
-
       list.forEach((item: any) => {
         const data = item as CollectionMainModel;
         excelList.push({
@@ -92,10 +87,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-
     } else if (record === 'customer') {
       fileName = 'customer';
-
       list.forEach((item: any) => {
         const data = {
           Code: item.data.code,
@@ -109,10 +102,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-
     } else if (record === 'note') {
       fileName = 'note';
-
       list.forEach((item: any) => {
         const data = {
           Note: item.data.note,
@@ -120,10 +111,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-
     } else if (record === 'cashdeskVoucher') {
       fileName = 'cashdesk_voucher';
-
       list.forEach((item: any) => {
         const data = {
           Cashdesk: item.casDeskName,
@@ -135,10 +124,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-
     } else if (record === 'cashdeskTransaction') {
       fileName = 'cashdesk_transaction';
-
       list.forEach((item: any) => {
         const data = {
           'Transaction Type': transactionTypes.get(item.transactionType),
@@ -149,10 +136,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-
     } else if (record === 'accountVoucher') {
       fileName = 'account_voucher';
-
       list.forEach((item: any) => {
         const data = item as AccountVoucherMainModel;
         excelList.push({
@@ -164,10 +149,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-
     } else if (record === 'customerAccountSummary') {
       fileName = 'customer_account_summary';
-
       let totalValue = 0;
       list.forEach((item: any) => {
         const data = {
@@ -181,7 +164,16 @@ export class ExcelService {
         totalValue += data.Amount;
       });
       excelList.push({Transaction: 'Toplam', 'Receipt No': '', Amount: totalValue, Type: '', 'Insert Date': ''});
-
+    } else if (record === 'customer-account') {
+      fileName = 'customer-account';
+      list.forEach((item: any) => {
+        const data = item as CustomerAccountMainModel;
+        excelList.push({
+          'Customer Name': data.customer.name,
+          'Account No': data.data.name,
+          Description: data.data.description
+        });
+      });
     } else {
       // add empty information
     }

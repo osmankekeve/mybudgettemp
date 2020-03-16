@@ -27,6 +27,7 @@ import { ToastService } from './services/toast.service';
 import { NoteFilterPipe } from './filters/note-filter.pipe';
 import { CashDeskFilterPipe } from './filters/cashDesk-filter.pipe';
 import { CashDeskVoucherFilterPipe } from './filters/cashDeskVoucher-filter.pipe';
+import {CustomerAccountFilterPipe} from './filters/customer-account-filter.pipe';
 
 export const customCurrencyMaskConfig = {
   align: 'right',
@@ -44,7 +45,7 @@ export const customCurrencyMaskConfig = {
   declarations: [
     AppComponent, routingComponents,
     NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
-    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe
+    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe
   ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule,

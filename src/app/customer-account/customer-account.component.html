@@ -10,6 +10,8 @@
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Eksik Hesapları Oluştur"
+                (click)="btnCreateMissingAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -18,7 +20,7 @@
                             <i class="fa fa-filter"></i>
                         </span>
           </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.."
+          <input type="search" class="form-control filter-list-input" placeholder="Hesap Ara.."
                  [(ngModel)]="searchText">
         </div>
       </div>
@@ -91,7 +93,7 @@
           <div class="work-area-6">
             <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                  (click)="showSelectedRecord(item)"
-                 *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                 *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i; trackBy: primaryKey">
               <div class="row">
                 <div class="col-sm-3">
                   <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.data.name}}
@@ -130,18 +132,11 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="form-row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left" for="name">Hesap Adı</label>
-        </div>
-        <div class="col-sm-9">
-          <input class="form-control form-control-sm w-100" id="name" name="name" type="text"
-                 [(ngModel)]="selectedRecord.data.name" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-        </div>
-        <div class="col-sm-3">
           <label class="col-form-label float-left" for="customerPrimaryKey">Müşteri</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
+                  (change)="onChangeCustomer($event.target.value)"
                   [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.customerPrimaryKey">
             <option value={{item.primaryKey}}
@@ -160,6 +155,14 @@
             <option value="lira">Lira</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen döviz seçiniz.</div>
+        </div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="name">Hesap Adı</label>
+        </div>
+        <div class="col-sm-9">
+          <input class="form-control form-control-sm w-100" id="name" name="name" type="text"
+                 [(ngModel)]="selectedRecord.data.name" required>
+          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="description">Açıklama</label>

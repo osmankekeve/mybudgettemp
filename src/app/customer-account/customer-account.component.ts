@@ -26,6 +26,8 @@ import {AccountTransactionModel} from '../models/account-transaction-model';
 import {Observable} from 'rxjs/internal/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
+import {CustomerMainModel} from '../models/customer-main-model';
+import {SettingService} from '../services/setting.service';
 
 @Component({
   selector: 'app-customer-account',
@@ -45,7 +47,8 @@ export class CustomerAccountComponent implements OnInit {
 
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
-              public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute) {
+              public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute,
+              public setService: SettingService ) {
   }
 
   ngOnInit() {
@@ -58,7 +61,6 @@ export class CustomerAccountComponent implements OnInit {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -114,12 +116,13 @@ export class CustomerAccountComponent implements OnInit {
       this.infoService.error('Lütfen hesap adı giriniz.');
     } else if (this.selectedRecord.data.customerPrimaryKey === '-1') {
       this.infoService.error('Lütfen müşteri seçiniz.');
-    } else {
+    } else if (this.selectedRecord.data.currencyCode === '-1') {
+      this.infoService.error('Lütfen döviz seçiniz.');
+    }  else {
       this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
-        const newId = this.db.createId();
-        this.selectedRecord.data.primaryKey = '';
-        await this.service.setItem(this.selectedRecord, newId).then(() => {
+        this.selectedRecord.data.primaryKey = this.db.createId();
+        await this.service.setItem(this.selectedRecord).then(() => {
           this.infoService.success('Hesap başarıyla kaydedildi.');
         }).catch(err => this.infoService.error(err)).finally(() => {
           this.finishRecordProcess();
@@ -142,12 +145,50 @@ export class CustomerAccountComponent implements OnInit {
     });
   }
 
+  async onChangeCustomer(value: any): Promise<void> {
+    await this.cService.getItem(value).then(item => {
+      this.selectedRecord.customer = item.data;
+    });
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'customer-account');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
+  }
+
+  async btnCreateMissingAccounts_Click(): Promise<void> {
+    const mapData = new Map();
+    this.mainList.forEach((data: any) => {
+      const item = data as CustomerAccountMainModel;
+      mapData.set(item.data.customerPrimaryKey, item.data.currencyCode);
+    });
+
+    await this.setService.getItem('defaultCurrencyCode').then((returnData: any) => {
+      const defaultCurrencyCode = returnData.data as SettingModel;
+      this.cService.getMainItems(null).subscribe(async list => {
+        let newRecordCount = 0 ;
+        list.forEach((data: any) => {
+          const item = data.returnData as CustomerMainModel;
+          if (mapData.has(item.data.primaryKey) && mapData.get(item.data.primaryKey) === defaultCurrencyCode.value) {
+            // console.log('var:' + item.data.name);
+          } else {
+            const insertData = this.service.clearMainModel();
+            insertData.data.primaryKey = this.db.createId();
+            insertData.data.customerPrimaryKey = item.data.primaryKey;
+            insertData.customer = item.data;
+            insertData.data.currencyCode = defaultCurrencyCode.value;
+            insertData.data.name = item.data.name + ' TL Hesabı';
+            this.service.setItem(insertData).catch(err => this.infoService.error(err));
+            newRecordCount ++;
+          }
+        });
+        this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
+      });
+    });
+
   }
 
   clearSelectedRecord(): void {

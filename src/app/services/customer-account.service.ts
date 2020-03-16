@@ -17,6 +17,7 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {PaymentModel} from '../models/payment-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
+import GetOptions = firebase.firestore.GetOptions;
 
 @Injectable({
   providedIn: 'root'
@@ -41,23 +42,23 @@ export class CustomerAccountService {
   }
 
   async addItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'collection');
+    await this.logService.sendToLog(record, 'insert', 'customer-account');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'collection');
+    await this.logService.sendToLog(record, 'delete', 'customer-account');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'update', 'collection');
+    await this.logService.sendToLog(record, 'update', 'customer-account');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: CustomerAccountMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'collection');
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  async setItem(record: CustomerAccountMainModel) {
+    await this.logService.sendToLog(record, 'insert', 'customer-account');
+    return await this.listCollection.doc(record.data.primaryKey).set(Object.assign({}, record.data));
   }
 
   clearSubModel(): CustomerAccountModel {
@@ -98,6 +99,28 @@ export class CustomerAccountService {
         if (doc.exists) {
           const data = doc.data() as CustomerAccountModel;
           data.primaryKey = doc.id;
+
+          const returnData = new CustomerAccountMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.data = data;
+          returnData.customer = this.customerMap.get(returnData.data.customerPrimaryKey);
+          returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
+
+          resolve(Object.assign({returnData}));
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  getItemWithCustomerAndCurrencyCode(customerPrimaryKey: string, currencyCode: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName,
+        ref => ref.where('userPrimaryKey', '==', this.authService.getUid()))
+        .valueChanges(results => {
+        if (results.size > 0) {
+          const data = results[0].data() as CustomerAccountModel;
 
           const returnData = new CustomerAccountMainModel();
           returnData.data = this.checkFields(data);

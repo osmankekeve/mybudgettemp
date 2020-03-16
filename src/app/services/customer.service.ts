@@ -149,8 +149,10 @@ export class CustomerService {
       ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('name', 'asc')
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('isActive', '==', isActive);
+          .where('userPrimaryKey', '==', this.authService.getUid());
+        if (isActive !== null) {
+          query = query.where('isActive', '==', isActive);
+        }
         return query;
       });
     this.mainList2$ = this.listCollection.stateChanges().pipe(

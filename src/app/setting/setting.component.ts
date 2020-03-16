@@ -10,7 +10,7 @@ import {getBool} from '../core/correct-library';
   templateUrl: './setting.component.html',
   styleUrls: ['./setting.component.css']
 })
-export class SettingComponent implements OnInit, OnDestroy {
+export class SettingComponent implements OnInit {
   purchaseInvoice = {
     prefix: '',
     number: '',
@@ -59,10 +59,12 @@ export class SettingComponent implements OnInit, OnDestroy {
     chart1Visibility: false,
     chart2Visibility: false
   };
+  general = {
+    defaultCurrencyCode: 'lira'
+  };
   openedPanel = 'general';
 
-  constructor(public authService: AuthenticationService, public service: SettingService,
-              public infoService: InformationService,
+  constructor(public authService: AuthenticationService, public service: SettingService, public infoService: InformationService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
@@ -140,14 +142,14 @@ export class SettingComponent implements OnInit, OnDestroy {
           this.cashDeskVoucher.chart1Visibility = item.valueBool;
         } else if (item.key === 'cashDeskChart2Visibility') {
           this.cashDeskVoucher.chart2Visibility = item.valueBool;
+        } else if (item.key === 'defaultCurrencyCode') {
+          this.general.defaultCurrencyCode = item.value;
         } else {
 
         }
       });
     });
   }
-
-  ngOnDestroy(): void { }
 
   async btnSavePurchaseInvoiceAutoCode_Click(): Promise<void> {
     await this.service.setItem({ key: 'purchaseInvoicePrefix', value: this.purchaseInvoice.prefix, valueBool: false, valueNumber: 0 });
@@ -252,6 +254,13 @@ export class SettingComponent implements OnInit, OnDestroy {
     } else {
       // nothing
     }
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
+  async onChangeDefaultCurrencyType(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultCurrencyCode';
+    data.value = value;
     await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 

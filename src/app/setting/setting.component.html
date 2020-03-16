@@ -81,7 +81,26 @@
           </div>
         </div>
         <div class="col-sm-9">
-          <div *ngIf="openedPanel=='general'">general</div>
+          <div *ngIf="openedPanel=='general'">
+            <div class="card">
+              <div class="card-body">
+                <div class="row form-inline">
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Döviz Tipi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultCurrencyType($event.target.value)"
+                            [(ngModel)]="general.defaultCurrencyCode">
+                      <option value="lira">Lira</option>
+                      <option value="dollar">Dolar</option>
+                      <option value="euro">Avro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div *ngIf="openedPanel=='salesInvoice'">
             <div class="card mb-1">
               <div class="card-header">
