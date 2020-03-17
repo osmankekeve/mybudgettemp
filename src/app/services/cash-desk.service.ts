@@ -9,6 +9,7 @@ import {CustomerModel} from '../models/customer-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -66,6 +67,15 @@ export class CashDeskService {
     return returnData;
   }
 
+  checkFields(model: CashDeskModel): CashDeskModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.name === undefined) { model.name = cleanModel.name; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -74,7 +84,7 @@ export class CashDeskService {
           data.primaryKey = doc.id;
 
           const returnData = new CashDeskMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           resolve(Object.assign({returnData}));
         } else {
@@ -100,7 +110,7 @@ export class CashDeskService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CashDeskMainModel();
-        returnData.data = data;
+        returnData.data = this.checkFields(data);
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.actionType = change.type;
 

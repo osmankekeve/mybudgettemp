@@ -250,4 +250,11 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
+
+  focus_amount(): void {
+    if (this.selectedRecord.data.amount === 0) {
+      this.selectedRecord.data.amount = null;
+      this.selectedRecord.amountFormatted = null;
+    }
+  }
 }

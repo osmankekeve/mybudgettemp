@@ -88,14 +88,9 @@ export class CustomerAccountComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CustomerAccountMainModel;
     this.refModel = record as CustomerAccountMainModel;
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
+    this.atService.getCustomerAccountTransactionItems(this.selectedRecord.data.customerPrimaryKey, this.selectedRecord.data.primaryKey)
       .subscribe(list => {
-        if (list.length > 0) {
-          this.isRecordHasTransaction = true;
-
-        } else {
-          this.isRecordHasTransaction = false;
-        }
+        this.isRecordHasTransaction = list.length > 0;
       });
   }
 
@@ -182,7 +177,7 @@ export class CustomerAccountComponent implements OnInit {
           const returnData = values[0] as Array<CustomerModel>;
           const defaultCurrencyCode = values[1].data as SettingModel;
           let newRecordCount = 0 ;
-          
+
           returnData.forEach((data: any) => {
             const item = data as CustomerMainModel;
             if (mapData.has(item.data.primaryKey) && mapData.get(item.data.primaryKey) === defaultCurrencyCode.value) {
@@ -202,6 +197,9 @@ export class CustomerAccountComponent implements OnInit {
               newRecordCount ++;
             }
           });
+
+
+
           this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
         }
       });

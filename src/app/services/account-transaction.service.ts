@@ -68,14 +68,13 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
-  getCustomerAccountTransactionItems(customerPrimaryKey: string, customerAccountPrimaryKey: string,  transactionType: string):
+  getCustomerAccountTransactionItems(customerPrimaryKey: string, customerAccountPrimaryKey: string):
     Observable<AccountTransactionModel[]> {
     this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName,
       ref => ref
         .where('parentPrimaryKey', '==', customerPrimaryKey)
         .where('accountPrimaryKey', '==', customerAccountPrimaryKey)
-        .where('parentType', '==', 'customer')
-        .where('transactionType', '==', transactionType).orderBy('insertDate'));
+        .where('parentType', '==', 'customer').orderBy('insertDate'));
     this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList$;
   }

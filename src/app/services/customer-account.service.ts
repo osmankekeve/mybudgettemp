@@ -130,7 +130,7 @@ export class CustomerAccountService {
 
   getMainItems(): Observable<CustomerAccountMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('name', 'asc'));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CustomerAccountModel;

@@ -15,6 +15,7 @@ import {currencyFormat} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PaymentModel} from '../models/payment-model';
+import {AccountVoucherModel} from '../models/account-voucher-model';
 
 @Injectable({
   providedIn: 'root'
@@ -73,11 +74,12 @@ export class CollectionService {
 
     const returnData = new CollectionModel();
     returnData.primaryKey = null;
-    returnData.customerCode = '-1';
-    returnData.receiptNo = '';
-    returnData.type = '-1';
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.customerCode = '-1';
+    returnData.type = '-1';
+    returnData.accountPrimaryKey = '-1';
+    returnData.receiptNo = '';
     returnData.amount = 0;
     returnData.description = '';
     returnData.insertDate = Date.now();
@@ -95,6 +97,20 @@ export class CollectionService {
     return returnData;
   }
 
+  checkFields(model: CollectionModel): CollectionModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+
+    return model;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -103,7 +119,7 @@ export class CollectionService {
           data.primaryKey = doc.id;
 
           const returnData = new CollectionMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -132,8 +148,8 @@ export class CollectionService {
           data.primaryKey = c.payload.doc.id;
 
           const returnData = new CollectionMainModel();
+          returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
-          returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -153,8 +169,8 @@ export class CollectionService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CollectionMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -178,8 +194,8 @@ export class CollectionService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CollectionMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -210,8 +226,8 @@ export class CollectionService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CollectionMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -237,7 +253,7 @@ export class CollectionService {
           data.primaryKey = doc.id;
 
           const returnData = new CollectionMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
 

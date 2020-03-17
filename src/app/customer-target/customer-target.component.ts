@@ -27,7 +27,7 @@ import {CollectionMainModel} from '../models/collection-main-model';
   templateUrl: './customer-target.component.html',
   styleUrls: ['./customer-target.component.css']
 })
-export class CustomerTargetComponent implements OnInit, OnDestroy {
+export class CustomerTargetComponent implements OnInit {
   mainList1: Array<CustomerTargetMainModel> = [];
   mainList2: Array<CustomerTargetMainModel> = [];
   mainList3: Array<CustomerTargetMainModel> = [];
@@ -55,8 +55,6 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
       }
     }
   }
-
-  ngOnDestroy(): void { }
 
   populateList(): void {
     this.mainList1 = undefined;
@@ -155,7 +153,7 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     try {
       if (this.selectedRecord.data.customerCode === '-1' || this.selectedRecord.data.customerCode === '') {
         this.infoService.error('Lütfen müşteri seçiniz.');
@@ -183,17 +181,15 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
 
         if (this.selectedRecord.data.primaryKey === null) {
           this.selectedRecord.data.primaryKey = '';
-          this.service.addItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hedef başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
+          await this.service.addItem(this.selectedRecord).then(() => {
+              this.infoService.success('Hedef başarıyla kaydedildi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
         } else {
-          this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hedef başarıyla güncellendi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
+          await this.service.updateItem(this.selectedRecord).then(() => {
+              this.infoService.success('Hedef başarıyla güncellendi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
         }
       }
     } catch (error) {
@@ -201,17 +197,15 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnRemove_Click(): void {
+  async btnRemove_Click(): Promise<void> {
     try {
-
+      await this.service.removeItem(this.selectedRecord).then(() => {
+        this.infoService.success('Hedef başarıyla kaldırıldı.');
+        this.selectedRecord = undefined;
+      }).catch(err => this.infoService.error(err));
     } catch (error) {
       this.infoService.error(error);
     }
-    this.service.removeItem(this.selectedRecord)
-    .then(() => {
-      this.infoService.success('Hedef başarıyla kaldırıldı.');
-      this.selectedRecord = undefined;
-    }).catch(err => this.infoService.error(err));
   }
 
   btnNew_Click(): void {
@@ -252,6 +246,8 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
+    this.transactionList$ = new Observable<CollectionMainModel[]>();
+    this.currentAmount = 0;
     this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
@@ -259,6 +255,13 @@ export class CustomerTargetComponent implements OnInit, OnDestroy {
   format_amount($event): void {
     this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_amount(): void {
+    if (this.selectedRecord.data.amount === 0) {
+      this.selectedRecord.data.amount = null;
+      this.selectedRecord.amountFormatted = null;
+    }
   }
 
 }

@@ -25,6 +25,8 @@ import 'rxjs/add/operator/filter';
 import {SettingService} from '../services/setting.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {SettingModel} from '../models/setting-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
+import {CustomerAccountService} from '../services/customer-account.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -34,6 +36,7 @@ import {SettingModel} from '../models/setting-model';
 export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   mainList: Array<PurchaseInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
+  accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: PurchaseInvoiceMainModel;
   refModel: PurchaseInvoiceMainModel;
   isRecordHasTransaction = false;
@@ -59,7 +62,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PurchaseInvoiceService, public sService: SettingService,
               public cService: CustomerService, public atService: AccountTransactionService, public infoService: InformationService,
-              public excelService: ExcelService, public db: AngularFirestore) {
+              public excelService: ExcelService, public db: AngularFirestore, public accService: CustomerAccountService) {
   }
 
   ngOnInit() {
@@ -401,7 +404,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.totalPrice <= 0) {
+    if (this.selectedRecord.data.customerCode === '') {
+      this.infoService.error('Lütfen müşteri seçiniz.');
+    } else if (this.selectedRecord.data.accountPrimaryKey === '') {
+      this.infoService.error('Lütfen hesap seçiniz.');
+    } else if (this.selectedRecord.data.type === '') {
+      this.infoService.error('Lütfen fatura tipi seçiniz.');
+    } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
@@ -479,6 +488,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
+  async onChangeCustomer(value: any): Promise<void> {
+    await this.cService.getItem(value).then(item => {
+      this.selectedRecord.customer = item.data;
+      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    });
+  }
+
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
@@ -507,6 +523,20 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   format_totalPriceWithTax($event): void {
     this.selectedRecord.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_totalPrice(): void {
+    if (this.selectedRecord.data.totalPrice === 0) {
+      this.selectedRecord.data.totalPrice = null;
+      this.selectedRecord.totalPriceFormatted = null;
+    }
+  }
+
+  focus_totalPriceWithTax(): void {
+    if (this.selectedRecord.data.totalPriceWithTax === 0) {
+      this.selectedRecord.data.totalPriceWithTax = null;
+      this.selectedRecord.totalPriceWithTaxFormatted = null;
+    }
   }
 
 }

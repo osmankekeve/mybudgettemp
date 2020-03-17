@@ -9,10 +9,8 @@ import {LogService} from './log.service';
 import {VisitModel} from '../models/visit-model';
 import {ProfileService} from './profile.service';
 import {VisitMainModel} from '../models/visit-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {SettingService} from './setting.service';
 import {CustomerService} from './customer.service';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -87,6 +85,7 @@ export class VisitService {
     const returnData = new VisitModel();
     returnData.primaryKey = null;
     returnData.isVisited = false;
+    returnData.result = '';
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -103,6 +102,14 @@ export class VisitService {
     return returnData;
   }
 
+  checkFields(model: VisitModel): VisitModel {
+    const cleanModel = this.clearVisitModel();
+    if (model.isVisited === undefined) { model.isVisited = cleanModel.isVisited; }
+    if (model.result === undefined) { model.result = cleanModel.result; }
+
+    return model;
+  }
+
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<VisitMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('visitDate').startAt(startDate.getTime()).endAt(endDate.getTime())
@@ -113,7 +120,7 @@ export class VisitService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new VisitMainModel();
-        returnData.visit = data;
+        returnData.visit = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
         returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
@@ -122,58 +129,6 @@ export class VisitService {
           .pipe(map((customer: CustomerModel) => {
             returnData.customerName = customer.name;
             returnData.customer = customer;
-
-            return Object.assign({returnData});
-          }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
-  }
-
-  getMainItemsAfterDate(afterDate: Date): Observable<VisitMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('visitDate').startAfter(afterDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as VisitModel;
-        data.primaryKey = change.payload.doc.id;
-
-        const returnData = new VisitMainModel();
-        returnData.visit = data;
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
-        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
-
-        return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
-          .pipe(map((customer: CustomerModel) => {
-            returnData.customerName = customer.name;
-
-            return Object.assign({returnData});
-          }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
-  }
-
-  getMainItemsBeforeDate(beforeDate: Date): Observable<VisitMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('visitDate').endBefore(beforeDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as VisitModel;
-        data.primaryKey = change.payload.doc.id;
-
-        const returnData = new VisitMainModel();
-        returnData.visit = data;
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
-        returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
-
-        return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
-          .pipe(map((customer: CustomerModel) => {
-            returnData.customerName = customer.name;
 
             return Object.assign({returnData});
           }));
@@ -192,7 +147,7 @@ export class VisitService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new VisitMainModel();
-        returnData.visit = data;
+        returnData.visit = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
         returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
@@ -221,7 +176,7 @@ export class VisitService {
           data.primaryKey = doc.id;
 
           const returnData = new VisitMainModel();
-          returnData.visit = data;
+          returnData.visit = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';

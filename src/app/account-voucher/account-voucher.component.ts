@@ -21,6 +21,8 @@ import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
+import {CustomerAccountService} from '../services/customer-account.service';
 
 @Component({
   selector: 'app-account-voucher',
@@ -31,6 +33,7 @@ export class AccountVoucherComponent implements OnInit {
   mainList: Array<AccountVoucherMainModel>;
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
+  accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: AccountVoucherMainModel;
   refModel: AccountVoucherMainModel;
   isRecordHasTransaction = false;
@@ -54,7 +57,7 @@ export class AccountVoucherComponent implements OnInit {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: AccountVoucherService, public cdService: CashDeskService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public sService: SettingService,
-              public cService: CustomerService, public db: AngularFirestore) {
+              public cService: CustomerService, public db: AngularFirestore, public accService: CustomerAccountService) {
   }
 
   ngOnInit() {
@@ -257,14 +260,14 @@ export class AccountVoucherComponent implements OnInit {
     this.selectedRecord = record as AccountVoucherMainModel;
     this.refModel = record as AccountVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-      .subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         if (list.length > 0) {
           this.isRecordHasTransaction = true;
         } else {
           this.isRecordHasTransaction = false;
         }
       });
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -379,6 +382,13 @@ export class AccountVoucherComponent implements OnInit {
     }
   }
 
+  async onChangeCustomer(value: any): Promise<void> {
+    await this.cService.getItem(value).then(item => {
+      this.selectedRecord.customer = item.data;
+      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    });
+  }
+
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
@@ -401,6 +411,13 @@ export class AccountVoucherComponent implements OnInit {
   format_amount($event): void {
     this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_amount(): void {
+    if (this.selectedRecord.data.amount === 0) {
+      this.selectedRecord.data.amount = null;
+      this.selectedRecord.amountFormatted = null;
+    }
   }
 
 }

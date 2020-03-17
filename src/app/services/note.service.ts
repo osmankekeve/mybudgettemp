@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
@@ -7,7 +7,9 @@ import { AuthenticationService } from './authentication.service';
 import { CustomerModel } from '../models/customer-model';
 import { NoteModel } from '../models/note-model';
 import {CollectionMainModel} from '../models/collection-main-model';
-import {currencyFormat} from '../core/correct-library';
+import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
+import {CustomerTargetModel} from '../models/customer-target-model';
+import {CustomerMainModel} from '../models/customer-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -46,17 +48,24 @@ export class NoteService {
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.note = undefined;
+    returnData.note = '';
     returnData.insertDate = Date.now();
     return returnData;
+  }
+
+  checkFields(model: NoteModel): NoteModel {
+    const cleanModel = this.clearMainModel();
+    if (model.note === undefined) { model.note = cleanModel.note; }
+    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as NoteModel;
+          let data = doc.data() as NoteModel;
           data.primaryKey = doc.id;
+          data = this.checkFields(data);
           resolve(Object.assign({data}));
         } else {
           resolve(null);
@@ -66,17 +75,23 @@ export class NoteService {
   }
 
   getMainItems(): Observable<NoteModel[]> {
+    // left join siz
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
-        const data = change.payload.doc.data() as NoteModel;
-        data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc('-1').valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          return Object.assign({data, actionType: change.type}); }));
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        return query;
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    this.mainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          let data = c.payload.doc.data() as NoteModel;
+          data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
+          return Object.assign({data, actionType: c.type});
+        })
+      )
+    );
     return this.mainList$;
   }
 

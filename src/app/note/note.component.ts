@@ -12,7 +12,7 @@ import { ExcelService } from '../services/excel-service';
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.css']
 })
-export class NoteComponent implements OnInit, OnDestroy {
+export class NoteComponent implements OnInit {
   mainList: Array<NoteModel>;
   collection: AngularFirestoreCollection<NoteModel>;
   selectedRecord: NoteModel;
@@ -28,8 +28,6 @@ export class NoteComponent implements OnInit, OnDestroy {
     this.populateList();
     this.selectedRecord = undefined;
   }
-
-  ngOnDestroy(): void { }
 
   populateList(): void {
     this.mainList = undefined;
@@ -72,34 +70,30 @@ export class NoteComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
   }
 
-  btnSave_Click(): void {
-    this.onTransaction = true;
+  async btnSave_Click(): Promise<void> {
     if (this.selectedRecord.note === '') {
       this.infoService.error('Lütfen not giriniz.');
-      this.onTransaction = false;
     } else {
+      this.onTransaction = true;
       if (this.selectedRecord.primaryKey === null) {
         this.selectedRecord.primaryKey = '';
-        this.service.addItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hatırlatma başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-            this.onTransaction = false;
-          }).catch(err => this.infoService.error(err));
+        await this.service.addItem(this.selectedRecord).then(() => {
+          this.infoService.success('Hatırlatma başarıyla kaydedildi.');
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       } else {
-        this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hatırlatma başarıyla güncellendi.');
-            this.selectedRecord = undefined;
-            this.onTransaction = false;
-          }).catch(err => this.infoService.error(err));
+        await this.service.updateItem(this.selectedRecord).then(() => {
+          this.infoService.success('Hatırlatma başarıyla güncellendi.');
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
       }
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
-    .then(() => {
+  async btnRemove_Click(): Promise<void> {
+    await this.service.removeItem(this.selectedRecord).then(() => {
       this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
       this.selectedRecord = undefined;
     }).catch(err => this.infoService.error(err));
@@ -117,6 +111,12 @@ export class NoteComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  finishRecordProcess(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
 }

@@ -12,6 +12,7 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
 import {currencyFormat, getString} from '../core/correct-library';
 import {CustomerService} from './customer.service';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -79,6 +80,7 @@ export class PaymentService {
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.customerCode = '-1';
     returnData.type = '-1';
+    returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.cashDeskPrimaryKey = '';
     returnData.description = '';
@@ -98,14 +100,29 @@ export class PaymentService {
     return returnData;
   }
 
+  checkFields(model: PaymentModel): PaymentModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+
+    return model;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
           const data = doc.data() as PaymentModel;
           data.primaryKey = doc.id;
+
           const returnData = new PaymentMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -132,9 +149,10 @@ export class PaymentService {
         changes.map(c => {
           const data = c.payload.doc.data() as PaymentModel;
           data.primaryKey = c.payload.doc.id;
+
           const returnData = new PaymentMainModel();
+          returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
-          returnData.data = data;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           return Object.assign({returnData});
@@ -153,8 +171,8 @@ export class PaymentService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PaymentMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -178,8 +196,8 @@ export class PaymentService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PaymentMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -209,8 +227,8 @@ export class PaymentService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new PaymentMainModel();
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.data = data;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
@@ -236,7 +254,7 @@ export class PaymentService {
           data.primaryKey = doc.id;
 
           const returnData = new PaymentMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
 

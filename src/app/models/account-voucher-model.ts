@@ -4,6 +4,7 @@ export class AccountVoucherModel {
   employeePrimaryKey: string;
   type?: string; // debitVoucher, creditVoucher
   customerCode?: string;
+  accountPrimaryKey?: string;
   receiptNo?: string;
   cashDeskPrimaryKey?: string;
   amount?: number;

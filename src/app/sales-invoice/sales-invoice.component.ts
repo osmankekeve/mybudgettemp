@@ -33,7 +33,7 @@ import {CustomerAccountService} from '../services/customer-account.service';
   templateUrl: './sales-invoice.component.html',
   styleUrls: ['./sales-invoice.component.css']
 })
-export class SalesInvoiceComponent implements OnInit, OnDestroy {
+export class SalesInvoiceComponent implements OnInit {
   mainList: Array<SalesInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
@@ -72,8 +72,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     if (this.chart1Visibility === null && this.chart2Visibility === null) {
       const chart1Visibility = this.sService.getItem('salesChart1Visibility');
       const chart2Visibility = this.sService.getItem('salesChart2Visibility');
-      console.log(chart1Visibility);
-      console.log(chart2Visibility);
       Promise.all([chart1Visibility, chart2Visibility])
         .then((values: any) => {
           const data1 = values[0].data as SettingModel;
@@ -94,9 +92,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
         this.showSelectedRecord(paramItem);
       }
     }
-  }
-
-  ngOnDestroy(): void {
   }
 
   populateList(): void {
@@ -276,10 +271,10 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord = record as SalesInvoiceMainModel;
     this.refModel = record as SalesInvoiceMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-      .subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
   btnShowMainFiler_Click(): void {
@@ -317,7 +312,9 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.accountPrimaryKey === '-1') {
+    if (this.selectedRecord.data.customerCode === '-1') {
+      this.infoService.error('Lütfen müşteri seçiniz.');
+    } else if (this.selectedRecord.data.accountPrimaryKey === '-1') {
       this.infoService.error('Lütfen hesap seçiniz.');
     } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
@@ -416,6 +413,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.filterCustomerCode = '-1';
   }
 
+  finishRecordProcess(): void {
+    this.populateCharts();
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
   format_totalPrice($event): void {
     this.selectedRecord.data.totalPrice = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
@@ -426,17 +430,17 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
   }
 
-  finishRecordProcess(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
   focus_totalPrice(): void {
     if (this.selectedRecord.data.totalPrice === 0) {
       this.selectedRecord.data.totalPrice = null;
       this.selectedRecord.totalPriceFormatted = null;
+    }
+  }
+
+  focus_totalPriceWithTax(): void {
+    if (this.selectedRecord.data.totalPriceWithTax === 0) {
+      this.selectedRecord.data.totalPriceWithTax = null;
+      this.selectedRecord.totalPriceWithTaxFormatted = null;
     }
   }
 

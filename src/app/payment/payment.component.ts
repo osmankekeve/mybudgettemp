@@ -26,6 +26,8 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
+import {CustomerAccountService} from '../services/customer-account.service';
 
 @Component({
   selector: 'app-payment',
@@ -36,6 +38,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   mainList: Array<PaymentMainModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
+  accountList$: Observable<CustomerAccountModel[]>;
   collection: AngularFirestoreCollection<PaymentMainModel>;
   selectedRecord: PaymentMainModel;
   refModel: PaymentMainModel;
@@ -61,7 +64,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: PaymentService, public sService: SettingService, public cdService: CashDeskService,
               public cService: CustomerService, public db: AngularFirestore, public excelService: ExcelService,
-              public infoService: InformationService, public atService: AccountTransactionService) {
+              public infoService: InformationService, public atService: AccountTransactionService,
+              public accService: CustomerAccountService) {
   }
 
   ngOnInit() {
@@ -271,10 +275,10 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.selectedRecord = record as PaymentMainModel;
     this.refModel = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-      .subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
   btnMainFilter_Click(): void {
@@ -312,7 +316,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.amount <= 0) {
+    if (this.selectedRecord.data.customerCode === '') {
+      this.infoService.error('Lütfen müşteri seçiniz.');
+    } else if (this.selectedRecord.data.accountPrimaryKey === '') {
+      this.infoService.error('Lütfen hesap seçiniz.');
+    } else if (this.selectedRecord.data.type === '') {
+      this.infoService.error('Lütfen ödeme tipi seçiniz.');
+    } else if (this.selectedRecord.data.cashDeskPrimaryKey === '') {
+      this.infoService.error('Lütfen kasa seçiniz.');
+    } else if (this.selectedRecord.data.amount <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (isNullOrEmpty(this.recordDate)) {
       this.infoService.error('Lütfen kayıt tarihi seçiniz.');
@@ -387,6 +399,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
   }
 
+  async onChangeCustomer(value: any): Promise<void> {
+    await this.cService.getItem(value).then(item => {
+      this.selectedRecord.customer = item.data;
+      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    });
+  }
+
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.isRecordHasTransaction = false;
@@ -410,6 +429,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
   format_amount($event): void {
     this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
     this.selectedRecord.amountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_amount(): void {
+    if (this.selectedRecord.data.amount === 0) {
+      this.selectedRecord.data.amount = null;
+      this.selectedRecord.amountFormatted = null;
+    }
   }
 
 }

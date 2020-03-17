@@ -1,22 +1,19 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import {ProfileMainModel} from '../models/profile-main-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
-import {combineLatest} from 'rxjs';
+import {NoteModel} from '../models/note-model';
+import {getTodayForInput} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReminderService {
   listCollection: AngularFirestoreCollection<ReminderModel>;
-  listEmployeeDailyReminderCollection: AngularFirestoreCollection<ReminderModel>;
   mainList$: Observable<ReminderModel[]>;
   listEmployeeDailyReminderCollection$: Observable<ReminderModel[]>;
   listEmployeeMonthlyReminderCollection$: Observable<ReminderModel[]>;
@@ -48,7 +45,7 @@ export class ReminderService {
   }
 
   async addItem(record: ReminderModel) {
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record));
   }
 
   async removeItem(record: ReminderModel) {
@@ -56,13 +53,40 @@ export class ReminderService {
   }
 
   async updateItem(record: ReminderModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
+  }
+
+  clearMainModel(): ReminderModel {
+    const returnData = new ReminderModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.isPersonal = true;
+    returnData.isActive = true;
+    returnData.description = '';
+    returnData.periodType = 'oneTime'; // daily, monthly, yearly, oneTime
+    returnData.year = getTodayForInput().year;
+    returnData.month = getTodayForInput().month;
+    returnData.day = getTodayForInput().day;
+    returnData.reminderDate = Date.now();
+    returnData.insertDate = Date.now();
+    return returnData;
+  }
+
+  checkFields(model: ReminderModel): ReminderModel {
+    const cleanModel = this.clearMainModel();
+    if (model.isPersonal === undefined) { model.isPersonal = cleanModel.isPersonal; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.periodType === undefined) { model.periodType = cleanModel.periodType; }
+    return model;
   }
 
   getItem(primaryKey: string): Observable<ReminderModel> {
     this.db.collection(this.tableName).doc(primaryKey).get().subscribe(item => {
-      const data = item as ReminderModel;
+      let data = item as ReminderModel;
       data.primaryKey = item.id;
+      data = this.checkFields(data);
       return data;
     });
     return null;
@@ -72,8 +96,9 @@ export class ReminderService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as ReminderModel;
+          let data = doc.data() as ReminderModel;
           data.primaryKey = doc.id;
+          data = this.checkFields(data);
           resolve(Object.assign({data, employeeName: this.employeeMap.get(data.employeePrimaryKey)}));
         } else {
           resolve(null);
@@ -88,8 +113,9 @@ export class ReminderService {
     this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )
@@ -107,8 +133,9 @@ export class ReminderService {
     this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )
@@ -130,8 +157,9 @@ export class ReminderService {
     this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )
@@ -149,8 +177,9 @@ export class ReminderService {
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )
@@ -169,8 +198,9 @@ export class ReminderService {
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )
@@ -190,8 +220,9 @@ export class ReminderService {
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as ReminderModel;
+          let data = c.payload.doc.data() as ReminderModel;
           data.primaryKey = c.payload.doc.id;
+          data = this.checkFields(data);
           return Object.assign({data, actionType: c.type, employeeName: this.employeeMap.get(data.employeePrimaryKey)});
         })
       )

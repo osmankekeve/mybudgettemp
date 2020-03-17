@@ -9,6 +9,7 @@ import { CustomerTargetModel } from '../models/customer-target-model';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { LogService } from './log.service';
 import {getTodayForInput, getMonths, currencyFormat} from '../core/correct-library';
+import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
 
 @Injectable({
   providedIn: 'root'
@@ -72,6 +73,19 @@ export class CustomerTargetService {
     return returnData;
   }
 
+  checkFields(model: CustomerTargetModel): CustomerTargetModel {
+    const cleanModel = this.clearSubModel();
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.beginMonth === undefined) { model.beginMonth = cleanModel.beginMonth; }
+    if (model.finishMonth === undefined) { model.finishMonth = cleanModel.finishMonth; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   getMainItems(): Observable<CustomerTargetMainModel[]> {
     this.listCollection = this.db.collection<CustomerTargetModel>(this.tableName,
     ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
@@ -81,7 +95,7 @@ export class CustomerTargetService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CustomerTargetMainModel();
-        returnData.data = data;
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
         returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
@@ -108,7 +122,7 @@ export class CustomerTargetService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new CustomerTargetMainModel();
-        returnData.data = data;
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
         returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());

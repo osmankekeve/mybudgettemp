@@ -295,6 +295,7 @@
             </div>
             <div class="col-sm-6">
               <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                     (focus)="focus_amount()"
                      (blur)="format_amount($event)"
                      [(ngModel)]="selectedRecord.amountFormatted">
             </div>
@@ -347,12 +348,12 @@
         <div class="col">
           <div class="card bg-light">
             <div class="card-header bg-gray-gradient">
-              <h6 class="float-left">Tahsilatlar</h6>
+              <h5 class="float-left text-red">Tahsilatlar</h5>
             </div>
             <div class="card-body work-area-4" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table">
+              <table class="table table-hover table-striped table-bordered table-sm">
                 <thead>
-                <tr class="bg-indigo text-light">
+                <tr class="bg-red text-light">
                   <th>Fiş Numarası</th>
                   <th><span class="float-right">Tutar</span></th>
                   <th><span class="float-right">Tarih</span></th>

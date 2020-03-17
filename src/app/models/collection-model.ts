@@ -4,6 +4,7 @@ export class CollectionModel {
   employeePrimaryKey: string;
   type?: string; // cash, creditCard, pNote
   customerCode?: string;
+  accountPrimaryKey?: string;
   receiptNo?: string;
   cashDeskPrimaryKey?: string;
   amount?: number;

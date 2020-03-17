@@ -15,7 +15,7 @@ import { ProfileMainModel } from '../models/profile-main-model';
   templateUrl: './reminder.component.html',
   styleUrls: ['./reminder.component.css']
 })
-export class ReminderComponent implements OnInit, OnDestroy {
+export class ReminderComponent implements OnInit {
   mainList: Array<ReminderModel>;
   collection: AngularFirestoreCollection<ReminderModel>;
   employeeList$: Observable<ProfileMainModel[]>;
@@ -32,6 +32,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
   filterIsPersonal = '-1';
   filterPeriodType = '-1';
   filterIsActive = '1';
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ReminderService,
               public proService: ProfileService, public router: ActivatedRoute,
@@ -51,8 +52,6 @@ export class ReminderComponent implements OnInit, OnDestroy {
       }
     }
   }
-
-  ngOnDestroy(): void { }
 
   populateList(): void {
     this.mainList = undefined;
@@ -101,24 +100,29 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
     this.selectedRecord.year = this.recordDate.year;
     this.selectedRecord.month = this.recordDate.month;
     this.selectedRecord.day = this.recordDate.day;
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.selectedRecord.primaryKey = '';
-      this.service.addItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hatırlatma başarıyla kaydedildi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+    if (this.selectedRecord.description === '') {
+      this.infoService.error('Lütfen açıklama giriniz.');
     } else {
-      this.service.updateItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Hatırlatma başarıyla güncellendi.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+      this.onTransaction = true;
+      if (this.selectedRecord.primaryKey === null) {
+        this.selectedRecord.primaryKey = '';
+        await this.service.addItem(this.selectedRecord).then(() => {
+            this.infoService.success('Hatırlatma başarıyla kaydedildi.');
+          }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
+      } else {
+        await this.service.updateItem(this.selectedRecord).then(() => {
+            this.infoService.success('Hatırlatma başarıyla güncellendi.');
+          }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
+      }
     }
   }
 
@@ -154,8 +158,7 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
-    this.selectedRecord = {primaryKey: undefined, isPersonal: true, userPrimaryKey: this.authService.getUid(),
-      isActive: true, periodType: 'oneTime', employeePrimaryKey: this.authService.getEid(), insertDate: Date.now()};
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {
@@ -164,6 +167,12 @@ export class ReminderComponent implements OnInit, OnDestroy {
     this.filterPeriodType = '-1';
     this.filterIsPersonal = '-1';
     this.filterIsActive = '1';
+  }
+
+  finishRecordProcess(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 
 }

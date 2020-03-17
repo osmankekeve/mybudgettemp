@@ -6,6 +6,7 @@ export class PaymentModel {
   employeePrimaryKey: string;
   customerCode?: string;
   type?: string; // cash, creditCard, pNote
+  accountPrimaryKey?: string;
   receiptNo?: string;
   cashDeskPrimaryKey?: string;
   amount?: number;

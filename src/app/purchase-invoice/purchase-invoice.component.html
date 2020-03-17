@@ -218,12 +218,25 @@
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
+                  (change)="onChangeCustomer($event.target.value)"
                   [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.customerCode">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+        </div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+        </div>
+        <div class="col-sm-9">
+          <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
+                  [(ngModel)]="selectedRecord.data.accountPrimaryKey">
+            <option value={{item.primaryKey}}
+                    *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+          </select>
+          <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="type">Fatura Tipi</label>
@@ -250,6 +263,7 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="text"
+                 (focus)="focus_totalPrice()"
                  (blur)="format_totalPrice($event)"
                  [(ngModel)]="selectedRecord.totalPriceFormatted">
         </div>
@@ -258,6 +272,7 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" type="text"
+                 (focus)="focus_totalPriceWithTax()"
                  (blur)="format_totalPriceWithTax($event)"
                  [(ngModel)]="selectedRecord.totalPriceWithTaxFormatted">
         </div>

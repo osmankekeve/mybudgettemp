@@ -77,6 +77,7 @@ export class PurchaseInvoiceService {
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.customerCode = '-1';
+    returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.type = '-1';
     returnData.totalPrice = 0;
@@ -101,7 +102,8 @@ export class PurchaseInvoiceService {
   checkFields(model: PurchaseInvoiceModel): PurchaseInvoiceModel {
     const cleanModel = this.clearSubModel();
     if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
     if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
     if (model.type === undefined) { model.type = cleanModel.type; }
     if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }

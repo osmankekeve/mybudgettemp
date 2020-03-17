@@ -165,7 +165,8 @@
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
-                  [disabled]="f.valid"
+                  (change)="onChangeCustomer($event.target.value)"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.customerCode">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
@@ -173,11 +174,23 @@
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>
         <div class="col-sm-3">
+          <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+        </div>
+        <div class="col-sm-9">
+          <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
+                  [(ngModel)]="selectedRecord.data.accountPrimaryKey">
+            <option value={{item.primaryKey}}
+                    *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+          </select>
+          <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+        </div>
+        <div class="col-sm-3">
           <label class="col-form-label float-left" for="type">Fiş Tipi</label>
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.type">
             <option value="creditVoucher">Alacaklandırma</option>
             <option value="debitVoucher">Borçlandırma</option>
@@ -221,6 +234,7 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text" step="any"
+                 (focus)="focus_amount()"
                  (blur)="format_amount($event)"
                  [(ngModel)]="selectedRecord.amountFormatted">
         </div>
@@ -234,7 +248,6 @@
         </div>
       </div>
     </form>
-
   </div>
   <div class="card-footer">
     <div class="col-sm-3 float-right">
