@@ -16,4 +16,5 @@ export class CustomerModel {
   postCode?: string;
   paymentTypeKey?: string;
   termKey?: string;
+  defaultAccountPrimaryKey?: string;
 }

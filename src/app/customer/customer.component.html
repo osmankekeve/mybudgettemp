@@ -1015,6 +1015,17 @@
                   <option value="120G">120 Gün</option>
                 </select>
               </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey" required
+                        [(ngModel)]="selectedCustomer.data.defaultAccountPrimaryKey">
+                  <option value={{item.primaryKey}}
+                          *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                </select>
+                <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+              </div>
             </div>
           </form>
         </div>

@@ -91,6 +91,7 @@ export class CustomerService {
     returnData.postCode = '';
     returnData.paymentTypeKey = '-1';
     returnData.termKey = '-1';
+    returnData.defaultAccountPrimaryKey = null;
 
     return returnData;
   }
@@ -183,10 +184,12 @@ export class CustomerService {
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('name', 'asc')
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('isActive', '==', isActive);
+          .where('userPrimaryKey', '==', this.authService.getUid());
         if (customerPrimaryKey !== undefined && customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
           query = query.where('primaryKey', '==', customerPrimaryKey);
+        }
+        if (isActive !== undefined && isActive !== null) {
+          query = query.where('isActive', '==', isActive);
         }
         return query;
       })
@@ -196,6 +199,46 @@ export class CustomerService {
           data.primaryKey = doc.id;
           data = this.checkFields(data);
           list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getCustomersMainModel = async (customerPrimaryKey: string, isActive: boolean):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<CustomerMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CustomerMainModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('name', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid());
+        if (customerPrimaryKey !== undefined && customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
+          query = query.where('primaryKey', '==', customerPrimaryKey);
+        }
+        if (isActive !== undefined && isActive !== null) {
+          query = query.where('isActive', '==', isActive);
+        }
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as CustomerModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new CustomerMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.employee = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.executive = this.employeeMap.get(data.executivePrimary);
+          returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
+          returnData.termTr = getTerms().get(returnData.data.termKey);
+
+          list.push(returnData);
         });
         resolve(list);
       });

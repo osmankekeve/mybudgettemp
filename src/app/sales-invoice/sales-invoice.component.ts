@@ -25,6 +25,8 @@ import {SettingService} from '../services/setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
+import {CustomerAccountService} from '../services/customer-account.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -34,6 +36,7 @@ import {SettingModel} from '../models/setting-model';
 export class SalesInvoiceComponent implements OnInit, OnDestroy {
   mainList: Array<SalesInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
+  accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: SalesInvoiceMainModel;
   refModel: SalesInvoiceMainModel;
   isRecordHasTransaction = false;
@@ -59,8 +62,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
-              public sService: SettingService,
-              public db: AngularFirestore) {
+              public sService: SettingService, public accService: CustomerAccountService, public db: AngularFirestore) {
   }
 
   async ngOnInit() {
@@ -315,7 +317,9 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.totalPrice <= 0) {
+    if (this.selectedRecord.data.accountPrimaryKey === '-1') {
+      this.infoService.error('Lütfen hesap seçiniz.');
+    } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
     } else if (this.selectedRecord.data.totalPrice <= 0) {
       this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
@@ -391,6 +395,13 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
+  }
+
+  async onChangeCustomer(value: any): Promise<void> {
+    await this.cService.getItem(value).then(item => {
+      this.selectedRecord.customer = item.data;
+      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    });
   }
 
   clearSelectedRecord(): void {

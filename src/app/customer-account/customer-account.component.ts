@@ -44,6 +44,7 @@ export class CustomerAccountComponent implements OnInit {
   searchText: '';
   onTransaction = false;
   filterCustomerCode: any;
+  isRecordHasTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
@@ -87,6 +88,15 @@ export class CustomerAccountComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CustomerAccountMainModel;
     this.refModel = record as CustomerAccountMainModel;
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
+      .subscribe(list => {
+        if (list.length > 0) {
+          this.isRecordHasTransaction = true;
+
+        } else {
+          this.isRecordHasTransaction = false;
+        }
+      });
   }
 
   btnShowMainFiler_Click(): void {
@@ -166,28 +176,35 @@ export class CustomerAccountComponent implements OnInit {
       mapData.set(item.data.customerPrimaryKey, item.data.currencyCode);
     });
 
-    await this.setService.getItem('defaultCurrencyCode').then((returnData: any) => {
-      const defaultCurrencyCode = returnData.data as SettingModel;
-      this.cService.getMainItems(null).subscribe(async list => {
-        let newRecordCount = 0 ;
-        list.forEach((data: any) => {
-          const item = data.returnData as CustomerMainModel;
-          if (mapData.has(item.data.primaryKey) && mapData.get(item.data.primaryKey) === defaultCurrencyCode.value) {
-            // console.log('var:' + item.data.name);
-          } else {
-            const insertData = this.service.clearMainModel();
-            insertData.data.primaryKey = this.db.createId();
-            insertData.data.customerPrimaryKey = item.data.primaryKey;
-            insertData.customer = item.data;
-            insertData.data.currencyCode = defaultCurrencyCode.value;
-            insertData.data.name = item.data.name + ' TL Hesabı';
-            this.service.setItem(insertData).catch(err => this.infoService.error(err));
-            newRecordCount ++;
-          }
-        });
-        this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
+    Promise.all([this.cService.getCustomersMainModel(null, null), this.setService.getItem('defaultCurrencyCode')])
+      .then((values: any) => {
+        if ((values[0] !== undefined || values[0] !== null) && (values[1] !== undefined || values[1] !== null)) {
+          const returnData = values[0] as Array<CustomerModel>;
+          const defaultCurrencyCode = values[1].data as SettingModel;
+          let newRecordCount = 0 ;
+          
+          returnData.forEach((data: any) => {
+            const item = data as CustomerMainModel;
+            if (mapData.has(item.data.primaryKey) && mapData.get(item.data.primaryKey) === defaultCurrencyCode.value) {
+              // console.log('var:' + item.data.name);
+            } else {
+              const insertData = this.service.clearMainModel();
+              insertData.data.primaryKey = this.db.createId();
+              insertData.data.customerPrimaryKey = item.data.primaryKey;
+              insertData.customer = item.data;
+              insertData.data.currencyCode = defaultCurrencyCode.value;
+              insertData.data.name = item.data.name + ' TL Hesabı';
+              this.service.setItem(insertData).catch(err => this.infoService.error(err));
+
+              item.data.defaultAccountPrimaryKey = insertData.data.primaryKey;
+              this.cService.updateItem(item).catch(err => this.infoService.error(err));
+
+              newRecordCount ++;
+            }
+          });
+          this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
+        }
       });
-    });
 
   }
 

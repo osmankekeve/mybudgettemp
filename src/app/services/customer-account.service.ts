@@ -41,6 +41,20 @@ export class CustomerAccountService {
     }
   }
 
+  getAllItems(customerPrimaryKey: string): Observable<CustomerAccountModel[]> {
+    this.listCollection = this.db.collection<CustomerAccountModel>(this.tableName,
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
+          query = query.where('customerPrimaryKey', '==', customerPrimaryKey);
+        }
+        query = query.orderBy('name', 'asc');
+        return query;
+      });
+    return this.listCollection.valueChanges({ idField : 'primaryKey'});
+  }
+
   async addItem(record: CustomerAccountMainModel) {
     await this.logService.sendToLog(record, 'insert', 'customer-account');
     return await this.listCollection.add(Object.assign({}, record.data));
@@ -99,28 +113,6 @@ export class CustomerAccountService {
         if (doc.exists) {
           const data = doc.data() as CustomerAccountModel;
           data.primaryKey = doc.id;
-
-          const returnData = new CustomerAccountMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.data = data;
-          returnData.customer = this.customerMap.get(returnData.data.customerPrimaryKey);
-          returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
-
-          resolve(Object.assign({returnData}));
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
-
-  getItemWithCustomerAndCurrencyCode(customerPrimaryKey: string, currencyCode: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName,
-        ref => ref.where('userPrimaryKey', '==', this.authService.getUid()))
-        .valueChanges(results => {
-        if (results.size > 0) {
-          const data = results[0].data() as CustomerAccountModel;
 
           const returnData = new CustomerAccountMainModel();
           returnData.data = this.checkFields(data);

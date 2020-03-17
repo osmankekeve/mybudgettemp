@@ -3,6 +3,7 @@ export class SalesInvoiceModel {
   userPrimaryKey: string;
   employeePrimaryKey: string;
   customerCode?: string;
+  accountPrimaryKey?: string;
   receiptNo?: string;
   type?: string; // sales,return
   totalPrice?: number;

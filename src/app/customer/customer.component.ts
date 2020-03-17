@@ -46,6 +46,8 @@ import {ReportService} from '../services/report.service';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ProfileService} from '../services/profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
+import {CustomerAccountService} from '../services/customer-account.service';
 
 @Component({
   selector: 'app-customer',
@@ -63,6 +65,7 @@ export class CustomerComponent implements OnInit {
   newPayment: PaymentMainModel;
   newVoucher: AccountVoucherMainModel;
 
+  accountList$: Observable<CustomerAccountModel[]>;
   purchaseInvoiceList$: Observable<PurchaseInvoiceMainModel[]>;
   purchaseInvoiceAmount: any;
   siList$: Observable<SalesInvoiceMainModel[]>;
@@ -98,7 +101,7 @@ export class CustomerComponent implements OnInit {
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
-              public rService: ReportService, public proService: ProfileService,
+              public rService: ReportService, public proService: ProfileService, public accService: CustomerAccountService,
               public mailService: MailService) {
   }
 
@@ -138,6 +141,7 @@ export class CustomerComponent implements OnInit {
   showSelectedCustomer(customer: any): void {
     this.selectedCustomer = customer as CustomerMainModel;
     this.refModel = customer as CustomerMainModel;
+    this.accountList$ = this.accService.getAllItems(this.selectedCustomer.data.primaryKey);
 
     this.totalAmount = 0;
     this.purchaseInvoiceList$ = undefined;

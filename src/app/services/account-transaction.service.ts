@@ -68,6 +68,18 @@ export class AccountTransactionService {
     return this.mainList$;
   }
 
+  getCustomerAccountTransactionItems(customerPrimaryKey: string, customerAccountPrimaryKey: string,  transactionType: string):
+    Observable<AccountTransactionModel[]> {
+    this.listCollection = this.db.collection<AccountTransactionModel>(this.tableName,
+      ref => ref
+        .where('parentPrimaryKey', '==', customerPrimaryKey)
+        .where('accountPrimaryKey', '==', customerAccountPrimaryKey)
+        .where('parentType', '==', 'customer')
+        .where('transactionType', '==', transactionType).orderBy('insertDate'));
+    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
+    return this.mainList$;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
