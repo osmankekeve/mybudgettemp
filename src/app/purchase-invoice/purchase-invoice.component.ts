@@ -356,10 +356,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.selectedRecord.data.totalPrice = Math.abs(this.selectedRecord.data.totalPrice);
     this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
-      .subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
   btnReturnList_Click(): void {
