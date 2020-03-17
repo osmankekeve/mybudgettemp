@@ -12,6 +12,8 @@
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="XML'e Aktar"
                 (click)="btnExportToXml_Click()" hidden><i class="fa fa-file-archive-o"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle" hidden
+                (click)="btnCreateAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -183,7 +185,7 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header bg-gray-gradient">
+  <div class="card-header bg-gray-gra-dient">
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/collection.png" width="30px" class="float-left mr-2">

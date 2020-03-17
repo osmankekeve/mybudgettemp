@@ -198,12 +198,9 @@ export class CustomerAccountComponent implements OnInit {
             }
           });
 
-
-
           this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
         }
       });
-
   }
 
   clearSelectedRecord(): void {

@@ -342,6 +342,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
             transactionType: 'payment',
             parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
+            accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
             cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
             amount: this.selectedRecord.data.amount * -1,
             amountType: 'debit',

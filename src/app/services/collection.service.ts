@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { CollectionModel } from '../models/collection-model';
-import { AuthenticationService } from './authentication.service';
-import { LogService } from './log.service';
+import {Observable} from 'rxjs/Observable';
+import {CustomerModel} from '../models/customer-model';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
+import {CollectionModel} from '../models/collection-model';
+import {AuthenticationService} from './authentication.service';
+import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
@@ -99,14 +99,30 @@ export class CollectionService {
 
   checkFields(model: CollectionModel): CollectionModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.customerCode === undefined) {
+      model.customerCode = cleanModel.customerCode;
+    }
+    if (model.accountPrimaryKey === undefined) {
+      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
+    }
+    if (model.cashDeskPrimaryKey === undefined) {
+      model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+    if (model.amount === undefined) {
+      model.amount = cleanModel.amount;
+    }
 
     return model;
   }
@@ -162,9 +178,9 @@ export class CollectionService {
 
   getMainItems(): Observable<CollectionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -175,10 +191,11 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          returnData.customer = customer !== undefined ? customer : undefined;
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-          return Object.assign({returnData}); }));
+          .pipe(map((customer: CustomerModel) => {
+            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -188,8 +205,8 @@ export class CollectionService {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -200,10 +217,11 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
+          .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -220,8 +238,8 @@ export class CollectionService {
         }
         return query;
       });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -232,10 +250,11 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
+          .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -245,9 +264,17 @@ export class CollectionService {
     Promise<Array<CollectionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CollectionMainModel>();
-      this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      }).get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CollectionModel;
           data.primaryKey = doc.id;
@@ -266,5 +293,5 @@ export class CollectionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 }

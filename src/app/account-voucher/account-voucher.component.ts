@@ -261,12 +261,12 @@ export class AccountVoucherComponent implements OnInit {
     this.refModel = record as AccountVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
-        if (list.length > 0) {
-          this.isRecordHasTransaction = true;
-        } else {
-          this.isRecordHasTransaction = false;
-        }
-      });
+      if (list.length > 0) {
+        this.isRecordHasTransaction = true;
+      } else {
+        this.isRecordHasTransaction = false;
+      }
+    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
@@ -304,6 +304,7 @@ export class AccountVoucherComponent implements OnInit {
             transactionType: 'accountVoucher',
             parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
+            accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
             cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
             amount: this.selectedRecord.data.type === 'creditVoucher' ?
               this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,

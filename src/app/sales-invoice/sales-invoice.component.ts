@@ -27,6 +27,8 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
+import {CustomerAccountMainModel} from '../models/customer-main-account-model';
+import {CustomerMainModel} from '../models/customer-main-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -272,8 +274,8 @@ export class SalesInvoiceComponent implements OnInit {
     this.refModel = record as SalesInvoiceMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
-        this.isRecordHasTransaction = list.length > 0;
-      });
+      this.isRecordHasTransaction = list.length > 0;
+    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
   }
 
@@ -336,6 +338,7 @@ export class SalesInvoiceComponent implements OnInit {
             transactionType: 'salesInvoice',
             parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
+            accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
             cashDeskPrimaryKey: '-1',
             amount: this.selectedRecord.data.type === 'sales' ?
               this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
@@ -361,7 +364,7 @@ export class SalesInvoiceComponent implements OnInit {
               };
               this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
                 this.infoService.success('Fatura başarıyla güncellendi.');
-              }).catch(err => this.infoService.error(err)).catch(err => this.infoService.error(err)).finally(() => {
+              }).catch(err => this.infoService.error(err)).finally(() => {
                 this.finishRecordProcess();
               });
             });
@@ -399,6 +402,28 @@ export class SalesInvoiceComponent implements OnInit {
       this.selectedRecord.customer = item.data;
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
     });
+  }
+
+  async btnCreateAccounts_Click(): Promise<void> {
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+      .then((values: any) => {
+        if ((values[0] !== undefined || values[0] !== null)) {
+          const returnData = values[0] as Array<SalesInvoiceMainModel>;
+          returnData.forEach(doc => {
+            doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
+            this.service.updateItem(doc).then(() => {
+              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
+                list.forEach((item) => {
+                  const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
+                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
+                  console.log('recordKey: ' + item.id);
+                });
+              });
+            });
+          });
+        }
+      });
   }
 
   clearSelectedRecord(): void {

@@ -262,9 +262,17 @@ export class SalesInvoiceService {
     Promise<Array<SalesInvoiceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<SalesInvoiceMainModel>();
-      this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      }).get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as SalesInvoiceModel;
           data.primaryKey = doc.id;

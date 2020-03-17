@@ -430,6 +430,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             transactionType: 'purchaseInvoice',
             parentPrimaryKey: this.selectedRecord.data.customerCode,
             parentType: 'customer',
+            accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
             cashDeskPrimaryKey: '-1',
             amount: this.selectedRecord.data.type === 'purchase' ?
               this.selectedRecord.data.totalPriceWithTax : this.selectedRecord.data.totalPriceWithTax * -1,
