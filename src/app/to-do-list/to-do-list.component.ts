@@ -4,13 +4,11 @@ import {Observable} from 'rxjs/internal/Observable';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ProfileService} from '../services/profile.service';
-import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
+import {getFirstDayOfMonthForInput, getTodayForInput} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
-import {TodoListModel} from '../models/to-do-list-model';
 import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-to-do-list',
@@ -109,35 +107,43 @@ export class ToDoListComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
-    if (this.selectedRecord.data.todoText === '') {
-      this.infoService.error('Lütfen açıklama giriniz.');
-    } else {
-      if (this.selectedRecord.data.primaryKey === null) {
-        this.selectedRecord.data.primaryKey = this.db.createId();
-        this.service.setItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Kayıt başarıyla gerçekleşti.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-      } else {
-        this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Kayıt başarıyla güncellendi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-      }
+  async btnSave_Click(): Promise<void> {
+    try {
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        if (this.selectedRecord.data.primaryKey === null) {
+          this.selectedRecord.data.primaryKey = this.db.createId();
+          await this.service.setItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Kayıt başarıyla gerçekleşti.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
+        } else {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Kayıt başarıyla güncellendi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
+        }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
-  btnRemove_Click(): void {
+  async btnRemove_Click(): Promise<void> {
     try {
-      this.service.removeItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Kayıt başarıyla kaldırıldı.');
-          this.selectedRecord = undefined;
-        })
-        .catch(err => this.infoService.error(err));
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Kayıt başarıyla kaldırıldı.');
+            this.selectedRecord = undefined;
+          })
+          .catch(err => this.infoService.error(err));
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (err) {
       this.infoService.error(err);
     }

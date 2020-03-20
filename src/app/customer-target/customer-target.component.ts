@@ -105,7 +105,7 @@ export class CustomerTargetComponent implements OnInit {
       if (this.mainList1 === undefined) { this.mainList1 = []; }
       if (this.mainList2 === undefined) { this.mainList2 = []; }
       if (this.mainList3 === undefined) { this.mainList3 = []; }
-    }, 1000);
+    }, 5000);
   }
 
   showSelectedRecord(record: any): void {
@@ -155,19 +155,7 @@ export class CustomerTargetComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     try {
-      if (this.selectedRecord.data.customerCode === '-1' || this.selectedRecord.data.customerCode === '') {
-        this.infoService.error('Lütfen müşteri seçiniz.');
-      } else if (getNumber(this.selectedRecord.data.year) < getTodayForInput().year) {
-        this.infoService.error('Lütfen yıl seçiniz.');
-      } else if (this.selectedRecord.data.type === 'monthly' && this.selectedRecord.data.beginMonth < 1) {
-        this.infoService.error('Lütfen ay seçiniz.');
-      } else if (this.selectedRecord.data.type === 'periodic' && this.selectedRecord.data.beginMonth < 1) {
-        this.infoService.error('Lütfen başlangıç ayı seçiniz.');
-      } else if (this.selectedRecord.data.type === 'periodic' && this.selectedRecord.data.finishMonth < 1) {
-        this.infoService.error('Lütfen bitiş ayı seçiniz.');
-      } else if (getFloat(this.selectedRecord.data.amount) <= 0) {
-        this.infoService.error('Lütfen hedef giriniz.');
-      } else {
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
         if (this.selectedRecord.data.type === 'yearly') {
           this.selectedRecord.data.beginMonth = -1;
           this.selectedRecord.data.finishMonth = -1;
@@ -178,20 +166,21 @@ export class CustomerTargetComponent implements OnInit {
         this.selectedRecord.data.beginMonth = getNumber(this.selectedRecord.data.beginMonth);
         this.selectedRecord.data.finishMonth = getNumber(this.selectedRecord.data.finishMonth);
         this.selectedRecord.data.year = getNumber(this.selectedRecord.data.year);
-
         if (this.selectedRecord.data.primaryKey === null) {
           this.selectedRecord.data.primaryKey = '';
           await this.service.addItem(this.selectedRecord).then(() => {
-              this.infoService.success('Hedef başarıyla kaydedildi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
+            this.infoService.success('Hedef başarıyla kaydedildi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
         } else {
           await this.service.updateItem(this.selectedRecord).then(() => {
-              this.infoService.success('Hedef başarıyla güncellendi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
+            this.infoService.success('Hedef başarıyla güncellendi.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
         }
-      }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (error) {
       this.infoService.error(error);
     }
@@ -199,10 +188,14 @@ export class CustomerTargetComponent implements OnInit {
 
   async btnRemove_Click(): Promise<void> {
     try {
-      await this.service.removeItem(this.selectedRecord).then(() => {
-        this.infoService.success('Hedef başarıyla kaldırıldı.');
-        this.selectedRecord = undefined;
-      }).catch(err => this.infoService.error(err));
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord).then(() => {
+          this.infoService.success('Hedef başarıyla kaldırıldı.');
+          this.selectedRecord = undefined;
+        }).catch(err => this.infoService.error(err));
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (error) {
       this.infoService.error(error);
     }

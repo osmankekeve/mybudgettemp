@@ -15,7 +15,6 @@ import { ProfileService } from '../services/profile.service';
 import { VisitMainModel } from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
 import { ProfileMainModel } from '../models/profile-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {Chart} from 'chart.js';
 
 @Component({
@@ -30,7 +29,6 @@ export class VisitComponent implements OnInit, OnDestroy {
   profileList$: Observable<ProfileMainModel[]>;
   selectedRecord: VisitMainModel;
   refModel: VisitMainModel;
-  openedPanel: any;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
   filterBeginDate: any;
@@ -178,7 +176,6 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: VisitMainModel): void {
-    this.openedPanel = 'mainPanel';
     this.selectedRecord = record;
     this.refModel = record;
     this.recordDate = getDateForInput(this.selectedRecord.visit.visitDate);
@@ -194,24 +191,28 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
-      if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
-        this.onTransaction = true;
-        this.selectedRecord.visit.primaryKey = '';
-        this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
-        await this.service.addItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Ziyaret başarıyla kaydedildi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
-            this.finishRecordProcess();
-          });
-      } else {
-        await this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Ziyaret başarıyla güncellendi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
-            this.finishRecordProcess();
-          });
-      }
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
+          this.onTransaction = true;
+          this.selectedRecord.visit.primaryKey = '';
+          this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
+          await this.service.addItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Ziyaret başarıyla kaydedildi.');
+            }).catch(err => this.infoService.error(err)).finally(() => {
+              this.finishRecordProcess();
+            });
+        } else {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Ziyaret başarıyla güncellendi.');
+            }).catch(err => this.infoService.error(err)).finally(() => {
+              this.finishRecordProcess();
+            });
+        }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (err) {
       this.infoService.error(err);
     }
@@ -219,13 +220,17 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnRemove_Click(): Promise<void> {
     try {
-      this.onTransaction = true;
-      await this.service.removeItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Ziyaret başarıyla kaldırıldı.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        this.onTransaction = true;
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Ziyaret başarıyla kaldırıldı.');
+          }).catch(err => this.infoService.error(err)).finally(() => {
+            this.finishRecordProcess();
+          });
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (err) {
       this.infoService.error(err);
     }
@@ -233,13 +238,9 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      if (this.openedPanel === 'mainPanel') {
-        this.selectedRecord = undefined;
-        await this.route.navigate(['visit', {}]);
-        this.populateCharts();
-      } else {
-        this.openedPanel = 'mainPanel';
-      }
+      this.selectedRecord = undefined;
+      await this.route.navigate(['visit', {}]);
+      this.populateCharts();
     } catch (err) {
       this.infoService.error(err);
     }
@@ -282,10 +283,8 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.recordDate = getTodayForInput();
-
     this.selectedRecord = this.service.clearVisitMainModel();
   }
 

@@ -71,41 +71,24 @@ export class CustomerService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  clearModel(): CustomerModel {
-
-    const returnData = new CustomerModel();
-    returnData.primaryKey = undefined;
-    returnData.userPrimaryKey = this.authService.getUid();
-    returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.executivePrimary = '-1';
-    returnData.code = '';
-    returnData.name = null;
-    returnData.owner = null;
-    returnData.phone1 = '';
-    returnData.phone2 = '';
-    returnData.email = '';
-    returnData.address = '';
-    returnData.isActive = true;
-    returnData.taxOffice = '';
-    returnData.taxNumber = '';
-    returnData.postCode = '';
-    returnData.paymentTypeKey = '-1';
-    returnData.termKey = '-1';
-    returnData.defaultAccountPrimaryKey = null;
-
-    return returnData;
+  checkForSave(record: CustomerMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.name === '' || record.data.name.trim() === '') {
+        reject('Lüfen kasa adı giriniz.');
+      } else if (record.data.phone1 === '' || record.data.phone1.trim() === '') {
+        reject('Lüfen telefon giriniz.');
+      } else if (record.data.owner === '' || record.data.owner.trim() === '') {
+        reject('Lüfen yetkili kişi giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
   }
 
-  clearMainModel(): CustomerMainModel {
-
-    const returnData = new CustomerMainModel();
-    returnData.data = this.clearModel();
-    returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
-    returnData.executive = this.employeeMap.get(returnData.data.executivePrimary);
-    returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
-    returnData.termTr = getTerms().get(returnData.data.termKey);
-
-    return returnData;
+  checkForRemove(record: CustomerMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   checkFields(model: CustomerModel): CustomerModel {
@@ -127,6 +110,43 @@ export class CustomerService {
     if (model.termKey === undefined) { model.termKey = cleanModel.termKey; }
 
     return model;
+  }
+
+  clearModel(): CustomerModel {
+
+    const returnData = new CustomerModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.executivePrimary = '-1';
+    returnData.code = '';
+    returnData.name = '';
+    returnData.owner = '';
+    returnData.phone1 = '';
+    returnData.phone2 = '';
+    returnData.email = '';
+    returnData.address = '';
+    returnData.isActive = true;
+    returnData.taxOffice = '';
+    returnData.taxNumber = '';
+    returnData.postCode = '';
+    returnData.paymentTypeKey = '-1';
+    returnData.termKey = '-1';
+    returnData.defaultAccountPrimaryKey = '-1';
+
+    return returnData;
+  }
+
+  clearMainModel(): CustomerMainModel {
+
+    const returnData = new CustomerMainModel();
+    returnData.data = this.clearModel();
+    returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.executive = this.employeeMap.get(returnData.data.executivePrimary);
+    returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
+    returnData.termTr = getTerms().get(returnData.data.termKey);
+
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {

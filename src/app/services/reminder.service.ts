@@ -56,6 +56,31 @@ export class ReminderService {
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
   }
 
+  checkForSave(record: ReminderModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.description.trim() === '') {
+        reject('Lütfen açıklama giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: ReminderModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: ReminderModel): ReminderModel {
+    const cleanModel = this.clearMainModel();
+    if (model.isPersonal === undefined) { model.isPersonal = cleanModel.isPersonal; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.periodType === undefined) { model.periodType = cleanModel.periodType; }
+    return model;
+  }
+
   clearMainModel(): ReminderModel {
     const returnData = new ReminderModel();
     returnData.primaryKey = null;
@@ -71,15 +96,6 @@ export class ReminderService {
     returnData.reminderDate = Date.now();
     returnData.insertDate = Date.now();
     return returnData;
-  }
-
-  checkFields(model: ReminderModel): ReminderModel {
-    const cleanModel = this.clearMainModel();
-    if (model.isPersonal === undefined) { model.isPersonal = cleanModel.isPersonal; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.periodType === undefined) { model.periodType = cleanModel.periodType; }
-    return model;
   }
 
   getItem(primaryKey: string): Observable<ReminderModel> {

@@ -8,7 +8,7 @@ import { CustomerModel } from '../models/customer-model';
 import { CustomerTargetModel } from '../models/customer-target-model';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { LogService } from './log.service';
-import {getTodayForInput, getMonths, currencyFormat} from '../core/correct-library';
+import {getTodayForInput, getMonths, currencyFormat, getNumber, getFloat} from '../core/correct-library';
 import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
 
 @Injectable({
@@ -46,6 +46,45 @@ export class CustomerTargetService {
     return this.db.collection(this.tableName).doc(record.data.primaryKey);
   }
 
+  checkForSave(record: CustomerTargetMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '-1' || record.data.customerCode === '') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (getNumber(record.data.year) < getTodayForInput().year) {
+        reject('Lütfen yıl seçiniz.');
+      } else if (record.data.type === 'monthly' && record.data.beginMonth < 1) {
+        reject('Lütfen ay seçiniz.');
+      } else if (record.data.type === 'periodic' && record.data.beginMonth < 1) {
+        reject('Lütfen başlangıç ayı seçiniz.');
+      } else if (record.data.type === 'periodic' && record.data.finishMonth < 1) {
+        reject('Lütfen bitiş ayı seçiniz.');
+      } else if (getFloat(record.data.amount) <= 0) {
+        reject('Lütfen hedef giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: CustomerTargetMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: CustomerTargetModel): CustomerTargetModel {
+    const cleanModel = this.clearSubModel();
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.beginMonth === undefined) { model.beginMonth = cleanModel.beginMonth; }
+    if (model.finishMonth === undefined) { model.finishMonth = cleanModel.finishMonth; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   clearSubModel(): CustomerTargetModel {
     const returnData = new CustomerTargetModel();
     returnData.primaryKey = null;
@@ -71,19 +110,6 @@ export class CustomerTargetService {
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
-  }
-
-  checkFields(model: CustomerTargetModel): CustomerTargetModel {
-    const cleanModel = this.clearSubModel();
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
-    if (model.beginMonth === undefined) { model.beginMonth = cleanModel.beginMonth; }
-    if (model.finishMonth === undefined) { model.finishMonth = cleanModel.finishMonth; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-
-    return model;
   }
 
   getMainItems(): Observable<CustomerTargetMainModel[]> {

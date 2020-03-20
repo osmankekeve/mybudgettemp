@@ -23,6 +23,7 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
+import {PaymentMainModel} from '../models/payment-main-model';
 
 @Component({
   selector: 'app-account-voucher',
@@ -286,11 +287,7 @@ export class AccountVoucherComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.amount <= 0) {
-      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (isNullOrEmpty(this.recordDate)) {
-      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
-    } else {
+    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
       this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
@@ -338,21 +335,27 @@ export class AccountVoucherComponent implements OnInit {
           this.finishRecordProcess();
         });
       }
-    }
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   async btnRemove_Click(): Promise<void> {
-    await this.service.removeItem(this.selectedRecord).then(() => {
-      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-        list.forEach((item) => {
-          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-            this.infoService.success('Fiş başarıyla kaldırıldı.');
-          }).catch(err => this.infoService.error(err));
+    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      await this.service.removeItem(this.selectedRecord).then(() => {
+        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Fiş başarıyla kaldırıldı.');
+            }).catch(err => this.infoService.error(err));
+          });
         });
+      }).catch(err => this.infoService.error(err)).finally(() => {
+        this.finishRecordProcess();
       });
-    }).catch(err => this.infoService.error(err)).finally(() => {
-      this.finishRecordProcess();
+    }).catch((error) => {
+      this.infoService.error(error);
     });
   }
 
@@ -381,6 +384,27 @@ export class AccountVoucherComponent implements OnInit {
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
+  }
+
+  async btnCreateAccounts_Click(): Promise<void> {
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+      .then((values: any) => {
+        if ((values[0] !== undefined || values[0] !== null)) {
+          const returnData = values[0] as Array<AccountVoucherMainModel>;
+          returnData.forEach(doc => {
+            doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
+            this.service.updateItem(doc).then(() => {
+              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
+                list.forEach((item) => {
+                  const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
+                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
+                });
+              });
+            });
+          });
+        }
+      });
   }
 
   async onChangeCustomer(value: any): Promise<void> {

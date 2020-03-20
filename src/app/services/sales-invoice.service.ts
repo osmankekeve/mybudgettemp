@@ -10,7 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat} from '../core/correct-library';
+import {currencyFormat, getFloat, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
@@ -76,6 +76,48 @@ export class SalesInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
+  checkForSave(record: SalesInvoiceMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+        reject('Lütfen hesap seçiniz.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası seçiniz.');
+      } else if (record.data.type === '' || record.data.type === '-1') {
+        reject('Lütfen fatura tipi seçiniz.');
+      } else if (record.data.totalPrice <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (record.data.totalPrice <= 0) {
+        reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: SalesInvoiceMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: SalesInvoiceModel): SalesInvoiceModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
+    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   clearSubModel(): SalesInvoiceModel {
 
     const returnData = new SalesInvoiceModel();
@@ -103,20 +145,6 @@ export class SalesInvoiceService {
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
-  }
-
-  checkFields(model: SalesInvoiceModel): SalesInvoiceModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
-    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {

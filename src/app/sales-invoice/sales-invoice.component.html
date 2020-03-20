@@ -1,6 +1,7 @@
 <div class="card work-area" *ngIf="selectedRecord==undefined">
   <div class="card-header bg-gray-gradient">
     <div class="row">
+      <div class="col-sm-8">
         <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Satış Faturası Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fatura"
@@ -126,16 +127,20 @@
                     <div class="col-sm-3"></div>
                     <div class="col-sm-3">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    <div class="col-sm-2"><span
+                      class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    </div>
                   </div>
 
                 </div>
                 <li class="list-group-item list-group-item-success main-list-item">
                   <div class="row">
                     <div class="col-sm-6">Toplam</div>
-                    <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
+                    <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span>
+                    </div>
+                    <div class="col-sm-2"><span
+                      class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
                     </div>
                   </div>
                 </li>
@@ -170,15 +175,18 @@
                   <div class="col-sm-2">{{item.customer.owner}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
+                  </div>
+                  <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+                  </div>
                 </div>
               </div>
               <li class="list-group-item list-group-item-success main-list-item">
                 <div class="row">
                   <div class="col-sm-6">Toplam</div>
                   <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
+                  <div class="col-sm-2"><span
+                    class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
                   </div>
                 </div>
               </li>

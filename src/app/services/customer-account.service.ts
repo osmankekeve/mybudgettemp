@@ -75,6 +75,35 @@ export class CustomerAccountService {
     return await this.listCollection.doc(record.data.primaryKey).set(Object.assign({}, record.data));
   }
 
+  checkForSave(record: CustomerAccountMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerPrimaryKey === '' || record.data.customerPrimaryKey === '-1') {
+        reject('Lüfen müşteri seçiniz.');
+      } else if (record.data.name === '') {
+        reject('Lüfen hesap adı giriniz.');
+      } else if (record.data.currencyCode === '' || record.data.currencyCode === '-1') {
+        reject('Lütfen döviz seçiniz.');
+      }  else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: CustomerAccountMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: CustomerAccountModel): CustomerAccountModel {
+    const cleanModel = this.clearSubModel();
+    if (model.customerPrimaryKey === undefined) { model.customerPrimaryKey = cleanModel.customerPrimaryKey; }
+    if (model.name === undefined) { model.name = cleanModel.name; }
+    if (model.currencyCode === undefined) { model.currencyCode = cleanModel.currencyCode; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    return model;
+  }
+
   clearSubModel(): CustomerAccountModel {
 
     const returnData = new CustomerAccountModel();
@@ -96,15 +125,6 @@ export class CustomerAccountService {
     returnData.actionType = 'added';
     returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
     return returnData;
-  }
-
-  checkFields(model: CustomerAccountModel): CustomerAccountModel {
-    const cleanModel = this.clearSubModel();
-    if (model.customerPrimaryKey === undefined) { model.customerPrimaryKey = cleanModel.customerPrimaryKey; }
-    if (model.name === undefined) { model.name = cleanModel.name; }
-    if (model.currencyCode === undefined) { model.currencyCode = cleanModel.currencyCode; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {

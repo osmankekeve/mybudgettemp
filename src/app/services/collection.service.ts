@@ -11,7 +11,7 @@ import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat} from '../core/correct-library';
+import {currencyFormat, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PaymentModel} from '../models/payment-model';
@@ -70,6 +70,34 @@ export class CollectionService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
+  checkForSave(record: CollectionMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+        reject('Lütfen hesap seçiniz.');
+      } else if (record.data.type === '' || record.data.type === '-1') {
+        reject('Lütfen tahsilat tipi seçiniz.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası seçiniz.');
+      } else if (record.data.cashDeskPrimaryKey === '' || record.data.cashDeskPrimaryKey === '-1') {
+        reject('Lütfen kasa seçiniz.');
+      } else if (record.data.amount <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: CollectionMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
   clearSubModel(): CollectionModel {
 
     const returnData = new CollectionModel();
@@ -79,6 +107,7 @@ export class CollectionService {
     returnData.customerCode = '-1';
     returnData.type = '-1';
     returnData.accountPrimaryKey = '-1';
+    returnData.cashDeskPrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.amount = 0;
     returnData.description = '';

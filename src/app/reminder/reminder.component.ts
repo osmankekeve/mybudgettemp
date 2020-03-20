@@ -101,37 +101,49 @@ export class ReminderComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
-    this.selectedRecord.year = this.recordDate.year;
-    this.selectedRecord.month = this.recordDate.month;
-    this.selectedRecord.day = this.recordDate.day;
-    if (this.selectedRecord.description === '') {
-      this.infoService.error('Lütfen açıklama giriniz.');
-    } else {
-      this.onTransaction = true;
-      if (this.selectedRecord.primaryKey === null) {
-        this.selectedRecord.primaryKey = '';
-        await this.service.addItem(this.selectedRecord).then(() => {
+    try {
+      this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.year = this.recordDate.year;
+      this.selectedRecord.month = this.recordDate.month;
+      this.selectedRecord.day = this.recordDate.day;
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        this.onTransaction = true;
+        if (this.selectedRecord.primaryKey === null) {
+          this.selectedRecord.primaryKey = '';
+          await this.service.addItem(this.selectedRecord).then(() => {
             this.infoService.success('Hatırlatma başarıyla kaydedildi.');
           }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-      } else {
-        await this.service.updateItem(this.selectedRecord).then(() => {
+            this.finishRecordProcess();
+          });
+        } else {
+          await this.service.updateItem(this.selectedRecord).then(() => {
             this.infoService.success('Hatırlatma başarıyla güncellendi.');
           }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-      }
+            this.finishRecordProcess();
+          });
+        }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord)
-    .then(() => {
-      this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
-      this.selectedRecord = undefined;
-    }).catch(err => this.infoService.error(err));
+  async btnRemove_Click(): Promise<void> {
+    try {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
+            this.selectedRecord = undefined;
+          }).catch(err => this.infoService.error(err));
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnMainFilter_Click(): void {

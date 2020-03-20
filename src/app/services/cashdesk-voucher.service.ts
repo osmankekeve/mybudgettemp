@@ -10,9 +10,10 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
-import {currencyFormat, getCashDeskVoucherType} from '../core/correct-library';
+import {currencyFormat, getCashDeskVoucherType, isNullOrEmpty} from '../core/correct-library';
 import {ProfileService} from './profile.service';
 import {AccountVoucherModel} from '../models/account-voucher-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -68,16 +69,42 @@ export class CashDeskVoucherService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
+  checkForSave(record: CashDeskVoucherMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.type === '' ||  record.data.type === '-1') {
+        reject('Lütfen fiş tipi seçiniz.');
+      } else if (record.data.transactionType === '' ||  record.data.transactionType === '-1') {
+        reject('Lütfen işlem tipi seçiniz.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası.');
+      } else if (record.data.firstCashDeskPrimaryKey === '') {
+        reject('Lütfen ana kasa seçiniz.');
+      } else if (record.data.amount <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: CashDeskVoucherMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
   clearSubModel(): CashdeskVoucherModel {
 
     const returnData = new CashdeskVoucherModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.type = '-1';
-    returnData.transactionType = '';
-    returnData.receiptNo = '';
-    returnData.firstCashDeskPrimaryKey = '-1';
+    returnData.type = '-1'; // kontrole takılsın istediğim için -1 değeri verdim
+    returnData.transactionType = '-1';
+    returnData.receiptNo = ''; // kontrole takılmayacak ancak valid kontrolünde olacak
+    returnData.firstCashDeskPrimaryKey = '';
     returnData.secondCashDeskPrimaryKey = '';
     returnData.amount = 0;
     returnData.description = '';

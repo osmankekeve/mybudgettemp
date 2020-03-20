@@ -281,7 +281,7 @@ export class CollectionComponent implements OnInit {
           this.isRecordHasTransaction = false;
         }
       });
-    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
   }
 
   btnShowMainFiler_Click(): void {
@@ -319,19 +319,7 @@ export class CollectionComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.customerCode === '') {
-      this.infoService.error('Lütfen müşteri seçiniz.');
-    } else if (this.selectedRecord.data.accountPrimaryKey === '') {
-      this.infoService.error('Lütfen hesap seçiniz.');
-    } else if (this.selectedRecord.data.type === '') {
-      this.infoService.error('Lütfen tahsilat tipi seçiniz.');
-    } else if (this.selectedRecord.data.cashDeskPrimaryKey === '') {
-      this.infoService.error('Lütfen kasa seçiniz.');
-    } else if (this.selectedRecord.data.amount <= 0) {
-      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (isNullOrEmpty(this.recordDate)) {
-      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
-    } else {
+    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
       this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
@@ -377,21 +365,27 @@ export class CollectionComponent implements OnInit {
           });
         }).catch(err => this.infoService.error(err));
       }
-    }
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   async btnRemove_Click(): Promise<void> {
-    await this.service.removeItem(this.selectedRecord).then(() => {
-      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-        list.forEach((item) => {
-          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-            this.infoService.success('Tahsilat başarıyla kaldırıldı.');
-          }).catch(err => this.infoService.error(err));
+    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      await this.service.removeItem(this.selectedRecord).then(() => {
+        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+          list.forEach((item) => {
+            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+              this.infoService.success('Tahsilat başarıyla kaldırıldı.');
+            }).catch(err => this.infoService.error(err));
+          });
         });
+      }).catch(err => this.infoService.error(err)).finally(() => {
+        this.finishRecordProcess();
       });
-    }).catch(err => this.infoService.error(err)).finally(() => {
-      this.finishRecordProcess();
+    }).catch((error) => {
+      this.infoService.error(error);
     });
   }
 

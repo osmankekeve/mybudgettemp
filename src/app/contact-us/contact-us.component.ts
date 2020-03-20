@@ -81,26 +81,30 @@ export class ContactUsComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
   }
 
-  btnSave_Click() {
-    if (this.selectedRecord.data.content === '') {
-      this.infoService.error('Lütfen içerik giriniz.');
-    } else {
-      this.service.addItem(this.selectedRecord).then(() => {
-        this.infoService.success('Ticket başarıyla kaydedildi. En kısa süre de dönüş yapılacaktır.');
-        if (CONFIG.isSendMail) {
-          emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsContactUsTemplateID, {
-            mailTo: CONFIG.mailTo,
-            mailToName: CONFIG.mailToName,
-            mailFromName: CONFIG.mailFromName,
-            employeeName: this.selectedRecord.employeeName,
-            content: this.selectedRecord.data.content
-          }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
-            console.log(result.text);
-          }, (error) => {
-            console.log(error.text);
-          });
-        }
-      }).catch(err => this.infoService.error(err));
+  async btnSave_Click(): Promise<void> {
+    try {
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.addItem(this.selectedRecord).then(() => {
+          this.infoService.success('Ticket başarıyla kaydedildi. En kısa süre de dönüş yapılacaktır.');
+          if (CONFIG.isSendMail) {
+            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsContactUsTemplateID, {
+              mailTo: CONFIG.mailTo,
+              mailToName: CONFIG.mailToName,
+              mailFromName: CONFIG.mailFromName,
+              employeeName: this.selectedRecord.employeeName,
+              content: this.selectedRecord.data.content
+            }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
+              console.log(result.text);
+            }, (error) => {
+              console.log(error.text);
+            });
+          }
+        }).catch(err => this.infoService.error(err));
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 

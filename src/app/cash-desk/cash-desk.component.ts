@@ -93,34 +93,39 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     try {
-      if (this.selectedRecord.data.primaryKey === null) {
-        this.selectedRecord.data.primaryKey = '';
-        this.service.addItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Kasa başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-      } else {
-        this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Kasa başarıyla güncellendi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-      }
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        if (this.selectedRecord.data.primaryKey === null) {
+          this.selectedRecord.data.primaryKey = '';
+          await this.service.addItem(this.selectedRecord).then(() => {
+              this.infoService.success('Kasa başarıyla kaydedildi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
+        } else {
+          await this.service.updateItem(this.selectedRecord).then(() => {
+              this.infoService.success('Kasa başarıyla güncellendi.');
+              this.selectedRecord = undefined;
+            }).catch(err => this.infoService.error(err));
+        }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (error) {
       this.infoService.error(error);
     }
   }
 
-  btnRemove_Click(): void {
+  async btnRemove_Click(): Promise<void> {
     try {
-      this.service.removeItem(this.selectedRecord)
-        .then(() => {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord).then(() => {
           this.infoService.success('Kasa başarıyla kaldırıldı.');
           this.selectedRecord = undefined;
         }).catch(err => this.infoService.error(err));
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
     } catch (error) {
       this.infoService.error(error);
     }

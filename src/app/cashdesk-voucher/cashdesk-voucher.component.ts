@@ -9,14 +9,8 @@ import { CashDeskService } from '../services/cash-desk.service';
 import { InformationService } from '../services/information.service';
 import { CashDeskVoucherService } from '../services/cashdesk-voucher.service';
 import {
-  getFirstDayOfMonthForInput,
-  getTodayForInput,
-  isNullOrEmpty,
-  getDateForInput,
-  getInputDataForInsert,
-  getEncryptionKey,
-  getFloat,
-  currencyFormat, moneyFormat
+  getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty, getDateForInput, getInputDataForInsert, getEncryptionKey,
+  getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -129,18 +123,13 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnSave_Click(): void {
+  async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.amount <= 0) {
-      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (isNullOrEmpty(this.recordDate)) {
-      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
-    } else {
+    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
         this.selectedRecord.data.primaryKey = '';
-
-        this.service.setItem(this.selectedRecord, newId).then(() => {
+        await this.service.setItem(this.selectedRecord, newId).then(() => {
           let calculatedAmount1 = this.selectedRecord.data.transactionType === 'credit' ?
             this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1;
           if (this.selectedRecord.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
@@ -186,13 +175,16 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
           }).catch(err => this.infoService.error(err));
         }).catch(err => this.infoService.error(err));
       }
-    }
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
-  btnRemove_Click(): void {
-    this.service.removeItem(this.selectedRecord).then(() => {
-      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+  async btnRemove_Click(): Promise<void> {
+    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      await this.service.removeItem(this.selectedRecord).then(() => {
+        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
           list.forEach((item) => {
             this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
               this.infoService.success('Fiş başarıyla kaldırıldı.');
@@ -200,7 +192,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
             }).catch(err => this.infoService.error(err));
           });
         });
-    }).catch(err => this.infoService.error(err));
+      }).catch(err => this.infoService.error(err));
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   btnShowMainFiler_Click(): void {

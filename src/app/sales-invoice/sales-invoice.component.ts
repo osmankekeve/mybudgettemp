@@ -276,7 +276,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
-    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
   }
 
   btnShowMainFiler_Click(): void {
@@ -313,80 +313,84 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    if (this.selectedRecord.data.customerCode === '-1') {
-      this.infoService.error('Lütfen müşteri seçiniz.');
-    } else if (this.selectedRecord.data.accountPrimaryKey === '-1') {
-      this.infoService.error('Lütfen hesap seçiniz.');
-    } else if (this.selectedRecord.data.totalPrice <= 0) {
-      this.infoService.error('Tutar sıfırdan büyük olmalıdır.');
-    } else if (this.selectedRecord.data.totalPrice <= 0) {
-      this.infoService.error('Tutar (+KDV) sıfırdan büyük olmalıdır.');
-    } else if (isNullOrEmpty(this.recordDate)) {
-      this.infoService.error('Lütfen kayıt tarihi seçiniz.');
-    } else {
-      this.onTransaction = true;
-      if (this.selectedRecord.data.primaryKey === null) {
-        const newId = this.db.createId();
-        this.selectedRecord.data.primaryKey = '';
-        await this.service.setItem(this.selectedRecord, newId).then(() => {
-          const trans = {
-            primaryKey: '',
-            userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-            receiptNo: this.selectedRecord.data.receiptNo,
-            transactionPrimaryKey: newId,
-            transactionType: 'salesInvoice',
-            parentPrimaryKey: this.selectedRecord.data.customerCode,
-            parentType: 'customer',
-            accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-            cashDeskPrimaryKey: '-1',
-            amount: this.selectedRecord.data.type === 'sales' ?
-              this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
-            amountType: this.selectedRecord.data.type === 'sales' ? 'debit' : 'credit',
-            insertDate: this.selectedRecord.data.insertDate
-          };
-          this.db.collection('tblAccountTransaction').add(trans).then(() => {
-            this.infoService.success('Fatura başarıyla kaydedildi.');
-          }).catch(err => this.infoService.error(err));
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-      } else {
-        await this.service.updateItem(this.selectedRecord).then(() => {
-          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-            ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-            list.forEach((item) => {
-              const trans = {
-                receiptNo: this.selectedRecord.data.receiptNo,
-                insertDate: this.selectedRecord.data.insertDate,
-                amount: this.selectedRecord.data.type === 'sales' ?
-                  this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
-              };
-              this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-                this.infoService.success('Fatura başarıyla güncellendi.');
-              }).catch(err => this.infoService.error(err)).finally(() => {
-                this.finishRecordProcess();
+    try {
+      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+        this.onTransaction = true;
+        if (this.selectedRecord.data.primaryKey === null) {
+          const newId = this.db.createId();
+          this.selectedRecord.data.primaryKey = '';
+          await this.service.setItem(this.selectedRecord, newId).then(() => {
+            const trans = {
+              primaryKey: '',
+              userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+              receiptNo: this.selectedRecord.data.receiptNo,
+              transactionPrimaryKey: newId,
+              transactionType: 'salesInvoice',
+              parentPrimaryKey: this.selectedRecord.data.customerCode,
+              parentType: 'customer',
+              accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
+              cashDeskPrimaryKey: '-1',
+              amount: this.selectedRecord.data.type === 'sales' ?
+                this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
+              amountType: this.selectedRecord.data.type === 'sales' ? 'debit' : 'credit',
+              insertDate: this.selectedRecord.data.insertDate
+            };
+            this.db.collection('tblAccountTransaction').add(trans).then(() => {
+              this.infoService.success('Fatura başarıyla kaydedildi.');
+            }).catch(err => this.infoService.error(err));
+          }).catch(err => this.infoService.error(err)).finally(() => {
+            this.finishRecordProcess();
+          });
+        } else {
+          await this.service.updateItem(this.selectedRecord).then(() => {
+            this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+              ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+              list.forEach((item) => {
+                const trans = {
+                  receiptNo: this.selectedRecord.data.receiptNo,
+                  insertDate: this.selectedRecord.data.insertDate,
+                  amount: this.selectedRecord.data.type === 'sales' ?
+                    this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
+                };
+                this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+                  this.infoService.success('Fatura başarıyla güncellendi.');
+                }).catch(err => this.infoService.error(err)).finally(() => {
+                  this.finishRecordProcess();
+                });
               });
             });
           });
-        });
-      }
+        }
+      }).catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
-    await this.service.removeItem(this.selectedRecord).then(() => {
-      this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-        ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-        list.forEach((item) => {
-          this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-            this.infoService.success('Fatura başarıyla kaldırıldı.');
-          }).catch(err => this.infoService.error(err));
+    try {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord).then(() => {
+          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+            ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+            list.forEach((item) => {
+              this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+                this.infoService.success('Fatura başarıyla kaldırıldı.');
+              }).catch(err => this.infoService.error(err));
+            });
+          });
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
         });
+      }).catch((error) => {
+        this.infoService.error(error);
       });
-    }).catch(err => this.infoService.error(err)).finally(() => {
-      this.finishRecordProcess();
-    });
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnExportToExcel_Click(): void {

@@ -117,13 +117,7 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    if (this.selectedRecord.data.name === '') {
-      this.infoService.error('Lütfen hesap adı giriniz.');
-    } else if (this.selectedRecord.data.customerPrimaryKey === '-1') {
-      this.infoService.error('Lütfen müşteri seçiniz.');
-    } else if (this.selectedRecord.data.currencyCode === '-1') {
-      this.infoService.error('Lütfen döviz seçiniz.');
-    }  else {
+    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
       this.onTransaction = true;
       if (this.selectedRecord.data.primaryKey === null) {
         this.selectedRecord.data.primaryKey = this.db.createId();
@@ -139,14 +133,20 @@ export class CustomerAccountComponent implements OnInit {
           this.finishRecordProcess();
         });
       }
-    }
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   async btnRemove_Click(): Promise<void> {
-    await this.service.removeItem(this.selectedRecord).then(() => {
-      this.infoService.success('Hesap başarıyla kaldırıldı.');
-    }).catch(err => this.infoService.error(err)).finally(() => {
-      this.finishRecordProcess();
+    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      await this.service.removeItem(this.selectedRecord).then(() => {
+        this.infoService.success('Hesap başarıyla kaldırıldı.');
+      }).catch(err => this.infoService.error(err)).finally(() => {
+        this.finishRecordProcess();
+      });
+    }).catch((error) => {
+      this.infoService.error(error);
     });
   }
 

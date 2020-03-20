@@ -1,20 +1,11 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
-import {ReminderModel} from '../models/reminder-model';
-import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import {ProfileMainModel} from '../models/profile-main-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
-import {combineLatest} from 'rxjs';
 import {TodoListModel} from '../models/to-do-list-model';
-import {CollectionModel} from '../models/collection-model';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {getBoolStr} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -54,6 +45,22 @@ export class ToDoService {
 
   async setItem(record: TodoListMainModel) {
     return await this.listCollection.doc(record.data.primaryKey).set(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: TodoListMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.todoText.trim() === '') {
+        reject('Lüfen açıklama giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: TodoListMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   getItem(primaryKey: string): Promise<any> {

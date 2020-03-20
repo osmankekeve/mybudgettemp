@@ -15,7 +15,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {currencyFormat, getString} from '../core/correct-library';
+import {currencyFormat, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 
 @Injectable({
@@ -70,6 +70,48 @@ export class PurchaseInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
+  checkForSave(record: PurchaseInvoiceMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+        reject('Lütfen hesap seçiniz.');
+      } else if (record.data.type === '' || record.data.type === '-1') {
+        reject('Lütfen fatura tipi seçiniz.');
+      } else if (record.data.totalPrice <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası seçiniz.');
+      } else if (record.data.totalPrice <= 0) {
+        reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: PurchaseInvoiceMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: PurchaseInvoiceModel): PurchaseInvoiceModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
+    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+
+    return model;
+  }
+
   clearSubModel(): PurchaseInvoiceModel {
 
     const returnData = new PurchaseInvoiceModel();
@@ -97,20 +139,6 @@ export class PurchaseInvoiceService {
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
-  }
-
-  checkFields(model: PurchaseInvoiceModel): PurchaseInvoiceModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
-    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -251,9 +279,17 @@ export class PurchaseInvoiceService {
     Promise<Array<PurchaseInvoiceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<PurchaseInvoiceMainModel>();
-      this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      }).get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as PurchaseInvoiceModel;
           data.primaryKey = doc.id;

@@ -10,6 +10,8 @@
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle" hidden
+                (click)="btnCreateAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -152,7 +154,10 @@
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
-                  <div class="col-sm-3"><span class="text-danger">{{item.customerName}}</span></div>
+                  <div class="col-sm-3">
+                    <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
+                    <span class="text-danger">{{item.customerName}}</span>
+                  </div>
                   <div class="col-sm-3">{{item.customer.owner}}</div>
                   <div class="col-sm-2">{{item.data.receiptNo}}</div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>

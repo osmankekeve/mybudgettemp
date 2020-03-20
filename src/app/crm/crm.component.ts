@@ -179,34 +179,42 @@ export class CRMComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     const date = new Date(this.today.year, this.today.month - 1, this.today.day);
-    if (this.selectedRecord.primaryKey === undefined) {
-      this.onTransaction = true;
-      this.selectedRecord.primaryKey = '';
-      this.selectedRecord.actionDate = date.getTime();
-      await this.service.addItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Etkinlik başarıyla kaydedildi.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-    } else {
-      await this.service.updateItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Etkinlik başarıyla güncellendi.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-    }
+    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+      if (this.selectedRecord.primaryKey === undefined) {
+        this.onTransaction = true;
+        this.selectedRecord.primaryKey = '';
+        this.selectedRecord.actionDate = date.getTime();
+        await this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Etkinlik başarıyla kaydedildi.');
+          }).catch(err => this.infoService.error(err)).finally(() => {
+            this.finishRecordProcess();
+          });
+      } else {
+        await this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Etkinlik başarıyla güncellendi.');
+          }).catch(err => this.infoService.error(err)).finally(() => {
+            this.finishRecordProcess();
+          });
+      }
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   async btnRemove_Click(): Promise<void> {
-    this.onTransaction = true;
-    await this.service.removeItem(this.selectedRecord)
-      .then(() => {
-        this.infoService.success('Etkinlik başarıyla kaldırıldı.');
-      }).catch(err => this.infoService.error(err)).finally(() => {
-        this.finishRecordProcess();
-      });
+    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      this.onTransaction = true;
+      await this.service.removeItem(this.selectedRecord)
+        .then(() => {
+          this.infoService.success('Etkinlik başarıyla kaldırıldı.');
+        }).catch(err => this.infoService.error(err)).finally(() => {
+          this.finishRecordProcess();
+        });
+    }).catch((error) => {
+      this.infoService.error(error);
+    });
   }
 
   async btnReturnList_Click(): Promise<void> {

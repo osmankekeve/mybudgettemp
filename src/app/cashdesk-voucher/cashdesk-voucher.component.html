@@ -132,7 +132,7 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
                   (change)="onChangeVoucherType($event.target.value)"
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.type">
             <option value="open">Açılış</option>
             <option value="transfer">Transfer</option>
@@ -145,7 +145,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="transactionType" name="transactionType" required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.transactionType">
             <option value="credit">Alacaklandırma</option>
             <option value="debit">Borçlandırma</option>
@@ -158,7 +158,7 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="firstCashDeskPrimaryKey" name="firstCashDeskPrimaryKey"
                   required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.firstCashDeskPrimaryKey">
             <option value={{item.returnData.data.primaryKey}}
                     *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>

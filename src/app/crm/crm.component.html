@@ -78,7 +78,8 @@
           </div>
         </div>
         <div class="col-sm-6">
-          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+          <div class="card-list-parent"
+               *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
@@ -128,7 +129,7 @@
         </div>
         <div class="col-sm-9">
           <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required
-                  [disabled]="f.valid"
+                  [disabled]="selectedRecord.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.parentPrimaryKey">
             <option value={{item.primaryKey}}
                     *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>

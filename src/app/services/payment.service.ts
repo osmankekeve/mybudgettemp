@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getString} from '../core/correct-library';
+import {currencyFormat, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CollectionModel} from '../models/collection-model';
 
@@ -72,6 +72,64 @@ export class PaymentService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
+  checkForSave(record: PaymentMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+        reject('Lütfen hesap seçiniz.');
+      } else if (record.data.type === '' || record.data.type === '-1') {
+        reject('Lütfen ödeme tipi seçiniz.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası seçiniz.');
+      } else if (record.data.cashDeskPrimaryKey === '' || record.data.cashDeskPrimaryKey === '-1') {
+        reject('Lütfen kasa seçiniz.');
+      } else if (record.data.amount <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: PaymentMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: PaymentModel): PaymentModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.customerCode === undefined) {
+      model.customerCode = cleanModel.customerCode;
+    }
+    if (model.accountPrimaryKey === undefined) {
+      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
+    }
+    if (model.cashDeskPrimaryKey === undefined) {
+      model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+    if (model.amount === undefined) {
+      model.amount = cleanModel.amount;
+    }
+
+    return model;
+  }
+
   clearSubModel(): PaymentModel {
 
     const returnData = new PaymentModel();
@@ -82,7 +140,7 @@ export class PaymentService {
     returnData.type = '-1';
     returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
-    returnData.cashDeskPrimaryKey = '';
+    returnData.cashDeskPrimaryKey = '-1';
     returnData.description = '';
     returnData.amount = 0;
     returnData.insertDate = Date.now();
@@ -98,20 +156,6 @@ export class PaymentService {
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
-  }
-
-  checkFields(model: PaymentModel): PaymentModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -180,7 +224,8 @@ export class PaymentService {
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -205,7 +250,8 @@ export class PaymentService {
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -236,7 +282,8 @@ export class PaymentService {
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -246,8 +293,17 @@ export class PaymentService {
     Promise<Array<PaymentMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<PaymentMainModel>();
-      this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      })
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as PaymentModel;
@@ -267,5 +323,5 @@ export class PaymentService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 }

@@ -10,6 +10,7 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
 import {SalesInvoiceModel} from '../models/sales-invoice-model';
+import {NoteModel} from '../models/note-model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,22 @@ export class CashDeskService {
 
   async updateItem(record: CashDeskMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: CashDeskMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.name === null || record.data.name.trim() === '') {
+        reject('Lüfen kasa adı giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: CashDeskMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   clearSubModel(): CashDeskModel {

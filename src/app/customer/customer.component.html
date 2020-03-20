@@ -332,6 +332,17 @@
               <form (ngSubmit)="btnSaveSalesInvoice_Click()" class="was-validated" #fs="ngForm">
                 <div class="form-row">
                   <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
+                            [(ngModel)]="newSalesInvoice.data.accountPrimaryKey">
+                      <option value={{item.primaryKey}}
+                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+                  </div>
+                  <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Fatura Tipi</label>
                   </div>
                   <div class="col-sm-6">
@@ -407,17 +418,32 @@
               <span class="font-weight-bold float-right">{{siAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
-                    class="cursor-pointer"
-                    (click)="showTransactionRecord(item)">
-                  <td>{{item.receiptNo}}</td>
-                  <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">
@@ -440,6 +466,17 @@
             <div class="card-body">
               <form (ngSubmit)="btnSaveCollection_Click()" class="was-validated" #fc="ngForm">
                 <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
+                            [(ngModel)]="newCollection.data.accountPrimaryKey">
+                      <option value={{item.primaryKey}}
+                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+                  </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Tahsilat Tipi</label>
                   </div>
@@ -521,24 +558,33 @@
               <span class="font-weight-bold float-right">{{colAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <tbody>
-                <tr [class.main-list-item] *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
-                    class="cursor-pointer"
-                    (click)="showTransactionRecord(item)">
-                  <td>{{item.receiptNo}}</td>
-                  <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">
                 <div class="card-body">Görüntülenecek veri bulunamadı.</div>
               </div>
             </ng-template>
-
           </div>
         </div>
       </div>
@@ -555,6 +601,17 @@
             <div class="card-body">
               <form (ngSubmit)="btnSavePurchaseInvoice_Click()" class="was-validated" #fa="ngForm">
                 <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
+                            [(ngModel)]="newPurchaseInvoice.data.accountPrimaryKey">
+                      <option value={{item.primaryKey}}
+                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+                  </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Fatura Tipi</label>
                   </div>
@@ -632,26 +689,39 @@
               <span class="font-weight-bold float-right">{{purchaseInvoiceAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
-                    class="cursor-pointer"
-                    (click)="showTransactionRecord(item)">
-                  <td>{{item.receiptNo}}</td>
-                  <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">
                 <div class="card-body">Görüntülenecek veri bulunamadı.</div>
               </div>
             </ng-template>
-
           </div>
-
         </div>
       </div>
     </div>
@@ -667,6 +737,17 @@
             <div class="card-body">
               <form (ngSubmit)="btnSavePayment_Click()" class="was-validated" #fp="ngForm">
                 <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
+                            [(ngModel)]="newPayment.data.accountPrimaryKey">
+                      <option value={{item.primaryKey}}
+                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+                  </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Ödeme Tipi</label>
                   </div>
@@ -748,24 +829,38 @@
               <span class="font-weight-bold float-right">{{payAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
-                    class="cursor-pointer"
-                    (click)="showTransactionRecord(item)">
-                  <td>{{item.receiptNo}}</td>
-                  <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">
                 <div class="card-body">Görüntülenecek veri bulunamadı.</div>
               </div>
             </ng-template>
-
           </div>
         </div>
       </div>
@@ -782,6 +877,17 @@
             <div class="card-body">
               <form (ngSubmit)="btnSaveVoucher_Click()" class="was-validated" #v="ngForm">
                 <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
+                            [(ngModel)]="newVoucher.data.accountPrimaryKey">
+                      <option value={{item.primaryKey}}
+                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
+                  </div>
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Fiş Tipi</label>
                   </div>
@@ -863,17 +969,32 @@
               <span class="font-weight-bold float-right">{{voucherAmount | currency:'₺'}}</span>
             </div>
             <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey"
-                    class="cursor-pointer"
-                    (click)="showTransactionRecord(item)">
-                  <td>{{item.receiptNo}}</td>
-                  <td><span class="float-right">{{item.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">
@@ -889,7 +1010,7 @@
     <div class="card-body">
       <div class="card card-stats">
         <div class="card-body">
-          <form (ngSubmit)="btnSave_Click()" class="was-validated">
+          <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
             <div class="form-row form-inline">
               <div class="col-sm-3">
                 <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
@@ -1018,23 +1139,23 @@
                 <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
               </div>
               <div class="col-sm-3">
-                <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey" required
+                <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
                         [(ngModel)]="selectedCustomer.data.defaultAccountPrimaryKey">
                   <option value={{item.primaryKey}}
                           *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
                 </select>
-                <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
               </div>
             </div>
           </form>
         </div>
         <div class="card-footer">
           <div class="col-sm-3" *ngIf="selectedCustomer.data.primaryKey!=undefined">
-            <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
+            <button type="button" class="btn btn-sm btn-danger btn-block"
+                    (click)="btnRemove_Click()">Kaldır</button>
           </div>
           <div class="col-sm-3 float-right">
             <button type="button" class="btn btn-sm btn-success btn-block"
-                    [disabled]="onTransaction"
+                    [disabled]="onTransaction || !f.valid"
                     (click)="btnSave_Click()">
               <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
             </button>

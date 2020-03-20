@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
@@ -14,6 +14,7 @@ import {currencyFormat} from '../core/correct-library';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {CollectionModel} from '../models/collection-model';
 import {CustomerService} from './customer.service';
+import {NoteModel} from '../models/note-model';
 
 @Injectable({
   providedIn: 'root'
@@ -65,6 +66,28 @@ export class AccountVoucherService {
     await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
     await this.sService.increaseAccountVoucherNumber();
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: AccountVoucherMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+        reject('Lütfen müşteri seçiniz.');
+      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+        reject('Lütfen hesap seçiniz.');
+      } else if (record.data.type === '' || record.data.type === '-1') {
+        reject('Lütfen fiş tipi seçiniz.');
+      } else if (record.data.cashDeskPrimaryKey === '' || record.data.cashDeskPrimaryKey === '-1') {
+        reject('Lütfen kasa seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: AccountVoucherMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   clearSubModel(): AccountVoucherModel {
@@ -200,8 +223,17 @@ export class AccountVoucherService {
     Promise<Array<AccountVoucherMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<AccountVoucherMainModel>();
-      this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      })
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountVoucherModel;

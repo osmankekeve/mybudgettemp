@@ -11,6 +11,7 @@ import {ProfileService} from './profile.service';
 import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {ContactUsModel} from '../models/contact-us-model';
 import {ProfileModel} from '../models/profile-model';
+import {VisitMainModel} from '../models/visit-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,22 @@ export class ContactUsService {
 
   async setItem(record: ContactUsMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: ContactUsMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.content.trim() === '') {
+      reject('Lüfen içerik giriniz.');
+    } else {
+      resolve(null);
+    }
+    });
+  }
+
+  checkForRemove(record: ContactUsMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   clearSubModel(): ContactUsModel {

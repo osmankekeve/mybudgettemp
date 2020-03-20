@@ -49,25 +49,28 @@ export class CustomerRelationService {
   }
 
   async setItem(record: CustomerRelationModel, primaryKey: string) {
-    this.logService.sendToLog(record, 'insert', 'crm');
+    await this.logService.sendToLog(record, 'insert', 'crm');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 
-  clearSubModel(): CustomerRelationModel {
+  checkForSave(record: CustomerRelationModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.parentPrimaryKey === '' || record.parentPrimaryKey === '-1') {
+        reject('Lüfen müşteri seçiniz.');
+      } else if (record.parentType === '' || record.parentType === '-1') {
+        reject('Lüfen kayıt tipi seçiniz.');
+      } else if (record.relationType === '' || record.relationType === '-1') {
+        reject('Lüfen etkinlik tipi seçiniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
 
-    const returnData = new CustomerRelationModel();
-    returnData.primaryKey = null;
-    returnData.userPrimaryKey = this.authService.getUid();
-    returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.parentPrimaryKey = '-1';
-    returnData.parentType = '-1'; // customer
-    returnData.relationType = '-1'; // meeting, mailSending, phoneCall, visit, faxSending
-    returnData.status = 'waiting'; // waiting
-    returnData.description = '';
-    returnData.actionDate = Date.now();
-    returnData.insertDate = Date.now();
-
-    return returnData;
+  checkForRemove(record: CustomerRelationModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
   }
 
   checkFields(model: CustomerRelationModel): CustomerRelationModel {
@@ -95,6 +98,23 @@ export class CustomerRelationService {
     }
 
     return model;
+  }
+
+  clearSubModel(): CustomerRelationModel {
+
+    const returnData = new CustomerRelationModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.employeePrimaryKey = this.authService.getEid();
+    returnData.parentPrimaryKey = '-1';
+    returnData.parentType = '-1'; // customer
+    returnData.relationType = '-1'; // meeting, mailSending, phoneCall, visit, faxSending
+    returnData.status = 'waiting'; // waiting
+    returnData.description = '';
+    returnData.actionDate = Date.now();
+    returnData.insertDate = Date.now();
+
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -175,5 +195,5 @@ export class CustomerRelationService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 }

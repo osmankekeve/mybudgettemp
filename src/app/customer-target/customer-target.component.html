@@ -23,6 +23,11 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-4">
+        <div class="card mb-2">
+          <div class="card-header">
+            <div class="font-weight-600 text-red">Yıllık Hedefler</div>
+          </div>
+        </div>
         <div *ngIf="mainList1 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
             <div class="card mb-2 bg-light cursor-pointer"
@@ -65,6 +70,11 @@
         </ng-template>
       </div>
       <div class="col-sm-4">
+        <div class="card mb-2">
+          <div class="card-header">
+            <div class="font-weight-600 text-red">Aylık Hedefler</div>
+          </div>
+        </div>
         <div *ngIf="mainList2 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
             <div class="card mb-2 bg-light cursor-pointer"
@@ -113,6 +123,11 @@
         </ng-template>
       </div>
       <div class="col-sm-4">
+        <div class="card mb-2">
+          <div class="card-header">
+            <div class="font-weight-600 text-red">Periodik Hedefler</div>
+          </div>
+        </div>
         <div *ngIf="mainList3 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
             <div class="card mb-2 bg-light cursor-pointer"
@@ -321,21 +336,26 @@
             <div class="col-sm-12">
               <div class="card">
                 <div class="card-body bg-white">
-                  <small class="text-orange font-weight-bold">Hedef Özeti</small>
+                  <div class="text-orange fs-14 font-weight-bold">Hedef Özeti</div>
                   <table class="table mb-0 mt-1">
                     <tbody>
                     <tr>
-                      <td>Hedef Miktarı</td>
-                      <td>{{selectedRecord.data.amount | currency:'₺'}}</td>
+                      <td class="fs-14">Hedef Miktarı</td>
+                      <td class="fs-14">
+                        <span class="float-right">{{selectedRecord.data.amount | currency:'₺'}}</span>
+                      </td>
                     </tr>
                     <tr>
-                      <td>Gerçekleşen Miktar</td>
-                      <td>{{currentAmount | currency:'₺'}}</td>
+                      <td class="fs-14">Gerçekleşen Miktar</td>
+                      <td class="fs-14">
+                        <span class="float-right">{{currentAmount | currency:'₺'}}</span>
+                      </td>
                     </tr>
                     <tr>
-                      <td>Kalan Miktar</td>
-                      <td
-                        [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">{{selectedRecord.data.amount - currentAmount | currency:'₺'}}</td>
+                      <td class="fs-14">Kalan Miktar</td>
+                      <td class="fs-14" [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">
+                        <span class="float-right">{{selectedRecord.data.amount - currentAmount | currency:'₺'}}</span>
+                      </td>
                     </tr>
                     </tbody>
                   </table>
@@ -350,23 +370,32 @@
             <div class="card-header bg-gray-gradient">
               <h5 class="float-left text-red">Tahsilatlar</h5>
             </div>
-            <div class="card-body work-area-4" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <table class="table table-hover table-striped table-bordered table-sm">
-                <thead>
-                <tr class="bg-red text-light">
-                  <th>Fiş Numarası</th>
-                  <th><span class="float-right">Tutar</span></th>
-                  <th><span class="float-right">Tarih</span></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
-                  <td>{{item.returnData.data.receiptNo}}</td>
-                  <td><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></td>
-                  <td><span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
-                </tr>
-                </tbody>
-              </table>
+            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+              <div class="list-group">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Fiş No</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red">{{item.returnData.data.receiptNo}}</span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
             </div>
             <ng-template #elseBlock>
               <div class="card bg-danger text-white">

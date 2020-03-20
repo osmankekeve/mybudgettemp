@@ -60,6 +60,26 @@ export class VisitService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.visit));
   }
 
+  checkForSave(record: VisitMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkForRemove(record: VisitMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
+  checkFields(model: VisitModel): VisitModel {
+    const cleanModel = this.clearVisitModel();
+    if (model.isVisited === undefined) { model.isVisited = cleanModel.isVisited; }
+    if (model.result === undefined) { model.result = cleanModel.result; }
+
+    return model;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -100,14 +120,6 @@ export class VisitService {
     returnData.isVisitedTr = 'Ziyaret Edilmedi';
     returnData.actionType = 'added';
     return returnData;
-  }
-
-  checkFields(model: VisitModel): VisitModel {
-    const cleanModel = this.clearVisitModel();
-    if (model.isVisited === undefined) { model.isVisited = cleanModel.isVisited; }
-    if (model.result === undefined) { model.result = cleanModel.result; }
-
-    return model;
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<VisitMainModel[]> {

@@ -31,6 +31,22 @@ export class NoteService {
     return this.mainList$;
   }
 
+  checkForSave(record: NoteModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.note === null || record.note.trim() === '') {
+        reject('Lüfen açıklama giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+}
+
+  checkForRemove(record: NoteModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
   async addItem(record: NoteModel) {
     return await this.listCollection.add(Object.assign({}, record));
   }
