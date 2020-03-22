@@ -404,8 +404,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   async btnSave_Click(): Promise<void> {
-    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
     try {
+      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
         this.onTransaction = true;
         if (this.selectedRecord.data.primaryKey === null) {
