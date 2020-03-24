@@ -41,6 +41,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   totalValues = {
     amount: 0
   };
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: CashDeskVoucherService, public cdService: CashDeskService,
@@ -125,11 +126,13 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+    Promise.all([this.service.checkForSave(this.selectedRecord)])
+      .then(async (values: any) => {
       if (this.selectedRecord.data.primaryKey === null) {
         const newId = this.db.createId();
         this.selectedRecord.data.primaryKey = '';
-        await this.service.setItem(this.selectedRecord, newId).then(() => {
+        await this.service.setItem(this.selectedRecord, newId)
+          .then(() => {
           let calculatedAmount1 = this.selectedRecord.data.transactionType === 'credit' ?
             this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1;
           if (this.selectedRecord.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
@@ -150,7 +153,8 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
             cashDeskPrimaryKey: this.selectedRecord.data.type === 'transfer' ? this.selectedRecord.data.secondCashDeskPrimaryKey : '-1' ,
             receiptNo: this.selectedRecord.data.receiptNo,
             insertDate: this.selectedRecord.data.insertDate
-          }).then(() => {
+          })
+            .then(() => {
             if (this.selectedRecord.data.type === 'transfer') {
               this.db.collection('tblAccountTransaction').add({
                 primaryKey: '',
@@ -164,38 +168,61 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
                 cashDeskPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
                 receiptNo: this.selectedRecord.data.receiptNo,
                 insertDate: this.selectedRecord.data.insertDate
-              }).then(() => {
+              })
+                .then(() => {
                 this.infoService.success('Fiş başarıyla kaydedildi.');
                 this.selectedRecord = undefined;
-              }).catch(err => this.infoService.error(err));
+              })
+                .catch((error) => {
+                  this.finishProcessAndError(error);
+                });
             } else {
               this.infoService.success('Fiş başarıyla kaydedildi.');
               this.selectedRecord = undefined;
             }
-          }).catch(err => this.infoService.error(err));
-        }).catch(err => this.infoService.error(err));
+          })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            });
+        })
+          .catch((error) => {
+            this.finishProcessAndError(error);
+          });
       }
-    }).catch((error) => {
-      this.infoService.error(error);
-    });
+    })
+      .catch((error) => {
+        this.finishProcessAndError(error);
+      });
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-      await this.service.removeItem(this.selectedRecord).then(() => {
+    Promise.all([this.service.checkForRemove(this.selectedRecord)])
+      .then(async (values: any) => {
+      await this.service.removeItem(this.selectedRecord)
+        .then(() => {
         this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
+          .get()
+          .subscribe(list => {
           list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
+            this.db.collection('tblAccountTransaction').doc(item.id).delete()
+              .then(() => {
               this.infoService.success('Fiş başarıyla kaldırıldı.');
               this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
+            })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              });
           });
         });
-      }).catch(err => this.infoService.error(err));
-    }).catch((error) => {
-      this.infoService.error(error);
-    });
+      })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
+    })
+      .catch((error) => {
+        this.finishProcessAndError(error);
+      });
   }
 
   btnShowMainFiler_Click(): void {
@@ -217,13 +244,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
-  clearSelectedRecord(): void {
-    this.isRecordHasTransaction = false;
-    this.refModel = undefined;
-    this.recordDate = getTodayForInput();
-    this.selectedRecord = this.service.clearMainModel();
-  }
-
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'cashdeskVoucher');
@@ -232,13 +252,27 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
+  onChangeVoucherType(record: any): void {
+    if (record === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
+  }
+
+  clearSelectedRecord(): void {
+    this.isRecordHasTransaction = false;
+    this.refModel = undefined;
+    this.recordDate = getTodayForInput();
+    this.selectedRecord = this.service.clearMainModel();
+  }
+
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
   }
 
-  onChangeVoucherType(record: any): void {
-    if (record === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

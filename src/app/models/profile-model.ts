@@ -6,7 +6,7 @@ export class ProfileModel {
   mailAddress?: string;
   phone?: string;
   isMainRecord?: boolean;
-  passwords?: string;
+  password?: string;
   type?: string; // admin, manager, user
   isActive?: boolean;
   birthDate?: number;

@@ -19,6 +19,16 @@
               </div>
             </div>
           </div>
+          <div class="cursor-pointer mb-1" (click)="openedPanel='customer'">
+            <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+              <div class="form-inline">
+                <div style="width: 50px;">
+                  <i class="fa fa-2x fa-user-circle mr-2"></i>
+                </div>
+                <div>Müşteri</div>
+              </div>
+            </div>
+          </div>
           <div class="cursor-pointer mb-1" (click)="openedPanel='salesInvoice'">
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="form-inline">
@@ -98,6 +108,39 @@
                     </select>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="openedPanel=='customer'">
+            <div class="card mb-1">
+              <div class="card-header">
+                Müşteri Otomatik Kodu
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-sm-3">Ön Eki</div>
+                  <div class="col-sm-3">Sıra</div>
+                  <div class="col-sm-3">Son Eki</div>
+                  <div class="col-sm-3">Uzunluk</div>
+                </div>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="customer.prefix">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="customer.number">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="customer.suffix">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="customer.length">
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button type="button" class="btn btn-sm btn-success"
+                        (click)="btnSaveCustomerAutoCode_Click()">Kaydet</button>
               </div>
             </div>
           </div>

@@ -16,6 +16,7 @@ import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {getPaymentTypes, getTerms} from '../core/correct-library';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +29,8 @@ export class CustomerService {
   tableName = 'tblCustomer';
   employeeMap = new Map();
 
-  constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore) {
+  constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore,
+              public sService: SettingService, public logService: LogService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -56,18 +58,24 @@ export class CustomerService {
   }
 
   async addItem(record: CustomerMainModel) {
+    await this.logService.sendToLog(record, 'insert', 'customer');
+    await this.sService.increaseCustomerNumber();
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async setItem(record: CustomerMainModel, primaryKey: string) {
+    await this.logService.sendToLog(record, 'insert', 'customer');
+    await this.sService.increaseCustomerNumber();
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerMainModel) {
+    await this.logService.sendToLog(record, 'delete', 'customer');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerMainModel) {
+    await this.logService.sendToLog(record, 'update', 'customer');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 

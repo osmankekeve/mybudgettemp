@@ -35,6 +35,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   filterFinishDate: any;
   searchText: '';
   chart1: any;
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: CashDeskService,
               public atService: AccountTransactionService,
@@ -95,39 +96,51 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        if (this.selectedRecord.data.primaryKey === null) {
-          this.selectedRecord.data.primaryKey = '';
-          await this.service.addItem(this.selectedRecord).then(() => {
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = '';
+            await this.service.addItem(this.selectedRecord).then(() => {
               this.infoService.success('Kasa başarıyla kaydedildi.');
               this.selectedRecord = undefined;
             }).catch(err => this.infoService.error(err));
-        } else {
-          await this.service.updateItem(this.selectedRecord).then(() => {
-              this.infoService.success('Kasa başarıyla güncellendi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-        }
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Kasa başarıyla güncellendi.');
+                this.selectedRecord = undefined;
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord).then(() => {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
           this.infoService.success('Kasa başarıyla kaldırıldı.');
           this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+        })
+          .catch((error) => {
+            this.finishProcessAndError(error);
+          });
+      })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
@@ -249,5 +262,12 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 }

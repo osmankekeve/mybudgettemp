@@ -379,6 +379,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="totalPrice" type="text"
+                           (focus)="focus_totalPrice()"
                            (blur)="format_totalPrice($event)"
                            [(ngModel)]="newSalesInvoice.totalPriceFormatted">
                   </div>
@@ -387,6 +388,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" name="totalPriceWithTax" type="text"
+                           (focus)="focus_totalPriceWithTax()"
                            (blur)="format_totalPriceWithTax($event)"
                            [(ngModel)]="newSalesInvoice.totalPriceWithTaxFormatted">
                   </div>
@@ -527,6 +529,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" name="amount" type="text"
+                           (focus)="focus_amount()"
                            (blur)="format_amount($event)"
                            [(ngModel)]="newCollection.amountFormatted">
                   </div>
@@ -649,6 +652,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" id="totalPrice" name="totalPrice" type="text"
+                           (focus)="focus_totalPrice()"
                            (blur)="format_totalPrice($event)"
                            [(ngModel)]="newPurchaseInvoice.totalPriceFormatted">
                   </div>
@@ -658,6 +662,7 @@
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm" id="totalPriceWithTax" name="totalPriceWithTax"
                            type="text"
+                           (focus)="focus_totalPriceWithTax()"
                            (blur)="format_totalPriceWithTax($event)"
                            [(ngModel)]="newPurchaseInvoice.totalPriceWithTaxFormatted">
                   </div>
@@ -798,6 +803,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                           (focus)="focus_amount()"
                            (blur)="format_amount($event)"
                            [(ngModel)]="newPayment.amountFormatted" required>
                   </div>
@@ -938,6 +944,7 @@
                   </div>
                   <div class="col-sm-6">
                     <input class="form-control form-control-sm w-100" id="amountAV" name="amount" type="text"
+                           (focus)="focus_amount()"
                            (blur)="format_amount($event)"
                            [(ngModel)]="newVoucher.amountFormatted">
                   </div>

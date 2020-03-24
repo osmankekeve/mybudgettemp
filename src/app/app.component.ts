@@ -9,8 +9,6 @@ import {getBool, getFloat, getString, getTodayEnd, getTodayStart, getTomorrowEnd
 import {ReminderService} from './services/reminder.service';
 import {Router} from '@angular/router';
 import {CookieService} from 'ngx-cookie-service';
-import {AccountTransactionMainModel} from './models/account-transaction-main-model';
-import {Chart} from 'chart.js';
 import {AccountTransactionService} from './services/account-transaction.service';
 import {SettingService} from './services/setting.service';
 
@@ -44,6 +42,7 @@ export class AppComponent implements OnInit {
   cookieCMA = ''; // Company Mail Address
   isEMAChecked = false;
   cookieEMA = ''; // Company Mail Address
+  onTransaction = false;
 
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
@@ -115,25 +114,36 @@ export class AppComponent implements OnInit {
 
   // Login user with  provided Email/ Password
   btnLoginUser_Click() {
-    this.authService.login(this.emailInput, this.passwordInput)
-      .then(res => {
-        this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
-        this.isUserLoggedIn();
-        this.populateActivityList();
-        this.populateSettings();
-        /*if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
-          this.cookieService.set('cookieCMA', this.emailInput);
-        }*/
-        if (this.isCMAChecked) {
-          localStorage.setItem('cookieCMA', this.emailInput);
-        } else {
-          if (localStorage.getItem('cookieCMA') !== null) {
-            localStorage.removeItem('cookieCMA');
-          }
-        }
-      }, err => {
-        this.infoService.error(err.message);
-      });
+    try {
+      if (this.emailInput.trim() === '') {
+        this.infoService.error('Lütfen sistem mail adresi giriniz.');
+      } else if (this.passwordInput.trim() === '') {
+        this.infoService.error('Lütfen sistem şifresi giriniz.');
+      } else {
+        this.onTransaction = true;
+        this.authService.login(this.emailInput, this.passwordInput)
+          .then(res => {
+            this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
+            this.isUserLoggedIn();
+            this.populateActivityList();
+            this.populateSettings();
+            /*if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
+              this.cookieService.set('cookieCMA', this.emailInput);
+            }*/
+            if (this.isCMAChecked) {
+              localStorage.setItem('cookieCMA', this.emailInput);
+            } else {
+              if (localStorage.getItem('cookieCMA') !== null) {
+                localStorage.removeItem('cookieCMA');
+              }
+            }
+          }, err => {
+            this.finishProcessAndError(err.message);
+          });
+      }
+    } catch (error) {
+      this.finishProcessAndError(error.message);
+    }
   }
 
   // Register user with  provided Email/ Password
@@ -323,6 +333,13 @@ export class AppComponent implements OnInit {
 
   showReminder(item: any): void {
     this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

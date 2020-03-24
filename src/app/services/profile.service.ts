@@ -39,9 +39,35 @@ export class ProfileService {
     return this.db.collection(this.tableName).doc(record.data.primaryKey);
   }
 
+  checkForSave(record: ProfileMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.longName.trim() === '') {
+        reject('Lüfen ad/soyad giriniz.');
+      } else if (record.data.password.trim() === '') {
+        reject('Lüfen şifre giriniz.');
+      } else if (record.data.mailAddress.trim() === '') {
+        reject('Lüfen mail adresi giriniz.');
+      } else if (record.data.phone.trim() === '') {
+        reject('Lüfen telefon giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  checkForRemove(record: ProfileMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      resolve(null);
+    });
+  }
+
   clearProfileModel(): ProfileModel {
     const returnData = new ProfileModel();
     returnData.primaryKey = null;
+    returnData.longName = '';
+    returnData.mailAddress = '';
+    returnData.phone = '';
+    returnData.password = '';
     returnData.type = 'admin';
     returnData.isActive = true;
     returnData.userPrimaryKey = this.authService.getUid();

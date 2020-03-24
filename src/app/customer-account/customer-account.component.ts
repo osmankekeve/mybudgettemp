@@ -49,7 +49,7 @@ export class CustomerAccountComponent implements OnInit {
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
               public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute,
-              public setService: SettingService ) {
+              public setService: SettingService) {
   }
 
   ngOnInit() {
@@ -117,37 +117,56 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-      this.onTransaction = true;
-      if (this.selectedRecord.data.primaryKey === null) {
-        this.selectedRecord.data.primaryKey = this.db.createId();
-        await this.service.setItem(this.selectedRecord).then(() => {
-          this.infoService.success('Hesap başarıyla kaydedildi.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-      } else {
-        await this.service.updateItem(this.selectedRecord).then(() => {
-          this.infoService.success('Hesap başarıyla güncellendi.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
-        });
-      }
-    }).catch((error) => {
-      this.infoService.error(error);
-    });
+    Promise.all([this.service.checkForSave(this.selectedRecord)])
+      .then(async (values: any) => {
+        this.onTransaction = true;
+        if (this.selectedRecord.data.primaryKey === null) {
+          this.selectedRecord.data.primaryKey = this.db.createId();
+          await this.service.setItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Hesap başarıyla kaydedildi.');
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
+            });
+        } else {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Hesap başarıyla güncellendi.');
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
+            });
+        }
+      })
+      .catch((error) => {
+        this.finishProcessAndError(error);
+      });
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-      await this.service.removeItem(this.selectedRecord).then(() => {
-        this.infoService.success('Hesap başarıyla kaldırıldı.');
-      }).catch(err => this.infoService.error(err)).finally(() => {
-        this.finishRecordProcess();
+    Promise.all([this.service.checkForRemove(this.selectedRecord)])
+      .then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
+            this.infoService.success('Hesap başarıyla ksaldırıldı.');
+          })
+          .catch((error) => {
+            this.finishProcessAndError(error);
+          })
+          .finally(() => {
+            this.finishRecordProcess();
+          });
+      })
+      .catch((error) => {
+        this.finishProcessAndError(error);
       });
-    }).catch((error) => {
-      this.infoService.error(error);
-    });
   }
 
   async onChangeCustomer(value: any): Promise<void> {
@@ -176,7 +195,7 @@ export class CustomerAccountComponent implements OnInit {
         if ((values[0] !== undefined || values[0] !== null) && (values[1] !== undefined || values[1] !== null)) {
           const returnData = values[0] as Array<CustomerModel>;
           const defaultCurrencyCode = values[1].data as SettingModel;
-          let newRecordCount = 0 ;
+          let newRecordCount = 0;
 
           returnData.forEach((data: any) => {
             const item = data as CustomerMainModel;
@@ -194,7 +213,7 @@ export class CustomerAccountComponent implements OnInit {
               item.data.defaultAccountPrimaryKey = insertData.data.primaryKey;
               this.cService.updateItem(item).catch(err => this.infoService.error(err));
 
-              newRecordCount ++;
+              newRecordCount++;
             }
           });
 
@@ -216,6 +235,13 @@ export class CustomerAccountComponent implements OnInit {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

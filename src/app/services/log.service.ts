@@ -46,7 +46,6 @@ export class LogService {
     // main model mantigindaki modellerde problem olusuyor. main model icerisindeki modelden primary keyler alamiyor.
     const item = new LogModel();
     item.parentType = systemModule;
-    item.parentPrimaryKey = record.primaryKey;
     item.type = 'notification';
     item.userPrimaryKey = this.authService.getUid();
     item.isActive = true;
@@ -67,13 +66,12 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Ödeme ';
 
-    } else if (systemModule === 'customer') {
-      item.log = record.receiptNo + ' fiş numaralı Müşteri ';
-
-    } else if (systemModule === 'cashDesk') {
+    }  else if (systemModule === 'cashDesk') {
+      item.parentPrimaryKey = record.primaryKey;
       item.log = record.receiptNo + ' fiş numaralı Kasa ';
 
     } else if (systemModule === 'accountVoucher') {
+      item.parentPrimaryKey = record.primaryKey;
       item.log = record.receiptNo + ' fiş numaralı Hesap Fişi ';
 
     } else if (systemModule === 'cashdeskVoucher') {
@@ -81,6 +79,7 @@ export class LogService {
       item.log = record.data.receiptNo + ' fiş numaralı Kasa Fişi ';
 
     } else if (systemModule === 'crm') {
+      item.parentPrimaryKey = record.primaryKey;
       item.log = ' Etkinlik ';
 
     } else if (systemModule === 'visit') {
@@ -88,6 +87,7 @@ export class LogService {
       item.log = record.customerName + ' müşteriye Ziyaret ';
 
     } else if (systemModule === 'fileUpload') {
+      item.parentPrimaryKey = record.primaryKey;
       item.log = record.fileName + ' isimli dosya ';
 
     } else if (systemModule === 'customerTarget') {
@@ -102,9 +102,12 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.customer.name + ' hesap ';
 
+    } else if (systemModule === 'customer') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.name + ' isimli Müşteri ';
+
     } else {
       item.log = ' bilinmeyen modül ';
-
     }
 
     if (action === 'insert') {

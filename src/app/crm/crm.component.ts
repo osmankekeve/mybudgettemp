@@ -85,7 +85,7 @@ export class CRMComponent implements OnInit, OnDestroy {
         }
       });
     }, error => {
-      this.infoService.error(error.toString());
+      this.finishProcessAndError(error.toString());
     });
     setTimeout (() => {
       if (this.mainList === undefined) {
@@ -187,19 +187,19 @@ export class CRMComponent implements OnInit, OnDestroy {
         await this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Etkinlik başarıyla kaydedildi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
+          }).catch(err => this.finishProcessAndError(err)).finally(() => {
             this.finishRecordProcess();
           });
       } else {
         await this.service.updateItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Etkinlik başarıyla güncellendi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
+          }).catch(err => this.finishProcessAndError(err)).finally(() => {
             this.finishRecordProcess();
           });
       }
     }).catch((error) => {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     });
   }
 
@@ -209,11 +209,11 @@ export class CRMComponent implements OnInit, OnDestroy {
       await this.service.removeItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Etkinlik başarıyla kaldırıldı.');
-        }).catch(err => this.infoService.error(err)).finally(() => {
+        }).catch(err => this.finishProcessAndError(err)).finally(() => {
           this.finishRecordProcess();
         });
     }).catch((error) => {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     });
   }
 
@@ -229,9 +229,9 @@ export class CRMComponent implements OnInit, OnDestroy {
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
       this.populateCharts();
@@ -261,6 +261,13 @@ export class CRMComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   finishRecordProcess(): void {

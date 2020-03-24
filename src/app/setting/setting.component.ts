@@ -62,6 +62,12 @@ export class SettingComponent implements OnInit {
   general = {
     defaultCurrencyCode: 'lira'
   };
+  customer = {
+    prefix: '',
+    number: '',
+    suffix: '',
+    length: ''
+  };
   openedPanel = 'general';
 
   constructor(public authService: AuthenticationService, public service: SettingService, public infoService: InformationService,
@@ -144,6 +150,14 @@ export class SettingComponent implements OnInit {
           this.cashDeskVoucher.chart2Visibility = item.valueBool;
         } else if (item.key === 'defaultCurrencyCode') {
           this.general.defaultCurrencyCode = item.value;
+        } else if (item.key === 'customerPrefix') {
+          this.customer.prefix = item.value;
+        } else if (item.key === 'customerNumber') {
+          this.customer.number = item.value;
+        } else if (item.key === 'customerSuffix') {
+          this.customer.suffix = item.value;
+        } else if (item.key === 'customerLength') {
+          this.customer.length = item.value;
         } else {
 
         }
@@ -202,6 +216,17 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'cashDeskVoucherLength', value: this.cashDeskVoucher.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
       this.infoService.success('Kasa fiş ayarları kaydedildi.');
+    });
+  }
+
+  async btnSaveCustomerAutoCode_Click(): Promise<void> {
+    Promise.all([
+      await this.service.setItem({ key: 'customerPrefix', value: this.customer.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'customerNumber', value: this.customer.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'customerSuffix', value: this.customer.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'customerLength', value: this.customer.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.infoService.success('Müşteri ayarları kaydedildi.');
     });
   }
 

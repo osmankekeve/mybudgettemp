@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import emailjs, { EmailJSResponseStatus } from 'emailjs-com';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
+import emailjs, {EmailJSResponseStatus} from 'emailjs-com';
 import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {ContactUsService} from '../services/contact-us.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
@@ -24,10 +24,12 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   searchText: '';
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ContactUsService,
               public infoService: InformationService, public route: Router,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore) {
+  }
 
   ngOnInit() {
     this.clearMainFiler();
@@ -35,14 +37,17 @@ export class ContactUsComponent implements OnInit, OnDestroy {
     this.populateList();
   }
 
-  ngOnDestroy(): void { }
+  ngOnDestroy(): void {
+  }
 
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as ContactUsMainModel;
         if (item.actionType === 'added') {
@@ -56,7 +61,7 @@ export class ContactUsComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -83,28 +88,34 @@ export class ContactUsComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        await this.service.addItem(this.selectedRecord).then(() => {
-          this.infoService.success('Ticket başarıyla kaydedildi. En kısa süre de dönüş yapılacaktır.');
-          if (CONFIG.isSendMail) {
-            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsContactUsTemplateID, {
-              mailTo: CONFIG.mailTo,
-              mailToName: CONFIG.mailToName,
-              mailFromName: CONFIG.mailFromName,
-              employeeName: this.selectedRecord.employeeName,
-              content: this.selectedRecord.data.content
-            }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
-              console.log(result.text);
-            }, (error) => {
-              console.log(error.text);
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.addItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Ticket başarıyla kaydedildi. En kısa süre de dönüş yapılacaktır.');
+              if (CONFIG.isSendMail) {
+                emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsContactUsTemplateID, {
+                  mailTo: CONFIG.mailTo,
+                  mailToName: CONFIG.mailToName,
+                  mailFromName: CONFIG.mailFromName,
+                  employeeName: this.selectedRecord.employeeName,
+                  content: this.selectedRecord.data.content
+                }, CONFIG.mjsUserID).then((result: EmailJSResponseStatus) => {
+                  console.log(result.text);
+                }, (error) => {
+                  console.log(error.text);
+                });
+              }
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
             });
-          }
-        }).catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
@@ -131,5 +142,12 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 }

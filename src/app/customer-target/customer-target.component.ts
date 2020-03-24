@@ -1,12 +1,12 @@
-import { Component, OnInit, OnDestroy, ElementRef  } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import { CustomerTargetMainModel } from '../models/customer-target-main-model';
-import { CustomerTargetService } from '../services/customer-target.service';
-import { Observable } from 'rxjs';
-import { CustomerModel } from '../models/customer-model';
-import { CustomerService } from '../services/customer.service';
+import {Component, OnInit, OnDestroy, ElementRef} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
+import {CustomerTargetMainModel} from '../models/customer-target-main-model';
+import {CustomerTargetService} from '../services/customer-target.service';
+import {Observable} from 'rxjs';
+import {CustomerModel} from '../models/customer-model';
+import {CustomerService} from '../services/customer.service';
 import {
   getFloat,
   getNumber,
@@ -16,10 +16,10 @@ import {
   getEndOfYear,
   getEncryptionKey, currencyFormat, moneyFormat
 } from '../core/correct-library';
-import { CollectionModel } from '../models/collection-model';
-import { CollectionService } from '../services/collection.service';
+import {CollectionModel} from '../models/collection-model';
+import {CollectionService} from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
-import { Router, ActivatedRoute } from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
@@ -37,10 +37,12 @@ export class CustomerTargetComponent implements OnInit {
   transactionList$: Observable<CollectionMainModel[]>;
   currentAmount = 0;
   encryptSecretKey: string = getEncryptionKey();
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public infoService: InformationService, public colService: CollectionService,
-              public cService: CustomerService, public service: CustomerTargetService, public db: AngularFirestore) { }
+              public cService: CustomerService, public service: CustomerTargetService, public db: AngularFirestore) {
+  }
 
   async ngOnInit() {
     this.customerList$ = this.cService.getAllItems();
@@ -61,9 +63,15 @@ export class CustomerTargetComponent implements OnInit {
     this.mainList2 = undefined;
     this.mainList3 = undefined;
     this.service.getMainItems().subscribe(list => {
-      if (this.mainList1 === undefined) { this.mainList1 = []; }
-      if (this.mainList2 === undefined) { this.mainList2 = []; }
-      if (this.mainList3 === undefined) { this.mainList3 = []; }
+      if (this.mainList1 === undefined) {
+        this.mainList1 = [];
+      }
+      if (this.mainList2 === undefined) {
+        this.mainList2 = [];
+      }
+      if (this.mainList3 === undefined) {
+        this.mainList3 = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
@@ -101,10 +109,16 @@ export class CustomerTargetComponent implements OnInit {
         }
       });
     });
-    setTimeout (() => {
-      if (this.mainList1 === undefined) { this.mainList1 = []; }
-      if (this.mainList2 === undefined) { this.mainList2 = []; }
-      if (this.mainList3 === undefined) { this.mainList3 = []; }
+    setTimeout(() => {
+      if (this.mainList1 === undefined) {
+        this.mainList1 = [];
+      }
+      if (this.mainList2 === undefined) {
+        this.mainList2 = [];
+      }
+      if (this.mainList3 === undefined) {
+        this.mainList3 = [];
+      }
     }, 5000);
   }
 
@@ -127,8 +141,8 @@ export class CustomerTargetComponent implements OnInit {
 
       }
 
-      this.transactionList$ = this.colService.
-      getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
+      // tslint:disable-next-line:max-line-length
+      this.transactionList$ = this.colService.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
       this.transactionList$.subscribe(list => {
         list.forEach((data: any) => {
           const item = data.returnData as CollectionMainModel;
@@ -155,49 +169,65 @@ export class CustomerTargetComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        if (this.selectedRecord.data.type === 'yearly') {
-          this.selectedRecord.data.beginMonth = -1;
-          this.selectedRecord.data.finishMonth = -1;
-        }
-        if (this.selectedRecord.data.type === 'monthly') {
-          this.selectedRecord.data.finishMonth = -1;
-        }
-        this.selectedRecord.data.beginMonth = getNumber(this.selectedRecord.data.beginMonth);
-        this.selectedRecord.data.finishMonth = getNumber(this.selectedRecord.data.finishMonth);
-        this.selectedRecord.data.year = getNumber(this.selectedRecord.data.year);
-        if (this.selectedRecord.data.primaryKey === null) {
-          this.selectedRecord.data.primaryKey = '';
-          await this.service.addItem(this.selectedRecord).then(() => {
-            this.infoService.success('Hedef başarıyla kaydedildi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-        } else {
-          await this.service.updateItem(this.selectedRecord).then(() => {
-            this.infoService.success('Hedef başarıyla güncellendi.');
-            this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-        }
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.type === 'yearly') {
+            this.selectedRecord.data.beginMonth = -1;
+            this.selectedRecord.data.finishMonth = -1;
+          }
+          if (this.selectedRecord.data.type === 'monthly') {
+            this.selectedRecord.data.finishMonth = -1;
+          }
+          this.selectedRecord.data.beginMonth = getNumber(this.selectedRecord.data.beginMonth);
+          this.selectedRecord.data.finishMonth = getNumber(this.selectedRecord.data.finishMonth);
+          this.selectedRecord.data.year = getNumber(this.selectedRecord.data.year);
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = '';
+            await this.service.addItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Hedef başarıyla kaydedildi.');
+                this.selectedRecord = undefined;
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Hedef başarıyla güncellendi.');
+                this.selectedRecord = undefined;
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord).then(() => {
-          this.infoService.success('Hedef başarıyla kaldırıldı.');
-          this.selectedRecord = undefined;
-        }).catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Hedef başarıyla kaldırıldı.');
+              this.selectedRecord = undefined;
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            });
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
@@ -243,6 +273,13 @@ export class CustomerTargetComponent implements OnInit {
     this.currentAmount = 0;
     this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

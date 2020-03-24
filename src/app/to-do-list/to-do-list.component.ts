@@ -15,7 +15,7 @@ import {TodoListMainModel} from '../models/to-do-list-main-model';
   templateUrl: './to-do-list.component.html',
   styleUrls: ['./to-do-list.component.css']
 })
-export class ToDoListComponent implements OnInit, OnDestroy {
+export class ToDoListComponent implements OnInit {
   mainList: Array<TodoListMainModel>;
   employeeList$: Observable<ProfileMainModel[]>;
   selectedRecord: TodoListMainModel;
@@ -28,6 +28,7 @@ export class ToDoListComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   filterIsActive = '1';
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ToDoService,
               public proService: ProfileService, public router: ActivatedRoute,
@@ -49,15 +50,14 @@ export class ToDoListComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-  }
-
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive).subscribe(list => {
-      if (this.mainList === undefined) { this.mainList = []; }
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as TodoListMainModel;
         if (item.actionType === 'added') {
@@ -109,43 +109,64 @@ export class ToDoListComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        if (this.selectedRecord.data.primaryKey === null) {
-          this.selectedRecord.data.primaryKey = this.db.createId();
-          await this.service.setItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Kayıt başarıyla gerçekleşti.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-        } else {
-          await this.service.updateItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Kayıt başarıyla güncellendi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
-        }
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Kayıt başarıyla gerçekleşti.');
+                this.selectedRecord = undefined;
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.finishRecordProcess();
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Kayıt başarıyla güncellendi.');
+                this.selectedRecord = undefined;
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.finishRecordProcess();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Kayıt başarıyla kaldırıldı.');
-            this.selectedRecord = undefined;
-          })
-          .catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
-    } catch (err) {
-      this.infoService.error(err);
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.infoService.success('Kayıt başarıyla kaldırıldı.');
+              this.selectedRecord = undefined;
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
+            });
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
+    } catch (error) {
+      this.finishProcessAndError(error);
     }
   }
 
@@ -176,6 +197,19 @@ export class ToDoListComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterIsActive = '1';
+  }
+
+  finishRecordProcess(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

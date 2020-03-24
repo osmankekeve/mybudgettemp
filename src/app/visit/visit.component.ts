@@ -1,20 +1,20 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { AccountTransactionService } from '../services/account-transaction.service';
-import { InformationService } from '../services/information.service';
-import { AuthenticationService } from '../services/authentication.service';
-import { Observable } from 'rxjs';
-import { CustomerModel } from '../models/customer-model';
-import { CustomerService } from '../services/customer.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import {Component, OnInit, OnDestroy} from '@angular/core';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {InformationService} from '../services/information.service';
+import {AuthenticationService} from '../services/authentication.service';
+import {Observable} from 'rxjs';
+import {CustomerModel} from '../models/customer-model';
+import {CustomerService} from '../services/customer.service';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
   getTodayForInput, getDateForInput, getInputDataForInsert, getEncryptionKey, getFirstDayOfMonthForInput, isNullOrEmpty, getFloat
 } from '../core/correct-library';
-import { VisitService } from '../services/visit.service';
-import { ProfileService } from '../services/profile.service';
-import { VisitMainModel } from '../models/visit-main-model';
+import {VisitService} from '../services/visit.service';
+import {ProfileService} from '../services/profile.service';
+import {VisitMainModel} from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
-import { ProfileMainModel } from '../models/profile-main-model';
+import {ProfileMainModel} from '../models/profile-main-model';
 import {Chart} from 'chart.js';
 
 @Component({
@@ -89,7 +89,7 @@ export class VisitComponent implements OnInit, OnDestroy {
         }
       });
     });
-    setTimeout (() => {
+    setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -100,7 +100,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-    const chart1DataValues = [0 , 0 , 0];
+    const chart1DataValues = [0, 0, 0];
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
@@ -185,54 +185,70 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       this.clearSelectedRecord();
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
-          this.onTransaction = true;
-          this.selectedRecord.visit.primaryKey = '';
-          this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
-          await this.service.addItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Ziyaret başarıyla kaydedildi.');
-            }).catch(err => this.infoService.error(err)).finally(() => {
-              this.finishRecordProcess();
-            });
-        } else {
-          await this.service.updateItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Ziyaret başarıyla güncellendi.');
-            }).catch(err => this.infoService.error(err)).finally(() => {
-              this.finishRecordProcess();
-            });
-        }
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
+            this.onTransaction = true;
+            this.selectedRecord.visit.primaryKey = '';
+            this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
+            await this.service.addItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Ziyaret başarıyla kaydedildi.');
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.finishRecordProcess();
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.infoService.success('Ziyaret başarıyla güncellendi.');
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.finishRecordProcess();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
         this.onTransaction = true;
         await this.service.removeItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Ziyaret başarıyla kaldırıldı.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
+          })
+          .catch((error) => {
+            this.finishProcessAndError(error);
+          })
+          .finally(() => {
             this.finishRecordProcess();
           });
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
@@ -242,7 +258,7 @@ export class VisitComponent implements OnInit, OnDestroy {
       await this.route.navigate(['visit', {}]);
       this.populateCharts();
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
@@ -257,9 +273,9 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
       this.populateCharts();
@@ -270,7 +286,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord.employeeName = $event.target.options[$event.target.options.selectedIndex].text;
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
@@ -278,7 +294,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
     } catch (err) {
-      this.infoService.error(err);
+      this.finishProcessAndError(err);
     }
   }
 
@@ -298,6 +314,13 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

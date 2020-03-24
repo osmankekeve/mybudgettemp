@@ -17,6 +17,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   searchText: '';
+  onTransaction = false;
 
   constructor(public infoService: InformationService,
               public service: AccountTransactionService,
@@ -61,16 +62,17 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
     this.refModel = record.data as AccountTransactionModel;
   }
 
-  btnRemove_Click(): void {
+  async btnRemove_Click(): Promise<void> {
     try {
-      this.service.removeItem(this.selectedRecord)
+      await this.service.removeItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Hesap hareketi başarıyla kaldırıldı.');
           this.selectedRecord = undefined;
           this.refModel = undefined;
-        }).catch(err => this.infoService.error(err));
-    } catch (err) {
-      this.infoService.error(err);
+        })
+        .catch(error => this.finishProcessAndError(error));
+    } catch (error) {
+      this.finishProcessAndError(error);
     }
   }
 
@@ -101,5 +103,12 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 }

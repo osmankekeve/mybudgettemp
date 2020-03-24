@@ -275,16 +275,16 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.refModel = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
-        this.isRecordHasTransaction = list.length > 0;
-      });
+      this.isRecordHasTransaction = list.length > 0;
+    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
   }
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
     }
@@ -315,80 +315,104 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-        this.onTransaction = true;
-        if (this.selectedRecord.data.primaryKey === null) {
-          const newId = this.db.createId();
-          this.selectedRecord.data.primaryKey = '';
-          await this.service.setItem(this.selectedRecord, newId).then(() => {
-            const trans = {
-              primaryKey: '',
-              userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-              receiptNo: this.selectedRecord.data.receiptNo,
-              transactionPrimaryKey: newId,
-              transactionType: 'payment',
-              parentPrimaryKey: this.selectedRecord.data.customerCode,
-              parentType: 'customer',
-              accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-              cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-              amount: this.selectedRecord.data.amount * -1,
-              amountType: 'debit',
-              insertDate: this.selectedRecord.data.insertDate,
-            };
-            this.db.collection('tblAccountTransaction').add(trans).then(() => {
-              this.infoService.success('Ödeme başarıyla kaydedildi.');
-            }).catch(err => this.infoService.error(err)).finally(() => {
-              this.finishRecordProcess();
-            });
-          }).catch(err => this.infoService.error(err));
-        } else {
-          await this.service.updateItem(this.selectedRecord).then(() => {
-            this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-              ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-              list.forEach((item) => {
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          this.onTransaction = true;
+          if (this.selectedRecord.data.primaryKey === null) {
+            const newId = this.db.createId();
+            this.selectedRecord.data.primaryKey = '';
+            await this.service.setItem(this.selectedRecord, newId)
+              .then(() => {
                 const trans = {
+                  primaryKey: '',
+                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
                   receiptNo: this.selectedRecord.data.receiptNo,
-                  insertDate: this.selectedRecord.data.insertDate,
+                  transactionPrimaryKey: newId,
+                  transactionType: 'payment',
+                  parentPrimaryKey: this.selectedRecord.data.customerCode,
+                  parentType: 'customer',
+                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
                   cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
                   amount: this.selectedRecord.data.amount * -1,
+                  amountType: 'debit',
+                  insertDate: this.selectedRecord.data.insertDate,
                 };
-                this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-                  this.infoService.success('Ödeme başarıyla güncellendi.');
-                }).catch(err => this.infoService.error(err));
+                this.db.collection('tblAccountTransaction').add(trans).then(() => {
+                  this.infoService.success('Ödeme başarıyla kaydedildi.');
+                }).catch(err => this.finishProcessAndError(err)).finally(() => {
+                  this.finishRecordProcess();
+                });
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
               });
-            });
-          }).catch(err => this.infoService.error(err)).finally(() => {
-            this.finishRecordProcess();
-          });
-        }
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
+                  list.forEach((item) => {
+                    const trans = {
+                      receiptNo: this.selectedRecord.data.receiptNo,
+                      insertDate: this.selectedRecord.data.insertDate,
+                      cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
+                      amount: this.selectedRecord.data.amount * -1,
+                    };
+                    this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
+                      this.infoService.success('Ödeme başarıyla güncellendi.');
+                    }).catch(err => this.finishProcessAndError(err));
+                  });
+                });
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.finishRecordProcess();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
+        });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord).then(() => {
-          this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-            ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-            list.forEach((item) => {
-              this.db.collection('tblAccountTransaction').doc(item.id).delete().then(() => {
-                this.infoService.success('Ödeme başarıyla kaldırıldı.');
-              }).catch(err => this.infoService.error(err));
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
+                .get()
+                .subscribe(list => {
+                  list.forEach((item) => {
+                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
+                      .then(() => {
+                        this.infoService.success('Ödeme başarıyla kaldırıldı.');
+                      })
+                      .catch((error) => {
+                        this.finishProcessAndError(error);
+                      });
+                  });
+                });
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
             });
-          });
-        }).catch(err => this.infoService.error(err)).finally(() => {
-          this.finishRecordProcess();
+        })
+        .catch((error) => {
+          this.finishProcessAndError(error);
         });
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
@@ -396,7 +420,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'payment');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      this.finishProcessAndError('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -413,8 +437,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
                 ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
-                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
-                  i ++;
+                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.finishProcessAndError(err));
+                  i++;
                 });
               });
             });
@@ -448,6 +472,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

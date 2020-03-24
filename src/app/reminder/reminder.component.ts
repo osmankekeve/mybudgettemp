@@ -106,43 +106,63 @@ export class ReminderComponent implements OnInit {
       this.selectedRecord.year = this.recordDate.year;
       this.selectedRecord.month = this.recordDate.month;
       this.selectedRecord.day = this.recordDate.day;
-      Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
         this.onTransaction = true;
         if (this.selectedRecord.primaryKey === null) {
           this.selectedRecord.primaryKey = '';
-          await this.service.addItem(this.selectedRecord).then(() => {
+          await this.service.addItem(this.selectedRecord)
+            .then(() => {
             this.infoService.success('Hatırlatma başarıyla kaydedildi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
-            this.finishRecordProcess();
-          });
+          })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
+            });
         } else {
-          await this.service.updateItem(this.selectedRecord).then(() => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
             this.infoService.success('Hatırlatma başarıyla güncellendi.');
-          }).catch(err => this.infoService.error(err)).finally(() => {
-            this.finishRecordProcess();
-          });
+          })
+            .catch((error) => {
+              this.finishProcessAndError(error);
+            })
+            .finally(() => {
+              this.finishRecordProcess();
+            });
         }
-      }).catch((error) => {
-        this.infoService.error(error);
+      })
+        .catch((error) => {
+        this.finishProcessAndError(error);
       });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
         await this.service.removeItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
             this.selectedRecord = undefined;
-          }).catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
+          })
+          .catch((error) => {
+            this.finishProcessAndError(error);
+          })
+          .finally(() => {
+            this.finishRecordProcess();
+          });
+      })
+        .catch((error) => {
+        this.finishProcessAndError(error);
       });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcessAndError(error);
     }
   }
 
@@ -185,6 +205,13 @@ export class ReminderComponent implements OnInit {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
+  }
+
+  finishProcessAndError(error: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    this.onTransaction = false;
+    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }
