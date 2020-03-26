@@ -68,6 +68,11 @@ export const getFirstDayOfMonthForInput = () => {
   return { year: date.getFullYear(), month: date.getMonth() + 1, day: 1 };
 };
 
+export const getBeginOfYearForInput = () => {
+  const date = new Date();
+  return { year: date.getFullYear(), month: 1, day: 1 };
+};
+
 export const getDateAndTime = (hour: number, minute: number, seconds: number) => {
   const date = new Date();
   return new Date(date.getFullYear(), date.getMonth(), date.getDate(), hour, minute, seconds);

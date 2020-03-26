@@ -10,7 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat} from '../core/correct-library';
+import {currencyFormat, isNullOrEmpty} from '../core/correct-library';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {CollectionModel} from '../models/collection-model';
 import {CustomerService} from './customer.service';
@@ -78,6 +78,10 @@ export class AccountVoucherService {
         reject('Lütfen fiş tipi seçiniz.');
       } else if (record.data.cashDeskPrimaryKey === '' || record.data.cashDeskPrimaryKey === '-1') {
         reject('Lütfen kasa seçiniz.');
+      } else if (record.data.amount <= 0) {
+        reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (isNullOrEmpty(record.data.insertDate)) {
+        reject('Lütfen kayıt tarihi seçiniz.');
       } else {
         resolve(null);
       }

@@ -9,6 +9,7 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable()
 export class ExcelService {
@@ -172,6 +173,16 @@ export class ExcelService {
           'Customer Name': data.customer.name,
           'Account No': data.data.name,
           Description: data.data.description
+        });
+      });
+    } else if (record === 'customer-account-transactions') {
+      fileName = 'customer-account-transactions';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Receipt No': data.receiptNo,
+          'Transaction Type': data.transactionTypeTr,
+          Amount: item.amount,
         });
       });
     } else {

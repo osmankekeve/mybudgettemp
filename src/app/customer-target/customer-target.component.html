@@ -194,229 +194,237 @@
     </div>
   </div>
   <div class="card-body">
-    <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
-      <div class="form-row">
-        <div class="col">
-          <div class="form-row">
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="customerCode">Müşteri</label>
-            </div>
-            <div class="col-sm-6">
-              <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      (change)="onChangeCustomer($event)"
-                      [(ngModel)]="selectedRecord.data.customerCode">
-                <option value={{item.primaryKey}}
-                        *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
-            </div>
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="type">Hedef Tipi</label>
-            </div>
-            <div class="col-sm-6">
-              <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.type" id="type"
-                      name="type"
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      (change)="onChangeType($event.target.value)" required>
-                <option value="monthly">Aylık</option>
-                <option value="yearly">Yıllık</option>
-                <option value="periodic">Periodic</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
-            </div>
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="type">Yıl</label>
-            </div>
-            <div class="col-sm-6">
-              <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.year" id="year"
-                      name="year"
-                      required>
-                <option value="2018">2018</option>
-                <option value="2019">2019</option>
-                <option value="2020">2020</option>
-                <option value="2021">2021</option>
-                <option value="2022">2022</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Yıl seçiniz.</div>
-            </div>
-            <div class="col-sm-12"
-                 *ngIf="selectedRecord.data.type == 'periodic' || selectedRecord.data.type == 'monthly'; else elseBlock1">
-              <div class="form-row">
-                <div class="col-sm-6">
-                  <label class="col-form-label float-left" for="type">Başlangıç Ayı</label>
-                </div>
-                <div class="col-sm-6">
-                  <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.beginMonth"
-                          id="beginMonth" name="beginMonth"
-                          (change)="onChangeBeginMonth($event.target.value)"
-                          [disabled]="selectedRecord.data.type == 'yearly'"
-                          required>
-                    <option value="-1">Seçilmedi</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select>
-                  <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock1>
-              <div class="col-sm-12"></div>
-            </ng-template>
-            <div class="col-sm-12" *ngIf="selectedRecord.data.type == 'periodic'; else elseBlock2">
-              <div class="form-row">
-                <div class="col-sm-6">
-                  <label class="col-form-label float-left" for="type">Bitiş Ayı</label>
-                </div>
-                <div class="col-sm-6">
-                  <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.finishMonth"
-                          id="finishMonth" name="finishMonth"
-                          (change)="onChangeFinishMonth($event.target.value)"
-                          [disabled]="selectedRecord.data.type == 'yearly' || selectedRecord.data.type == 'monthly'"
-                          required>
-                    <option value="-1">Seçilmedi</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                  </select>
-                  <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock2>
-              <div class="col-sm-12"></div>
-            </ng-template>
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="amount">Hedef</label>
-            </div>
-            <div class="col-sm-6">
-              <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
-                     (focus)="focus_amount()"
-                     (blur)="format_amount($event)"
-                     [(ngModel)]="selectedRecord.amountFormatted">
-            </div>
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
-            </div>
-            <div class="col-sm-6">
-              <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                      [(ngModel)]="selectedRecord.data.isActive">
-                <option [ngValue]="true">Aktif</option>
-                <option [ngValue]="false">Pasif</option>
-              </select>
-            </div>
-            <div class="col-sm-6">
-              <label class="col-form-label float-left" for="description">Açıklama</label>
-            </div>
-            <div class="col-sm-6">
-              <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                     [(ngModel)]="selectedRecord.data.description">
-            </div>
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5>Hedef Bilgileri</h5>
           </div>
-          <div class="form-row">
-            <div class="col-sm-12">
-              <div class="card">
-                <div class="card-body bg-white">
-                  <div class="text-orange fs-14 font-weight-bold">Hedef Özeti</div>
-                  <table class="table mb-0 mt-1">
-                    <tbody>
-                    <tr>
-                      <td class="fs-14">Hedef Miktarı</td>
-                      <td class="fs-14">
-                        <span class="float-right">{{selectedRecord.data.amount | currency:'₺'}}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="fs-14">Gerçekleşen Miktar</td>
-                      <td class="fs-14">
-                        <span class="float-right">{{currentAmount | currency:'₺'}}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="fs-14">Kalan Miktar</td>
-                      <td class="fs-14" [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">
-                        <span class="float-right">{{selectedRecord.data.amount - currentAmount | currency:'₺'}}</span>
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                  <small class="float-right">Belirli hedef doğrultusunda hedefe ulaşma sonucunuzun özetidir.</small>
+          <div class="card-body">
+            <form (ngSubmit)="btnSave_Click()" class="row was-validated" #f="ngForm">
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="customerCode">Müşteri</label>
+              </div>
+              <div class="col-sm-6">
+                <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
+                        [disabled]="selectedRecord.data.primaryKey!=undefined"
+                        (change)="onChangeCustomer($event)"
+                        [(ngModel)]="selectedRecord.data.customerCode">
+                  <option value={{item.primaryKey}}
+                          *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                </select>
+                <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="type">Hedef Tipi</label>
+              </div>
+              <div class="col-sm-6">
+                <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.type" id="type"
+                        name="type"
+                        [disabled]="selectedRecord.data.primaryKey!=undefined"
+                        (change)="onChangeType($event.target.value)" required>
+                  <option value="monthly">Aylık</option>
+                  <option value="yearly">Yıllık</option>
+                  <option value="periodic">Periodic</option>
+                </select>
+                <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="type">Yıl</label>
+              </div>
+              <div class="col-sm-6">
+                <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.year" id="year"
+                        name="year"
+                        required>
+                  <option value="2018">2018</option>
+                  <option value="2019">2019</option>
+                  <option value="2020">2020</option>
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                </select>
+                <div class="invalid-feedback invalid-input-info">Yıl seçiniz.</div>
+              </div>
+              <div class="col-sm-12"
+                   *ngIf="selectedRecord.data.type == 'periodic' || selectedRecord.data.type == 'monthly'; else elseBlock1">
+                <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="type">Başlangıç Ayı</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.beginMonth"
+                            id="beginMonth" name="beginMonth"
+                            (change)="onChangeBeginMonth($event.target.value)"
+                            [disabled]="selectedRecord.data.type == 'yearly'"
+                            required>
+                      <option value="-1">Seçilmedi</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
+                  </div>
                 </div>
               </div>
+              <ng-template #elseBlock1>
+                <div class="col-sm-12"></div>
+              </ng-template>
+              <div class="col-sm-12" *ngIf="selectedRecord.data.type == 'periodic'; else elseBlock2">
+                <div class="form-row">
+                  <div class="col-sm-6">
+                    <label class="col-form-label float-left" for="type">Bitiş Ayı</label>
+                  </div>
+                  <div class="col-sm-6">
+                    <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.finishMonth"
+                            id="finishMonth" name="finishMonth"
+                            (change)="onChangeFinishMonth($event.target.value)"
+                            [disabled]="selectedRecord.data.type == 'yearly' || selectedRecord.data.type == 'monthly'"
+                            required>
+                      <option value="-1">Seçilmedi</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="10">10</option>
+                      <option value="11">11</option>
+                      <option value="12">12</option>
+                    </select>
+                    <div class="invalid-feedback invalid-input-info">Başlangıç ayı seçiniz.</div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock2>
+                <div class="col-sm-12"></div>
+              </ng-template>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="amount">Hedef</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                       (focus)="focus_amount()"
+                       (blur)="format_amount($event)"
+                       [(ngModel)]="selectedRecord.amountFormatted">
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+              </div>
+              <div class="col-sm-6">
+                <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                        [(ngModel)]="selectedRecord.data.isActive">
+                  <option [ngValue]="true">Aktif</option>
+                  <option [ngValue]="false">Pasif</option>
+                </select>
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="description">Açıklama</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                       [(ngModel)]="selectedRecord.data.description">
+              </div>
+            </form>
+          </div>
+          <div class="card-footer">
+            <div class="col-sm-3 float-right">
+              <button type="button" class="btn btn-sm btn-success btn-block"
+                      [disabled]="onTransaction"
+                      (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
+              </button>
+            </div>
+            <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              <button type="button" class="btn btn-sm btn-danger btn-block"
+                      [disabled]="onTransaction"
+                      (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
+              </button>
             </div>
           </div>
         </div>
-        <div class="col">
-          <div class="card bg-light">
-            <div class="card-header bg-gray-gradient">
-              <h5 class="float-left text-red">Tahsilatlar</h5>
-            </div>
-            <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-              <div class="list-group">
-                <div class="list-group-item bg-red text-light main-list-item">
-                  <div class="row">
-                    <div class="col-sm-6">Fiş No</div>
-                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
-                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
-                  </div>
-                </div>
-                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
-                  <div class="row">
-                    <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red">{{item.returnData.data.receiptNo}}</span>
-                    </div>
-                    <div class="col-sm-3"><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-                  </div>
-                </div>
-                <ng-template #elseBlock>
-                  <div class="card bg-danger text-white">
-                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                  </div>
-                </ng-template>
-              </div>
-            </div>
-            <ng-template #elseBlock>
-              <div class="card bg-danger text-white">
-                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-              </div>
-            </ng-template>
+        <div class="card mt-3">
+          <div class="card-body bg-white">
+            <div class="text-orange fs-14 font-weight-bold">Hedef Özeti</div>
+            <table class="table mb-0 mt-1">
+              <tbody>
+              <tr>
+                <td class="fs-14">Hedef Miktarı</td>
+                <td class="fs-14">
+                  <span class="float-right">{{selectedRecord.data.amount | currency:'₺'}}</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="fs-14">Gerçekleşen Miktar</td>
+                <td class="fs-14">
+                  <span class="float-right">{{currentAmount | currency:'₺'}}</span>
+                </td>
+              </tr>
+              <tr>
+                <td class="fs-14">Kalan Miktar</td>
+                <td class="fs-14"
+                    [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">
+                  <span class="float-right">
+                    <i [ngClass]="selectedRecord.data.amount>currentAmount ? 'fa fa-angle-double-down' : 'fa fa-angle-double-up'"></i>
+                    {{currentAmount-selectedRecord.data.amount | currency:'₺'}}</span>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <small class="float-right">Belirli hedef doğrultusunda hedefe ulaşma sonucunuzun özetidir.</small>
           </div>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="card-footer">
-    <div class="col-sm-3 float-right">
-      <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
-      </button>
-    </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
-      <button type="button" class="btn btn-sm btn-danger btn-block"
-              (click)="btnRemove_Click()">Kaldır
-      </button>
+      <div class="col">
+        <div class="card bg-light">
+          <div class="card-header bg-gray-gradient">
+            <h5 class="float-left text-red">Tahsilatlar</h5>
+          </div>
+          <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
+            <div class="list-group">
+              <div class="list-group-item bg-red text-light main-list-item">
+                <div class="row">
+                  <div class="col-sm-6">Fiş No</div>
+                  <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                  <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                </div>
+              </div>
+              <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                   *ngFor="let item of transactionList; trackBy: primaryKey">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                    <span class="text-red">{{item.returnData.data.receiptNo}}</span>
+                  </div>
+                  <div class="col-sm-3"><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span>
+                  </div>
+                  <div class="col-sm-3"><span
+                    class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
     </div>
   </div>
 </div>

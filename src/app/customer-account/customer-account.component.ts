@@ -28,6 +28,7 @@ import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {SettingService} from '../services/setting.service';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 
 @Component({
   selector: 'app-customer-account',
@@ -38,13 +39,19 @@ export class CustomerAccountComponent implements OnInit {
   mainList: Array<CustomerAccountMainModel>;
   selectedRecord: CustomerAccountMainModel;
   customerList$: Observable<CustomerModel[]>;
+  transactionList: Array<AccountTransactionModel>;
   refModel: CustomerAccountMainModel;
   isMainFilterOpened = false;
   openedPanel: any;
   searchText: '';
   onTransaction = false;
-  filterCustomerCode: any;
   isRecordHasTransaction = false;
+  filterBeginDate: any;
+  filterFinishDate: any;
+  BarChart: any;
+  totalValues = {
+    amount: 0
+  };
 
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
@@ -85,6 +92,93 @@ export class CustomerAccountComponent implements OnInit {
     }, 1000);
   }
 
+  populateTransactions(): void {
+    this.transactionList = undefined;
+    this.totalValues = {
+      amount: 0
+    };
+    let siAmount = 0;
+    let colAmount = 0;
+    let piAmount = 0;
+    let payAmount = 0;
+    let avAmount = 0;
+    let cvAmount = 0;
+
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    Promise.all([this.atService.getAccountTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
+      .then((values: any) => {
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<AccountTransactionMainModel>;
+          this.transactionList = [];
+          returnData.forEach((item: any) => {
+            this.totalValues.amount += item.amount;
+            this.transactionList.push(item);
+            if (item.transactionType === 'salesInvoice') {
+              siAmount += getFloat(Math.abs(item.amount));
+            }
+            if (item.transactionType === 'collection') {
+              colAmount += getFloat(Math.abs(item.amount));
+            }
+            if (item.transactionType === 'purchaseInvoice') {
+              piAmount += getFloat(Math.abs(item.amount));
+            }
+            if (item.transactionType === 'payment') {
+              payAmount += getFloat(Math.abs(item.amount));
+            }
+            if (item.transactionType === 'accountVoucher') {
+              avAmount += getFloat(Math.abs(item.amount));
+            }
+            if (item.transactionType === 'cashDeskVoucher') {
+              cvAmount += getFloat(Math.abs(item.amount));
+            }
+          });
+        }
+      })
+      .finally(() => {
+        this.BarChart = new Chart('barChart', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+            datasets: [{
+              label: '# of Votes',
+              data: [siAmount, colAmount, piAmount, payAmount, avAmount, cvAmount],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            title: {
+              text: 'Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      });
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CustomerAccountMainModel;
     this.refModel = record as CustomerAccountMainModel;
@@ -92,6 +186,7 @@ export class CustomerAccountComponent implements OnInit {
       .subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
+    this.populateTransactions();
   }
 
   btnShowMainFiler_Click(): void {
@@ -104,7 +199,7 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   btnMainFilter_Click(): void {
-    this.populateList();
+    this.populateTransactions();
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -117,56 +212,66 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    Promise.all([this.service.checkForSave(this.selectedRecord)])
-      .then(async (values: any) => {
-        this.onTransaction = true;
-        if (this.selectedRecord.data.primaryKey === null) {
-          this.selectedRecord.data.primaryKey = this.db.createId();
-          await this.service.setItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Hesap başarıyla kaydedildi.');
-            })
-            .catch((error) => {
-              this.finishProcessAndError(error);
-            })
-            .finally(() => {
-              this.finishRecordProcess();
-            });
-        } else {
-          await this.service.updateItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Hesap başarıyla güncellendi.');
-            })
-            .catch((error) => {
-              this.finishProcessAndError(error);
-            })
-            .finally(() => {
-              this.finishRecordProcess();
-            });
-        }
-      })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          this.onTransaction = true;
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord)
+              .then(() => {
+                this.finishProcess(null, 'Hesap başarıyla kaydedildi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.finishProcess(null, 'Hesap başarıyla güncellendi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)])
-      .then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hesap başarıyla ksaldırıldı.');
-          })
-          .catch((error) => {
-            this.finishProcessAndError(error);
-          })
-          .finally(() => {
-            this.finishRecordProcess();
-          });
-      })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Hesap başarıyla kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async onChangeCustomer(value: any): Promise<void> {
@@ -178,6 +283,14 @@ export class CustomerAccountComponent implements OnInit {
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'customer-account');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  btnExportTransactionsToExcel_Click(): void {
+    if (this.transactionList.length > 0) {
+      this.excelService.exportToExcel(this.transactionList, 'customer-account-transactions');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
@@ -228,20 +341,27 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   clearMainFiler(): void {
-    this.filterCustomerCode = '-1';
+    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterFinishDate = getTodayForInput();
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

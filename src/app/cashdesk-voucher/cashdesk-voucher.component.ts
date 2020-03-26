@@ -125,104 +125,119 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   }
 
   async btnSave_Click(): Promise<void> {
-    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    Promise.all([this.service.checkForSave(this.selectedRecord)])
-      .then(async (values: any) => {
-      if (this.selectedRecord.data.primaryKey === null) {
-        const newId = this.db.createId();
-        this.selectedRecord.data.primaryKey = '';
-        await this.service.setItem(this.selectedRecord, newId)
-          .then(() => {
-          let calculatedAmount1 = this.selectedRecord.data.transactionType === 'credit' ?
-            this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1;
-          if (this.selectedRecord.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.primaryKey === null) {
+            const newId = this.db.createId();
+            this.selectedRecord.data.primaryKey = '';
+            await this.service.setItem(this.selectedRecord, newId)
+              .then(() => {
+                let calculatedAmount1 = this.selectedRecord.data.transactionType === 'credit' ?
+                  this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1;
+                if (this.selectedRecord.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
 
-          let calculatedAmount2 = this.selectedRecord.data.transactionType === 'credit' ?
-            this.selectedRecord.data.amount * -1 : this.selectedRecord.data.amount;
-          if (this.selectedRecord.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
+                let calculatedAmount2 = this.selectedRecord.data.transactionType === 'credit' ?
+                  this.selectedRecord.data.amount * -1 : this.selectedRecord.data.amount;
+                if (this.selectedRecord.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
 
-          this.db.collection('tblAccountTransaction').add({
-            primaryKey: '',
-            userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-            parentPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
-            parentType: 'cashDesk',
-            transactionPrimaryKey: newId,
-            transactionType: 'cashDeskVoucher',
-            amountType: this.selectedRecord.data.transactionType,
-            amount: calculatedAmount1,
-            cashDeskPrimaryKey: this.selectedRecord.data.type === 'transfer' ? this.selectedRecord.data.secondCashDeskPrimaryKey : '-1' ,
-            receiptNo: this.selectedRecord.data.receiptNo,
-            insertDate: this.selectedRecord.data.insertDate
-          })
-            .then(() => {
-            if (this.selectedRecord.data.type === 'transfer') {
-              this.db.collection('tblAccountTransaction').add({
-                primaryKey: '',
-                userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                parentPrimaryKey: this.selectedRecord.data.secondCashDeskPrimaryKey,
-                parentType: 'cashDesk',
-                transactionPrimaryKey: newId,
-                transactionType: 'cashDeskVoucher',
-                amountType: this.selectedRecord.data.transactionType,
-                amount: calculatedAmount2,
-                cashDeskPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
-                receiptNo: this.selectedRecord.data.receiptNo,
-                insertDate: this.selectedRecord.data.insertDate
+                this.db.collection('tblAccountTransaction').add({
+                  primaryKey: '',
+                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+                  parentPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
+                  parentType: 'cashDesk',
+                  transactionPrimaryKey: newId,
+                  transactionType: 'cashDeskVoucher',
+                  amountType: this.selectedRecord.data.transactionType,
+                  amount: calculatedAmount1,
+                  cashDeskPrimaryKey: this.selectedRecord.data.type === 'transfer' ?
+                    this.selectedRecord.data.secondCashDeskPrimaryKey : '-1' ,
+                  receiptNo: this.selectedRecord.data.receiptNo,
+                  insertDate: this.selectedRecord.data.insertDate
+                })
+                  .then(() => {
+                    if (this.selectedRecord.data.type === 'transfer') {
+                      this.db.collection('tblAccountTransaction').add({
+                        primaryKey: '',
+                        userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+                        parentPrimaryKey: this.selectedRecord.data.secondCashDeskPrimaryKey,
+                        parentType: 'cashDesk',
+                        transactionPrimaryKey: newId,
+                        transactionType: 'cashDeskVoucher',
+                        amountType: this.selectedRecord.data.transactionType,
+                        amount: calculatedAmount2,
+                        cashDeskPrimaryKey: this.selectedRecord.data.firstCashDeskPrimaryKey,
+                        receiptNo: this.selectedRecord.data.receiptNo,
+                        insertDate: this.selectedRecord.data.insertDate
+                      })
+                        .then(() => {
+                          this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
+                        })
+                        .catch((error) => {
+                          this.finishProcess(error, null);
+                        });
+                    } else {
+                      this.infoService.success('Fiş başarıyla kaydedildi.');
+                      this.selectedRecord = undefined;
+                    }
+                  })
+                  .catch((error) => {
+                    this.finishProcess(error, null);
+                  });
               })
-                .then(() => {
-                this.infoService.success('Fiş başarıyla kaydedildi.');
-                this.selectedRecord = undefined;
+              .catch((error) => {
+                this.finishProcess(error, null);
               })
-                .catch((error) => {
-                  this.finishProcessAndError(error);
-                });
-            } else {
-              this.infoService.success('Fiş başarıyla kaydedildi.');
-              this.selectedRecord = undefined;
-            }
-          })
-            .catch((error) => {
-              this.finishProcessAndError(error);
-            });
+              .finally(() => {
+                this.finishFinally();
+              });
+          }
         })
-          .catch((error) => {
-            this.finishProcessAndError(error);
-          });
-      }
-    })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)])
-      .then(async (values: any) => {
-      await this.service.removeItem(this.selectedRecord)
-        .then(() => {
-        this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-          ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-          .get()
-          .subscribe(list => {
-          list.forEach((item) => {
-            this.db.collection('tblAccountTransaction').doc(item.id).delete()
-              .then(() => {
-              this.infoService.success('Fiş başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
+                .get()
+                .subscribe(list => {
+                  list.forEach((item) => {
+                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
+                      .then(() => {
+                        this.finishProcess(null, 'Fiş başarıyla kaldırıldı.');
+                      })
+                      .catch((error) => {
+                        this.finishProcess(error, null);
+                      });
+                  });
+                });
             })
-              .catch((error) => {
-                this.finishProcessAndError(error);
-              });
-          });
-        });
-      })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
-    })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   btnShowMainFiler_Click(): void {
@@ -268,11 +283,23 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishProcessAndError(error: any): void {
+  finishFinally(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

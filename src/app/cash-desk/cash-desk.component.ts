@@ -6,7 +6,15 @@ import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {getFirstDayOfMonthForInput, getFloat, getNumber, getTodayForInput, isNullOrEmpty, padLeft} from '../core/correct-library';
+import {
+  getBeginOfYear, getBeginOfYearForInput,
+  getFirstDayOfMonthForInput,
+  getFloat,
+  getNumber,
+  getTodayForInput,
+  isNullOrEmpty,
+  padLeft
+} from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
@@ -38,10 +46,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: CashDeskService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService, public route: Router, public router: ActivatedRoute,
-              public excelService: ExcelService,
-              public db: AngularFirestore) {
+              public atService: AccountTransactionService, public infoService: InformationService, public route: Router,
+              public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore) {
   }
 
   ngOnInit() {
@@ -96,51 +102,54 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = '';
-            await this.service.addItem(this.selectedRecord).then(() => {
-              this.infoService.success('Kasa başarıyla kaydedildi.');
-              this.selectedRecord = undefined;
-            }).catch(err => this.infoService.error(err));
+            await this.service.addItem(this.selectedRecord)
+              .then(() => {
+                this.finishProcessAndError(null, 'Kasa başarıyla kaydedildi.');
+              })
+              .catch((error) => {
+                this.finishProcessAndError(error, null);
+              });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Kasa başarıyla güncellendi.');
-                this.selectedRecord = undefined;
+                this.finishProcessAndError(null, 'Kasa başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcessAndError(error, null);
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcessAndError(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcessAndError(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord)
-          .then(() => {
-          this.infoService.success('Kasa başarıyla kaldırıldı.');
-          this.selectedRecord = undefined;
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcessAndError(null, 'Kasa başarıyla kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcessAndError(error, null);
+            });
         })
-          .catch((error) => {
-            this.finishProcessAndError(error);
-          });
-      })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcessAndError(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcessAndError(error, null);
     }
   }
 
@@ -217,36 +226,37 @@ export class CashDeskComponent implements OnInit, OnDestroy {
           this.totalValues.amount += data.amount;
           totalCashDeskVoucherAmount += data.amount;
         });
-      }).finally(() => {
-      this.chart1 = new Chart('chart1', {
-        type: 'pie', // bar, pie, doughnut
-        data: {
-          labels: ['Tahsilat', 'Ödeme', 'Cari Fiş', 'Kasa Fişi'],
-          datasets: [{
-            label: '# of Votes',
-            data: [
-              getFloat(totalCollectionAmount.toFixed(2)),
-              getFloat(totalPaymentAmount.toFixed(2)),
-              getFloat(totalAccountVoucherAmount.toFixed(2)),
-              getFloat(totalCashDeskVoucherAmount.toFixed(2))
-            ],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(153, 102, 255, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(153, 102, 255, 1)'
-            ],
-            borderWidth: 1
-          }]
-        }
+      })
+      .finally(() => {
+        this.chart1 = new Chart('chart1', {
+          type: 'pie', // bar, pie, doughnut
+          data: {
+            labels: ['Tahsilat', 'Ödeme', 'Cari Fiş', 'Kasa Fişi'],
+            datasets: [{
+              label: '# of Votes',
+              data: [
+                getFloat(totalCollectionAmount.toFixed(2)),
+                getFloat(totalPaymentAmount.toFixed(2)),
+                getFloat(totalAccountVoucherAmount.toFixed(2)),
+                getFloat(totalCashDeskVoucherAmount.toFixed(2))
+              ],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
+          }
+        });
       });
-    });
     setTimeout(() => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
@@ -260,14 +270,18 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filterBeginDate = getBeginOfYearForInput();
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcessAndError(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 }

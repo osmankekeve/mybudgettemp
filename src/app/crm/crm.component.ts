@@ -84,8 +84,6 @@ export class CRMComponent implements OnInit, OnDestroy {
           // nothing
         }
       });
-    }, error => {
-      this.finishProcessAndError(error.toString());
     });
     setTimeout (() => {
       if (this.mainList === undefined) {
@@ -178,43 +176,67 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   async btnSave_Click(): Promise<void> {
-    const date = new Date(this.today.year, this.today.month - 1, this.today.day);
-    Promise.all([this.service.checkForSave(this.selectedRecord)]).then(async (values: any) => {
-      if (this.selectedRecord.primaryKey === undefined) {
-        this.onTransaction = true;
-        this.selectedRecord.primaryKey = '';
-        this.selectedRecord.actionDate = date.getTime();
-        await this.service.addItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Etkinlik başarıyla kaydedildi.');
-          }).catch(err => this.finishProcessAndError(err)).finally(() => {
-            this.finishRecordProcess();
-          });
-      } else {
-        await this.service.updateItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Etkinlik başarıyla güncellendi.');
-          }).catch(err => this.finishProcessAndError(err)).finally(() => {
-            this.finishRecordProcess();
-          });
-      }
-    }).catch((error) => {
-      this.finishProcessAndError(error);
-    });
+    try {
+      this.onTransaction = true;
+      const date = new Date(this.today.year, this.today.month - 1, this.today.day);
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+        if (this.selectedRecord.primaryKey === undefined) {
+          this.selectedRecord.primaryKey = '';
+          this.selectedRecord.actionDate = date.getTime();
+          await this.service.addItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Etkinlik başarıyla kaydedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        } else {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Etkinlik başarıyla güncellendi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        }
+      })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)]).then(async (values: any) => {
+    try {
       this.onTransaction = true;
-      await this.service.removeItem(this.selectedRecord)
-        .then(() => {
-          this.infoService.success('Etkinlik başarıyla kaldırıldı.');
-        }).catch(err => this.finishProcessAndError(err)).finally(() => {
-          this.finishRecordProcess();
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+        await this.service.removeItem(this.selectedRecord)
+          .then(() => {
+            this.finishProcess(null, 'Etkinlik başarıyla kaldırıldı.');
+          })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          })
+          .finally(() => {
+            this.finishFinally();
+          });
+      })
+        .catch((error) => {
+          this.finishProcess(error, null);
         });
-    }).catch((error) => {
-      this.finishProcessAndError(error);
-    });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -229,9 +251,9 @@ export class CRMComponent implements OnInit, OnDestroy {
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
       this.populateCharts();
@@ -263,17 +285,23 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishProcessAndError(error: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
-  }
-
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.populateCharts();
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
   }
 

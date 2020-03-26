@@ -186,6 +186,34 @@ export class AccountTransactionService {
     }
   })
 
+  getAccountTransactions = async (accountPrimaryKey: string, startDate: Date, endDate: Date):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      const citiesRef = this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+          .where('accountPrimaryKey', '==', accountPrimaryKey)
+          .where('parentType', '==', 'customer')
+          .startAt(startDate.getTime())
+          .endAt(endDate.getTime()));
+      citiesRef.get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
+          data.customer = this.customerMap.get(data.parentPrimaryKey);
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {

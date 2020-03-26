@@ -6,11 +6,9 @@
         <h4 class="card-title float-left mr-2">Hesaplar Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Tahsilat"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Eksik Hesapları Oluştur"
+        <button hidden class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Eksik Hesapları Oluştur"
                 (click)="btnCreateMissingAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
@@ -27,21 +25,64 @@
     </div>
   </div>
   <div class="card-body">
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group">
+          <div class="list-group-item bg-danger text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-3">Hesap Adı</div>
+              <div class="col-sm-3">Müşteri Adı</div>
+              <div class="col-sm-3">Döviz Tipi</div>
+              <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+            </div>
+          </div>
+          <div class="work-area-6">
+            <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                 (click)="showSelectedRecord(item)"
+                 *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i; trackBy: primaryKey">
+              <div class="row">
+                <div class="col-sm-3">
+                  <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.data.name}}
+                </div>
+                <div class="col-sm-3">{{item.customer.name}}</div>
+                <div class="col-sm-3">{{item.currencyTr}}</div>
+                <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
+  </div>
+</div>
+<div class="card work-area" *ngIf="selectedRecord!=undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">Hesap Detayı</h4>
+        <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
+                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
     <div class="card mb-2" *ngIf="isMainFilterOpened">
       <div class="card-header">Filtreler</div>
       <div class="card-body bg-light">
         <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Müşteri</label>
-          </div>
-          <div class="col-sm-9">
-            <select class="form-control form-control-sm w-100"
-                    [(ngModel)]="filterCustomerCode">
-              <option value="-1">Hepsini Seç</option>
-              <option value={{item.primaryKey}}
-                      *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
-            </select>
-          </div>
           <div class="col-sm-3">
             <label class="col-form-label float-left">Başlangıç Tarihi</label>
           </div>
@@ -79,113 +120,134 @@
         </div>
       </div>
     </div>
-    <div *ngIf="mainList != undefined; else elseBlock2">
-      <div *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group">
-          <div class="list-group-item bg-danger text-light main-list-item">
-            <div class="row">
-              <div class="col-sm-3">Hesap Adı</div>
-              <div class="col-sm-3">Müşteri Adı</div>
-              <div class="col-sm-3">Döviz Tipi</div>
-              <div class="col-sm-3"><span class="float-right">Tarih</span></div>
-            </div>
-          </div>
-          <div class="work-area-6">
-            <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                 (click)="showSelectedRecord(item)"
-                 *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i; trackBy: primaryKey">
-              <div class="row">
-                <div class="col-sm-3">
-                  <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.data.name}}
-                </div>
-                <div class="col-sm-3">{{item.customer.name}}</div>
-                <div class="col-sm-3">{{item.currencyTr}}</div>
-                <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <ng-template #elseBlock>
-        <div class="card bg-danger text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
-      </ng-template>
-    </div>
-    <ng-template #elseBlock2>
-      <div class="loader"></div>
-    </ng-template>
-  </div>
-</div>
-<div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header bg-gray-gradient">
     <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Hesap Detayı</h4>
-        <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5>Hesap Bilgileri</h5>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+              <div class="row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="customerPrimaryKey">Müşteri</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
+                          (change)="onChangeCustomer($event.target.value)"
+                          [disabled]="selectedRecord.data.primaryKey!=undefined"
+                          [(ngModel)]="selectedRecord.data.customerPrimaryKey">
+                    <option value={{item.primaryKey}}
+                            *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="type">Döviz Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="type" name="type" required
+                          [disabled]="selectedRecord.data.primaryKey!=undefined"
+                          [(ngModel)]="selectedRecord.data.currencyCode">
+                    <option value="-1">Lütfen Seçiniz</option>
+                    <option value="lira">Lira</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen döviz seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="name">Hesap Adı</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="name" name="name" type="text"
+                         [(ngModel)]="selectedRecord.data.name" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                         [(ngModel)]="selectedRecord.data.description">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer">
+            <div class="col-sm-3 float-right">
+              <button type="button" class="btn btn-sm btn-success btn-block"
+                      [disabled]="onTransaction || !f.valid"
+                      (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
+              </button>
+            </div>
+            <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              <button type="button" class="btn btn-sm btn-danger btn-block"
+                      [disabled]="onTransaction"
+                      (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-4" *ngIf="selectedRecord.data.primaryKey!=undefined">
+          <div class="card-body">
+            <div class="loader" *ngIf="transactionList == undefined"></div>
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
-      <div class="form-row form-inline">
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="customerPrimaryKey">Müşteri</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
-                  (change)="onChangeCustomer($event.target.value)"
-                  [disabled]="selectedRecord.data.primaryKey!=undefined"
-                  [(ngModel)]="selectedRecord.data.customerPrimaryKey">
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="type">Döviz Tipi</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="type" name="type" required
-                  [disabled]="selectedRecord.data.primaryKey!=undefined"
-                  [(ngModel)]="selectedRecord.data.currencyCode">
-            <option value="-1">Lütfen Seçiniz</option>
-            <option value="lira">Lira</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen döviz seçiniz.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="name">Hesap Adı</label>
-        </div>
-        <div class="col-sm-9">
-          <input class="form-control form-control-sm w-100" id="name" name="name" type="text"
-                 [(ngModel)]="selectedRecord.data.name" required>
-          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="description">Açıklama</label>
-        </div>
-        <div class="col-sm-9">
-          <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                 [(ngModel)]="selectedRecord.data.description">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5 class="float-left mr-2">Hesap Hareketleri</h5>
+            <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Excel'e Aktar"
+                    (click)="btnExportTransactionsToExcel_Click()"><i
+              class="fa fa-file-excel-o"></i></button>
+          </div>
+          <div class="card-body work-area-2" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
+            <div *ngIf="transactionList != undefined; else elseBlock3">
+              <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
+                <div class="list-group-item bg-dark text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-3">İşlem Tipi</div>
+                    <div class="col-sm-3">Fiş Numarası</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item"
+                     *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+                  <div class="row">
+                    <div class="col-sm-3">{{item.transactionTypeTr}}</div>
+                    <div class="col-sm-3">{{item.receiptNo}}</div>
+                    <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    </div>
+                  </div>
+                </div>
+                <li class="list-group-item list-group-item-success main-list-item">
+                  <div class="row">
+                    <div class="col-sm-6">Toplam</div>
+                    <div class="col-sm-3"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
+                  </div>
+                </li>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="loader"></div>
+            </ng-template>
+          </div>
+          <ng-template #elseBlock2>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
         </div>
       </div>
-    </form>
-  </div>
-  <div class="card-footer">
-    <div class="col-sm-3 float-right">
-      <button type="button" class="btn btn-sm btn-success btn-block"
-              [disabled]="onTransaction || !f.valid"
-              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
-      </button>
-    </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
-      <button type="button" class="btn btn-sm btn-danger btn-block"
-              (click)="btnRemove_Click()">Kaldır
-      </button>
     </div>
   </div>
 </div>

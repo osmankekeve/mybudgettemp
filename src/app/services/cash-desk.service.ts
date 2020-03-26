@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
@@ -11,6 +11,8 @@ import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
 import {SalesInvoiceModel} from '../models/sales-invoice-model';
 import {NoteModel} from '../models/note-model';
+import {AccountTransactionService} from './account-transaction.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +24,7 @@ export class CashDeskService {
   employeeMap = new Map();
   tableName = 'tblCashDesk';
 
-  constructor(public authService: AuthenticationService, public eService: ProfileService,
-              public db: AngularFirestore) {
+  constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -58,7 +59,12 @@ export class CashDeskService {
   }
 
   checkForRemove(record: CashDeskMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.getCashDeskTransactions(record.data.primaryKey, null, null).then(list => {
+        if (list.length > 0) {
+          reject('Kasaya ait cari hareket bulunduğundan silinemez. Kasa hareketleri filtresini genişleterek kayıtlara ulaşabilirsiniz.');
+        }
+      });
       resolve(null);
     });
   }
@@ -86,9 +92,15 @@ export class CashDeskService {
 
   checkFields(model: CashDeskModel): CashDeskModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.name === undefined) { model.name = cleanModel.name; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.name === undefined) {
+      model.name = cleanModel.name;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
 
     return model;
   }
@@ -114,7 +126,7 @@ export class CashDeskService {
   getItems(): Observable<CashDeskModel[]> {
     this.listCollection = this.db.collection<CashDeskModel>(this.tableName,
       ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList2$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
+    this.mainList2$ = this.listCollection.valueChanges({idField: 'primaryKey'});
     return this.mainList2$;
   }
 
@@ -139,5 +151,36 @@ export class CashDeskService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionModel>();
+      this.db.collection('tblAccountTransaction', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey);
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      }).get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }

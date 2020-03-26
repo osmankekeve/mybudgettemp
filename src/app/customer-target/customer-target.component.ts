@@ -38,6 +38,7 @@ export class CustomerTargetComponent implements OnInit {
   currentAmount = 0;
   encryptSecretKey: string = getEncryptionKey();
   onTransaction = false;
+  searchText = '';
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public infoService: InformationService, public colService: CollectionService,

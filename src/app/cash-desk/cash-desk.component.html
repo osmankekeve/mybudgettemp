@@ -82,9 +82,23 @@
                     </div>
                   </div>
                 </div>
+                <div class="card-footer">
+                  <div class="col-sm-3 float-right">
+                    <button type="button" class="btn btn-sm btn-success btn-block"
+                            [disabled]="onTransaction"
+                            (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
+                    </button>
+                  </div>
+                  <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
+                    <button type="button" class="btn btn-sm btn-danger btn-block"
+                            [disabled]="onTransaction"
+                            (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-sm-12 mt-5" *ngIf="selectedRecord.data.primaryKey!=undefined">
+            <div class="col-sm-12 mt-4" *ngIf="selectedRecord.data.primaryKey!=undefined">
               <div class="card">
                 <div class="card-body">
                   <div class="loader" *ngIf="transactionList == undefined"></div>
@@ -105,7 +119,7 @@
                       (click)="btnExportToExcel_Click()"><i
                 class="fa fa-file-excel-o"></i></button>
             </div>
-            <div class="card-body work-area-5" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
+            <div class="card-body work-area-2" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
               <div class="card mb-2" *ngIf="isMainFilterOpened">
                 <div class="card-header">Filtreler</div>
                 <div class="card-body bg-light">
@@ -195,17 +209,5 @@
         </div>
       </div>
     </form>
-  </div>
-  <div class="card-footer">
-    <div class="col-sm-3 float-right">
-      <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
-      </button>
-    </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
-      <button type="button" class="btn btn-sm btn-danger btn-block"
-              (click)="btnRemove_Click()">Kaldır
-      </button>
-    </div>
   </div>
 </div>

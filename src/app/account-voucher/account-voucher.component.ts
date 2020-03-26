@@ -286,95 +286,119 @@ export class AccountVoucherComponent implements OnInit {
   }
 
   async btnSave_Click(): Promise<void> {
-    this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
-    Promise.all([this.service.checkForSave(this.selectedRecord)])
-      .then(async (values: any) => {
-        this.onTransaction = true;
-        if (this.selectedRecord.data.primaryKey === null) {
-          const newId = this.db.createId();
-          this.selectedRecord.data.primaryKey = '';
-          await this.service.setItem(this.selectedRecord, newId)
-            .then(() => {
-              const trans = {
-                primaryKey: '',
-                userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                receiptNo: this.selectedRecord.data.receiptNo,
-                transactionPrimaryKey: newId,
-                transactionType: 'accountVoucher',
-                parentPrimaryKey: this.selectedRecord.data.customerCode,
-                parentType: 'customer',
-                accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-                cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                amount: this.selectedRecord.data.type === 'creditVoucher' ?
-                  this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
-                amountType: this.selectedRecord.data.type === 'creditVoucher' ? 'credit' : 'debit',
-                insertDate: this.selectedRecord.data.insertDate,
-              };
-              this.db.collection('tblAccountTransaction').add(trans)
-                .then(() => {
-                  this.infoService.success('Fiş başarıyla kaydedildi.');
-                })
-                .catch(error => this.finishProcessAndError(error));
-            })
-            .catch(error => this.finishProcessAndError(error))
-            .finally(() => {
-              this.finishRecordProcess();
-            });
-        } else {
-          await this.service.updateItem(this.selectedRecord)
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.primaryKey === null) {
+            const newId = this.db.createId();
+            this.selectedRecord.data.primaryKey = '';
+            await this.service.setItem(this.selectedRecord, newId)
+              .then(() => {
+                const trans = {
+                  primaryKey: '',
+                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
+                  receiptNo: this.selectedRecord.data.receiptNo,
+                  transactionPrimaryKey: newId,
+                  transactionType: 'accountVoucher',
+                  parentPrimaryKey: this.selectedRecord.data.customerCode,
+                  parentType: 'customer',
+                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
+                  cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
+                  amount: this.selectedRecord.data.type === 'creditVoucher' ?
+                    this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+                  amountType: this.selectedRecord.data.type === 'creditVoucher' ? 'credit' : 'debit',
+                  insertDate: this.selectedRecord.data.insertDate,
+                };
+                this.db.collection('tblAccountTransaction').add(trans)
+                  .then(() => {
+                    this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
+                  })
+                  .catch((error) => {
+                    this.finishProcess(error, null);
+                  });
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
+                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
+                  .get()
+                  .subscribe(list => {
+                    list.forEach((item) => {
+                      this.db.collection('tblAccountTransaction').doc(item.id).update({
+                        receiptNo: this.selectedRecord.data.receiptNo,
+                        cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
+                        amount: this.selectedRecord.data.type === 'creditVoucher' ?
+                          this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
+                      })
+                        .then(() => {
+                          this.finishProcess(null, 'Fiş başarıyla güncellendi.');
+                        })
+                        .catch((error) => {
+                          this.finishProcess(error, null);
+                        });
+                    });
+                  });
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnRemove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.db.collection<AccountTransactionModel>('tblAccountTransaction',
                 ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
                 .get()
                 .subscribe(list => {
                   list.forEach((item) => {
-                    this.db.collection('tblAccountTransaction').doc(item.id).update({
-                      receiptNo: this.selectedRecord.data.receiptNo,
-                      cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                      amount: this.selectedRecord.data.type === 'creditVoucher' ?
-                        this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
-                    })
+                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
                       .then(() => {
-                        this.infoService.success('Fiş başarıyla güncellendi.');
-                        this.selectedRecord = undefined;
+                        this.finishProcess(null, 'Fiş başarıyla kaldırıldı.');
                       })
-                      .catch(error => this.finishProcessAndError(error));
+                      .catch((error) => {
+                        this.finishProcess(error, null);
+                      });
                   });
                 });
             })
-            .catch(error => this.finishProcessAndError(error))
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
             .finally(() => {
-              this.finishRecordProcess();
+              this.finishFinally();
             });
-        }
-      })
-      .catch(error => this.finishProcessAndError(error));
-  }
-
-  async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)])
-      .then(async (values: any) => {
-        await this.service.removeItem(this.selectedRecord)
-          .then(() => {
-            this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-              ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-              .get()
-              .subscribe(list => {
-                list.forEach((item) => {
-                  this.db.collection('tblAccountTransaction').doc(item.id).delete()
-                    .then(() => {
-                      this.infoService.success('Fiş başarıyla kaldırıldı.');
-                    })
-                    .catch(error => this.finishProcessAndError(error));
-                });
-              });
-          })
-          .catch(error => this.finishProcessAndError(error))
-          .finally(() => {
-            this.finishRecordProcess();
-          });
-      })
-      .catch(error => this.finishProcessAndError(error));
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   btnShowMainFiler_Click(): void {
@@ -444,18 +468,25 @@ export class AccountVoucherComponent implements OnInit {
     this.selectedRecord = this.service.clearMainModel();
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.populateCharts();
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.populateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {
