@@ -168,8 +168,17 @@ export class CustomerTargetComponent implements OnInit {
     }
   }
 
+  btnNew_Click(): void {
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      this.infoService.error(error);
+    }
+  }
+
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.type === 'yearly') {
@@ -186,57 +195,56 @@ export class CustomerTargetComponent implements OnInit {
             this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Hedef başarıyla kaydedildi.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Hedef başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Hedef başarıyla güncellendi.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Hedef başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.infoService.success('Hedef başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
+              this.finishProcess(null, 'Hedef başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcessAndError(error);
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
-    }
-  }
-
-  btnNew_Click(): void {
-    try {
-      this.clearSelectedRecord();
-    } catch (error) {
-      this.infoService.error(error);
+      this.finishProcess(error, null);
     }
   }
 
@@ -276,11 +284,23 @@ export class CustomerTargetComponent implements OnInit {
     this.selectedRecord = this.service.clearMainModel();
   }
 
-  finishProcessAndError(error: any): void {
+  finishFinally(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

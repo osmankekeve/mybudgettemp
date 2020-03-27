@@ -205,7 +205,7 @@
           <div class="card-body work-area-2" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
             <div *ngIf="transactionList != undefined; else elseBlock3">
               <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
-                <div class="list-group-item bg-dark text-light main-list-item">
+                <div class="list-group-item bg-red text-light main-list-item">
                   <div class="row">
                     <div class="col-sm-3">İşlem Tipi</div>
                     <div class="col-sm-3">Fiş Numarası</div>
@@ -214,10 +214,11 @@
 
                   </div>
                 </div>
-                <div class="list-group-item list-group-item-action main-list-item"
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showTransactionRecord(item)"
                      *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                   <div class="row">
-                    <div class="col-sm-3">{{item.transactionTypeTr}}</div>
+                    <div class="col-sm-3 text-red"><i class="fa fa-arrow-circle-right mr-2"></i>{{item.transactionTypeTr}}</div>
                     <div class="col-sm-3">{{item.receiptNo}}</div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
                     <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>

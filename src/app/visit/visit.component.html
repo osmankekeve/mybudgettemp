@@ -213,7 +213,8 @@
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.visit.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
-              (click)="btnRemove_Click()">Kaldır
+              [disabled]="onTransaction"
+              (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
       </button>
     </div>
   </div>

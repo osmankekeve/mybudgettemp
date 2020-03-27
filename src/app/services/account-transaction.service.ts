@@ -129,7 +129,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -157,7 +157,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -184,20 +184,20 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getAccountTransactions = async (accountPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<AccountTransactionModel>();
-      const citiesRef = this.db.collection(this.tableName, ref =>
+      this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
           .where('accountPrimaryKey', '==', accountPrimaryKey)
           .where('parentType', '==', 'customer')
           .startAt(startDate.getTime())
-          .endAt(endDate.getTime()));
-      citiesRef.get().subscribe(snapshot => {
+          .endAt(endDate.getTime()))
+        .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
           data.primaryKey = doc.id;
@@ -212,7 +212,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -241,7 +241,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))

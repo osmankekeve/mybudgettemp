@@ -2,21 +2,19 @@ import { Injectable } from '@angular/core';
 import {
   AngularFirestore,
   AngularFirestoreCollection,
-  AngularFirestoreDocument,
   CollectionReference, Query
 } from '@angular/fire/firestore';
 import { CustomerModel } from '../models/customer-model';
 import { Observable } from 'rxjs/internal/Observable';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
-import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
-import {ReminderModel} from '../models/reminder-model';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {getPaymentTypes, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
+import {CustomerAccountModel} from '../models/customer-account-model';
 
 @Injectable({
   providedIn: 'root'
@@ -94,7 +92,32 @@ export class CustomerService {
   }
 
   checkForRemove(record: CustomerMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isCustomerHasAccount(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Müşteriye ait hesap olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasSalesInvoice(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Müşteriye ait satış faturası olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasCollection(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Müşteriye ait tahsilat olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasPurchaseInvoice(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Müşteriye ait alım faturası olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasPayment(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Müşteriye ait ödeme olduğundan silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -205,7 +228,6 @@ export class CustomerService {
   }
 
   getCustomersForReport = async (customerPrimaryKey: string, isActive: boolean):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<CustomerModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CustomerModel>();
@@ -238,7 +260,6 @@ export class CustomerService {
   })
 
   getCustomersMainModel = async (customerPrimaryKey: string, isActive: boolean):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<CustomerMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CustomerMainModel>();
@@ -271,6 +292,116 @@ export class CustomerService {
         resolve(list);
       });
 
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasAccount = async (customerPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblAccounts', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasSalesInvoice = async (customerPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasCollection = async (customerPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCollection', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasPurchaseInvoice = async (customerPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasPayment = async (customerPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPayment', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});

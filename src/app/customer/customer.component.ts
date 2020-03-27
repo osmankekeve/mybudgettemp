@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
-import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../../app/services/customer.service';
 import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
 import {SalesInvoiceService} from '../services/sales-invoice.service';
@@ -48,6 +47,7 @@ import {ProfileService} from '../services/profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-customer',
@@ -102,7 +102,7 @@ export class CustomerComponent implements OnInit {
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
               public rService: ReportService, public proService: ProfileService, public accService: CustomerAccountService,
-              public mailService: MailService) {
+              public mailService: MailService, public globService: GlobalService) {
   }
 
   ngOnInit() {
@@ -302,14 +302,18 @@ export class CustomerComponent implements OnInit {
 
   async btnRemove_Click(): Promise<void> {
     try {
-      Promise.all([this.customerService.checkForRemove(this.selectedCustomer)]).then(async (values: any) => {
-        await this.customerService.removeItem(this.selectedCustomer).then(() => {
-          this.infoService.success('Müşteri başarıyla kaldırıldı.');
-          this.selectedCustomer = undefined;
-        }).catch(err => this.infoService.error(err));
-      }).catch((error) => {
-        this.infoService.error(error);
-      });
+      Promise.all([this.customerService.checkForRemove(this.selectedCustomer)])
+        .then(async (values: any) => {
+          await this.customerService.removeItem(this.selectedCustomer)
+          .then(() => {
+            this.infoService.success('Müşteri başarıyla kaldırıldı.');
+            this.selectedCustomer = undefined;
+          })
+          .catch(err => this.infoService.error(err));
+        })
+        .catch((error) => {
+          this.infoService.error(error);
+        });
     } catch (error) {
       this.infoService.error(error);
     }
@@ -463,27 +467,27 @@ export class CustomerComponent implements OnInit {
             this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.payService.setItem(this.newPayment, newId)
               .then(() => {
-              this.db.collection('tblAccountTransaction').add({
-                primaryKey: '',
-                userPrimaryKey: this.newPayment.data.userPrimaryKey,
-                receiptNo: this.newPayment.data.receiptNo,
-                transactionPrimaryKey: newId,
-                transactionType: 'payment',
-                parentPrimaryKey: this.newPayment.data.customerCode,
-                parentType: 'customer',
-                cashDeskPrimaryKey: this.newPayment.data.cashDeskPrimaryKey,
-                amount: this.newPayment.data.amount * -1,
-                amountType: 'debit',
-                insertDate: this.newPayment.data.insertDate,
+                this.db.collection('tblAccountTransaction').add({
+                  primaryKey: '',
+                  userPrimaryKey: this.newPayment.data.userPrimaryKey,
+                  receiptNo: this.newPayment.data.receiptNo,
+                  transactionPrimaryKey: newId,
+                  transactionType: 'payment',
+                  parentPrimaryKey: this.newPayment.data.customerCode,
+                  parentType: 'customer',
+                  cashDeskPrimaryKey: this.newPayment.data.cashDeskPrimaryKey,
+                  amount: this.newPayment.data.amount * -1,
+                  amountType: 'debit',
+                  insertDate: this.newPayment.data.insertDate,
+                })
+                  .then(async () => {
+                    this.infoService.success('Ödeme başarıyla kaydedildi.');
+                    await this.clearNewPayment();
+                  })
+                  .catch((error) => {
+                    this.finishProcessAndError(error);
+                  });
               })
-                .then(async () => {
-                this.infoService.success('Ödeme başarıyla kaydedildi.');
-                await this.clearNewPayment();
-              })
-                .catch((error) => {
-                  this.finishProcessAndError(error);
-                });
-            })
               .catch((error) => {
                 this.finishProcessAndError(error);
               });
@@ -523,9 +527,9 @@ export class CustomerComponent implements OnInit {
                   insertDate: this.newVoucher.data.insertDate,
                 })
                   .then(async () => {
-                  this.infoService.success('Fiş başarıyla kaydedildi.');
-                  await this.clearNewVoucher();
-                })
+                    this.infoService.success('Fiş başarıyla kaydedildi.');
+                    await this.clearNewVoucher();
+                  })
                   .catch((error) => {
                     this.finishProcessAndError(error);
                   });
@@ -703,82 +707,7 @@ export class CustomerComponent implements OnInit {
   }
 
   async showTransactionRecord(item: any): Promise<void> {
-    let data;
-    if (item.transactionType === 'salesInvoice') {
-
-      data = await this.siService.getItem(item.transactionPrimaryKey);
-      console.log(data);
-      if (data) {
-        await this.route.navigate(['sales-invoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-    } else if (item.transactionType === 'collection') {
-
-      data = await this.colService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        await this.route.navigate(['collection', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-    } else if (item.transactionType === 'purchaseInvoice') {
-
-      data = await this.piService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        await this.route.navigate(['purchaseInvoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-      /* data = await this.piService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        this.route.navigate(['/purchaseInvoice'], { queryParams: {
-          data: CryptoJS.AES.encrypt(JSON.stringify(data), this.encryptSecretKey).toString(),
-          from: 'customer',
-          fromData: CryptoJS.AES.encrypt(JSON.stringify(this.selectedCustomer), this.encryptSecretKey).toString(),
-        } });
-      } */
-
-    } else if (item.transactionType === 'payment') {
-
-      data = await this.payService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        await this.route.navigate(['payment', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-    } else if (item.transactionType === 'accountVoucher') {
-
-      data = await this.avService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        await this.route.navigate(['account-voucher', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-    } else if (item.transactionType === 'cashdeskVoucher') {
-
-      data = await this.cdService.getItem(item.transactionPrimaryKey);
-      if (data) {
-        await this.route.navigate(['cashdesk-voucher', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-
-    } else {
-
-      this.infoService.error('Modül bulunamadı.');
-
-    }
+    await this.globService.showTransactionRecord(item);
   }
 
   async showTargetRecord(item: any): Promise<void> {

@@ -109,11 +109,14 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col">
-                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
-                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</label>
+                    <label class="font-weight-bold text-dark"
+                           *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
+                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm
+                      Kullanıcılar</label>
                   </div>
                   <div class="col">
-                    <label class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
+                    <label
+                      class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
                   </div>
                 </div>
                 <div class="text-dark text-small">{{item.data.description}}</div>
@@ -168,7 +171,8 @@
                     [disabled]="selectedRecord.isPersonal"
                     [(ngModel)]="selectedRecord.employeePrimaryKey">
               <option [value]="-1">Tüm Kullanıcılar</option>
-              <option value={{item.returnData.data.primaryKey}} *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
+              <option value={{item.returnData.data.primaryKey}}
+                      *ngFor="let item of employeeList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
             </select>
           </div>
           <div class="col-sm-3">
@@ -188,7 +192,8 @@
           </div>
           <div class="col-sm-3">
             <div class="input-group">
-              <input class="form-control form-control-sm" id="reminderDate" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
+              <input class="form-control form-control-sm" id="reminderDate" placeholder="yyyy-mm-dd" name="d"
+                     #c="ngModel"
                      [(ngModel)]="recordDate" ngbDatepicker #d="ngbDatepicker">
               <div class="input-group-append">
                 <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
@@ -212,7 +217,7 @@
           </div>
           <div class="col-sm-9">
             <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
-              cols="40" rows="5" [(ngModel)]="selectedRecord.description" required=""></textarea>
+                      cols="40" rows="5" [(ngModel)]="selectedRecord.description" required=""></textarea>
             <div class="invalid-feedback">Lütfen not alanını doldurunuz.</div>
           </div>
         </div>
@@ -228,6 +233,7 @@
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.primaryKey!=undefined">
       <button type="button" class="btn btn-sm btn-danger btn-block"
+              [disabled]="onTransaction"
               (click)="btnRemove_Click()">Kaldır
       </button>
     </div>

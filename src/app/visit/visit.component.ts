@@ -181,11 +181,20 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.recordDate = getDateForInput(this.selectedRecord.visit.visitDate);
   }
 
+  async btnReturnList_Click(): Promise<void> {
+    try {
+      this.finishFinally();
+      await this.route.navigate(['visit', {}]);
+    } catch (err) {
+      this.infoService.error(err);
+    }
+  }
+
   btnNew_Click(): void {
     try {
       this.clearSelectedRecord();
     } catch (err) {
-      this.finishProcessAndError(err);
+      this.infoService.error(err);
     }
   }
 
@@ -199,32 +208,32 @@ export class VisitComponent implements OnInit, OnDestroy {
             this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
             await this.service.addItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Ziyaret başarıyla kaydedildi.');
+                this.finishProcess(null, 'Ziyaret başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Ziyaret başarıyla güncellendi.');
+                this.finishProcess(null, 'Ziyaret başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           }
         })
-        .catch((error) => {
-          this.finishProcessAndError(error);
+        .finally(() => {
+          this.finishFinally();
         });
     } catch (err) {
-      this.finishProcessAndError(err);
+      this.finishProcess(err, null);
     }
   }
 
@@ -235,30 +244,20 @@ export class VisitComponent implements OnInit, OnDestroy {
         this.onTransaction = true;
         await this.service.removeItem(this.selectedRecord)
           .then(() => {
-            this.infoService.success('Ziyaret başarıyla kaldırıldı.');
+            this.finishProcess(null, 'Ziyaret başarıyla kaldırıldı.');
           })
           .catch((error) => {
-            this.finishProcessAndError(error);
+            this.finishProcess(error, null);
           })
           .finally(() => {
-            this.finishRecordProcess();
+            this.finishFinally();
           });
       })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (err) {
-      this.finishProcessAndError(err);
-    }
-  }
-
-  async btnReturnList_Click(): Promise<void> {
-    try {
-      this.selectedRecord = undefined;
-      await this.route.navigate(['visit', {}]);
-      this.populateCharts();
-    } catch (err) {
-      this.finishProcessAndError(err);
+      this.finishProcess(err, null);
     }
   }
 
@@ -273,9 +272,9 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
       this.populateCharts();
@@ -286,7 +285,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord.employeeName = $event.target.options[$event.target.options.selectedIndex].text;
     } catch (err) {
-      this.finishProcessAndError(err);
+      this.infoService.error(err);
     }
   }
 
@@ -294,7 +293,7 @@ export class VisitComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
     } catch (err) {
-      this.finishProcessAndError(err);
+      this.infoService.error(err);
     }
   }
 
@@ -309,18 +308,24 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.populateCharts();
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

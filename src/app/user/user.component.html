@@ -143,14 +143,15 @@
   <div class="card-footer">
     <div class="col-sm-3 float-right">
       <button type="button" class="btn btn-sm btn-success btn-block"
-              (click)="btnSave_Click()">Kaydet
+              [disabled]="onTransaction"
+              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
       </button>
     </div>
     <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined && !selectedRecord.data.isMainRecord">
       <button type="button" class="btn btn-sm btn-danger btn-block"
-              (click)="btnRemove_Click()">Kaldır
+              [disabled]="onTransaction"
+              (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
       </button>
     </div>
-
   </div>
 </div>

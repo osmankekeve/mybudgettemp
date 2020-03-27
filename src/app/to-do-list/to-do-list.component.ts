@@ -109,64 +109,63 @@ export class ToDoListComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Kayıt başarıyla gerçekleşti.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Kayıt başarıyla gerçekleşti.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Kayıt başarıyla güncellendi.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.infoService.success('Kayıt başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
+              this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcessAndError(error);
+              this.finishProcess(error, null);
             })
             .finally(() => {
-              this.finishRecordProcess();
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
@@ -199,17 +198,23 @@ export class ToDoListComponent implements OnInit {
     this.filterIsActive = '1';
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

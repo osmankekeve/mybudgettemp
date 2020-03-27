@@ -282,9 +282,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
     }
@@ -300,9 +300,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
+    this.finishFinally();
     await this.route.navigate(['payment', {}]);
-    this.populateCharts();
   }
 
   async btnNew_Click(): Promise<void> {
@@ -315,9 +314,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-          this.onTransaction = true;
           if (this.selectedRecord.data.primaryKey === null) {
             const newId = this.db.createId();
             this.selectedRecord.data.primaryKey = '';
@@ -337,14 +336,19 @@ export class PaymentComponent implements OnInit, OnDestroy {
                   amountType: 'debit',
                   insertDate: this.selectedRecord.data.insertDate,
                 };
-                this.db.collection('tblAccountTransaction').add(trans).then(() => {
-                  this.infoService.success('Ödeme başarıyla kaydedildi.');
-                }).catch(err => this.finishProcessAndError(err)).finally(() => {
-                  this.finishRecordProcess();
-                });
+                this.db.collection('tblAccountTransaction').add(trans)
+                  .then(() => {
+                    this.finishProcess(null, 'Ödeme başarıyla kaydedildi.');
+                  })
+                  .catch((error) => {
+                    this.finishProcess(error, null);
+                  })
+                  .finally(() => {
+                    this.finishFinally();
+                  });
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -358,30 +362,35 @@ export class PaymentComponent implements OnInit, OnDestroy {
                       cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
                       amount: this.selectedRecord.data.amount * -1,
                     };
-                    this.db.collection('tblAccountTransaction').doc(item.id).update(trans).then(() => {
-                      this.infoService.success('Ödeme başarıyla güncellendi.');
-                    }).catch(err => this.finishProcessAndError(err));
+                    this.db.collection('tblAccountTransaction').doc(item.id).update(trans)
+                      .then(() => {
+                        this.finishProcess(null, 'Ödeme başarıyla güncellendi.');
+                      })
+                      .catch((error) => {
+                        this.finishProcess(error, null);
+                      });
                   });
                 });
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
@@ -393,26 +402,26 @@ export class PaymentComponent implements OnInit, OnDestroy {
                   list.forEach((item) => {
                     this.db.collection('tblAccountTransaction').doc(item.id).delete()
                       .then(() => {
-                        this.infoService.success('Ödeme başarıyla kaldırıldı.');
+                        this.finishProcess(null, 'Ödeme başarıyla kaldırıldı.');
                       })
                       .catch((error) => {
-                        this.finishProcessAndError(error);
+                        this.finishProcess(error, null);
                       });
                   });
                 });
             })
             .catch((error) => {
-              this.finishProcessAndError(error);
+              this.finishProcess(error, null);
             })
             .finally(() => {
-              this.finishRecordProcess();
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
@@ -420,7 +429,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'payment');
     } else {
-      this.finishProcessAndError('Aktarılacak kayıt bulunamadı.');
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -437,7 +446,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
                 ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
-                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.finishProcessAndError(err));
+                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
                   i++;
                 });
               });
@@ -467,18 +476,24 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.filterCustomerCode = '-1';
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.populateCharts();
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_amount($event): void {

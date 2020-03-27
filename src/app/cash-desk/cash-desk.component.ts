@@ -21,6 +21,7 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {SettingModel} from '../models/setting-model';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {Chart} from 'chart.js';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-cash-desk',
@@ -45,7 +46,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   chart1: any;
   onTransaction = false;
 
-  constructor(public authService: AuthenticationService, public service: CashDeskService,
+  constructor(public authService: AuthenticationService, public service: CashDeskService, public globService: GlobalService,
               public atService: AccountTransactionService, public infoService: InformationService, public route: Router,
               public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore) {
   }
@@ -151,6 +152,10 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     } catch (error) {
       this.finishProcessAndError(error, null);
     }
+  }
+
+  async showTransactionRecord(item: any): Promise<void> {
+    await this.globService.showTransactionRecord(item);
   }
 
   btnShowMainFiler_Click(): void {

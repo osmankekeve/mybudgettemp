@@ -70,68 +70,82 @@ export class NoteComponent implements OnInit {
   }
 
   btnNew_Click(): void {
-    this.clearSelectedRecord();
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnSave_Click(): Promise<void> {
-    Promise.all([this.service.checkForSave(this.selectedRecord)])
-      .then(async (values: any) => {
-        this.onTransaction = true;
-        if (this.selectedRecord.primaryKey === null) {
-          this.selectedRecord.primaryKey = '';
-          await this.service.addItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Hatırlatma başarıyla kaydedildi.');
-            })
-            .catch((error) => {
-              this.finishProcessAndError(error);
-            })
-            .finally(() => {
-              this.finishRecordProcess();
-            });
-        } else {
-          await this.service.updateItem(this.selectedRecord)
-            .then(() => {
-              this.infoService.success('Hatırlatma başarıyla güncellendi.');
-            })
-            .catch((error) => {
-              this.finishProcessAndError(error);
-            })
-            .finally(() => {
-              this.finishRecordProcess();
-            });
-        }
-      })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          this.onTransaction = true;
+          if (this.selectedRecord.primaryKey === null) {
+            this.selectedRecord.primaryKey = '';
+            await this.service.addItem(this.selectedRecord)
+              .then(() => {
+                this.finishProcess(null, 'Hatırlatma başarıyla kaydedildi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          } else {
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.finishProcess(null, 'Hatırlatma başarıyla güncellendi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnRemove_Click(): Promise<void> {
-    Promise.all([this.service.checkForRemove(this.selectedRecord)])
-      .then(async (values: any) => {
-        this.onTransaction = true;
-        await this.service.removeItem(this.selectedRecord)
-          .then(() => {
-            this.infoService.success('Hatırlatma başarıyla kaldırıldı.');
-          })
-          .catch((error) => {
-            this.finishProcessAndError(error);
-          })
-          .finally(() => {
-            this.finishRecordProcess();
-          });
-      })
-      .catch((error) => {
-        this.finishProcessAndError(error);
-      });
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async (values: any) => {
+          this.onTransaction = true;
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Hatırlatma başarıyla kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'note');
     } else {
-      this.finishProcessAndError('Aktarılacak kayıt bulunamadı.');
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -141,17 +155,23 @@ export class NoteComponent implements OnInit {
     this.selectedRecord = this.service.clearMainModel();
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

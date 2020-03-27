@@ -363,24 +363,21 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
   }
 
-  btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
+  async btnReturnList_Click(): Promise<void> {
     /* if (this.fromModule) {
       this.route.navigate([this.fromModule, {}]);
     } else {
       this.route.navigate(['purchaseInvoice', {}]);
     } */
-    this.route.navigate(['purchaseInvoice', {}]);
-    this.populateCharts();
-    // this.setChart1Data();
-    // this.setChart2Data();
+    this.finishFinally();
+    await this.route.navigate(['purchaseInvoice', {}]);
   }
 
   btnMainFilter_Click(): void {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.finishProcessAndError('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.finishProcessAndError('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
     }
@@ -405,10 +402,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-          this.onTransaction = true;
           if (this.selectedRecord.data.primaryKey === null) {
             const newId = this.db.createId();
             this.selectedRecord.data.primaryKey = '';
@@ -429,15 +426,22 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
                   amountType: this.selectedRecord.data.type === 'purchase' ? 'credit' : 'debit',
                   insertDate: this.selectedRecord.data.insertDate
                 };
-                this.db.collection('tblAccountTransaction').add(trans).then(() => {
-                  this.infoService.success('Fatura başarıyla kaydedildi.');
-                }).catch(err => this.finishProcessAndError(err));
+                this.db.collection('tblAccountTransaction').add(trans)
+                  .then(() => {
+                    this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
+                })
+                  .catch((error) => {
+                    this.finishProcess(error, null);
+                  })
+                  .finally(() => {
+                    this.finishFinally();
+                  });
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -455,32 +459,33 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
                       };
                       await this.db.collection('tblAccountTransaction').doc(item.id).update(trans)
                         .then(() => {
-                          this.infoService.success('Fatura başarıyla güncellendi.');
+                          this.finishProcess(null, 'Fatura başarıyla güncellendi.');
                         })
                         .catch((error) => {
-                          this.finishProcessAndError(error);
+                          this.finishProcess(error, null);
                         });
                     });
                   });
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
@@ -492,26 +497,26 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
                   list.forEach((item) => {
                     this.db.collection('tblAccountTransaction').doc(item.id).delete()
                       .then(() => {
-                        this.infoService.success('Fatura başarıyla kaldırıldı.');
+                        this.finishProcess(null, 'Fatura başarıyla kaldırıldı.');
                       })
                       .catch((error) => {
-                        this.finishProcessAndError(error);
+                        this.finishProcess(error, null);
                       });
                   });
                 });
             })
             .catch((error) => {
-              this.finishProcessAndError(error);
+              this.finishProcess(error, null);
             })
             .finally(() => {
-              this.finishRecordProcess();
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
@@ -519,7 +524,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
     } else {
-      this.finishProcessAndError('Aktarılacak kayıt bulunamadı.');
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -535,7 +540,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
                 ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
-                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.finishProcessAndError(err));
+                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
                 });
               });
             });
@@ -564,18 +569,24 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.filterCustomerCode = '-1';
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.populateCharts();
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
   format_totalPrice($event): void {

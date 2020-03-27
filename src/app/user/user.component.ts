@@ -4,6 +4,8 @@ import {InformationService} from '../services/information.service';
 import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ProfileMainModel} from '../models/profile-main-model';
+import {AuthenticationService} from '../services/authentication.service';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-user',
@@ -18,7 +20,8 @@ export class UserComponent implements OnInit, OnDestroy {
   searchText: '';
   onTransaction = false;
 
-  constructor(public infoService: InformationService, public service: ProfileService, public db: AngularFirestore) {
+  constructor(public infoService: InformationService, public service: ProfileService, public db: AngularFirestore,
+              public route: Router, public router: ActivatedRoute) {
   }
 
   async ngOnInit() {
@@ -61,12 +64,26 @@ export class UserComponent implements OnInit, OnDestroy {
     this.birthDate = getDateForInput(this.selectedRecord.data.birthDate);
   }
 
-  btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
+  async btnReturnList_Click(): Promise<void> {
+    try {
+      this.finishFinally();
+      await this.route.navigate(['user', {}]);
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  btnNew_Click(): void {
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
   }
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
@@ -74,63 +91,57 @@ export class UserComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.birthDate = getInputDataForInsert(this.birthDate);
             await this.service.addItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Kullanıcı başarıyla kaydedildi.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Kullanıcı başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.infoService.success('Kullanıcı başarıyla güncellendi.');
-                this.selectedRecord = undefined;
+                this.finishProcess(null, 'Kullanıcı başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
-                this.finishRecordProcess();
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.infoService.success('Kullanıcı başarıyla kaldırıldı.');
-              this.selectedRecord = undefined;
+              this.finishProcess(null, 'Kullanıcı başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcessAndError(error);
+              this.finishProcess(error, null);
             })
             .finally(() => {
-              this.finishRecordProcess();
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
-  }
-
-  btnNew_Click(): void {
-    this.clearSelectedRecord();
   }
 
   clearSelectedRecord(): void {
@@ -139,17 +150,23 @@ export class UserComponent implements OnInit, OnDestroy {
     this.selectedRecord = this.service.clearProfileMainModel();
   }
 
-  finishRecordProcess(): void {
+  finishFinally(): void {
     this.clearSelectedRecord();
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
-  finishProcessAndError(error: any): void {
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
     this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
   }
 
 }

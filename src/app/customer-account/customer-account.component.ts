@@ -29,6 +29,7 @@ import {CustomerService} from '../services/customer.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {SettingService} from '../services/setting.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-customer-account',
@@ -56,7 +57,7 @@ export class CustomerAccountComponent implements OnInit {
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
               public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute,
-              public setService: SettingService) {
+              public setService: SettingService, public globService: GlobalService) {
   }
 
   ngOnInit() {
@@ -333,6 +334,10 @@ export class CustomerAccountComponent implements OnInit {
           this.infoService.success(newRecordCount.toString() + 'adet hesaplar başarılı şekilde oluşturuldu.');
         }
       });
+  }
+
+  async showTransactionRecord(item: any): Promise<void> {
+    await this.globService.showTransactionRecord(item);
   }
 
   clearSelectedRecord(): void {

@@ -4,20 +4,14 @@ import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
-import { CollectionModel } from '../models/collection-model';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
 import {SettingService} from './setting.service';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, getCurrencyTypes} from '../core/correct-library';
+import { getCurrencyTypes} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {PaymentMainModel} from '../models/payment-main-model';
-import {PaymentModel} from '../models/payment-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
-import GetOptions = firebase.firestore.GetOptions;
 
 @Injectable({
   providedIn: 'root'

@@ -69,6 +69,21 @@ export class CashDeskService {
     });
   }
 
+  checkFields(model: CashDeskModel): CashDeskModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.name === undefined) {
+      model.name = cleanModel.name;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+
+    return model;
+  }
+
   clearSubModel(): CashDeskModel {
 
     const returnData = new CashDeskModel();
@@ -88,21 +103,6 @@ export class CashDeskService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     return returnData;
-  }
-
-  checkFields(model: CashDeskModel): CashDeskModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) {
-      model.employeePrimaryKey = '-1';
-    }
-    if (model.name === undefined) {
-      model.name = cleanModel.name;
-    }
-    if (model.description === undefined) {
-      model.description = cleanModel.description;
-    }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {
