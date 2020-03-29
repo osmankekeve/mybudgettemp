@@ -5,5 +5,6 @@ export class CustomerAccountModel {
   name: string;
   currencyCode: string;
   description?: string;
+  isActive?: boolean;
   insertDate: number;
 }

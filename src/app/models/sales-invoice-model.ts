@@ -9,5 +9,6 @@ export class SalesInvoiceModel {
   totalPrice?: number;
   totalPriceWithTax?: number;
   description?: string;
+  isActive?: boolean;
   insertDate?: number;
 }

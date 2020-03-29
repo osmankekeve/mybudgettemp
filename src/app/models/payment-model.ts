@@ -11,5 +11,6 @@ export class PaymentModel {
   cashDeskPrimaryKey?: string;
   amount?: number;
   description?: string;
+  isActive?: boolean;
   insertDate?: number;
 }

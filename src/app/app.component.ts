@@ -114,22 +114,17 @@ export class AppComponent implements OnInit {
 
   // Login user with  provided Email/ Password
   btnLoginUser_Click() {
+    this.onTransaction = true;
     try {
-      if (this.emailInput.trim() === '') {
-        this.infoService.error('Lütfen sistem mail adresi giriniz.');
-      } else if (this.passwordInput.trim() === '') {
-        this.infoService.error('Lütfen sistem şifresi giriniz.');
+      if (this.emailInput === undefined || this.emailInput.trim() === '') {
+        this.finishProcess('Lütfen sistem mail adresi giriniz.', null);
+      } else if (this.passwordInput === undefined || this.passwordInput.trim() === '') {
+        this.finishProcess('Lütfen sistem şifresi giriniz.', null);
       } else {
-        this.onTransaction = true;
         this.authService.login(this.emailInput, this.passwordInput)
           .then(res => {
-            this.infoService.success('Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
             this.isUserLoggedIn();
-            this.populateActivityList();
             this.populateSettings();
-            /*if (!this.cookieService.check('cookieCMA') && this.isCMAChecked) {
-              this.cookieService.set('cookieCMA', this.emailInput);
-            }*/
             if (this.isCMAChecked) {
               localStorage.setItem('cookieCMA', this.emailInput);
             } else {
@@ -137,12 +132,17 @@ export class AppComponent implements OnInit {
                 localStorage.removeItem('cookieCMA');
               }
             }
-          }, err => {
-            this.finishProcessAndError(err.message);
+            this.finishProcess(null, 'Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
+          })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          })
+          .finally(() => {
+            this.finishFinally();
           });
       }
     } catch (error) {
-      this.finishProcessAndError(error.message);
+      this.finishProcess(error, null);
     }
   }
 
@@ -308,26 +308,36 @@ export class AppComponent implements OnInit {
   }
 
   async btnLoginEmployee_Click() {
-    const data = await this.authService.employeeLogin(this.employeeEmail, this.employeePassword);
-    if (data) {
-      this.infoService.success('Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
-      this.isEmployeeLoggedIn();
-      /*this.cookieService.set('loginTime', Date.now().toString());
-      if (!this.cookieService.check('cookieEMA') && this.isEMAChecked) {
-        this.cookieService.set('cookieEMA', this.employeeEmail);
-      }*/
-      this.cookieService.set('loginTime', Date.now().toString());
-      if (this.isEMAChecked) {
-        localStorage.setItem('cookieEMA', this.employeeEmail);
+    try {
+      this.onTransaction = true;
+      if (this.employeeEmail === undefined || this.employeeEmail.trim() === '') {
+        this.finishProcess('Lütfen mail adresi giriniz.', null);
+      } else if (this.employeePassword === undefined || this.employeePassword.trim() === '') {
+        this.finishProcess('Lütfen şifre giriniz.', null);
       } else {
-        if (localStorage.getItem('cookieEMA') !== null) {
-          localStorage.removeItem('cookieEMA');
-        }
+        await this.authService.employeeLogin(this.employeeEmail, this.employeePassword)
+          .then(result => {
+            this.isEmployeeLoggedIn();
+            this.cookieService.set('loginTime', Date.now().toString());
+            if (this.isEMAChecked) {
+              localStorage.setItem('cookieEMA', this.employeeEmail);
+            } else {
+              if (localStorage.getItem('cookieEMA') !== null) {
+                localStorage.removeItem('cookieEMA');
+              }
+            }
+            this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
+            this.finishProcess(null, 'Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
+        })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          })
+          .finally(() => {
+            this.finishFinally();
+          });
       }
-
-      await this.logService.addToLog('employee', this.authService.getEid(), 'login', this.authService.getUid(), '');
-    } else {
-      this.infoService.error('Kullanıcı sistemde kayıtlı değil');
+    } catch (error) {
+      this.finishProcess(error, null);
     }
   }
 
@@ -340,6 +350,21 @@ export class AppComponent implements OnInit {
     // error kontrol hatası
     this.onTransaction = false;
     this.infoService.error(error.message !== undefined ? error.message : error);
+  }
+
+  finishFinally(): void {
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
 }

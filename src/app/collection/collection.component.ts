@@ -442,6 +442,7 @@ export class CollectionComponent implements OnInit {
   }
 
   btnExportToXml_Click(): void {
+    this.infoService.showHtmlInfo('osman', 'Osman KEKEVE',false);
 
   }
 

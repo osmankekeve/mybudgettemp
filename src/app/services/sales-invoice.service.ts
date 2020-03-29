@@ -114,6 +114,7 @@ export class SalesInvoiceService {
     if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
     if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
     if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
 
     return model;
   }
@@ -131,6 +132,7 @@ export class SalesInvoiceService {
     returnData.totalPrice = 0;
     returnData.totalPriceWithTax = 0;
     returnData.description = '';
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -142,6 +144,7 @@ export class SalesInvoiceService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;

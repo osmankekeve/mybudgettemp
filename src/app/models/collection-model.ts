@@ -9,5 +9,6 @@ export class CollectionModel {
   cashDeskPrimaryKey?: string;
   amount?: number;
   description?: string;
+  isActive?: boolean;
   insertDate?: number;
 }

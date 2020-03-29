@@ -111,6 +111,7 @@ export class CollectionService {
     returnData.receiptNo = '';
     returnData.amount = 0;
     returnData.description = '';
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -122,6 +123,7 @@ export class CollectionService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
@@ -152,6 +154,9 @@ export class CollectionService {
     if (model.amount === undefined) {
       model.amount = cleanModel.amount;
     }
+    if (model.isActive === undefined) {
+      model.isActive = cleanModel.isActive;
+    }
 
     return model;
   }
@@ -174,7 +179,6 @@ export class CollectionService {
                 returnData.customer = values[0] as CustomerModel;
               }
             });
-
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);

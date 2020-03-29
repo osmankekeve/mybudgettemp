@@ -210,7 +210,9 @@
           </div>
           <div class="form-group">
             <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block"
-                    (click)="btnLoginUser_Click()">Sistem Girişi
+                    [disabled]="onTransaction"
+                    (click)="btnLoginUser_Click()">
+              <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Sistem Girişi
             </button>
           </div>
         </div>
@@ -248,13 +250,15 @@
             </label>
           </div>
           <div class="form-group">
-            <button type="button p-4" style="border-radius: 25px;" class="btn btn-secondary btn-block"
-                    (click)="btnLoginEmployee_Click()">Kullanıcı Girişi
+            <button type="button" style="border-radius: 25px;" class="btn btn-secondary btn-block"
+                    [disabled]="onTransaction" (click)="btnLoginEmployee_Click()">
+              <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kullanıcı Girişi
             </button>
           </div>
           <div class="form-group">
-            <button type="button p-4" style="border-radius: 25px;" class="btn btn-danger btn-block"
-                    (click)="logoutUser()">Sistem Çıkış
+            <button type="button" style="border-radius: 25px;" class="btn btn-danger btn-block"
+                    [disabled]="onTransaction" (click)="logoutUser()">
+              <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Sistem Çıkış
             </button>
           </div>
         </div>

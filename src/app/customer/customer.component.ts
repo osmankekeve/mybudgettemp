@@ -270,52 +270,64 @@ export class CustomerComponent implements OnInit {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.customerService.checkForSave(this.selectedCustomer)])
         .then(async (values: any) => {
           if (this.selectedCustomer.data.primaryKey === null) {
-            this.onTransaction = true;
             this.selectedCustomer.data.primaryKey = this.db.createId();
             await this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
               .then(() => {
-                this.infoService.success('Müşteri başarıyla kaydedildi.');
-                this.selectedCustomer = undefined;
+                this.finishProcess(null, 'Müşteri başarıyla kaydedildi.');
                 this.openedPanel = 'dashboard';
-                this.onTransaction = false;
               })
-              .catch(err => this.infoService.error(err));
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
           } else {
             this.customerService.updateItem(this.selectedCustomer)
               .then(() => {
-                this.infoService.success('Müşteri bilgileri başarıyla güncellendi.');
-                this.selectedCustomer = undefined;
+                this.finishProcess(null, 'Müşteri başarıyla güncellendi.');
               })
-              .catch(err => this.infoService.error(err));
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
+              });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.customerService.checkForRemove(this.selectedCustomer)])
         .then(async (values: any) => {
           await this.customerService.removeItem(this.selectedCustomer)
-          .then(() => {
-            this.infoService.success('Müşteri başarıyla kaldırıldı.');
-            this.selectedCustomer = undefined;
-          })
-          .catch(err => this.infoService.error(err));
+            .then(() => {
+              this.finishProcess(null, 'Müşteri başarıyla kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
         })
         .catch((error) => {
-          this.infoService.error(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.infoService.error(error);
+      this.finishProcess(error, null);
     }
   }
 
@@ -722,6 +734,26 @@ export class CustomerComponent implements OnInit {
     // error kontrol hatası
     this.onTransaction = false;
     this.infoService.error(error.message !== undefined ? error.message : error);
+  }
+
+  finishFinally(): void {
+    this.clearSelectedCustomer();
+    this.selectedCustomer = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedCustomer();
+      this.selectedCustomer = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   format_totalPrice($event): void {

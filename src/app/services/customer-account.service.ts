@@ -95,6 +95,7 @@ export class CustomerAccountService {
     if (model.name === undefined) { model.name = cleanModel.name; }
     if (model.currencyCode === undefined) { model.currencyCode = cleanModel.currencyCode; }
     if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     return model;
   }
 
@@ -107,6 +108,7 @@ export class CustomerAccountService {
     returnData.name = '';
     returnData.currencyCode = 'lira';
     returnData.description = '';
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -117,6 +119,7 @@ export class CustomerAccountService {
     returnData.data = this.clearSubModel();
     returnData.customer = null;
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
     return returnData;
   }

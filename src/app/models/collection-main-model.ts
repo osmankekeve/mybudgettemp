@@ -7,5 +7,6 @@ export class CollectionMainModel {
   customerName?: string;
   employeeName?: string;
   actionType?: string;
+  isActiveTr?: string;
   amountFormatted?: string;
 }

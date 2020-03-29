@@ -1,27 +1,27 @@
 import { async, ComponentFixture, ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 
 import { RouterTestingModule } from '@angular/router/testing';
-import { AlertComponent } from './alert.component';
+import { GlobalModalComponent } from './global-modal.component';
 
-describe('AlertComponent', () => {
-    let fixture: ComponentFixture<AlertComponent>;
-    let comp: AlertComponent;
+describe('GlobalModalComponent', () => {
+    let fixture: ComponentFixture<GlobalModalComponent>;
+    let comp: GlobalModalComponent;
 
     beforeEach(async(() => {
         TestBed.configureTestingModule({
             declarations: [
-                AlertComponent
+              GlobalModalComponent
             ],
             providers: [
                 {provide: ComponentFixtureAutoDetect, useValue: true}
             ],
             imports: [
-                RouterTestingModule.withRoutes([{path: '', component: AlertComponent}])
+                RouterTestingModule.withRoutes([{path: '', component: GlobalModalComponent}])
             ]
         })
             .compileComponents()
             .then(() => {
-                fixture = TestBed.createComponent(AlertComponent);
+                fixture = TestBed.createComponent(GlobalModalComponent);
                 comp = fixture.componentInstance;
                 fixture.detectChanges();
             })

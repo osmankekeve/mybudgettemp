@@ -100,7 +100,7 @@
               <div class="list-group">
                 <div class="list-group-item fs-14">
                   <div class="row">
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Cair Adı</div>
+                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri Adı</div>
                     <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.name}}</div>
                     <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Yetkili Kişi</div>
                     <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.owner}}</div>
@@ -1158,7 +1158,9 @@
         <div class="card-footer">
           <div class="col-sm-3" *ngIf="selectedCustomer.data.primaryKey!=undefined">
             <button type="button" class="btn btn-sm btn-danger btn-block"
-                    (click)="btnRemove_Click()">Kaldır</button>
+                    [disabled]="onTransaction"
+                    (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
+            </button>
           </div>
           <div class="col-sm-3 float-right">
             <button type="button" class="btn btn-sm btn-success btn-block"

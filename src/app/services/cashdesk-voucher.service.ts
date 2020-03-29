@@ -12,8 +12,6 @@ import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
 import {currencyFormat, getCashDeskVoucherType, isNullOrEmpty} from '../core/correct-library';
 import {ProfileService} from './profile.service';
-import {AccountVoucherModel} from '../models/account-voucher-model';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -95,6 +93,21 @@ export class CashDeskVoucherService {
     });
   }
 
+  checkFields(model: CashdeskVoucherModel): CashdeskVoucherModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.firstCashDeskPrimaryKey === undefined) { model.firstCashDeskPrimaryKey = cleanModel.firstCashDeskPrimaryKey; }
+    if (model.secondCashDeskPrimaryKey === undefined) { model.secondCashDeskPrimaryKey = cleanModel.secondCashDeskPrimaryKey; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.transactionType === undefined) { model.transactionType = cleanModel.transactionType; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+
+    return model;
+  }
+
   clearSubModel(): CashdeskVoucherModel {
 
     const returnData = new CashdeskVoucherModel();
@@ -108,6 +121,7 @@ export class CashDeskVoucherService {
     returnData.secondCashDeskPrimaryKey = '';
     returnData.amount = 0;
     returnData.description = '';
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -120,22 +134,9 @@ export class CashDeskVoucherService {
     returnData.casDeskName = '';
     returnData.secondCashDeskName = '';
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
-  }
-
-  checkFields(model: CashdeskVoucherModel): CashdeskVoucherModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.firstCashDeskPrimaryKey === undefined) { model.firstCashDeskPrimaryKey = cleanModel.firstCashDeskPrimaryKey; }
-    if (model.secondCashDeskPrimaryKey === undefined) { model.secondCashDeskPrimaryKey = cleanModel.secondCashDeskPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.transactionType === undefined) { model.transactionType = cleanModel.transactionType; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {

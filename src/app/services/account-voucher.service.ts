@@ -11,10 +11,7 @@ import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {currencyFormat, isNullOrEmpty} from '../core/correct-library';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
 import {CustomerService} from './customer.service';
-import {NoteModel} from '../models/note-model';
 
 @Injectable({
   providedIn: 'root'
@@ -94,6 +91,19 @@ export class AccountVoucherService {
     });
   }
 
+  checkFields(model: AccountVoucherModel): AccountVoucherModel {
+    const cleanModel = this.clearSubModel();
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    return model;
+  }
+
   clearSubModel(): AccountVoucherModel {
 
     const returnData = new AccountVoucherModel();
@@ -106,6 +116,7 @@ export class AccountVoucherService {
     returnData.receiptNo = '';
     returnData.description = '';
     returnData.amount = 0;
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -117,21 +128,9 @@ export class AccountVoucherService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
-  }
-
-  checkFields(model: AccountVoucherModel): AccountVoucherModel {
-    const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-
-    return model;
   }
 
   getItem(primaryKey: string): Promise<any> {

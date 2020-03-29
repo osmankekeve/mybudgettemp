@@ -9,5 +9,6 @@ export class CashdeskVoucherModel {
   secondCashDeskPrimaryKey?: string;
   amount?: number;
   description?: string;
+  isActive?: boolean;
   insertDate?: number;
 }

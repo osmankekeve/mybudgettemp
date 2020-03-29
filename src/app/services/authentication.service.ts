@@ -88,7 +88,7 @@ export class AuthenticationService {
     return returnData;
   }
 
-  employeeLogin(email: string, password: string): any {
+  employeeLogin(email: string, password: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection('tblProfile',
         ref => ref.where('userPrimaryKey', '==', this.getUid()).where('mailAddress', '==', email).where('password', '==', password)
@@ -112,7 +112,7 @@ export class AuthenticationService {
           });
         } else {
           sessionStorage.setItem('employee', null);
-          resolve(null);
+          reject('Mail adresi ve şifrenizi kontrol ediniz.');
         }
       });
     });

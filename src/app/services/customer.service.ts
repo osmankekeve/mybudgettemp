@@ -13,8 +13,6 @@ import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {getPaymentTypes, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
-import {CustomerAccountModel} from '../models/customer-account-model';
 
 @Injectable({
   providedIn: 'root'
@@ -139,7 +137,7 @@ export class CustomerService {
     if (model.postCode === undefined) { model.postCode = cleanModel.postCode; }
     if (model.paymentTypeKey === undefined) { model.paymentTypeKey = cleanModel.paymentTypeKey; }
     if (model.termKey === undefined) { model.termKey = cleanModel.termKey; }
-
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     return model;
   }
 
@@ -163,6 +161,7 @@ export class CustomerService {
     returnData.postCode = '';
     returnData.paymentTypeKey = '-1';
     returnData.termKey = '-1';
+    returnData.isActive = true;
     returnData.defaultAccountPrimaryKey = '-1';
 
     return returnData;
@@ -176,6 +175,7 @@ export class CustomerService {
     returnData.executive = this.employeeMap.get(returnData.data.executivePrimary);
     returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
     returnData.termTr = getTerms().get(returnData.data.termKey);
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
 
     return returnData;
   }

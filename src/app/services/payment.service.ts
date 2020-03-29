@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap, startWith} from 'rxjs/operators';
+import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {PaymentModel} from '../models/payment-model';
 import {AuthenticationService} from './authentication.service';
@@ -12,7 +12,6 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
 import {currencyFormat, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -126,6 +125,7 @@ export class PaymentService {
     if (model.amount === undefined) {
       model.amount = cleanModel.amount;
     }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
 
     return model;
   }
@@ -143,6 +143,7 @@ export class PaymentService {
     returnData.cashDeskPrimaryKey = '-1';
     returnData.description = '';
     returnData.amount = 0;
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -155,6 +156,7 @@ export class PaymentService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
+    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     return returnData;
   }
 
@@ -323,5 +325,5 @@ export class PaymentService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 }

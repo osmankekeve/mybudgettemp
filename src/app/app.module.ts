@@ -23,7 +23,6 @@ import { ExcelService } from './services/excel-service';
 import { LogService } from './services/log.service';
 import { AuthenticationService } from './services/authentication.service';
 import { CookieService } from 'ngx-cookie-service';
-import { ToastService } from './services/toast.service';
 import { NoteFilterPipe } from './filters/note-filter.pipe';
 import { CashDeskFilterPipe } from './filters/cashDesk-filter.pipe';
 import { CashDeskVoucherFilterPipe } from './filters/cashDeskVoucher-filter.pipe';

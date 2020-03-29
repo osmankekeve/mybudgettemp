@@ -6,4 +6,5 @@ export class CustomerAccountMainModel {
   customer: CustomerModel;
   actionType?: string;
   currencyTr?: string;
+  isActiveTr?: string;
 }

@@ -9,4 +9,5 @@ export class PurchaseInvoiceMainModel {
   actionType?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
+  isActiveTr?: string;
 }
