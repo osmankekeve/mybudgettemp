@@ -10,7 +10,7 @@
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle"
+        <button hidden class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle"
                 (click)="btnCreateAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
@@ -87,6 +87,7 @@
               <div class="col-sm-12" *ngIf="chart1Visibility == true">
                 <div class="card">
                   <div class="card-body">
+                    <div class="loader" *ngIf="transactionList == undefined"></div>
                     <canvas id="chart1"></canvas>
                   </div>
                 </div>
@@ -94,6 +95,7 @@
               <div class="col-sm-12 mt-4" *ngIf="chart2Visibility == true">
                 <div class="card">
                   <div class="card-body">
+                    <div class="loader" *ngIf="transactionList == undefined"></div>
                     <canvas id="chart2"></canvas>
                   </div>
                 </div>
@@ -331,7 +333,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction || !f.valid"
                 (click)="btnSave_Click()">Kaydet
         </button>
@@ -345,7 +347,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction"
                 (click)="btnApprove_Click()">Onayla
         </button>
@@ -359,7 +361,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnRemove_Click()">Kaldır
         </button>
@@ -373,7 +375,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnReject_Click()">Geri Çevir
         </button>
@@ -387,7 +389,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnReturnRecord_Click()">İptal Et
         </button>

@@ -6,7 +6,6 @@ import {CustomerModel} from '../models/customer-model';
 import {AuthenticationService} from '../services/authentication.service';
 import {CustomerService} from '../services/customer.service';
 import {AccountTransactionService} from '../services/account-transaction.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {InformationService} from '../services/information.service';
 import {
   getFirstDayOfMonthForInput,
@@ -27,6 +26,7 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -37,6 +37,7 @@ export class SalesInvoiceComponent implements OnInit {
   mainList: Array<SalesInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
+  transactionList: Array<SalesInvoiceMainModel>;
   selectedRecord: SalesInvoiceMainModel;
   refModel: SalesInvoiceMainModel;
   isRecordHasTransaction = false;
@@ -143,6 +144,7 @@ export class SalesInvoiceComponent implements OnInit {
     const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
     const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
 
+    this.transactionList = undefined;
     let chart1DataNames;
     let chart1DataValues;
     const chart2DataValues = [0, 0, 0, 0];
@@ -151,8 +153,8 @@ export class SalesInvoiceComponent implements OnInit {
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<SalesInvoiceMainModel>;
-          returnData.forEach(item => {
+          this.transactionList = values[0] as Array<SalesInvoiceMainModel>;
+          this.transactionList.forEach(item => {
             if (creatingData.has(item.customer.name)) {
               let amount = creatingData.get(item.customer.name);
               amount += item.data.totalPriceWithTax;

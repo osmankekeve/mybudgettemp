@@ -25,13 +25,10 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {CustomerAccountMainModel} from '../models/customer-main-account-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 
 @Component({
   selector: 'app-collection',
