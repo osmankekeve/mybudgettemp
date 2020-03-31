@@ -16,7 +16,7 @@ import {
   getDateForInput,
   getEncryptionKey,
   numberOnly,
-  getFloat, currencyFormat, moneyFormat, padLeft, getNumber
+  getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
@@ -27,8 +27,6 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {CustomerAccountMainModel} from '../models/customer-main-account-model';
-import {CustomerMainModel} from '../models/customer-main-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -324,28 +322,7 @@ export class SalesInvoiceComponent implements OnInit {
             this.selectedRecord.data.primaryKey = '';
             await this.service.setItem(this.selectedRecord, newId)
               .then(() => {
-                const trans = {
-                  primaryKey: '',
-                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                  receiptNo: this.selectedRecord.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'salesInvoice',
-                  parentPrimaryKey: this.selectedRecord.data.customerCode,
-                  parentType: 'customer',
-                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-                  cashDeskPrimaryKey: '-1',
-                  amount: this.selectedRecord.data.type === 'sales' ?
-                    this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
-                  amountType: this.selectedRecord.data.type === 'sales' ? 'debit' : 'credit',
-                  insertDate: this.selectedRecord.data.insertDate
-                };
-                this.db.collection('tblAccountTransaction').add(trans)
-                  .then(() => {
-                    this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
-                  })
-                  .catch((error) => {
-                    this.finishProcess(error, null);
-                  });
+                this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -356,26 +333,7 @@ export class SalesInvoiceComponent implements OnInit {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                  .get()
-                  .subscribe(list => {
-                    list.forEach((item) => {
-                      const trans = {
-                        receiptNo: this.selectedRecord.data.receiptNo,
-                        insertDate: this.selectedRecord.data.insertDate,
-                        amount: this.selectedRecord.data.type === 'sales' ?
-                          this.selectedRecord.data.totalPriceWithTax * -1 : this.selectedRecord.data.totalPriceWithTax,
-                      };
-                      this.db.collection('tblAccountTransaction').doc(item.id).update(trans)
-                        .then(() => {
-                          this.finishProcess(null, 'Fatura başarıyla güncellendi.');
-                        })
-                        .catch((error) => {
-                          this.finishProcess(error, null);
-                        });
-                    });
-                  });
+                this.finishProcess(null, 'Fatura başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -400,20 +358,7 @@ export class SalesInvoiceComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                .get()
-                .subscribe(list => {
-                  list.forEach((item) => {
-                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
-                      .then(() => {
-                        this.finishProcess(null, 'Fatura başarıyla kaldırıldı.');
-                      })
-                      .catch((error) => {
-                        this.finishProcess(error, null);
-                      });
-                  });
-                });
+              this.finishProcess(null, 'Fatura başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -425,6 +370,64 @@ export class SalesInvoiceComponent implements OnInit {
         .catch((error) => {
           this.finishProcess(error, null);
         });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReject_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'rejected';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReturnRecord_Click(): Promise<void> {
+    try {
+      this.infoService.error('yazılmadı');
     } catch (error) {
       this.finishProcess(error, null);
     }
@@ -446,7 +449,7 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   async btnCreateAccounts_Click(): Promise<void> {
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
         if ((values[0] !== undefined || values[0] !== null)) {
           const returnData = values[0] as Array<SalesInvoiceMainModel>;
@@ -462,6 +465,18 @@ export class SalesInvoiceComponent implements OnInit {
                 });
               });
             });
+          });
+        }
+      });*/
+
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+      .then((values: any) => {
+        if ((values[0] !== undefined || values[0] !== null)) {
+          const returnData = values[0] as Array<SalesInvoiceMainModel>;
+          returnData.forEach(doc => {
+            doc.data.status = 'approved';
+            doc.data.platform = 'web';
+            this.service.updateItem(doc).then(() => {console.log(doc); });
           });
         }
       });

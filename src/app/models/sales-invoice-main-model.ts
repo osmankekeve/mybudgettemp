@@ -11,5 +11,6 @@ export class SalesInvoiceMainModel {
   actionType?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
-  isActiveTr?: string;
+  statusTr?: string;
+  platformTr?: string;
 }

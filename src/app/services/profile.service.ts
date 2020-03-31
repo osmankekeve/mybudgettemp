@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
@@ -7,6 +7,7 @@ import { AuthenticationService } from './authentication.service';
 import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -56,9 +57,44 @@ export class ProfileService {
   }
 
   checkForRemove(record: ProfileMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isCustomerHasSalesInvoice(record.data.employeePrimaryKey).then(result => {
+        if (result) {
+          reject('Personele ait satış faturası olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasCollection(record.data.employeePrimaryKey).then(result => {
+        if (result) {
+          reject('Personele ait tahsilat olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasPurchaseInvoice(record.data.employeePrimaryKey).then(result => {
+        if (result) {
+          reject('Personele ait alım faturası olduğundan silinemez.');
+        }
+      });
+      await this.isCustomerHasPayment(record.data.employeePrimaryKey).then(result => {
+        if (result) {
+          reject('Personele ait ödeme olduğundan silinemez.');
+        }
+      });
       resolve(null);
     });
+  }
+
+  checkFields(model: ProfileModel): ProfileModel {
+    const cleanModel = this.clearProfileModel();
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.longName === undefined) { model.longName = cleanModel.longName; }
+    if (model.mailAddress === undefined) { model.mailAddress = cleanModel.mailAddress; }
+    if (model.phone === undefined) { model.phone = cleanModel.phone; }
+    if (model.password === undefined) { model.password = cleanModel.password; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+
+    return model;
   }
 
   clearProfileModel(): ProfileModel {
@@ -68,7 +104,7 @@ export class ProfileService {
     returnData.mailAddress = '';
     returnData.phone = '';
     returnData.password = '';
-    returnData.type = 'admin';
+    returnData.type = 'user';
     returnData.isActive = true;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
@@ -79,7 +115,7 @@ export class ProfileService {
   clearProfileMainModel(): ProfileMainModel {
     const returnData = new ProfileMainModel();
     returnData.data = this.clearProfileModel();
-    returnData.typeTr = 'Administrator';
+    returnData.typeTr = this.typeMap.get(returnData.data.type);
     returnData.actionType = 'added';
     return returnData;
   }
@@ -123,5 +159,93 @@ export class ProfileService {
       });
     });
   }
+
+  isCustomerHasSalesInvoice = async (employeePrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('employeePrimaryKey', '==', employeePrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasCollection = async (employeePrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCollection', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('employeePrimaryKey', '==', employeePrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasPurchaseInvoice = async (employeePrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('employeePrimaryKey', '==', employeePrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isCustomerHasPayment = async (employeePrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPayment', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('employeePrimaryKey', '==', employeePrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }

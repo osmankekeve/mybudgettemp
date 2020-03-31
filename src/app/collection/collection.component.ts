@@ -43,6 +43,7 @@ export class CollectionComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
+  transactionList: Array<CollectionMainModel>;
   selectedRecord: CollectionMainModel;
   refModel: CollectionMainModel;
   isRecordHasTransaction = false;
@@ -145,6 +146,7 @@ export class CollectionComponent implements OnInit {
     const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
     const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
 
+    this.transactionList = undefined;
     let chart1DataNames;
     let chart1DataValues;
     const chart2DataValues = [0, 0, 0, 0];
@@ -153,8 +155,8 @@ export class CollectionComponent implements OnInit {
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<PaymentMainModel>;
-          returnData.forEach(item => {
+          this.transactionList = values[0] as Array<CollectionMainModel>;
+          this.transactionList.forEach(item => {
             if (creatingData.has(item.customer.name)) {
               let amount = creatingData.get(item.customer.name);
               amount += item.data.amount;
@@ -328,27 +330,7 @@ export class CollectionComponent implements OnInit {
             this.selectedRecord.data.primaryKey = '';
             await this.service.setItem(this.selectedRecord, newId)
               .then(() => {
-                const trans = {
-                  primaryKey: '',
-                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                  receiptNo: this.selectedRecord.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'collection',
-                  parentPrimaryKey: this.selectedRecord.data.customerCode,
-                  parentType: 'customer',
-                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-                  cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                  amount: this.selectedRecord.data.amount,
-                  amountType: 'credit',
-                  insertDate: this.selectedRecord.data.insertDate
-                };
-                this.db.collection('tblAccountTransaction').add(trans)
-                  .then(() => {
-                    this.finishProcess(null, 'Tahsilat başarıyla kaydedildi.');
-                  })
-                  .catch((error) => {
-                    this.finishProcess(error, null);
-                  });
+                this.finishProcess(null, 'Tahsilat başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -359,26 +341,7 @@ export class CollectionComponent implements OnInit {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                  .get()
-                  .subscribe(list => {
-                    list.forEach((item) => {
-                      const trans = {
-                        receiptNo: this.selectedRecord.data.receiptNo,
-                        insertDate: this.selectedRecord.data.insertDate,
-                        cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                        amount: this.selectedRecord.data.amount
-                      };
-                      this.db.collection('tblAccountTransaction').doc(item.id).update(trans)
-                        .then(() => {
-                          this.finishProcess(null, 'Tahsilat başarıyla kaydedildi.');
-                        })
-                        .catch((error) => {
-                          this.finishProcess(error, null);
-                        });
-                    });
-                  });
+                this.finishProcess(null, 'Tahsilat başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -433,6 +396,64 @@ export class CollectionComponent implements OnInit {
     }
   }
 
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Tahsilat başarıyla onaylandıı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReject_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'rejected';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Tahsilat başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReturnRecord_Click(): Promise<void> {
+    try {
+      this.infoService.error('yazılmadı');
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'collection');
@@ -442,12 +463,12 @@ export class CollectionComponent implements OnInit {
   }
 
   btnExportToXml_Click(): void {
-    this.infoService.showHtmlInfo('osman', 'Osman KEKEVE',false);
+    this.infoService.showHtmlInfo('osman', 'Osman KEKEVE', false);
 
   }
 
   async btnCreateAccounts_Click(): Promise<void> {
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
         if ((values[0] !== undefined || values[0] !== null)) {
           const returnData = values[0] as Array<CollectionMainModel>;
@@ -464,7 +485,17 @@ export class CollectionComponent implements OnInit {
             });
           });
         }
-      });
+      });*/
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+      .then((values: any) => {
+        if ((values[0] !== undefined || values[0] !== null)) {
+          const returnData = values[0] as Array<CollectionMainModel>;
+          returnData.forEach(doc => {
+            doc.data.status = 'approved';
+            this.service.updateItem(doc).then(() => {console.log(doc); });
+          });
+        }
+      });*/
   }
 
   async onChangeCustomer(value: any): Promise<void> {

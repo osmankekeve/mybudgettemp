@@ -10,7 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getFloat, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
@@ -60,12 +60,6 @@ export class SalesInvoiceService {
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
-    await this.sService.increaseSalesInvoiceNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
-  }
-
   async removeItem(record: SalesInvoiceMainModel) {
     await this.logService.sendToLog(record, 'delete', 'salesInvoice');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
@@ -73,7 +67,51 @@ export class SalesInvoiceService {
 
   async updateItem(record: SalesInvoiceMainModel) {
     await this.logService.sendToLog(record, 'update', 'salesInvoice');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'salesInvoice',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: '-1',
+            amount: record.data.type === 'sales' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax,
+            amountType: record.data.type === 'sales' ? 'debit' : 'credit',
+            insertDate: record.data.insertDate
+          };
+          this.db.collection('tblAccountTransaction').add(trans);
+        }
+      });
+  }
+
+  async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
+    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+    await this.sService.increaseSalesInvoiceNumber();
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'salesInvoice',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: '-1',
+            amount: record.data.type === 'sales' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax,
+            amountType: record.data.type === 'sales' ? 'debit' : 'credit',
+            insertDate: record.data.insertDate
+          };
+          this.db.collection('tblAccountTransaction').add(trans);
+        }
+      });
   }
 
   checkForSave(record: SalesInvoiceMainModel): Promise<string> {
@@ -114,7 +152,8 @@ export class SalesInvoiceService {
     if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
     if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
     if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.status === undefined) { model.status = cleanModel.status; }
+    if (model.platform === undefined) { model.platform = cleanModel.platform; }
 
     return model;
   }
@@ -132,7 +171,8 @@ export class SalesInvoiceService {
     returnData.totalPrice = 0;
     returnData.totalPriceWithTax = 0;
     returnData.description = '';
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -144,7 +184,8 @@ export class SalesInvoiceService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;

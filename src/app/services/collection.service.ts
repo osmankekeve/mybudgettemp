@@ -11,11 +11,12 @@ import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PaymentModel} from '../models/payment-model';
 import {AccountVoucherModel} from '../models/account-voucher-model';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -61,13 +62,51 @@ export class CollectionService {
 
   async updateItem(record: CollectionMainModel) {
     await this.logService.sendToLog(record, 'update', 'collection');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'collection',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.amount,
+            amountType: 'credit',
+            insertDate: record.data.insertDate
+          };
+          this.db.collection('tblAccountTransaction').add(trans);
+        }
+      });
   }
 
   async setItem(record: CollectionMainModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'collection');
     await this.sService.increaseCollectionNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'collection',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.amount,
+            amountType: 'credit',
+            insertDate: record.data.insertDate
+          };
+          this.db.collection('tblAccountTransaction').add(trans);
+        }
+      });
   }
 
   checkForSave(record: CollectionMainModel): Promise<string> {
@@ -111,7 +150,8 @@ export class CollectionService {
     returnData.receiptNo = '';
     returnData.amount = 0;
     returnData.description = '';
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -123,40 +163,25 @@ export class CollectionService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
 
   checkFields(model: CollectionModel): CollectionModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) {
-      model.employeePrimaryKey = '-1';
-    }
-    if (model.customerCode === undefined) {
-      model.customerCode = cleanModel.customerCode;
-    }
-    if (model.accountPrimaryKey === undefined) {
-      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
-    }
-    if (model.cashDeskPrimaryKey === undefined) {
-      model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey;
-    }
-    if (model.type === undefined) {
-      model.type = cleanModel.type;
-    }
-    if (model.receiptNo === undefined) {
-      model.receiptNo = cleanModel.receiptNo;
-    }
-    if (model.description === undefined) {
-      model.description = cleanModel.description;
-    }
-    if (model.amount === undefined) {
-      model.amount = cleanModel.amount;
-    }
-    if (model.isActive === undefined) {
-      model.isActive = cleanModel.isActive;
-    }
+    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
+    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
+    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
+    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
+    if (model.description === undefined) { model.description = cleanModel.description; }
+    if (model.amount === undefined) { model.amount = cleanModel.amount; }
+    if (model.status === undefined) { model.status = cleanModel.status; }
+    if (model.platform === undefined) { model.platform = cleanModel.platform; }
+    // if (model.status === undefined && model.primaryKey !== null) { model.status = 'approved'; }
 
     return model;
   }
@@ -326,5 +351,5 @@ export class CollectionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 }

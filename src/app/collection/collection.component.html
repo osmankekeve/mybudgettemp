@@ -11,8 +11,8 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="XML'e Aktar"
-                (click)="btnExportToXml_Click()"><i class="fa fa-file-archive-o"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle" hidden
+                (click)="btnExportToXml_Click()" hidden><i class="fa fa-file-archive-o"></i></button>
+        <button hidden class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle"
                 (click)="btnCreateAccounts_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
@@ -89,6 +89,7 @@
               <div class="col-sm-12" *ngIf="chart1Visibility == true">
                 <div class="card">
                   <div class="card-body">
+                    <div class="loader" *ngIf="transactionList == undefined"></div>
                     <canvas id="chart1"></canvas>
                   </div>
                 </div>
@@ -96,6 +97,7 @@
               <div class="col-sm-12 mt-4" *ngIf="chart2Visibility == true">
                 <div class="card">
                   <div class="card-body">
+                    <div class="loader" *ngIf="transactionList == undefined"></div>
                     <canvas id="chart2"></canvas>
                   </div>
                 </div>
@@ -124,10 +126,17 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-sm-6"></div>
+                    <div class="col-sm-6">
+                      <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
+                      <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
+                      <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
+                      <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
+                      <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
+                    </div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    </div>
                   </div>
                 </div>
                 <li class="list-group-item list-group-item-success main-list-item">
@@ -156,11 +165,19 @@
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
-                  <div class="col-sm-3"><span class="text-danger">{{item.customerName}}</span></div>
+                  <div class="col-sm-3">
+                    <span class="text-danger mr-2">{{item.customerName}}</span>
+                    <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
+                    <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
+                    <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
+                    <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
+                    <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
+                  </div>
                   <div class="col-sm-3">{{item.customer.owner}}</div>
                   <div class="col-sm-2">{{item.data.receiptNo}}</div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+                  </div>
                 </div>
               </div>
               <li class="list-group-item list-group-item-success main-list-item">
@@ -185,7 +202,7 @@
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header bg-gray-gra-dient">
+  <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/collection.png" width="30px" class="float-left mr-2">
@@ -291,17 +308,75 @@
     </form>
   </div>
   <div class="card-footer">
-    <div class="col-sm-3 float-right">
-      <button type="button" class="btn btn-sm btn-success btn-block"
-              [disabled]="onTransaction || !f.valid"
-              (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
-      </button>
+    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-success form-control"
+                [disabled]="onTransaction || !f.valid"
+                (click)="btnSave_Click()">Kaydet
+        </button>
+      </div>
     </div>
-    <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
-      <button type="button" class="btn btn-sm btn-danger btn-block"
-              [disabled]="onTransaction"
-              (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
-      </button>
+    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-thumbs-up" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-success form-control"
+                [disabled]="onTransaction"
+                (click)="btnApprove_Click()">Onayla
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnRemove_Click()">Kaldır
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnReject_Click()">Geri Çevir
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnReturnRecord_Click()">İptal Et
+        </button>
+      </div>
     </div>
   </div>
 </div>

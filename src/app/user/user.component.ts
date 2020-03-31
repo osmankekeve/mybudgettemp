@@ -140,9 +140,9 @@ export class UserComponent implements OnInit, OnDestroy {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
-    }
+    this.finishProcess(error, null);
   }
+}
 
   clearSelectedRecord(): void {
     this.refModel = undefined;

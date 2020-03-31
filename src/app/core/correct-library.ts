@@ -177,6 +177,10 @@ export const getCashDeskVoucherType = () => {
   return new Map([['open', 'Açılış'], ['transfer', 'Transfer']]);
 };
 
+export const getStatus = () => {
+  return new Map([['waitingForApprove', 'Onay Bekleniyor'], ['approved', 'Onaylandı'], ['rejected', 'Kabul Edilmedi']]);
+};
+
 export const getMailParents = () => {
   return new Map([['anyone', 'Mail Adresi'], ['customer', 'Müşteri'], ['employee', 'Personel']]);
 };

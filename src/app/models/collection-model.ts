@@ -9,6 +9,7 @@ export class CollectionModel {
   cashDeskPrimaryKey?: string;
   amount?: number;
   description?: string;
-  isActive?: boolean;
+  status?: string; // waitingForApprove, approved, rejected
+  platform?: string; // mobile, web
   insertDate?: number;
 }

@@ -77,6 +77,18 @@ body {
   justify-content: center;
 }
 
+.success-icon-side {
+  color: #fff !important;
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+}
+
+.danger-icon-side {
+  color: #fff !important;
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+}
+
 /*filter*/
 .head-filter .input-group-round .input-group-prepend .input-group-text {
   border-radius: 10rem 0 0 10rem;
