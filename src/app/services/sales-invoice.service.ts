@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { SalesInvoiceModel } from '../models/sales-invoice-model';
-import { AuthenticationService } from './authentication.service';
-import { LogService } from './log.service';
+import {Observable} from 'rxjs/Observable';
+import {CustomerModel} from '../models/customer-model';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
+import {AuthenticationService} from './authentication.service';
+import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
@@ -14,6 +14,8 @@ import {currencyFormat, getFloat, getStatus, isNullOrEmpty} from '../core/correc
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
+import {InformationService} from './information.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +32,7 @@ export class SalesInvoiceService {
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public accService: CustomerAccountService) {
+              public accService: CustomerAccountService, public atService: AccountTransactionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -55,23 +57,30 @@ export class SalesInvoiceService {
   }
 
   async addItem(record: SalesInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
-    await this.sService.increaseSalesInvoiceNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async result => {
+        await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+        await this.sService.increaseSalesInvoiceNumber();
+      });
   }
 
   async removeItem(record: SalesInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'salesInvoice');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async result => {
+        await this.logService.sendToLog(record, 'delete', 'salesInvoice');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: SalesInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'update', 'salesInvoice');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
-      .then(value => {
+      .then(async value => {
         if (record.data.status === 'approved') {
+          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
           const trans = {
-            primaryKey: '',
+            primaryKey: record.data.primaryKey,
             userPrimaryKey: record.data.userPrimaryKey,
             receiptNo: record.data.receiptNo,
             transactionPrimaryKey: record.data.primaryKey,
@@ -84,19 +93,23 @@ export class SalesInvoiceService {
             amountType: record.data.type === 'sales' ? 'debit' : 'credit',
             insertDate: record.data.insertDate
           };
-          this.db.collection('tblAccountTransaction').add(trans);
+          await this.atService.setItem(trans, trans.primaryKey);
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'salesInvoice');
         }
       });
   }
 
   async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'salesInvoice');
-    await this.sService.increaseSalesInvoiceNumber();
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
-      .then(value => {
+      .then(async value => {
+        await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+        await this.sService.increaseSalesInvoiceNumber();
         if (record.data.status === 'approved') {
           const trans = {
-            primaryKey: '',
+            primaryKey: record.data.primaryKey,
             userPrimaryKey: record.data.userPrimaryKey,
             receiptNo: record.data.receiptNo,
             transactionPrimaryKey: record.data.primaryKey,
@@ -109,7 +122,11 @@ export class SalesInvoiceService {
             amountType: record.data.type === 'sales' ? 'debit' : 'credit',
             insertDate: record.data.insertDate
           };
-          this.db.collection('tblAccountTransaction').add(trans);
+          await this.atService.setItem(trans, trans.primaryKey);
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'salesInvoice');
         }
       });
   }
@@ -144,16 +161,36 @@ export class SalesInvoiceService {
 
   checkFields(model: SalesInvoiceModel): SalesInvoiceModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
-    if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.status === undefined) { model.status = cleanModel.status; }
-    if (model.platform === undefined) { model.platform = cleanModel.platform; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.customerCode === undefined) {
+      model.customerCode = cleanModel.customerCode;
+    }
+    if (model.accountPrimaryKey === undefined) {
+      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.totalPrice === undefined) {
+      model.totalPrice = cleanModel.totalPrice;
+    }
+    if (model.totalPriceWithTax === undefined) {
+      model.totalPriceWithTax = cleanModel.totalPriceWithTax;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+    if (model.status === undefined) {
+      model.status = cleanModel.status;
+    }
+    if (model.platform === undefined) {
+      model.platform = cleanModel.platform;
+    }
 
     return model;
   }
@@ -245,9 +282,9 @@ export class SalesInvoiceService {
 
   getMainItems(): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -260,10 +297,11 @@ export class SalesInvoiceService {
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          returnData.customer = customer !== undefined ? customer : undefined;
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-          return Object.assign({returnData}); }));
+          .pipe(map((customer: CustomerModel) => {
+            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -271,10 +309,10 @@ export class SalesInvoiceService {
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<SalesInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -287,10 +325,11 @@ export class SalesInvoiceService {
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-        .pipe(map( (customer: CustomerModel) => {
-          returnData.customer = customer !== undefined ? customer : undefined;
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-          return Object.assign({returnData}); }));
+          .pipe(map((customer: CustomerModel) => {
+            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
@@ -307,8 +346,8 @@ export class SalesInvoiceService {
         }
         return query;
       });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -321,10 +360,11 @@ export class SalesInvoiceService {
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-          .pipe(map( (customer: CustomerModel) => {
+          .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? customer : undefined;
             returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

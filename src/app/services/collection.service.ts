@@ -17,6 +17,8 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {PaymentModel} from '../models/payment-model';
 import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountTransactionModel} from '../models/account-transaction-model';
+import {InformationService} from './information.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +32,8 @@ export class CollectionService {
   tableName = 'tblCollection';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
+              public atService: AccountTransactionService) {
 
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
@@ -50,23 +53,29 @@ export class CollectionService {
   }
 
   async addItem(record: CollectionMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'collection');
-    await this.sService.increaseCollectionNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async () => {
+        await this.logService.sendToLog(record, 'insert', 'collection');
+        await this.sService.increaseCollectionNumber();
+      });
   }
 
   async removeItem(record: CollectionMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'collection');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async () => {
+        await this.logService.sendToLog(record, 'delete', 'collection');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: CollectionMainModel) {
-    await this.logService.sendToLog(record, 'update', 'collection');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
-      .then(value => {
+      .then(async value => {
         if (record.data.status === 'approved') {
           const trans = {
-            primaryKey: '',
+            primaryKey: record.data.primaryKey,
             userPrimaryKey: record.data.userPrimaryKey,
             receiptNo: record.data.receiptNo,
             transactionPrimaryKey: record.data.primaryKey,
@@ -79,19 +88,25 @@ export class CollectionService {
             amountType: 'credit',
             insertDate: record.data.insertDate
           };
-          this.db.collection('tblAccountTransaction').add(trans);
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'collection');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'collection');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'collection');
         }
       });
   }
 
   async setItem(record: CollectionMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'collection');
-    await this.sService.increaseCollectionNumber();
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
-      .then(value => {
+      .then(async value => {
+        await this.logService.sendToLog(record, 'insert', 'collection');
+        await this.sService.increaseCollectionNumber();
+
         if (record.data.status === 'approved') {
           const trans = {
-            primaryKey: '',
+            primaryKey: record.data.primaryKey,
             userPrimaryKey: record.data.userPrimaryKey,
             receiptNo: record.data.receiptNo,
             transactionPrimaryKey: record.data.primaryKey,
@@ -104,7 +119,12 @@ export class CollectionService {
             amountType: 'credit',
             insertDate: record.data.insertDate
           };
-          this.db.collection('tblAccountTransaction').add(trans);
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'collection');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'collection');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'collection');
         }
       });
   }
@@ -171,16 +191,36 @@ export class CollectionService {
 
   checkFields(model: CollectionModel): CollectionModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.customerCode === undefined) { model.customerCode = cleanModel.customerCode; }
-    if (model.accountPrimaryKey === undefined) { model.accountPrimaryKey = cleanModel.accountPrimaryKey; }
-    if (model.cashDeskPrimaryKey === undefined) { model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-    if (model.status === undefined) { model.status = cleanModel.status; }
-    if (model.platform === undefined) { model.platform = cleanModel.platform; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.customerCode === undefined) {
+      model.customerCode = cleanModel.customerCode;
+    }
+    if (model.accountPrimaryKey === undefined) {
+      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
+    }
+    if (model.cashDeskPrimaryKey === undefined) {
+      model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+    if (model.amount === undefined) {
+      model.amount = cleanModel.amount;
+    }
+    if (model.status === undefined) {
+      model.status = cleanModel.status;
+    }
+    if (model.platform === undefined) {
+      model.platform = cleanModel.platform;
+    }
     // if (model.status === undefined && model.primaryKey !== null) { model.status = 'approved'; }
 
     return model;

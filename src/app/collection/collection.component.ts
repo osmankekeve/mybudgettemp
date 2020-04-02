@@ -29,6 +29,7 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 
 @Component({
   selector: 'app-collection',
@@ -493,6 +494,38 @@ export class CollectionComponent implements OnInit {
           });
         }
       });*/
+  }
+
+  async btnCreateTransactions_Click(): Promise<void> {
+    await this.atService.removeTransactions('collection').then(() => {
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+        .then((values: any) => {
+          if ((values[0] !== undefined || values[0] !== null)) {
+            const returnData = values[0] as Array<CollectionMainModel>;
+            returnData.forEach(record => {
+              const trans = {
+                primaryKey: record.data.primaryKey,
+                userPrimaryKey: record.data.userPrimaryKey,
+                receiptNo: record.data.receiptNo,
+                transactionPrimaryKey: record.data.primaryKey,
+                transactionType: 'collection',
+                parentPrimaryKey: record.data.customerCode,
+                parentType: 'customer',
+                accountPrimaryKey: record.data.accountPrimaryKey,
+                cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+                amount: record.data.amount,
+                amountType: 'credit',
+                insertDate: record.data.insertDate
+              };
+              this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
+                .set(Object.assign({}, trans))
+                .then(() => {
+                  console.log(record);
+                });
+            });
+          }
+        });
+    });
   }
 
   async onChangeCustomer(value: any): Promise<void> {

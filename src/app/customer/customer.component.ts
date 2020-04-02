@@ -333,39 +333,21 @@ export class CustomerComponent implements OnInit {
 
   async btnSaveSalesInvoice_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.siService.checkForSave(this.newSalesInvoice)])
         .then(async (values: any) => {
           if (this.newSalesInvoice.data.primaryKey === null) {
-            this.onTransaction = true;
-            const newId = this.db.createId();
-            this.newSalesInvoice.data.primaryKey = '';
+            this.newSalesInvoice.data.primaryKey = this.db.createId();
             this.newSalesInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
-            await this.siService.setItem(this.newSalesInvoice, newId)
+            await this.siService.setItem(this.newSalesInvoice, this.newSalesInvoice.data.primaryKey)
               .then(() => {
-                this.db.collection('tblAccountTransaction').add({
-                  primaryKey: '',
-                  userPrimaryKey: this.newSalesInvoice.data.userPrimaryKey,
-                  receiptNo: this.newSalesInvoice.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'salesInvoice',
-                  parentPrimaryKey: this.newSalesInvoice.data.customerCode,
-                  parentType: 'customer',
-                  cashDeskPrimaryKey: '-1',
-                  amount: this.newSalesInvoice.data.type === 'sales'
-                    ? this.newSalesInvoice.data.totalPriceWithTax * -1 : this.newSalesInvoice.data.totalPriceWithTax,
-                  amountType: this.newSalesInvoice.data.type === 'sales' ? 'debit' : 'credit',
-                  insertDate: this.newSalesInvoice.data.insertDate,
-                })
-                  .then(() => {
-                    this.infoService.success('Fatura başarıyla kaydedildi.');
-                    this.clearNewSalesInvoice();
-                  })
-                  .catch((error) => {
-                    this.finishProcessAndError(error);
-                  });
+                this.infoService.success('Fatura başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.clearNewSalesInvoice();
               });
           }
         })
@@ -379,39 +361,21 @@ export class CustomerComponent implements OnInit {
 
   async btnSavePurchaseInvoice_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.piService.checkForSave(this.newPurchaseInvoice)])
         .then(async (values: any) => {
-          this.onTransaction = true;
           if (this.newPurchaseInvoice.data.primaryKey === null) {
-            const newId = this.db.createId();
-            this.newPurchaseInvoice.data.primaryKey = '';
+            this.newPurchaseInvoice.data.primaryKey = this.db.createId();
             this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
-            await this.piService.setItem(this.newPurchaseInvoice, newId)
+            await this.piService.setItem(this.newPurchaseInvoice, this.newPurchaseInvoice.data.primaryKey)
               .then(() => {
-                this.db.collection('tblAccountTransaction').add({
-                  primaryKey: '',
-                  userPrimaryKey: this.newPurchaseInvoice.data.userPrimaryKey,
-                  receiptNo: this.newPurchaseInvoice.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'purchaseInvoice',
-                  parentPrimaryKey: this.newPurchaseInvoice.data.customerCode,
-                  parentType: 'customer',
-                  cashDeskPrimaryKey: '-1',
-                  amount: this.newPurchaseInvoice.data.type === 'purchase'
-                    ? this.newPurchaseInvoice.data.totalPriceWithTax : this.newPurchaseInvoice.data.totalPriceWithTax * -1,
-                  amountType: this.newPurchaseInvoice.data.type === 'purchase' ? 'credit' : 'debit',
-                  insertDate: this.newPurchaseInvoice.data.insertDate,
-                })
-                  .then(() => {
-                    this.infoService.success('Fatura başarıyla kaydedildi.');
-                    this.clearNewPurchaseInvoice();
-                  })
-                  .catch((error) => {
-                    this.finishProcessAndError(error);
-                  });
+                this.infoService.success('Fatura başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.clearNewPurchaseInvoice();
               });
           }
         })
@@ -425,38 +389,21 @@ export class CustomerComponent implements OnInit {
 
   async btnSaveCollection_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.colService.checkForSave(this.newCollection)])
         .then(async (values: any) => {
           if (this.newCollection.data.primaryKey === null) {
-            this.onTransaction = true;
-            const newId = this.db.createId();
-            this.newCollection.data.primaryKey = '';
+            this.newCollection.data.primaryKey = this.db.createId();
             this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
-            await this.colService.setItem(this.newCollection, newId)
+            await this.colService.setItem(this.newCollection, this.newCollection.data.primaryKey)
               .then(() => {
-                this.db.collection('tblAccountTransaction').add({
-                  primaryKey: '',
-                  userPrimaryKey: this.newCollection.data.userPrimaryKey,
-                  receiptNo: this.newCollection.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'collection',
-                  parentPrimaryKey: this.newCollection.data.customerCode,
-                  parentType: 'customer',
-                  cashDeskPrimaryKey: this.newCollection.data.cashDeskPrimaryKey,
-                  amount: this.newCollection.data.amount,
-                  amountType: 'credit',
-                  insertDate: this.newCollection.data.insertDate,
-                })
-                  .then(async () => {
-                    this.infoService.success('Tahsilat başarıyla kaydedildi.');
-                    await this.clearNewCollection();
-                  })
-                  .catch((error) => {
-                    this.finishProcessAndError(error);
-                  });
+                this.infoService.success('Tahsilat başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.clearNewCollection();
               });
           }
         })
@@ -470,38 +417,21 @@ export class CustomerComponent implements OnInit {
 
   async btnSavePayment_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.payService.checkForSave(this.newPayment)])
         .then(async (values: any) => {
           if (this.newPayment.data.primaryKey === null) {
-            this.onTransaction = true;
-            const newId = this.db.createId();
-            this.newPayment.data.primaryKey = '';
+            this.newPayment.data.primaryKey = this.db.createId();
             this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
-            await this.payService.setItem(this.newPayment, newId)
+            await this.payService.setItem(this.newPayment, this.newPayment.data.primaryKey)
               .then(() => {
-                this.db.collection('tblAccountTransaction').add({
-                  primaryKey: '',
-                  userPrimaryKey: this.newPayment.data.userPrimaryKey,
-                  receiptNo: this.newPayment.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'payment',
-                  parentPrimaryKey: this.newPayment.data.customerCode,
-                  parentType: 'customer',
-                  cashDeskPrimaryKey: this.newPayment.data.cashDeskPrimaryKey,
-                  amount: this.newPayment.data.amount * -1,
-                  amountType: 'debit',
-                  insertDate: this.newPayment.data.insertDate,
-                })
-                  .then(async () => {
-                    this.infoService.success('Ödeme başarıyla kaydedildi.');
-                    await this.clearNewPayment();
-                  })
-                  .catch((error) => {
-                    this.finishProcessAndError(error);
-                  });
+                this.infoService.success('Ödeme başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.clearNewPayment();
               });
           }
         })
@@ -515,39 +445,21 @@ export class CustomerComponent implements OnInit {
 
   async btnSaveVoucher_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.avService.checkForSave(this.newVoucher)])
         .then(async (values: any) => {
           if (this.newVoucher.data.primaryKey === null) {
-            this.onTransaction = true;
-            const newId = this.db.createId();
-            this.newVoucher.data.primaryKey = '';
+            this.newVoucher.data.primaryKey = this.db.createId();
             this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
-            await this.avService.setItem(this.newVoucher, newId)
+            await this.avService.setItem(this.newVoucher, this.newVoucher.data.primaryKey)
               .then(() => {
-                this.db.collection('tblAccountTransaction').add({
-                  primaryKey: '',
-                  userPrimaryKey: this.newVoucher.data.userPrimaryKey,
-                  receiptNo: this.newVoucher.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'accountVoucher',
-                  parentPrimaryKey: this.newVoucher.data.customerCode,
-                  parentType: 'customer',
-                  cashDeskPrimaryKey: this.newVoucher.data.cashDeskPrimaryKey,
-                  amount: this.newVoucher.data.type === 'creditVoucher' ?
-                    this.newVoucher.data.amount : this.newVoucher.data.amount * -1,
-                  amountType: this.newVoucher.data.type === 'creditVoucher' ? 'credit' : 'debit',
-                  insertDate: this.newVoucher.data.insertDate,
-                })
-                  .then(async () => {
-                    this.infoService.success('Fiş başarıyla kaydedildi.');
-                    await this.clearNewVoucher();
-                  })
-                  .catch((error) => {
-                    this.finishProcessAndError(error);
-                  });
+                this.infoService.success('Fiş başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcessAndError(error);
+              })
+              .finally(() => {
+                this.clearNewVoucher();
               });
           }
         })

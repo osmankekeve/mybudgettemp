@@ -10,8 +10,10 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getString, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
+import {CustomerAccountService} from './customer-account.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +27,8 @@ export class PaymentService {
   tableName = 'tblPayment';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
+              public atService: AccountTransactionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -44,31 +47,79 @@ export class PaymentService {
   }
 
   async addItem(record: PaymentMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'payment');
-    await this.sService.increasePaymentNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async result => {
+        await this.logService.sendToLog(record, 'insert', 'payment');
+        await this.sService.increasePaymentNumber();
+      });
   }
 
   async removeItem(record: PaymentMainModel) {
-    /* this.db.firestore.runTransaction(t => {
-        return t.get(sfDocRef).then(doc => {
-          const newValue = doc.data().value;
-        }).then().catch(err => console.error(err));
-      }); */
-
-    await this.logService.sendToLog(record, 'delete', 'payment');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async result => {
+        await this.logService.sendToLog(record, 'delete', 'payment');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: PaymentMainModel) {
-    await this.logService.sendToLog(record, 'update', 'payment');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(async value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'payment',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.amount * -1,
+            amountType: 'debit',
+            insertDate: record.data.insertDate,
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'payment');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'payment');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'payment');
+        }
+      });
   }
 
   async setItem(record: PaymentMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'payment');
-    await this.sService.increasePaymentNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(async value => {
+        await this.logService.sendToLog(record, 'insert', 'payment');
+        await this.sService.increasePaymentNumber();
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'payment',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.amount * -1,
+            amountType: 'debit',
+            insertDate: record.data.insertDate,
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'payment');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'payment');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'payment');
+        }
+      });
   }
 
   checkForSave(record: PaymentMainModel): Promise<string> {
@@ -125,7 +176,12 @@ export class PaymentService {
     if (model.amount === undefined) {
       model.amount = cleanModel.amount;
     }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.status === undefined) {
+      model.status = cleanModel.status;
+    }
+    if (model.platform === undefined) {
+      model.platform = cleanModel.platform;
+    }
 
     return model;
   }
@@ -143,7 +199,8 @@ export class PaymentService {
     returnData.cashDeskPrimaryKey = '-1';
     returnData.description = '';
     returnData.amount = 0;
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -156,7 +213,8 @@ export class PaymentService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     return returnData;
   }
 
@@ -325,5 +383,5 @@ export class PaymentService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  })
+  });
 }

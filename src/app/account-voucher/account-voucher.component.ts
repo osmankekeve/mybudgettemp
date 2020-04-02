@@ -3,7 +3,6 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {CashDeskService} from '../services/cash-desk.service';
@@ -23,7 +22,6 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {PaymentMainModel} from '../models/payment-main-model';
 
 @Component({
   selector: 'app-account-voucher',
@@ -35,6 +33,7 @@ export class AccountVoucherComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
+  transactionList: Array<AccountVoucherMainModel>;
   selectedRecord: AccountVoucherMainModel;
   refModel: AccountVoucherMainModel;
   isRecordHasTransaction = false;
@@ -133,6 +132,7 @@ export class AccountVoucherComponent implements OnInit {
     const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
     const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
 
+    this.transactionList = undefined;
     let chart1DataNames;
     let chart1DataValues;
     const chart2DataValues = [0, 0, 0, 0];
@@ -141,8 +141,8 @@ export class AccountVoucherComponent implements OnInit {
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<AccountVoucherMainModel>;
-          returnData.forEach(item => {
+          this.transactionList = values[0] as Array<AccountVoucherMainModel>;
+          this.transactionList.forEach(item => {
             if (creatingData.has(item.customer.name)) {
               let amount = creatingData.get(item.customer.name);
               amount += item.data.amount;
@@ -296,28 +296,7 @@ export class AccountVoucherComponent implements OnInit {
             this.selectedRecord.data.primaryKey = '';
             await this.service.setItem(this.selectedRecord, newId)
               .then(() => {
-                const trans = {
-                  primaryKey: '',
-                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                  receiptNo: this.selectedRecord.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'accountVoucher',
-                  parentPrimaryKey: this.selectedRecord.data.customerCode,
-                  parentType: 'customer',
-                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-                  cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                  amount: this.selectedRecord.data.type === 'creditVoucher' ?
-                    this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
-                  amountType: this.selectedRecord.data.type === 'creditVoucher' ? 'credit' : 'debit',
-                  insertDate: this.selectedRecord.data.insertDate,
-                };
-                this.db.collection('tblAccountTransaction').add(trans)
-                  .then(() => {
-                    this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
-                  })
-                  .catch((error) => {
-                    this.finishProcess(error, null);
-                  });
+                this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -328,25 +307,7 @@ export class AccountVoucherComponent implements OnInit {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                  .get()
-                  .subscribe(list => {
-                    list.forEach((item) => {
-                      this.db.collection('tblAccountTransaction').doc(item.id).update({
-                        receiptNo: this.selectedRecord.data.receiptNo,
-                        cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                        amount: this.selectedRecord.data.type === 'creditVoucher' ?
-                          this.selectedRecord.data.amount : this.selectedRecord.data.amount * -1,
-                      })
-                        .then(() => {
-                          this.finishProcess(null, 'Fiş başarıyla güncellendi.');
-                        })
-                        .catch((error) => {
-                          this.finishProcess(error, null);
-                        });
-                    });
-                  });
+                this.finishProcess(null, 'Fiş başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -371,20 +332,7 @@ export class AccountVoucherComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                .get()
-                .subscribe(list => {
-                  list.forEach((item) => {
-                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
-                      .then(() => {
-                        this.finishProcess(null, 'Fiş başarıyla kaldırıldı.');
-                      })
-                      .catch((error) => {
-                        this.finishProcess(error, null);
-                      });
-                  });
-                });
+              this.finishProcess(null, 'Fiş başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -396,6 +344,64 @@ export class AccountVoucherComponent implements OnInit {
         .catch((error) => {
           this.finishProcess(error, null);
         });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReject_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'rejected';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReturnRecord_Click(): Promise<void> {
+    try {
+      this.infoService.error('yazılmadı');
     } catch (error) {
       this.finishProcess(error, null);
     }
@@ -417,6 +423,7 @@ export class AccountVoucherComponent implements OnInit {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
+      this.populateCharts();
     }
   }
 
@@ -429,7 +436,7 @@ export class AccountVoucherComponent implements OnInit {
   }
 
   async btnCreateAccounts_Click(): Promise<void> {
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
         if ((values[0] !== undefined || values[0] !== null)) {
           const returnData = values[0] as Array<AccountVoucherMainModel>;
@@ -446,7 +453,39 @@ export class AccountVoucherComponent implements OnInit {
             });
           });
         }
-      });
+      });*/
+  }
+
+  async btnCreateTransactions_Click(): Promise<void> {
+    await this.atService.removeTransactions('accountVoucher').then(() => {
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+        .then((values: any) => {
+          if ((values[0] !== undefined || values[0] !== null)) {
+            const returnData = values[0] as Array<AccountVoucherMainModel>;
+            returnData.forEach(record => {
+              const trans = {
+                primaryKey: record.data.primaryKey,
+                userPrimaryKey: record.data.userPrimaryKey,
+                receiptNo: record.data.receiptNo,
+                transactionPrimaryKey: record.data.primaryKey,
+                transactionType: 'accountVoucher',
+                parentPrimaryKey: record.data.customerCode,
+                parentType: 'customer',
+                accountPrimaryKey: record.data.accountPrimaryKey,
+                cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+                amount: record.data.type === 'creditVoucher' ? record.data.amount : record.data.amount * -1,
+                amountType: record.data.type === 'creditVoucher' ? 'credit' : 'debit',
+                insertDate: record.data.insertDate,
+              };
+              this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
+                .set(Object.assign({}, trans))
+                .then(() => {
+                  console.log(record);
+                });
+            });
+          }
+        });
+    });
   }
 
   async onChangeCustomer(value: any): Promise<void> {

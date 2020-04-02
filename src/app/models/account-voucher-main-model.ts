@@ -7,6 +7,7 @@ export class AccountVoucherMainModel {
   customer?: CustomerModel;
   employeeName?: string;
   actionType?: string;
-  isActiveTr?: string;
+  statusTr?: string;
+  platformTr?: string;
   amountFormatted?: string;
 }

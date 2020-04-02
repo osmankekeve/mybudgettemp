@@ -64,7 +64,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
 
   async btnRemove_Click(): Promise<void> {
     try {
-      await this.service.removeItem(this.selectedRecord)
+      await this.service.removeItem(this.selectedRecord, null)
         .then(() => {
           this.infoService.success('Hesap hareketi başarıyla kaldırıldı.');
           this.selectedRecord = undefined;

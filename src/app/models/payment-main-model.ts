@@ -8,5 +8,6 @@ export class PaymentMainModel {
   employeeName?: string;
   actionType?: string;
   amountFormatted?: string;
-  isActiveTr?: string;
+  statusTr?: string;
+  platformTr?: string;
 }

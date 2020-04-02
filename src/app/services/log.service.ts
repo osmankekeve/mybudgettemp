@@ -116,6 +116,10 @@ export class LogService {
       item.log += 'güncellendi.';
     } else if (action === 'delete') {
       item.log += 'kaldırıldı.';
+    } else if (action === 'approved') {
+      item.log += 'onaylandı.';
+    } else if (action === 'rejected') {
+      item.log += 'geri çevrildi.';
     } else {
       //
     }

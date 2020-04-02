@@ -10,8 +10,10 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
+import {CustomerAccountService} from './customer-account.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +27,8 @@ export class AccountVoucherService {
   tableName = 'tblAccountVoucher';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
+              public atService: AccountTransactionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -44,25 +47,79 @@ export class AccountVoucherService {
   }
 
   async addItem(record: AccountVoucherMainModel) {
-    await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
-    await this.sService.increaseAccountVoucherNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async result => {
+        await this.logService.sendToLog(record, 'insert', 'accountVoucher');
+        await this.sService.increaseAccountVoucherNumber();
+      });
   }
 
   async removeItem(record: AccountVoucherMainModel) {
-    await this.logService.sendToLog(record.data, 'delete', 'accountVoucher');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async result => {
+        await this.logService.sendToLog(record, 'delete', 'accountVoucher');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: AccountVoucherMainModel) {
-    await this.logService.sendToLog(record.data, 'update', 'accountVoucher');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(async value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'accountVoucher',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.type === 'creditVoucher' ? record.data.amount : record.data.amount * -1,
+            amountType: record.data.type === 'creditVoucher' ? 'credit' : 'debit',
+            insertDate: record.data.insertDate,
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'accountVoucher');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'accountVoucher');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'accountVoucher');
+        }
+      });
   }
 
   async setItem(record: AccountVoucherMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
-    await this.sService.increaseAccountVoucherNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(async value => {
+        await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
+        await this.sService.increaseAccountVoucherNumber();
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'accountVoucher',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
+            amount: record.data.type === 'creditVoucher' ? record.data.amount : record.data.amount * -1,
+            amountType: record.data.type === 'creditVoucher' ? 'credit' : 'debit',
+            insertDate: record.data.insertDate,
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'accountVoucher');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'accountVoucher');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'accountVoucher');
+        }
+      });
   }
 
   checkForSave(record: AccountVoucherMainModel): Promise<string> {
@@ -100,7 +157,8 @@ export class AccountVoucherService {
     if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
     if (model.description === undefined) { model.description = cleanModel.description; }
     if (model.amount === undefined) { model.amount = cleanModel.amount; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.status === undefined) { model.status = cleanModel.status; }
+    if (model.platform === undefined) { model.platform = cleanModel.platform; }
     return model;
   }
 
@@ -116,7 +174,8 @@ export class AccountVoucherService {
     returnData.receiptNo = '';
     returnData.description = '';
     returnData.amount = 0;
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -128,7 +187,8 @@ export class AccountVoucherService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }

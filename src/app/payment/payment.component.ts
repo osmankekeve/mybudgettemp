@@ -29,6 +29,7 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 
 @Component({
   selector: 'app-payment',
@@ -40,7 +41,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   cashDeskList$: Observable<CashDeskMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
-  collection: AngularFirestoreCollection<PaymentMainModel>;
+  transactionList: Array<PaymentMainModel>;
   selectedRecord: PaymentMainModel;
   refModel: PaymentMainModel;
   isRecordHasTransaction = false;
@@ -146,6 +147,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const date3 = new Date(date.getFullYear(), date.getMonth(), 15, 0, 0, 0);
     const date4 = new Date(date.getFullYear(), date.getMonth(), 30, 0, 0, 0);
 
+    this.transactionList = undefined;
     let chart1DataNames;
     let chart1DataValues;
     const chart2DataValues = [0, 0, 0, 0];
@@ -154,8 +156,8 @@ export class PaymentComponent implements OnInit, OnDestroy {
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<PaymentMainModel>;
-          returnData.forEach(item => {
+          this.transactionList = values[0] as Array<PaymentMainModel>;
+          this.transactionList.forEach(item => {
             if (creatingData.has(item.customer.name)) {
               let amount = creatingData.get(item.customer.name);
               amount += item.data.amount;
@@ -322,55 +324,18 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = '';
             await this.service.setItem(this.selectedRecord, newId)
               .then(() => {
-                const trans = {
-                  primaryKey: '',
-                  userPrimaryKey: this.selectedRecord.data.userPrimaryKey,
-                  receiptNo: this.selectedRecord.data.receiptNo,
-                  transactionPrimaryKey: newId,
-                  transactionType: 'payment',
-                  parentPrimaryKey: this.selectedRecord.data.customerCode,
-                  parentType: 'customer',
-                  accountPrimaryKey: this.selectedRecord.data.accountPrimaryKey,
-                  cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                  amount: this.selectedRecord.data.amount * -1,
-                  amountType: 'debit',
-                  insertDate: this.selectedRecord.data.insertDate,
-                };
-                this.db.collection('tblAccountTransaction').add(trans)
-                  .then(() => {
-                    this.finishProcess(null, 'Ödeme başarıyla kaydedildi.');
-                  })
-                  .catch((error) => {
-                    this.finishProcess(error, null);
-                  })
-                  .finally(() => {
-                    this.finishFinally();
-                  });
+                this.finishProcess(null, 'Ödeme başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                  ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey)).get().subscribe(list => {
-                  list.forEach((item) => {
-                    const trans = {
-                      receiptNo: this.selectedRecord.data.receiptNo,
-                      insertDate: this.selectedRecord.data.insertDate,
-                      cashDeskPrimaryKey: this.selectedRecord.data.cashDeskPrimaryKey,
-                      amount: this.selectedRecord.data.amount * -1,
-                    };
-                    this.db.collection('tblAccountTransaction').doc(item.id).update(trans)
-                      .then(() => {
-                        this.finishProcess(null, 'Ödeme başarıyla güncellendi.');
-                      })
-                      .catch((error) => {
-                        this.finishProcess(error, null);
-                      });
-                  });
-                });
+                this.finishProcess(null, 'Ödeme başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -395,20 +360,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                .get()
-                .subscribe(list => {
-                  list.forEach((item) => {
-                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
-                      .then(() => {
-                        this.finishProcess(null, 'Ödeme başarıyla kaldırıldı.');
-                      })
-                      .catch((error) => {
-                        this.finishProcess(error, null);
-                      });
-                  });
-                });
+              this.finishProcess(null, 'Ödeme başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -425,6 +377,64 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReject_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'rejected';
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  async btnReturnRecord_Click(): Promise<void> {
+    try {
+      this.infoService.error('yazılmadı');
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'payment');
@@ -434,7 +444,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   async btnCreateAccounts_Click(): Promise<void> {
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
         if ((values[0] !== undefined || values[0] !== null)) {
           const returnData = values[0] as Array<PaymentMainModel>;
@@ -453,7 +463,39 @@ export class PaymentComponent implements OnInit, OnDestroy {
             });
           });
         }
-      });
+      });*/
+  }
+
+  async btnCreateTransactions_Click(): Promise<void> {
+    await this.atService.removeTransactions('payment').then(() => {
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+        .then((values: any) => {
+          if ((values[0] !== undefined || values[0] !== null)) {
+            const returnData = values[0] as Array<PaymentMainModel>;
+            returnData.forEach(doc => {
+              const trans = {
+                primaryKey: doc.data.primaryKey,
+                userPrimaryKey: doc.data.userPrimaryKey,
+                receiptNo: doc.data.receiptNo,
+                transactionPrimaryKey: doc.data.primaryKey,
+                transactionType: 'payment',
+                parentPrimaryKey: doc.data.customerCode,
+                parentType: 'customer',
+                accountPrimaryKey: doc.data.accountPrimaryKey,
+                cashDeskPrimaryKey: doc.data.cashDeskPrimaryKey,
+                amount: doc.data.amount * -1,
+                amountType: 'debit',
+                insertDate: doc.data.insertDate,
+              };
+              this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
+                .set(Object.assign({}, trans))
+                .then(() => {
+                  console.log(doc);
+                });
+            });
+          }
+        });
+    });
   }
 
   async onChangeCustomer(value: any): Promise<void> {

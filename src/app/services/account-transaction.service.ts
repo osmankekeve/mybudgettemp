@@ -9,10 +9,8 @@ import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {Chart} from 'chart.js';
-import {PurchaseInvoiceService} from './purchase-invoice.service';
-import {PaymentService} from './payment.service';
 import {CashDeskService} from './cash-desk.service';
+import {PaymentMainModel} from '../models/payment-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -94,15 +92,37 @@ export class AccountTransactionService {
   }
 
   async addItem(record: AccountTransactionModel) {
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record));
   }
 
-  async removeItem(record: AccountTransactionModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+  async removeItem(record: AccountTransactionModel, primaryKey: string) {
+    if (record !== null) {
+      return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    } else {
+      return await this.db.collection(this.tableName).doc(primaryKey).delete();
+    }
   }
 
   async updateItem(record: AccountTransactionModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
+  }
+
+  async setItem(record: AccountTransactionModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record));
+  }
+
+  async removeTransactions(transactionType: string) {
+    await this.db.collection<AccountTransactionModel>(this.tableName,
+      ref => ref.where('transactionType', '==', transactionType))
+      .get()
+      .subscribe(list => {
+        console.log(list.size);
+        list.forEach((doc) => {
+          const item = doc as AccountTransactionModel;
+          item.primaryKey = doc.id;
+          this.db.collection(this.tableName).doc(doc.id).delete().then(() => console.log(doc.id));
+        });
+      });
   }
 
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
@@ -129,7 +149,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -157,7 +177,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getCustomerTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -184,7 +204,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getAccountTransactions = async (accountPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -212,7 +232,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
@@ -232,6 +252,12 @@ export class AccountTransactionService {
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
 
+          if (returnData.data.transactionType === 'cashDeskVoucher') {
+            returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
+          } else {
+            returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
+          }
+
           list.push(returnData);
         });
         resolve(list);
@@ -241,7 +267,7 @@ export class AccountTransactionService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
@@ -282,6 +308,5 @@ export class AccountTransactionService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainMainList$;
   }
-
 
 }

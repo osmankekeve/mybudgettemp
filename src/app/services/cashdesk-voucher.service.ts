@@ -1,17 +1,19 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import { Observable } from 'rxjs/Observable';
-import { AuthenticationService } from './authentication.service';
-import { CashdeskVoucherModel } from '../models/cashdesk-voucher-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { CashDeskModel } from '../models/cash-desk-model';
-import { LogService } from './log.service';
+import {Observable} from 'rxjs/Observable';
+import {AuthenticationService} from './authentication.service';
+import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
+import {map, flatMap} from 'rxjs/operators';
+import {combineLatest} from 'rxjs';
+import {CashDeskModel} from '../models/cash-desk-model';
+import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
 import {currencyFormat, getCashDeskVoucherType, isNullOrEmpty} from '../core/correct-library';
 import {ProfileService} from './profile.service';
+import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
+import {AccountVoucherModel} from '../models/account-voucher-model';
 
 @Injectable({
   providedIn: 'root'
@@ -69,9 +71,9 @@ export class CashDeskVoucherService {
 
   checkForSave(record: CashDeskVoucherMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (record.data.type === '' ||  record.data.type === '-1') {
+      if (record.data.type === '' || record.data.type === '-1') {
         reject('Lütfen fiş tipi seçiniz.');
-      } else if (record.data.transactionType === '' ||  record.data.transactionType === '-1') {
+      } else if (record.data.transactionType === '' || record.data.transactionType === '-1') {
         reject('Lütfen işlem tipi seçiniz.');
       } else if (record.data.receiptNo === '') {
         reject('Lütfen fiş numarası.');
@@ -95,15 +97,33 @@ export class CashDeskVoucherService {
 
   checkFields(model: CashdeskVoucherModel): CashdeskVoucherModel {
     const cleanModel = this.clearSubModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.firstCashDeskPrimaryKey === undefined) { model.firstCashDeskPrimaryKey = cleanModel.firstCashDeskPrimaryKey; }
-    if (model.secondCashDeskPrimaryKey === undefined) { model.secondCashDeskPrimaryKey = cleanModel.secondCashDeskPrimaryKey; }
-    if (model.type === undefined) { model.type = cleanModel.type; }
-    if (model.transactionType === undefined) { model.transactionType = cleanModel.transactionType; }
-    if (model.receiptNo === undefined) { model.receiptNo = cleanModel.receiptNo; }
-    if (model.amount === undefined) { model.amount = cleanModel.amount; }
-    if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.firstCashDeskPrimaryKey === undefined) {
+      model.firstCashDeskPrimaryKey = cleanModel.firstCashDeskPrimaryKey;
+    }
+    if (model.secondCashDeskPrimaryKey === undefined) {
+      model.secondCashDeskPrimaryKey = cleanModel.secondCashDeskPrimaryKey;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.transactionType === undefined) {
+      model.transactionType = cleanModel.transactionType;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.amount === undefined) {
+      model.amount = cleanModel.amount;
+    }
+    if (model.description === undefined) {
+      model.description = cleanModel.description;
+    }
+    if (model.isActive === undefined) {
+      model.isActive = cleanModel.isActive;
+    }
 
     return model;
   }
@@ -163,19 +183,19 @@ export class CashDeskVoucherService {
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashDeskVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => {
-      let query: CollectionReference | Query = ref;
-      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
-      if (startDate !== null) {
-        query = query.startAt(startDate.getTime());
-      }
-      if (endDate !== null) {
-        query = query.endAt(endDate.getTime());
-      }
-      return query;
-    });
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
-      return changes.map( change => {
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      });
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
         const data = change.payload.doc.data() as CashdeskVoucherModel;
         data.primaryKey = change.payload.doc.id;
 
@@ -187,11 +207,52 @@ export class CashDeskVoucherService {
         returnData.actionType = change.type;
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
-        return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map( (item: CashDeskModel) => {
+        return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map((item: CashDeskModel) => {
           // returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';
-          return Object.assign({returnData}); }));
+          return Object.assign({returnData});
+        }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+    Promise<Array<CashDeskVoucherMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CashDeskVoucherMainModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as CashdeskVoucherModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new CashDeskVoucherMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.typeTr = this.cashDeskVoucherTypeMap.get(data.type);
+          returnData.casDeskName = this.cashDeskMap.get(data.firstCashDeskPrimaryKey);
+          returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' :
+            this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
+          returnData.actionType = 'added';
+          returnData.amountFormatted = currencyFormat(returnData.data.amount);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  });
 }

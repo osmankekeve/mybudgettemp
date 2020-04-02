@@ -9,6 +9,7 @@ export class PurchaseInvoiceModel {
   totalPrice?: number;
   totalPriceWithTax?: number;
   description?: string;
-  isActive?: boolean;
+  status?: string; // waitingForApprove, approved, rejected
+  platform?: string; // mobile, web
   insertDate?: number;
 }

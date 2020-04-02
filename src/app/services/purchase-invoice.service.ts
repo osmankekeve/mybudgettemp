@@ -15,8 +15,10 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {currencyFormat, getString, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
+import {CustomerAccountService} from './customer-account.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +32,8 @@ export class PurchaseInvoiceService {
   tableName = 'tblPurchaseInvoice';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
+              public atService: AccountTransactionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -49,25 +52,80 @@ export class PurchaseInvoiceService {
   }
 
   async addItem(record: PurchaseInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
-    await this.sService.increasePurchaseInvoiceNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async result => {
+        await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
+        await this.sService.increasePurchaseInvoiceNumber();
+      });
   }
 
   async setItem(record: PurchaseInvoiceMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
-    await this.sService.increasePurchaseInvoiceNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(async value => {
+        await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
+        await this.sService.increasePurchaseInvoiceNumber();
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'purchaseInvoice',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: '-1',
+            amount: record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1,
+            amountType: record.data.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: record.data.insertDate
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'purchaseInvoice');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'purchaseInvoice');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'purchaseInvoice');
+        }
+      });
   }
 
   async removeItem(record: PurchaseInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'purchaseInvoice');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async result => {
+        await this.logService.sendToLog(record, 'delete', 'purchaseInvoice');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: PurchaseInvoiceMainModel) {
-    await this.logService.sendToLog(record, 'update', 'purchaseInvoice');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey)
+      .update(Object.assign({}, record.data))
+      .then(async value => {
+        if (record.data.status === 'approved') {
+          const trans = {
+            primaryKey: record.data.primaryKey,
+            userPrimaryKey: record.data.userPrimaryKey,
+            receiptNo: record.data.receiptNo,
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'purchaseInvoice',
+            parentPrimaryKey: record.data.customerCode,
+            parentType: 'customer',
+            accountPrimaryKey: record.data.accountPrimaryKey,
+            cashDeskPrimaryKey: '-1',
+            amount: record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1,
+            amountType: record.data.type === 'purchase' ? 'credit' : 'debit',
+            insertDate: record.data.insertDate
+          };
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'purchaseInvoice');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'purchaseInvoice');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'purchaseInvoice');
+        }
+      });
   }
 
   checkForSave(record: PurchaseInvoiceMainModel): Promise<string> {
@@ -108,7 +166,8 @@ export class PurchaseInvoiceService {
     if (model.totalPrice === undefined) { model.totalPrice = cleanModel.totalPrice; }
     if (model.totalPriceWithTax === undefined) { model.totalPriceWithTax = cleanModel.totalPriceWithTax; }
     if (model.description === undefined) { model.description = cleanModel.description; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.status === undefined) { model.status = cleanModel.status; }
+    if (model.platform === undefined) { model.platform = cleanModel.platform; }
 
     return model;
   }
@@ -126,7 +185,8 @@ export class PurchaseInvoiceService {
     returnData.totalPrice = 0;
     returnData.totalPriceWithTax = 0;
     returnData.description = '';
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -138,7 +198,8 @@ export class PurchaseInvoiceService {
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
@@ -251,7 +312,7 @@ export class PurchaseInvoiceService {
       let query: CollectionReference | Query = ref;
       query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid());
-      if (customerPrimaryKey !== '-1') {
+      if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
         query = query.where('customerCode', '==', customerPrimaryKey);
       }
       return query;

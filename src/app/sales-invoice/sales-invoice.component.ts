@@ -27,6 +27,7 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {CollectionMainModel} from '../models/collection-main-model';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -320,9 +321,8 @@ export class SalesInvoiceComponent implements OnInit {
         .then(async (values: any) => {
           this.onTransaction = true;
           if (this.selectedRecord.data.primaryKey === null) {
-            const newId = this.db.createId();
-            this.selectedRecord.data.primaryKey = '';
-            await this.service.setItem(this.selectedRecord, newId)
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
                 this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
               })
@@ -471,7 +471,7 @@ export class SalesInvoiceComponent implements OnInit {
         }
       });*/
 
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
         if ((values[0] !== undefined || values[0] !== null)) {
           const returnData = values[0] as Array<SalesInvoiceMainModel>;
@@ -481,6 +481,39 @@ export class SalesInvoiceComponent implements OnInit {
             this.service.updateItem(doc).then(() => {console.log(doc); });
           });
         }
+      });*/
+  }
+
+  async btnCreateTransactions_Click(): Promise<void> {
+    await this.atService.removeTransactions('salesInvoice')
+      .then(() => {
+        Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+          .then((values: any) => {
+            if ((values[0] !== undefined || values[0] !== null)) {
+              const returnData = values[0] as Array<SalesInvoiceMainModel>;
+              returnData.forEach(record => {
+                const trans = {
+                  primaryKey: record.data.primaryKey,
+                  userPrimaryKey: record.data.userPrimaryKey,
+                  receiptNo: record.data.receiptNo,
+                  transactionPrimaryKey: record.data.primaryKey,
+                  transactionType: 'salesInvoice',
+                  parentPrimaryKey: record.data.customerCode,
+                  parentType: 'customer',
+                  accountPrimaryKey: record.data.accountPrimaryKey,
+                  cashDeskPrimaryKey: '-1',
+                  amount: record.data.type === 'sales' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax,
+                  amountType: record.data.type === 'sales' ? 'debit' : 'credit',
+                  insertDate: record.data.insertDate
+                };
+                this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
+                  .set(Object.assign({}, trans))
+                  .then(() => {
+                    console.log(record);
+                  });
+              });
+            }
+          });
       });
   }
 

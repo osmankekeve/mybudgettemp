@@ -13,7 +13,7 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="XML'e Aktar"
                 (click)="btnExportToXml_Click()" hidden><i class="fa fa-file-archive-o"></i></button>
         <button hidden class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle"
-                (click)="btnCreateAccounts_Click()"><i class="fa fa-wrench"></i></button>
+                (click)="btnCreateTransactions_Click()"><i class="fa fa-wrench"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -336,7 +336,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -350,7 +350,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -364,7 +364,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
