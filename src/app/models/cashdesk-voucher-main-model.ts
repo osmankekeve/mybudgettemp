@@ -7,6 +7,7 @@ export class CashDeskVoucherMainModel {
   secondCashDeskName?: string;
   actionType?: string;
   typeTr?: string;
-  isActiveTr?: string;
+  statusTr?: string;
+  platformTr?: string;
   amountFormatted?: string;
 }

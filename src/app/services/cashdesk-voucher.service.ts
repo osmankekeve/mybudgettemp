@@ -10,10 +10,12 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
-import {currencyFormat, getCashDeskVoucherType, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getCashDeskVoucherType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {AccountVoucherModel} from '../models/account-voucher-model';
+import {CustomerAccountService} from './customer-account.service';
+import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +29,8 @@ export class CashDeskVoucherService {
   tableName = 'tblCashDeskVoucher';
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public eService: ProfileService,
-              public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore) {
+              public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore,
+              public atService: AccountTransactionService) {
     this.cdService.getItems().subscribe(list => {
       this.cashDeskMap.clear();
       list.forEach((data: any) => {
@@ -48,25 +51,126 @@ export class CashDeskVoucherService {
   }
 
   async addItem(record: CashDeskVoucherMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
-    await this.sService.increaseCashDeskNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data))
+      .then(async result => {
+        await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+        await this.sService.increaseCashDeskNumber();
+      });
   }
 
   async removeItem(record: CashDeskVoucherMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+      .then(async result => {
+        await this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
+        if (record.data.status === 'approved') {
+          await this.atService.removeItem(null, record.data.primaryKey);
+        }
+      });
   }
 
   async updateItem(record: CashDeskVoucherMainModel) {
-    await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(async value => {
+        if (record.data.status === 'approved') {
+          let calculatedAmount1 = record.data.transactionType === 'credit' ? record.data.amount : record.data.amount * -1;
+          if (record.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
+
+          let calculatedAmount2 = record.data.transactionType === 'credit' ? record.data.amount * -1 : record.data.amount;
+          if (record.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
+
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            parentPrimaryKey: record.data.firstCashDeskPrimaryKey,
+            parentType: 'cashDesk',
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'cashDeskVoucher',
+            amountType: record.data.transactionType,
+            amount: calculatedAmount1,
+            cashDeskPrimaryKey: record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1' ,
+            receiptNo: record.data.receiptNo,
+            insertDate: record.data.insertDate
+          };
+          await this.atService.addItem(trans);
+
+          if (record.data.type === 'transfer') {
+            const trans2 = {
+              primaryKey: '',
+              userPrimaryKey: record.data.userPrimaryKey,
+              parentPrimaryKey: record.data.secondCashDeskPrimaryKey,
+              parentType: 'cashDesk',
+              transactionPrimaryKey: record.data.primaryKey,
+              transactionType: 'cashDeskVoucher',
+              amountType: record.data.transactionType,
+              amount: calculatedAmount2,
+              cashDeskPrimaryKey: record.data.firstCashDeskPrimaryKey,
+              receiptNo: record.data.receiptNo,
+              insertDate: record.data.insertDate
+            };
+            await this.atService.addItem(trans2);
+          }
+
+          await this.logService.sendToLog(record, 'approved', 'cashdeskVoucher');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'cashdeskVoucher');
+        } else {
+          await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
+        }
+      });
   }
 
   async setItem(record: CashDeskVoucherMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
-    await this.sService.increaseCashDeskNumber();
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(async value => {
+        await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+        await this.sService.increaseCashDeskNumber();
+
+        if (record.data.status === 'approved') {
+          let calculatedAmount1 = record.data.transactionType === 'credit' ? record.data.amount : record.data.amount * -1;
+          if (record.data.type === 'transfer') { calculatedAmount1 =  calculatedAmount1 * -1; }
+
+          let calculatedAmount2 = record.data.transactionType === 'credit' ? record.data.amount * -1 : record.data.amount;
+          if (record.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
+
+          const trans = {
+            primaryKey: '',
+            userPrimaryKey: record.data.userPrimaryKey,
+            parentPrimaryKey: record.data.firstCashDeskPrimaryKey,
+            parentType: 'cashDesk',
+            transactionPrimaryKey: record.data.primaryKey,
+            transactionType: 'cashDeskVoucher',
+            amountType: record.data.transactionType,
+            amount: calculatedAmount1,
+            cashDeskPrimaryKey: record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1' ,
+            receiptNo: record.data.receiptNo,
+            insertDate: record.data.insertDate
+          };
+          await this.atService.addItem(trans);
+
+          if (record.data.type === 'transfer') {
+            const trans2 = {
+              primaryKey: '',
+              userPrimaryKey: record.data.userPrimaryKey,
+              parentPrimaryKey: record.data.secondCashDeskPrimaryKey,
+              parentType: 'cashDesk',
+              transactionPrimaryKey: record.data.primaryKey,
+              transactionType: 'cashDeskVoucher',
+              amountType: record.data.transactionType,
+              amount: calculatedAmount2,
+              cashDeskPrimaryKey: record.data.firstCashDeskPrimaryKey,
+              receiptNo: record.data.receiptNo,
+              insertDate: record.data.insertDate
+            };
+            await this.atService.addItem(trans2);
+          }
+
+          await this.logService.sendToLog(record, 'approved', 'cashdeskVoucher');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.sendToLog(record, 'rejected', 'cashdeskVoucher');
+        } else {
+          // await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
+        }
+      });
   }
 
   checkForSave(record: CashDeskVoucherMainModel): Promise<string> {
@@ -121,8 +225,11 @@ export class CashDeskVoucherService {
     if (model.description === undefined) {
       model.description = cleanModel.description;
     }
-    if (model.isActive === undefined) {
-      model.isActive = cleanModel.isActive;
+    if (model.status === undefined) {
+      model.status = cleanModel.status;
+    }
+    if (model.platform === undefined) {
+      model.platform = cleanModel.platform;
     }
 
     return model;
@@ -141,7 +248,8 @@ export class CashDeskVoucherService {
     returnData.secondCashDeskPrimaryKey = '';
     returnData.amount = 0;
     returnData.description = '';
-    returnData.isActive = true;
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -154,7 +262,8 @@ export class CashDeskVoucherService {
     returnData.casDeskName = '';
     returnData.secondCashDeskName = '';
     returnData.actionType = 'added';
-    returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
   }
@@ -254,5 +363,5 @@ export class CashDeskVoucherService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 }

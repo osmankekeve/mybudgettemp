@@ -78,7 +78,6 @@ export class SalesInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async value => {
         if (record.data.status === 'approved') {
-          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
           const trans = {
             primaryKey: record.data.primaryKey,
             userPrimaryKey: record.data.userPrimaryKey,
@@ -94,6 +93,7 @@ export class SalesInvoiceService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
         } else if (record.data.status === 'rejected') {
           await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
         } else {
@@ -123,6 +123,7 @@ export class SalesInvoiceService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
         } else if (record.data.status === 'rejected') {
           await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
         } else {

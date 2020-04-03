@@ -317,6 +317,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
+      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {

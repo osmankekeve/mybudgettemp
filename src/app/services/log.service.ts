@@ -126,12 +126,12 @@ export class LogService {
     return await this.setItem(item);
   }
 
-  async addToLog(parentType: string, primaryKey: string, type: string, userPrimaryKey: string, log: string) {
+  async addToLog(parentType: string, parentPrimaryKey: string, type: string, log: string) {
     const item = new LogModel();
     item.parentType = parentType;
-    item.parentPrimaryKey = primaryKey;
-    item.type = type;
-    item.userPrimaryKey = userPrimaryKey;
+    item.parentPrimaryKey = parentPrimaryKey;
+    item.type = type; // notification
+    item.userPrimaryKey = this.authService.getUid();
     item.isActive = true;
     item.log = log;
     item.insertDate = Date.now();
