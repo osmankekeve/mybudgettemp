@@ -54,6 +54,7 @@ export class CollectionComponent implements OnInit {
   filterBeginDate: any;
   filterFinishDate: any;
   filterCustomerCode: any;
+  filterStatus: any;
   totalValues = {
     amount: 0
   };
@@ -107,7 +108,8 @@ export class CollectionComponent implements OnInit {
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode).subscribe(list => {
+    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+      .subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -150,7 +152,7 @@ export class CollectionComponent implements OnInit {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<CollectionMainModel>;
@@ -498,7 +500,7 @@ export class CollectionComponent implements OnInit {
 
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('collection').then(() => {
-      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, 'approved')])
         .then((values: any) => {
           if ((values[0] !== undefined || values[0] !== null)) {
             const returnData = values[0] as Array<CollectionMainModel>;
@@ -546,6 +548,7 @@ export class CollectionComponent implements OnInit {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
+    this.filterStatus = '-1';
   }
 
   finishFinally(): void {

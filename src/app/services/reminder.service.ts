@@ -163,9 +163,11 @@ export class ReminderService {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('reminderDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        query = query.orderBy('reminderDate')
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', this.authService.getEid());
+        if (startDate !== null) { query = query.startAt(startDate.getTime()); }
+        if (endDate !== null) { query = query.endAt(endDate.getTime()); }
         if (isActive !== '-1') { query = query.where('isActive', '==', isActive === '1'); }
         if (periodType !== '-1') { query = query.where('periodType', '==', periodType); }
         return query;

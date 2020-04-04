@@ -10,13 +10,11 @@ import {CustomerService} from '../services/customer.service';
 import {
   getFloat,
   getNumber,
-  getDateAndTime,
   getTodayForInput,
   getBeginOfYear,
   getEndOfYear,
   getEncryptionKey, currencyFormat, moneyFormat
 } from '../core/correct-library';
-import {CollectionModel} from '../models/collection-model';
 import {CollectionService} from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -143,7 +141,7 @@ export class CustomerTargetComponent implements OnInit {
       }
 
       // tslint:disable-next-line:max-line-length
-      this.transactionList$ = this.colService.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode);
+      this.transactionList$ = this.colService.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.selectedRecord.data.customerCode, 'approved');
       this.transactionList$.subscribe(list => {
         list.forEach((data: any) => {
           const item = data.returnData as CollectionMainModel;

@@ -13,6 +13,12 @@
         <form class="form-inline my-2 my-lg-0">
           <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
             <li class="nav-item dropdown cursor-pointer">
+              <a class="nav-link" (click)="showWaitingWorksPanel=true" title="Bekleyen İşlemler">
+                <img src="../../assets/images/notification.png" width="30px">
+                <span class="notification text-white">{{waitingWorksCount}}</span>
+              </a>
+            </li>
+            <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
                 <i class="fa fa-2x fa-globe text-white mr-1"></i>
                 <span class="notification text-white">{{actionCount}}</span>
@@ -26,7 +32,7 @@
             </li>
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
-                <i class="fa fa-2x fa-fw fa-clock-o text-white"></i>
+                <img src="../../assets/images/reminder.png" width="30px">
                 <span class="notification text-white">{{reminderCount}}</span>
               </a>
             </li>
@@ -158,6 +164,42 @@
                 <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
               </button>
             </div>
+          </div>
+        </div>
+        <div class="card notificationHeaderPanel" *ngIf="showWaitingWorksPanel==true"
+             (mouseleave)="showWaitingWorksPanel=false">
+          <div class="card-header bg-warning text-wight">
+            <i class="fa fa-fw fa-bell material-icons mr-1"></i>
+            <span>Bekleyen İşlemler</span>
+          </div>
+          <div class="card-body bg-light panelHeightControl">
+            <div *ngIf="waitingWorkList > 0; else elseBlock">
+              <div class="list-group">
+                <div class="list-group-item list-group-item-action list-group-item-light"
+                     *ngFor="let item of waitingWorkList; index as i; trackBy: primaryKey"
+                     style="font-size: 85%">
+                  <div class="row">
+                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
+                       (click)="showWaitingWorkRecord(item)">
+                      <i class="fa fa-fw fa-times text-danger"></i>
+                    </a>
+                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</label>
+                    <label class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <ng-template #elseBlock>
+              <div class="alert alert-danger" role="alert">
+                Bidiriminiz bulunmamaktadır.
+              </div>
+            </ng-template>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
+                    (click)="showWaitingWorksPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
+            </button>
           </div>
         </div>
       </div>

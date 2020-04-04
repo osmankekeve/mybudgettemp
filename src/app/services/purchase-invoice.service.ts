@@ -281,39 +281,22 @@ export class PurchaseInvoiceService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<PurchaseInvoiceMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as PurchaseInvoiceModel;
-        data.primaryKey = change.payload.doc.id;
-
-        const returnData = new PurchaseInvoiceMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
-
-        return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
-          .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
-            return Object.assign({returnData}); }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
-  }
-
-  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<PurchaseInvoiceMainModel[]> {
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any, status: string):
+    Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {
       let query: CollectionReference | Query = ref;
-      query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid());
+      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
       if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
         query = query.where('customerCode', '==', customerPrimaryKey);
+      }
+      if (startDate !== null) {
+        query = query.startAt(startDate.getTime());
+      }
+      if (endDate !== null) {
+        query = query.endAt(endDate.getTime());
+      }
+      if (status !== null && status !== '-1') {
+        query = query.where('status', '==', status);
       }
       return query;
     });
@@ -339,7 +322,7 @@ export class PurchaseInvoiceService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, status: string):
     Promise<Array<PurchaseInvoiceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<PurchaseInvoiceMainModel>();
@@ -351,6 +334,9 @@ export class PurchaseInvoiceService {
         }
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       }).get().subscribe(snapshot => {

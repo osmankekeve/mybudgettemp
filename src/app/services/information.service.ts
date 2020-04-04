@@ -76,6 +76,9 @@ export class InformationService {
                 this.subject.next();
             }, 10000);
         }
+        if (message.toString().startsWith('BUG')) {
+          this.logService.addToBug(message);
+        }
     }
 
     /**

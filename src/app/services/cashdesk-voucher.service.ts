@@ -290,7 +290,7 @@ export class CashDeskVoucherService {
     });
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CashDeskVoucherMainModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: string): Observable<CashDeskVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
@@ -300,6 +300,9 @@ export class CashDeskVoucherService {
         }
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       });
@@ -325,7 +328,7 @@ export class CashDeskVoucherService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, status: string):
     Promise<Array<CashDeskVoucherMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CashDeskVoucherMainModel>();
@@ -337,6 +340,9 @@ export class CashDeskVoucherService {
         }
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       })

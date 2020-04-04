@@ -257,10 +257,17 @@ export class AccountVoucherService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<AccountVoucherMainModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: string): Observable<AccountVoucherMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-    ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-    .where('userPrimaryKey', '==', this.authService.getUid()));
+    ref => {
+      let query: CollectionReference | Query = ref;
+      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+      if (startDate !== null) { query = query.startAt(startDate.getTime()); }
+      if (endDate !== null) { query = query.endAt(endDate.getTime()); }
+      if (status !== null && status !== '-1') { query = query.where('status', '==', status); }
+      return query;
+    }
+    );
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as AccountVoucherModel;
@@ -282,7 +289,7 @@ export class AccountVoucherService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, status: string):
     Promise<Array<AccountVoucherMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<AccountVoucherMainModel>();
@@ -294,6 +301,9 @@ export class AccountVoucherService {
         }
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       })

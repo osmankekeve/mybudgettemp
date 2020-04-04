@@ -299,10 +299,23 @@ export class CollectionService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CollectionMainModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: string): Observable<CollectionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
+        }
+        return query;
+      }
+    );
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
@@ -325,14 +338,23 @@ export class CollectionService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any): Observable<CollectionMainModel[]> {
+  getMainItemsBetweenDatesWithCustomer(startDate: Date, endDate: Date, customerPrimaryKey: any, status: string):
+    Observable<CollectionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-          .where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
         if (customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
+        }
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       });
@@ -358,7 +380,7 @@ export class CollectionService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, status: string):
     Promise<Array<CollectionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CollectionMainModel>();
@@ -370,6 +392,9 @@ export class CollectionService {
         }
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
+        }
+        if (status !== null && status !== '-1') {
+          query = query.where('status', '==', status);
         }
         return query;
       }).get().subscribe(snapshot => {

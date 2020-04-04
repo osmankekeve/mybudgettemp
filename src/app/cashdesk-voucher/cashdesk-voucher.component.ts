@@ -39,6 +39,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   date = new Date();
   filterBeginDate: any;
   filterFinishDate: any;
+  filterStatus: any;
   totalValues = {
     amount: 0
   };
@@ -75,7 +76,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     };
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    this.service.getMainItemsBetweenDates(beginDate, finishDate, this.filterStatus).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as CashDeskVoucherMainModel;
@@ -238,7 +239,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('salesInvoice')
       .then(() => {
-        Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
+        Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, 'approved')])
           .then((values: any) => {
             if ((values[0] !== undefined || values[0] !== null)) {
               const returnData = values[0] as Array<SalesInvoiceMainModel>;
@@ -309,6 +310,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+    this.filterStatus = '-1';
   }
 
   finishFinally(): void {

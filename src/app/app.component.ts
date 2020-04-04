@@ -11,6 +11,12 @@ import {Router} from '@angular/router';
 import {CookieService} from 'ngx-cookie-service';
 import {AccountTransactionService} from './services/account-transaction.service';
 import {SettingService} from './services/setting.service';
+import {PurchaseInvoiceMainModel} from './models/purchase-invoice-main-model';
+import {PurchaseInvoiceService} from './services/purchase-invoice.service';
+import {WaitingWorkModel} from './models/waiting-work-model';
+import {SalesInvoiceService} from './services/sales-invoice.service';
+import {CollectionService} from './services/collection.service';
+import {PaymentService} from './services/payment.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +27,7 @@ export class AppComponent implements OnInit {
   notificationList: Array<LogModel> = [];
   actionList: Array<CustomerRelationModel> = [];
   reminderList: Array<CustomerRelationModel> = [];
+  waitingWorkList: Array<WaitingWorkModel> = [];
 
   title = 'MyBudgetWeb';
   selectedVal: string;
@@ -34,6 +41,8 @@ export class AppComponent implements OnInit {
   showActionPanel = false;
   reminderCount = 0;
   showReminderPanel = false;
+  waitingWorksCount = 0;
+  showWaitingWorksPanel = false;
   showProfilePanel = false;
   employeeDetail: any;
   employeeEmail: string;
@@ -47,7 +56,9 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
-    private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService
+    private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
+    private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
+    private payService: PaymentService,
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -95,6 +106,9 @@ export class AppComponent implements OnInit {
       this.employeeDetail = undefined;
     } else {
       this.populateEmployeeReminderList();
+      if (this.employeeDetail.data.type === 'manager' || this.employeeDetail.data.type === 'admin') {
+        this.populateWaitingWorks();
+      }
     }
   }
 
@@ -294,6 +308,89 @@ export class AppComponent implements OnInit {
 
   }
 
+  populateWaitingWorks(): void {
+    this.piService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
+      .subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
+        const workData = new WaitingWorkModel();
+        workData.parentType = 'purchaseInvoice';
+        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.insertDate = item.data.insertDate;
+        workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
+
+        if (item.actionType === 'added') {
+          this.waitingWorksCount++;
+          this.waitingWorkList.push(workData);
+        }
+        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+          this.reminderCount--;
+          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+        }
+      });
+    });
+    this.siService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
+      .subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
+        const workData = new WaitingWorkModel();
+        workData.parentType = 'salesInvoice';
+        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.insertDate = item.data.insertDate;
+        workData.log = item.data.receiptNo + ' fiş numaralı Satış Faturası onay bekliyor.';
+
+        if (item.actionType === 'added') {
+          this.waitingWorksCount++;
+          this.waitingWorkList.push(workData);
+        }
+        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+          this.reminderCount--;
+          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+        }
+      });
+    });
+    this.colService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
+      .subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
+        const workData = new WaitingWorkModel();
+        workData.parentType = 'collection';
+        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.insertDate = item.data.insertDate;
+        workData.log = item.data.receiptNo + ' fiş numaralı Tahsilat onay bekliyor.';
+
+        if (item.actionType === 'added') {
+          this.waitingWorksCount++;
+          this.waitingWorkList.push(workData);
+        }
+        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+          this.reminderCount--;
+          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+        }
+      });
+    });
+    this.payService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
+      .subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as PurchaseInvoiceMainModel;
+        const workData = new WaitingWorkModel();
+        workData.parentType = 'payment';
+        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.insertDate = item.data.insertDate;
+        workData.log = item.data.receiptNo + ' fiş numaralı Ödeme onay bekliyor.';
+
+        if (item.actionType === 'added') {
+          this.waitingWorksCount++;
+          this.waitingWorkList.push(workData);
+        }
+        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+          this.reminderCount--;
+          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+        }
+      });
+    });
+  }
+
   setNotificationToPassive(item: any): void {
     const refModel = item;
     item.data.isActive = false;
@@ -343,6 +440,10 @@ export class AppComponent implements OnInit {
 
   showReminder(item: any): void {
     this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
+  }
+
+  showWaitingWorkRecord(item: any): void {
+    //this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
   }
 
   finishProcessAndError(error: any): void {

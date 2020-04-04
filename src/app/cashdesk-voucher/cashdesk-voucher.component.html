@@ -55,6 +55,18 @@
               </div>
             </div>
           </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Durum</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filterStatus">
+              <option value="-1">Hepsi</option>
+              <option value="waitingForApprove">Tek Sefer</option>
+              <option value="approved">Günlük</option>
+              <option value="rejected">Aylık</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="card-footer">

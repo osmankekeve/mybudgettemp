@@ -138,6 +138,18 @@ export class LogService {
     return await this.setItem(item);
   }
 
+  async addToBug(log: string): Promise<void> {
+    const item = new LogModel();
+    item.parentType = '';
+    item.parentPrimaryKey = '';
+    item.type = 'bug'; // notification
+    item.userPrimaryKey = this.authService.getUid();
+    item.isActive = true;
+    item.log = log;
+    item.insertDate = Date.now();
+    await this.setItem(item);
+  }
+
   async updateItem(record: LogModel) {
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
   }

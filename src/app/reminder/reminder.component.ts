@@ -27,8 +27,6 @@ export class ReminderComponent implements OnInit {
   isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
 
-  filterBeginDate: any;
-  filterFinishDate: any;
   filterIsPersonal = '-1';
   filterPeriodType = '-1';
   filterIsActive = '1';
@@ -56,9 +54,7 @@ export class ReminderComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsTimeBetweenDates(beginDate, finishDate, this.filterIsActive, this.filterPeriodType).subscribe(list => {
+    this.service.getMainItemsTimeBetweenDates(null, null, this.filterIsActive, this.filterPeriodType).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -197,8 +193,6 @@ export class ReminderComponent implements OnInit {
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
     this.filterPeriodType = '-1';
     this.filterIsPersonal = '-1';
     this.filterIsActive = '1';
