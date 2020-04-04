@@ -318,15 +318,17 @@ export class AppComponent implements OnInit {
         workData.parentPrimaryKey = item.data.primaryKey;
         workData.insertDate = item.data.insertDate;
         workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
+        console.log(item);
 
         if (item.actionType === 'added') {
           this.waitingWorksCount++;
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.reminderCount--;
-          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+          this.waitingWorksCount--;
+          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
+        console.log(this.waitingWorkList);
       });
     });
     this.siService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
@@ -344,8 +346,8 @@ export class AppComponent implements OnInit {
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.reminderCount--;
-          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+          this.waitingWorksCount--;
+          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
     });
@@ -364,8 +366,8 @@ export class AppComponent implements OnInit {
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.reminderCount--;
-          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+          this.waitingWorksCount--;
+          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
     });
@@ -384,8 +386,8 @@ export class AppComponent implements OnInit {
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.reminderCount--;
-          this.reminderList.splice(this.waitingWorkList.indexOf(workData), 1);
+          this.waitingWorksCount--;
+          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
     });

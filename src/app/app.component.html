@@ -38,7 +38,7 @@
             </li>
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showProfilePanel=true" title="Profil">
-                <i class="fa fa-2x fa-user-circle text-white material-icons"></i>
+                <img src="../../assets/images/users.png" width="30px">
               </a>
             </li>
           </ul>
@@ -173,16 +173,12 @@
             <span>Bekleyen İşlemler</span>
           </div>
           <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="waitingWorkList > 0; else elseBlock">
+            <div *ngIf="waitingWorkList.length > 0; else elseBlock">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of waitingWorkList; index as i; trackBy: primaryKey"
+                     *ngFor="let item of waitingWorkList;"
                      style="font-size: 85%">
-                  <div class="row">
-                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
-                       (click)="showWaitingWorkRecord(item)">
-                      <i class="fa fa-fw fa-times text-danger"></i>
-                    </a>
+                  <div class="row cursor-pointer">
                     <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</label>
                     <label class="col-sm-12"><small
                       class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></label>
@@ -191,8 +187,8 @@
               </div>
             </div>
             <ng-template #elseBlock>
-              <div class="alert alert-danger" role="alert">
-                Bidiriminiz bulunmamaktadır.
+              <div class="alert alert-danger fs-15" role="alert">
+                Bekleyen işlem bulunmamaktadır.
               </div>
             </ng-template>
           </div>

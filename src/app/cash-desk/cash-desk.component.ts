@@ -18,8 +18,6 @@ import {
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {SettingModel} from '../models/setting-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {Chart} from 'chart.js';
 import {GlobalService} from '../services/global.service';
 
