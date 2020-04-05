@@ -344,7 +344,7 @@ export class CollectionService {
       ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
-        if (customerPrimaryKey !== '-1') {
+        if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
         }
         if (startDate !== null) {

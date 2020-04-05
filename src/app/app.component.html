@@ -63,9 +63,9 @@
                        (click)="setNotificationToPassive(item)">
                       <i class="fa fa-fw fa-times text-danger"></i>
                     </a>
-                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</label>
-                    <label class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></label>
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</div>
+                    <div class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>
@@ -101,9 +101,9 @@
                        (click)="setNotificationToPassive(item)">
                       <i class="fa fa-fw fa-times text-danger"></i>
                     </a>
-                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</label>
-                    <label class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></label>
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</div>
+                    <div class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>
@@ -129,11 +129,11 @@
                      *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
                      style="font-size: 85%">
                   <div class="row">
-                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</label>
-                    <label class="col-sm-6"><small
-                      class="float-left font-weight-bold">{{item.employeeName}}</small></label>
-                    <label class="col-sm-6"><small
-                      class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></label>
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</div>
+                    <div class="col-sm-6"><small
+                      class="float-left font-weight-bold">{{item.employeeName}}</small></div>
+                    <div class="col-sm-6"><small
+                      class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>
@@ -175,13 +175,13 @@
           <div class="card-body bg-light panelHeightControl">
             <div *ngIf="waitingWorkList.length > 0; else elseBlock">
               <div class="list-group">
-                <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of waitingWorkList;"
-                     style="font-size: 85%">
-                  <div class="row cursor-pointer">
-                    <label class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</label>
-                    <label class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></label>
+                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                     *ngFor="let item of waitingWorkList;" title="Kaydı Göster" style="font-size: 85%">
+                  <div class="row"
+                       (click)="showWaitingWorkRecord(item)">
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</div>
+                    <div class="col-sm-12"><small
+                      class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>
@@ -304,4 +304,4 @@
     </div>
   </div>
 </div>
-<div class="main-process-panel" hidden>Prossecc Screen</div>
+<div class="main-process-panel" hidden>İşlem ekranı</div>

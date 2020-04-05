@@ -17,6 +17,12 @@ import {WaitingWorkModel} from './models/waiting-work-model';
 import {SalesInvoiceService} from './services/sales-invoice.service';
 import {CollectionService} from './services/collection.service';
 import {PaymentService} from './services/payment.service';
+import {MailService} from './services/mail.service';
+import {GlobalService} from './services/global.service';
+import {CollectionMainModel} from './models/collection-main-model';
+import {SalesInvoiceMainModel} from './models/sales-invoice-main-model';
+import {PaymentMainModel} from './models/payment-main-model';
+import {RouterModel} from './models/router-model';
 
 @Component({
   selector: 'app-root',
@@ -58,7 +64,7 @@ export class AppComponent implements OnInit {
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
     private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
-    private payService: PaymentService,
+    private payService: PaymentService, public globService: GlobalService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -314,11 +320,10 @@ export class AppComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as PurchaseInvoiceMainModel;
         const workData = new WaitingWorkModel();
-        workData.parentType = 'purchaseInvoice';
-        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.transactionType = 'purchaseInvoice';
+        workData.transactionPrimaryKey = item.data.primaryKey;
         workData.insertDate = item.data.insertDate;
         workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
-        console.log(item);
 
         if (item.actionType === 'added') {
           this.waitingWorksCount++;
@@ -328,16 +333,15 @@ export class AppComponent implements OnInit {
           this.waitingWorksCount--;
           this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
-        console.log(this.waitingWorkList);
       });
     });
     this.siService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
       list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
+        const item = data.returnData as SalesInvoiceMainModel;
         const workData = new WaitingWorkModel();
-        workData.parentType = 'salesInvoice';
-        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.transactionType = 'salesInvoice';
+        workData.transactionPrimaryKey = item.data.primaryKey;
         workData.insertDate = item.data.insertDate;
         workData.log = item.data.receiptNo + ' fiş numaralı Satış Faturası onay bekliyor.';
 
@@ -354,10 +358,10 @@ export class AppComponent implements OnInit {
     this.colService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
       list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
+        const item = data.returnData as CollectionMainModel;
         const workData = new WaitingWorkModel();
-        workData.parentType = 'collection';
-        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.transactionType = 'collection';
+        workData.transactionPrimaryKey = item.data.primaryKey;
         workData.insertDate = item.data.insertDate;
         workData.log = item.data.receiptNo + ' fiş numaralı Tahsilat onay bekliyor.';
 
@@ -374,10 +378,10 @@ export class AppComponent implements OnInit {
     this.payService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
       list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
+        const item = data.returnData as PaymentMainModel;
         const workData = new WaitingWorkModel();
-        workData.parentType = 'payment';
-        workData.parentPrimaryKey = item.data.primaryKey;
+        workData.transactionType = 'payment';
+        workData.transactionPrimaryKey = item.data.primaryKey;
         workData.insertDate = item.data.insertDate;
         workData.log = item.data.receiptNo + ' fiş numaralı Ödeme onay bekliyor.';
 
@@ -444,8 +448,13 @@ export class AppComponent implements OnInit {
     this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
   }
 
-  showWaitingWorkRecord(item: any): void {
-    //this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
+  async showWaitingWorkRecord(item: any): Promise<void> {
+    const r = new RouterModel();
+    r.nextModule = item.transactionType;
+    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.previousModule = 'dashboard';
+    r.previousModulePrimaryKey = '';
+    await this.globService.showTransactionRecord(r);
   }
 
   finishProcessAndError(error: any): void {

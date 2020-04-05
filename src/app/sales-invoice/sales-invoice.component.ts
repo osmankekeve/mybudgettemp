@@ -28,6 +28,8 @@ import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {PaymentService} from '../services/payment.service';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -65,7 +67,8 @@ export class SalesInvoiceComponent implements OnInit {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
-              public sService: SettingService, public accService: CustomerAccountService, public db: AngularFirestore) {
+              public sService: SettingService, public accService: CustomerAccountService, public db: AngularFirestore,
+              public globService: GlobalService) {
   }
 
   async ngOnInit() {
@@ -107,30 +110,30 @@ export class SalesInvoiceComponent implements OnInit {
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
       .subscribe(list => {
-      if (this.mainList === undefined) {
-        this.mainList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as SalesInvoiceMainModel;
-        if (item.actionType === 'added') {
-          this.mainList.push(item);
-          this.totalValues.totalPrice += item.data.totalPrice;
-          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-          this.totalValues.totalPrice -= item.data.totalPrice;
-          this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-          this.totalValues.totalPrice -= this.refModel.data.totalPrice;
-          this.totalValues.totalPriceWithTax -= this.refModel.data.totalPriceWithTax;
-          this.totalValues.totalPrice += item.data.totalPrice;
-          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-        } else {
-          // nothing
+        if (this.mainList === undefined) {
+          this.mainList = [];
         }
+        list.forEach((data: any) => {
+          const item = data.returnData as SalesInvoiceMainModel;
+          if (item.actionType === 'added') {
+            this.mainList.push(item);
+            this.totalValues.totalPrice += item.data.totalPrice;
+            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+          } else if (item.actionType === 'removed') {
+            this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
+            this.totalValues.totalPrice -= item.data.totalPrice;
+            this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+          } else if (item.actionType === 'modified') {
+            this.mainList[this.mainList.indexOf(this.refModel)] = item;
+            this.totalValues.totalPrice -= this.refModel.data.totalPrice;
+            this.totalValues.totalPriceWithTax -= this.refModel.data.totalPriceWithTax;
+            this.totalValues.totalPrice += item.data.totalPrice;
+            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+          } else {
+            // nothing
+          }
+        });
       });
-    });
     setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -302,9 +305,13 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
-    await this.route.navigate(['sales-invoice', {}]);
-    this.populateCharts();
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      await this.globService.returnPreviousModule();
+    } else {
+      this.selectedRecord = undefined;
+      await this.route.navigate(['sales-invoice', {}]);
+      this.populateCharts();
+    }
   }
 
   async btnNew_Click(): Promise<void> {

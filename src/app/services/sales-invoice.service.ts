@@ -344,7 +344,7 @@ export class SalesInvoiceService {
         query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
         if (startDate !== null) { query = query.startAt(startDate.getTime()); }
         if (endDate !== null) { query = query.endAt(endDate.getTime()); }
-        if (customerPrimaryKey !== '-1') {
+        if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
         }
         if (status !== null && status !== '-1') {

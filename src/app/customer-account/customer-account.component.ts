@@ -30,6 +30,7 @@ import {CustomerMainModel} from '../models/customer-main-model';
 import {SettingService} from '../services/setting.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {GlobalService} from '../services/global.service';
+import {RouterModel} from '../models/router-model';
 
 @Component({
   selector: 'app-customer-account',
@@ -337,7 +338,12 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   async showTransactionRecord(item: any): Promise<void> {
-    await this.globService.showTransactionRecord(item);
+    const r = new RouterModel();
+    r.nextModule = item.transactionType;
+    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.previousModule = 'customer-account';
+    r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
+    await this.globService.showTransactionRecord(r);
   }
 
   clearSelectedRecord(): void {

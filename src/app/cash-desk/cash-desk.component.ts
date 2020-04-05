@@ -20,6 +20,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {GlobalService} from '../services/global.service';
+import {RouterModel} from '../models/router-model';
 
 @Component({
   selector: 'app-cash-desk',
@@ -153,7 +154,12 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   async showTransactionRecord(item: any): Promise<void> {
-    await this.globService.showTransactionRecord(item);
+    const r = new RouterModel();
+    r.nextModule = item.transactionType;
+    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.previousModule = 'cash-desk';
+    r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
+    await this.globService.showTransactionRecord(r);
   }
 
   btnShowMainFiler_Click(): void {

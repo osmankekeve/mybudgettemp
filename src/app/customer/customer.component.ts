@@ -48,6 +48,7 @@ import {CustomerMainModel} from '../models/customer-main-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
+import {RouterModel} from '../models/router-model';
 
 @Component({
   selector: 'app-customer',
@@ -105,12 +106,19 @@ export class CustomerComponent implements OnInit {
               public mailService: MailService, public globService: GlobalService) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.openedPanel = 'dashboard';
     this.populateCustomerList();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.executiveList$ = this.proService.getMainItems();
     this.selectedCustomer = undefined;
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedCustomer(paramItem);
+      }
+    }
   }
 
   populateCustomerList(): void {
@@ -631,7 +639,12 @@ export class CustomerComponent implements OnInit {
   }
 
   async showTransactionRecord(item: any): Promise<void> {
-    await this.globService.showTransactionRecord(item);
+    const r = new RouterModel();
+    r.nextModule = item.transactionType;
+    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.previousModule = 'customer';
+    r.previousModulePrimaryKey = this.selectedCustomer.data.primaryKey;
+    await this.globService.showTransactionRecord(r);
   }
 
   async showTargetRecord(item: any): Promise<void> {

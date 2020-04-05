@@ -1,8 +1,7 @@
-
 export class WaitingWorkModel {
-    parentType: string; // collection, payment, salesInvoice, purchaseInvoice, accountVoucher, cashDeskVoucher
-    parentPrimaryKey: string;
-    log: string;
-    status: boolean;
-    insertDate: number;
+  transactionType: string; // collection, payment, salesInvoice, purchaseInvoice, accountVoucher, cashDeskVoucher
+  transactionPrimaryKey: string;
+  log: string;
+  status: boolean;
+  insertDate: number;
 }
