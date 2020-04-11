@@ -88,6 +88,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList1.length; i++) {
               if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
                 this.mainList1.splice(i, 1);
+                break;
               }
             }
           }
@@ -95,6 +96,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList2.length; i++) {
               if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
                 this.mainList2.splice(i, 1);
+                break;
               }
             }
           }
@@ -102,6 +104,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList3.length; i++) {
               if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
                 this.mainList3.splice(i, 1);
+                break;
               }
             }
           }
@@ -111,6 +114,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList1.length; i++) {
               if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
                 this.mainList1[i] = item;
+                break;
               }
             }
           }
@@ -118,6 +122,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList2.length; i++) {
               if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
                 this.mainList2[i] = item;
+                break;
               }
             }
           }
@@ -125,6 +130,7 @@ export class CustomerTargetComponent implements OnInit {
             for (let i = 0; i < this.mainList3.length; i++) {
               if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
                 this.mainList3[i] = item;
+                break;
               }
             }
           }

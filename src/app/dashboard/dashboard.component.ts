@@ -197,12 +197,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const item = data.returnData as VisitMainModel;
         if (item.actionType === 'added') {
           this.visitList.push(item);
-        } else if (item.actionType === 'removed') {
+        }
+        if (item.actionType === 'removed') {
           this.visitList.splice(this.visitList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
+        }
+        if (item.actionType === 'modified') {
           this.visitList[this.visitList.indexOf(item)] = item;
-        } else {
-          // nothing
         }
       });
     });
@@ -228,6 +228,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           for (let i = 0; i < this.todoList.length; i++) {
             if (this.todoList[i].data.primaryKey === item.data.primaryKey) {
               this.todoList.splice(i, 1);
+              break;
             }
           }
         }
@@ -238,6 +239,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.todoList.splice(i, 1);
               } else {
                 this.todoList[i] = item;
+                break;
               }
             }
           }

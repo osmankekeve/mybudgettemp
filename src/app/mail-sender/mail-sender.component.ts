@@ -62,6 +62,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              break;
             }
           }
         }
@@ -69,6 +70,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList[i] = item;
+              break;
             }
           }
         }

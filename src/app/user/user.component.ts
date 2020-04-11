@@ -14,7 +14,6 @@ import {ActivatedRoute, Router} from '@angular/router';
 export class UserComponent implements OnInit, OnDestroy {
   mainList: Array<ProfileMainModel> = [];
   selectedRecord: ProfileMainModel;
-  refModel: ProfileMainModel;
   birthDate: any;
   searchText: '';
   onTransaction = false;
@@ -47,6 +46,7 @@ export class UserComponent implements OnInit, OnDestroy {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              break;
             }
           }
         }
@@ -54,6 +54,7 @@ export class UserComponent implements OnInit, OnDestroy {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList[i] = item;
+              break;
             }
           }
         }
@@ -68,7 +69,6 @@ export class UserComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ProfileMainModel;
-    this.refModel = record as ProfileMainModel;
     this.birthDate = getDateForInput(this.selectedRecord.data.birthDate);
   }
 
@@ -153,7 +153,6 @@ export class UserComponent implements OnInit, OnDestroy {
 }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.birthDate = getTodayForInput();
     this.selectedRecord = this.service.clearProfileMainModel();
   }

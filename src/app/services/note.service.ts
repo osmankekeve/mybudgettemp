@@ -10,13 +10,14 @@ import {CollectionMainModel} from '../models/collection-main-model';
 import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
 import {CustomerTargetModel} from '../models/customer-target-model';
 import {CustomerMainModel} from '../models/customer-main-model';
+import { NoteMainModel } from '../models/note-main-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NoteService {
   listCollection: AngularFirestoreCollection<NoteModel>;
-  mainList$: Observable<NoteModel[]>;
+  mainList$: Observable<NoteMainModel[]>;
   tableName = 'tblNote';
 
   constructor(public authService: AuthenticationService,
@@ -24,42 +25,35 @@ export class NoteService {
 
   }
 
-  getAllItems(): Observable<NoteModel[]> {
-    this.listCollection = this.db.collection<NoteModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({ idField : 'primaryKey'});
-    return this.mainList$;
+  async addItem(record: NoteMainModel) {
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  checkForSave(record: NoteModel): Promise<string> {
+  async removeItem(record: NoteMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+  }
+
+  async updateItem(record: NoteMainModel) {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: NoteMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (record.note === null || record.note.trim() === '') {
+      if (record.data.note === null || record.data.note.trim() === '') {
         reject('Lüfen açıklama giriniz.');
       } else {
         resolve(null);
       }
     });
-}
+  }
 
-  checkForRemove(record: NoteModel): Promise<string> {
+  checkForRemove(record: NoteMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       resolve(null);
     });
   }
 
-  async addItem(record: NoteModel) {
-    return await this.listCollection.add(Object.assign({}, record));
-  }
-
-  async removeItem(record: NoteModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
-  }
-
-  async updateItem(record: NoteModel) {
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
-  }
-
-  clearMainModel(): NoteModel {
+  clearSubModel(): NoteModel {
     const returnData = new NoteModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
@@ -69,20 +63,30 @@ export class NoteService {
     return returnData;
   }
 
+  clearMainModel(): NoteMainModel {
+    const returnData = new NoteMainModel();
+    returnData.data = this.clearSubModel();
+    return returnData;
+  }
+
   checkFields(model: NoteModel): NoteModel {
-    const cleanModel = this.clearMainModel();
+    const cleanModel = this.clearSubModel();
     if (model.note === undefined) { model.note = cleanModel.note; }
     return model;
   }
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get()
+        .toPromise()
+        .then(doc => {
         if (doc.exists) {
-          let data = doc.data() as NoteModel;
+          const data = doc.data() as NoteModel;
           data.primaryKey = doc.id;
-          data = this.checkFields(data);
-          resolve(Object.assign({data}));
+
+          const returnData = new NoteMainModel();
+          returnData.data = this.checkFields(data);
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }
@@ -90,7 +94,7 @@ export class NoteService {
     });
   }
 
-  getMainItems(): Observable<NoteModel[]> {
+  getMainItems(): Observable<NoteMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,
       ref => {
@@ -101,10 +105,13 @@ export class NoteService {
     this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          let data = c.payload.doc.data() as NoteModel;
+          const data = c.payload.doc.data() as NoteModel;
           data.primaryKey = c.payload.doc.id;
-          data = this.checkFields(data);
-          return Object.assign({data, actionType: c.type});
+
+          const returnData = new NoteMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.actionType = c.type;
+          return Object.assign({returnData});
         })
       )
     );

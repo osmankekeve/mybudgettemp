@@ -112,6 +112,7 @@ export class AccountVoucherComponent implements OnInit {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
               this.totalValues.amount -= item.data.amount;
+              break;
             }
           }
         }
@@ -122,6 +123,7 @@ export class AccountVoucherComponent implements OnInit {
               this.totalValues.amount -= this.mainList[i].data.amount;
               this.totalValues.amount += item.data.amount;
               this.mainList[i] = item;
+              break;
             }
           }
         }

@@ -120,17 +120,16 @@ export class SalesInvoiceComponent implements OnInit {
             this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
           }
           if (item.actionType === 'removed') {
-            // tslint:disable-next-line:prefer-for-of
             for (let i = 0; i < this.mainList.length; i++) {
               if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
                 this.mainList.splice(i, 1);
                 this.totalValues.totalPrice -= item.data.totalPrice;
                 this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+                break;
               }
             }
           }
           if (item.actionType === 'modified') {
-            // tslint:disable-next-line:prefer-for-of
             for (let i = 0; i < this.mainList.length; i++) {
               if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
                 this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
@@ -138,6 +137,7 @@ export class SalesInvoiceComponent implements OnInit {
                 this.totalValues.totalPrice += item.data.totalPrice;
                 this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
                 this.mainList[i] = item;
+                break;
               }
             }
           }

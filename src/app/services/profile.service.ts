@@ -58,22 +58,22 @@ export class ProfileService {
 
   checkForRemove(record: ProfileMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
-      await this.isCustomerHasSalesInvoice(record.data.employeePrimaryKey).then(result => {
+      await this.isCustomerHasSalesInvoice(record.data.primaryKey).then(result => {
         if (result) {
           reject('Personele ait satış faturası olduğundan silinemez.');
         }
       });
-      await this.isCustomerHasCollection(record.data.employeePrimaryKey).then(result => {
+      await this.isCustomerHasCollection(record.data.primaryKey).then(result => {
         if (result) {
           reject('Personele ait tahsilat olduğundan silinemez.');
         }
       });
-      await this.isCustomerHasPurchaseInvoice(record.data.employeePrimaryKey).then(result => {
+      await this.isCustomerHasPurchaseInvoice(record.data.primaryKey).then(result => {
         if (result) {
           reject('Personele ait alım faturası olduğundan silinemez.');
         }
       });
-      await this.isCustomerHasPayment(record.data.employeePrimaryKey).then(result => {
+      await this.isCustomerHasPayment(record.data.primaryKey).then(result => {
         if (result) {
           reject('Personele ait ödeme olduğundan silinemez.');
         }
@@ -160,14 +160,14 @@ export class ProfileService {
     });
   }
 
-  isCustomerHasSalesInvoice = async (employeePrimaryKey: string):
+  isCustomerHasSalesInvoice = async (primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblSalesInvoice', ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('employeePrimaryKey', '==', employeePrimaryKey);
+          .where('employeePrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {
@@ -182,14 +182,14 @@ export class ProfileService {
     }
   })
 
-  isCustomerHasCollection = async (employeePrimaryKey: string):
+  isCustomerHasCollection = async (primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblCollection', ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('employeePrimaryKey', '==', employeePrimaryKey);
+          .where('employeePrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {
@@ -204,14 +204,14 @@ export class ProfileService {
     }
   })
 
-  isCustomerHasPurchaseInvoice = async (employeePrimaryKey: string):
+  isCustomerHasPurchaseInvoice = async (primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblPurchaseInvoice', ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('employeePrimaryKey', '==', employeePrimaryKey);
+          .where('employeePrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {
@@ -226,14 +226,14 @@ export class ProfileService {
     }
   })
 
-  isCustomerHasPayment = async (employeePrimaryKey: string):
+  isCustomerHasPayment = async (primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblPayment', ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('employeePrimaryKey', '==', employeePrimaryKey);
+          .where('employeePrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {

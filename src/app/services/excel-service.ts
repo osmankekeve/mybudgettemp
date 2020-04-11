@@ -50,7 +50,8 @@ export class ExcelService {
           Description: item.data.description
         });
       });
-    } else if (record === 'payment') {
+    }
+    if (record === 'payment') {
       fileName = 'payment';
       list.forEach((data: any) => {
         const item = data as PaymentMainModel;
@@ -62,7 +63,8 @@ export class ExcelService {
           Description: item.data.description
         });
       });
-    } else if (record === 'salesInvoice') {
+    }
+    if (record === 'salesInvoice') {
       fileName = 'sales_invoice';
       list.forEach((item: any) => {
         console.log(item);
@@ -76,7 +78,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    } else if (record === 'collection') {
+    }
+    if (record === 'collection') {
       fileName = 'collection';
       list.forEach((item: any) => {
         const data = item as CollectionMainModel;
@@ -88,7 +91,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    } else if (record === 'customer') {
+    }
+    if (record === 'customer') {
       fileName = 'customer';
       list.forEach((item: any) => {
         const data = {
@@ -103,7 +107,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    } else if (record === 'note') {
+    }
+    if (record === 'note') {
       fileName = 'note';
       list.forEach((item: any) => {
         const data = {
@@ -112,7 +117,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    } else if (record === 'cashdeskVoucher') {
+    }
+    if (record === 'cashdeskVoucher') {
       fileName = 'cashdesk_voucher';
       list.forEach((item: any) => {
         const data = {
@@ -125,7 +131,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    } else if (record === 'cashdeskTransaction') {
+    }
+    if (record === 'cashdeskTransaction') {
       fileName = 'cashdesk_transaction';
       list.forEach((item: any) => {
         const data = {
@@ -137,7 +144,8 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    } else if (record === 'accountVoucher') {
+    }
+    if (record === 'accountVoucher') {
       fileName = 'account_voucher';
       list.forEach((item: any) => {
         const data = item as AccountVoucherMainModel;
@@ -150,7 +158,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    } else if (record === 'customerAccountSummary') {
+    }
+    if (record === 'customerAccountSummary') {
       fileName = 'customer_account_summary';
       let totalValue = 0;
       list.forEach((item: any) => {
@@ -165,7 +174,8 @@ export class ExcelService {
         totalValue += data.Amount;
       });
       excelList.push({Transaction: 'Toplam', 'Receipt No': '', Amount: totalValue, Type: '', 'Insert Date': ''});
-    } else if (record === 'customer-account') {
+    }
+    if (record === 'customer-account') {
       fileName = 'customer-account';
       list.forEach((item: any) => {
         const data = item as CustomerAccountMainModel;
@@ -175,7 +185,8 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    } else if (record === 'customer-account-transactions') {
+    }
+    if (record === 'customer-account-transactions') {
       fileName = 'customer-account-transactions';
       list.forEach((item: any) => {
         const data = item as any;
@@ -185,8 +196,6 @@ export class ExcelService {
           Amount: item.amount,
         });
       });
-    } else {
-      // add empty information
     }
 
     this.exportAsExcelFile(excelList, fileName);

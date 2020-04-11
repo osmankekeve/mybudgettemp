@@ -53,18 +53,18 @@ export class ContactUsComponent implements OnInit, OnDestroy {
           this.mainList.push(item);
         }
         if (item.actionType === 'removed') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              break;
             }
           }
         }
         if (item.actionType === 'modified') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList[i] = item;
+              break;
             }
           }
         }

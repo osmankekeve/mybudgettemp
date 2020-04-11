@@ -17,12 +17,12 @@ import {WaitingWorkModel} from './models/waiting-work-model';
 import {SalesInvoiceService} from './services/sales-invoice.service';
 import {CollectionService} from './services/collection.service';
 import {PaymentService} from './services/payment.service';
-import {MailService} from './services/mail.service';
 import {GlobalService} from './services/global.service';
 import {CollectionMainModel} from './models/collection-main-model';
 import {SalesInvoiceMainModel} from './models/sales-invoice-main-model';
 import {PaymentMainModel} from './models/payment-main-model';
 import {RouterModel} from './models/router-model';
+import {ReminderMainModel} from './models/reminder-main-model';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +32,7 @@ import {RouterModel} from './models/router-model';
 export class AppComponent implements OnInit {
   notificationList: Array<LogModel> = [];
   actionList: Array<CustomerRelationModel> = [];
-  reminderList: Array<CustomerRelationModel> = [];
+  reminderList: Array<ReminderMainModel> = [];
   waitingWorkList: Array<WaitingWorkModel> = [];
 
   title = 'MyBudgetWeb';
@@ -244,17 +244,28 @@ export class AppComponent implements OnInit {
 
   populateReminderList(): void {
     this.remService.getMainItemsBetweenDates(getTodayStart(), getTomorrowEnd()).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
           this.reminderCount++;
           this.reminderList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.reminderCount--;
-          this.reminderList.splice(this.reminderList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.reminderList[this.reminderList.indexOf(item)] = item.data;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderCount--;
+              this.reminderList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderList[i] = item;
+              break;
+            }
+          }
         }
       });
     });
@@ -262,49 +273,82 @@ export class AppComponent implements OnInit {
 
   populateEmployeeReminderList(): void {
     this.remService.getEmployeeDailyReminderCollection(getTodayStart()).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
           this.reminderCount++;
           this.reminderList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.reminderCount--;
-          this.reminderList.splice(this.reminderList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.reminderList[this.reminderList.indexOf(item)] = item.data;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderCount--;
+              this.reminderList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderList[i] = item;
+              break;
+            }
+          }
         }
       });
     });
 
     this.remService.getEmployeeMonthlyReminderCollection(getTodayStart()).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
           this.reminderCount++;
           this.reminderList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.reminderCount--;
-          this.reminderList.splice(this.reminderList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.reminderList[this.reminderList.indexOf(item)] = item.data;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderCount--;
+              this.reminderList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderList[i] = item;
+              break;
+            }
+          }
         }
       });
     });
 
     this.remService.getEmployeeYearlyReminderCollection(getTodayStart()).subscribe(list => {
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
           this.reminderCount++;
           this.reminderList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.reminderCount--;
-          this.reminderList.splice(this.reminderList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.reminderList[this.reminderList.indexOf(item)] = item.data;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderCount--;
+              this.reminderList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderList[i] = item;
+              break;
+            }
+          }
         }
       });
     });

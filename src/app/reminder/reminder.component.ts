@@ -10,6 +10,7 @@ import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getT
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {ReminderMainModel} from '../models/reminder-main-model';
 
 @Component({
   selector: 'app-reminder',
@@ -17,16 +18,13 @@ import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
   styleUrls: ['./reminder.component.css']
 })
 export class ReminderComponent implements OnInit {
-  mainList: Array<ReminderModel>;
-  collection: AngularFirestoreCollection<ReminderModel>;
+  mainList: Array<ReminderMainModel>;
   employeeList$: Observable<ProfileMainModel[]>;
-  selectedRecord: ReminderModel;
-  openedPanel: any;
+  selectedRecord: ReminderMainModel;
   recordDate: any;
   searchText: '';
   isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
-
   filterIsPersonal = '-1';
   filterPeriodType = '-1';
   filterIsActive = '1';
@@ -45,7 +43,7 @@ export class ReminderComponent implements OnInit {
     this.employeeList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
     if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
-      const data = await this.service.getItem2(this.paramPrimaryKey);
+      const data = await this.service.getItem(this.paramPrimaryKey);
       if (data) {
         this.showSelectedRecord(data);
       }
@@ -55,25 +53,28 @@ export class ReminderComponent implements OnInit {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItemsTimeBetweenDates(null, null, this.filterIsActive, this.filterPeriodType).subscribe(list => {
+      console.log(list);
       if (this.mainList === undefined) {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        const item = data as ReminderModel;
-        if (data.actionType === 'added') {
+        const item = data.returnData as ReminderMainModel;
+        if (item.actionType === 'added') {
           this.mainList.push(item);
         }
-        if (data.actionType === 'removed') {
+        if (item.actionType === 'removed') {
           for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              break;
             }
           }
         }
-        if (data.actionType === 'modified') {
+        if (item.actionType === 'modified') {
           for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList[i] = item;
+              break;
             }
           }
         }
@@ -87,20 +88,13 @@ export class ReminderComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as ReminderModel;
-    this.recordDate = getDateForInput(this.selectedRecord.reminderDate);
+    this.selectedRecord = record as ReminderMainModel;
+    this.recordDate = getDateForInput(this.selectedRecord.data.reminderDate);
   }
 
-  btnReturnList_Click(): void {
-    if (this.paramPrimaryKey !== undefined) {
-      this.route.navigate(['reminder', {}]);
-    }
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-    } else {
-      this.openedPanel = 'mainPanel';
-    }
+  async btnReturnList_Click(): Promise<void> {
+    this.selectedRecord = undefined;
+    await this.route.navigate(['reminder', {}]);
   }
 
   btnNew_Click(): void {
@@ -110,14 +104,14 @@ export class ReminderComponent implements OnInit {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      this.selectedRecord.reminderDate = getInputDataForInsert(this.recordDate);
-      this.selectedRecord.year = this.recordDate.year;
-      this.selectedRecord.month = this.recordDate.month;
-      this.selectedRecord.day = this.recordDate.day;
+      this.selectedRecord.data.reminderDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.year = this.recordDate.year;
+      this.selectedRecord.data.month = this.recordDate.month;
+      this.selectedRecord.data.day = this.recordDate.day;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-          if (this.selectedRecord.primaryKey === null) {
-            this.selectedRecord.primaryKey = '';
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)
               .then(() => {
                 this.finishProcess(null, 'Hatırlatma başarıyla kaydedildi.');
@@ -187,14 +181,13 @@ export class ReminderComponent implements OnInit {
   }
 
   onChangeVoucherType(isPersonal: any): void {
-    this.selectedRecord.employeePrimaryKey = '-1';
+    this.selectedRecord.data.employeePrimaryKey = '-1';
     if (isPersonal === 'true') {
-      this.selectedRecord.employeePrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.employeePrimaryKey = this.authService.getEid();
     }
   }
 
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
   }

@@ -84,21 +84,21 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
           this.totalValues.amount += item.data.amount;
         }
         if (item.actionType === 'removed') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
               this.totalValues.amount -= item.data.amount;
+              break;
             }
           }
         }
         if (item.actionType === 'modified') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.totalValues.amount -= this.mainList[i].data.amount;
               this.totalValues.amount += item.data.amount;
               this.mainList[i] = item;
+              break;
             }
           }
         }

@@ -6,6 +6,9 @@ import {AuthenticationService} from '../services/authentication.service';
 import {NoteModel} from '../models/note-model';
 import {NoteService} from '../services/note.service';
 import {ExcelService} from '../services/excel-service';
+import {Router} from '@angular/router';
+import {NoteMainModel} from '../models/note-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-note',
@@ -13,16 +16,15 @@ import {ExcelService} from '../services/excel-service';
   styleUrls: ['./note.component.css']
 })
 export class NoteComponent implements OnInit {
-  mainList: Array<NoteModel>;
-  collection: AngularFirestoreCollection<NoteModel>;
-  selectedRecord: NoteModel;
-  refModel: NoteModel;
-  openedPanel: any;
+  mainList: Array<NoteMainModel>;
+  collection: AngularFirestoreCollection<NoteMainModel>;
+  selectedRecord: NoteMainModel;
   searchText: '';
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: NoteService, public atService: AccountTransactionService,
-              public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore) {
+              public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
+              public route: Router) {
   }
 
   ngOnInit() {
@@ -33,24 +35,28 @@ export class NoteComponent implements OnInit {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      console.log(list);
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as NoteMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              break;
             }
           }
         }
         if (item.actionType === 'modified') {
           for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList[i] = item;
+              break;
             }
           }
         }
@@ -64,17 +70,12 @@ export class NoteComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as NoteModel;
-    this.refModel = record.data as NoteModel;
+    this.selectedRecord = record as NoteMainModel;
   }
 
-  btnReturnList_Click(): void {
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-    } else {
-      this.openedPanel = 'mainPanel';
-    }
+  async btnReturnList_Click(): Promise<void> {
+    this.selectedRecord = undefined;
+    await this.route.navigate(['note', {}]);
   }
 
   btnNew_Click(): void {
@@ -91,8 +92,8 @@ export class NoteComponent implements OnInit {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           this.onTransaction = true;
-          if (this.selectedRecord.primaryKey === null) {
-            this.selectedRecord.primaryKey = '';
+          if (this.selectedRecord.data.primaryKey === null) {
+            this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)
               .then(() => {
                 this.finishProcess(null, 'Hatırlatma başarıyla kaydedildi.');
@@ -129,7 +130,6 @@ export class NoteComponent implements OnInit {
       this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
-          this.onTransaction = true;
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Hatırlatma başarıyla kaldırıldı.');
@@ -158,8 +158,6 @@ export class NoteComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 
