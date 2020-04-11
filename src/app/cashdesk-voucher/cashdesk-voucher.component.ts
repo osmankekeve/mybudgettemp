@@ -29,7 +29,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   mainList: Array<CashDeskVoucherMainModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   selectedRecord: CashDeskVoucherMainModel;
-  refModel: CashDeskVoucherMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
@@ -83,15 +82,25 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.amount += item.data.amount;
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-          this.totalValues.amount -= item.data.amount;
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-          this.totalValues.amount -= this.refModel.data.amount;
-          this.totalValues.amount += item.data.amount;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+              this.totalValues.amount -= item.data.amount;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.totalValues.amount -= this.mainList[i].data.amount;
+              this.totalValues.amount += item.data.amount;
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -104,7 +113,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CashDeskVoucherMainModel;
-    this.refModel = record as CashDeskVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     if (this.selectedRecord.data.type === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
@@ -302,7 +310,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
-    this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
   }

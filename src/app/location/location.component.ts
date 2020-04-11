@@ -36,8 +36,20 @@ export class LocationComponent implements OnInit, OnDestroy {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.primaryKey === this.mainList[i].primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.primaryKey === this.mainList[i].primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });

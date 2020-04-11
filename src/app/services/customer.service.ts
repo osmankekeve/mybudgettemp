@@ -195,6 +195,27 @@ export class CustomerService {
     });
   }
 
+  getCustomer(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+        if (doc.exists) {
+          const data = doc.data() as CustomerModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new CustomerMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.employee = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.executive = this.employeeMap.get(data.executivePrimary);
+          returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
+          returnData.termTr = getTerms().get(returnData.data.termKey);
+          resolve(returnData);
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   getMainItems(isActive: boolean): Observable<CustomerMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,

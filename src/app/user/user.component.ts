@@ -4,7 +4,6 @@ import {InformationService} from '../services/information.service';
 import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ProfileMainModel} from '../models/profile-main-model';
-import {AuthenticationService} from '../services/authentication.service';
 import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
@@ -40,14 +39,23 @@ export class UserComponent implements OnInit, OnDestroy {
       }
       list.forEach((data: any) => {
         const item = data.returnData as ProfileMainModel;
+
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });

@@ -38,7 +38,7 @@ export class GlobalService {
         await this.route.navigate(['sales-invoice', {
           paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString(),
           previousModule: item.previousModule,
-          previousModulePrimaryKey: CryptoJS.AES.encrypt(item.previousModulePrimaryKey, this.encryptSecretKey).toString(),
+          previousModulePrimaryKey: item.previousModulePrimaryKey,
         }]);
       }
 
@@ -109,19 +109,17 @@ export class GlobalService {
     }
   }
 
-  async returnPreviousModule(): Promise<void> {
-    let data;
-    const previousModule = this.router.snapshot.paramMap.get('previousModule').toString();
-    const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('previousModulePrimaryKey'), this.encryptSecretKey);
-    const previousModulePrimaryKey = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+  async returnPreviousModule(router: ActivatedRoute): Promise<void> {
+    const previousModule = router.snapshot.paramMap.get('previousModule').toString();
+    const previousModulePrimaryKey = router.snapshot.paramMap.get('previousModulePrimaryKey');
+
     if (previousModule !== null && previousModulePrimaryKey !== null) {
       if (previousModule === 'customer') {
-        data = await this.cusService.getItem(previousModulePrimaryKey);
-        if (data) {
+        await this.cusService.getCustomer(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString()
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
           }]);
-        }
+        });
       }
     }
   }

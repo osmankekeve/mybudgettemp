@@ -59,7 +59,6 @@ import {RouterModel} from '../models/router-model';
 export class CustomerComponent implements OnInit {
   mainList: Array<CustomerMainModel>;
   selectedCustomer: CustomerMainModel;
-  refModel: CustomerMainModel;
   newSalesInvoice: SalesInvoiceMainModel;
   newPurchaseInvoice: PurchaseInvoiceMainModel;
   newCollection: CollectionMainModel;
@@ -132,12 +131,22 @@ export class CustomerComponent implements OnInit {
         const data = item.returnData as CustomerMainModel;
         if (data.actionType === 'added') {
           this.mainList.push(data);
-        } else if (data.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (data.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = data;
-        } else {
-          // nothing
+        }
+        if (data.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (data.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (data.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (data.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = data;
+            }
+          }
         }
       });
     });
@@ -150,7 +159,6 @@ export class CustomerComponent implements OnInit {
 
   showSelectedCustomer(customer: any): void {
     this.selectedCustomer = customer as CustomerMainModel;
-    this.refModel = customer as CustomerMainModel;
     this.accountList$ = this.accService.getAllItems(this.selectedCustomer.data.primaryKey);
 
     this.totalAmount = 0;
@@ -256,9 +264,10 @@ export class CustomerComponent implements OnInit {
     this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.data.primaryKey);
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     try {
       this.selectedCustomer = undefined;
+      await this.route.navigate(['customer', {}]);
     } catch (error) {
       this.infoService.error(error);
     }
@@ -579,7 +588,6 @@ export class CustomerComponent implements OnInit {
   clearSelectedCustomer(): void {
     this.accountList$ = new Observable<CustomerAccountModel[]>();
     this.openedPanel = 'edit';
-    this.refModel = undefined;
     this.selectedCustomer = this.customerService.clearMainModel();
   }
 

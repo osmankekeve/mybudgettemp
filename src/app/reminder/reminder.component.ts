@@ -9,6 +9,7 @@ import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 
 @Component({
   selector: 'app-reminder',
@@ -20,7 +21,6 @@ export class ReminderComponent implements OnInit {
   collection: AngularFirestoreCollection<ReminderModel>;
   employeeList$: Observable<ProfileMainModel[]>;
   selectedRecord: ReminderModel;
-  refModel: ReminderModel;
   openedPanel: any;
   recordDate: any;
   searchText: '';
@@ -58,15 +58,24 @@ export class ReminderComponent implements OnInit {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
+      list.forEach((data: any) => {
+        const item = data as ReminderModel;
+        if (data.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
-        } else {
-          // nothing
+        }
+        if (data.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.primaryKey === this.mainList[i].primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (data.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.primaryKey === this.mainList[i].primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -80,7 +89,6 @@ export class ReminderComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
     this.selectedRecord = record.data as ReminderModel;
-    this.refModel = record.data as ReminderModel;
     this.recordDate = getDateForInput(this.selectedRecord.reminderDate);
   }
 
@@ -187,7 +195,6 @@ export class ReminderComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.openedPanel = 'mainPanel';
-    this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
   }

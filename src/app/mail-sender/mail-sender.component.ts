@@ -3,18 +3,15 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import emailjs, {EmailJSResponseStatus} from 'emailjs-com';
-import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
 import {CONFIG} from 'src/mail.config';
 import {MailService} from '../services/mail.service';
 import {MailMainModel} from '../models/mail-main-model';
-import {Observable} from 'rxjs/internal/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {ProfileModel} from '../models/profile-model';
 import {ProfileService} from '../services/profile.service';
-import {ProfileMainModel} from '../models/profile-main-model';
 import {SimpleModel} from '../models/simple-model';
 
 @Component({
@@ -26,7 +23,6 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   mainList: Array<MailMainModel>;
   receiversList: Array<SimpleModel>;
   selectedRecord: MailMainModel;
-  refModel: MailMainModel;
   employeeDetail: any;
   userDetails: any;
   isMainFilterOpened = false;
@@ -61,12 +57,20 @@ export class MailSenderComponent implements OnInit, OnDestroy {
         const item = data.returnData as MailMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -79,7 +83,6 @@ export class MailSenderComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as MailMainModel;
-    this.refModel = record as MailMainModel;
   }
 
   btnNew_Click(): void {
@@ -204,7 +207,6 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 

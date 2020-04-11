@@ -70,22 +70,29 @@ export class VisitComponent implements OnInit, OnDestroy {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
-      this.mainList = [];
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
+        console.log(list);
         const item = data.returnData as VisitMainModel;
-        this.mainList.forEach(item2 => {
-          if (item2.visit.primaryKey === item.visit.primaryKey) {
-            this.refModel = item2;
-          }
-        });
+        console.log(item);
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.visit.primaryKey === this.mainList[i].visit.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.visit.primaryKey === this.mainList[i].visit.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -200,6 +207,7 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnSave_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
@@ -239,6 +247,7 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnRemove_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
         .then(async (values: any) => {
         this.onTransaction = true;

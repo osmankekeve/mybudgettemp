@@ -133,7 +133,7 @@ export class CollectionService {
     return new Promise((resolve, reject) => {
       if (record.data.customerCode === '' || record.data.customerCode === '-1') {
         reject('Lütfen müşteri seçiniz.');
-      } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
+      } if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
         reject('Lütfen hesap seçiniz.');
       } else if (record.data.type === '' || record.data.type === '-1') {
         reject('Lütfen tahsilat tipi seçiniz.');

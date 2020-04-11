@@ -79,7 +79,7 @@ export class LogService {
       item.log = record.data.receiptNo + ' fiş numaralı Kasa Fişi ';
 
     } else if (systemModule === 'crm') {
-      item.parentPrimaryKey = record.primaryKey;
+      item.parentPrimaryKey = record.data.primaryKey;
       item.log = ' Etkinlik ';
 
     } else if (systemModule === 'visit') {

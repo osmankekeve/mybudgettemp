@@ -9,65 +9,74 @@ import {LogService} from './log.service';
 import {CustomerRelationModel} from '../models/customer-relation-model';
 import {AccountVoucherModel} from '../models/account-voucher-model';
 import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
+import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
+import {currencyFormat, getStatus} from '../core/correct-library';
+import {CollectionModel} from '../models/collection-model';
+import {SettingService} from './setting.service';
+import {CustomerService} from './customer.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CustomerRelationService {
   listCollection: AngularFirestoreCollection<CustomerRelationModel>;
-  mainList$: Observable<CustomerRelationModel[]>;
+  mainList$: Observable<CustomerRelationMainModel[]>;
   tableName = 'tblCustomerRelation';
   relationTypeMap = new Map([['meeting', 'Toplanti'], ['mailSending', 'Mail Gönderim'],
     ['faxSending', 'Fax Gönderim'], ['phoneCall', 'Telefon Görüşmesi'], ['travel', 'Seyahat'], ['visit', 'Ziyaret']]);
+  customerMap = new Map();
 
-  constructor(public authService: AuthenticationService,
-              public logService: LogService,
+  constructor(public authService: AuthenticationService, public cusService: CustomerService, public logService: LogService,
               public db: AngularFirestore) {
 
+    if (this.authService.isUserLoggedIn()) {
+      this.cusService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
+        });
+      });
+    }
+
   }
 
-  getAllItems(): Observable<CustomerRelationModel[]> {
-    this.listCollection = this.db.collection<CustomerRelationModel>(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: CustomerRelationModel) {
+  async addItem(record: CustomerRelationMainModel) {
     await this.logService.sendToLog(record, 'insert', 'crm');
-    return await this.listCollection.add(Object.assign({}, record));
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: CustomerRelationModel) {
+  async removeItem(record: CustomerRelationMainModel) {
     await this.logService.sendToLog(record, 'delete', 'crm');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: CustomerRelationModel) {
+  async updateItem(record: CustomerRelationMainModel) {
     await this.logService.sendToLog(record, 'update', 'crm');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(Object.assign({}, record));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: CustomerRelationModel, primaryKey: string) {
+  async setItem(record: CustomerRelationMainModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'crm');
-    return await this.listCollection.doc(primaryKey).set(record);
+    return await this.listCollection.doc(primaryKey).set(record.data);
   }
 
-  checkForSave(record: CustomerRelationModel): Promise<string> {
+  checkForSave(record: CustomerRelationMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (record.parentPrimaryKey === '' || record.parentPrimaryKey === '-1') {
+      if (record.data.parentPrimaryKey === '' || record.data.parentPrimaryKey === '-1') {
         reject('Lüfen müşteri seçiniz.');
-      } else if (record.parentType === '' || record.parentType === '-1') {
-        reject('Lüfen kayıt tipi seçiniz.');
-      } else if (record.relationType === '' || record.relationType === '-1') {
-        reject('Lüfen etkinlik tipi seçiniz.');
-      } else {
-        resolve(null);
       }
+      if (record.data.parentType === '' || record.data.parentType === '-1') {
+        reject('Lüfen kayıt tipi seçiniz.');
+      }
+      if (record.data.relationType === '' || record.data.relationType === '-1') {
+        reject('Lüfen etkinlik tipi seçiniz.');
+      }
+      resolve(null);
     });
   }
 
-  checkForRemove(record: CustomerRelationModel): Promise<string> {
+  checkForRemove(record: CustomerRelationMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       resolve(null);
     });
@@ -107,7 +116,7 @@ export class CustomerRelationService {
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.parentPrimaryKey = '-1';
-    returnData.parentType = '-1'; // customer
+    returnData.parentType = 'customer'; // customer
     returnData.relationType = '-1'; // meeting, mailSending, phoneCall, visit, faxSending
     returnData.status = 'waiting'; // waiting
     returnData.description = '';
@@ -117,14 +126,26 @@ export class CustomerRelationService {
     return returnData;
   }
 
+  clearMainModel(): CustomerRelationMainModel {
+    const returnData = new CustomerRelationMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.actionType = 'added';
+    returnData.relationTypeTR = this.relationTypeMap.get(returnData.data.relationType);
+    return returnData;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise()
+        .then(doc => {
         if (doc.exists) {
-          let data = doc.data() as CustomerRelationModel;
+          const data = doc.data() as CustomerRelationModel;
           data.primaryKey = doc.id;
-          data = this.checkFields(data);
-          resolve(Object.assign({data}));
+
+          const returnData = new CustomerRelationMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.customer = this.customerMap.get(returnData.data.parentPrimaryKey);
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }
@@ -132,42 +153,47 @@ export class CustomerRelationService {
     });
   }
 
-  getMainItems(): Observable<CustomerRelationModel[]> {
+  getMainItems(): Observable<CustomerRelationMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('actionDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
-        let data = change.payload.doc.data() as CustomerRelationModel;
+        const data = change.payload.doc.data() as CustomerRelationModel;
         data.primaryKey = change.payload.doc.id;
-        data = this.checkFields(data);
+
+        const returnData = new CustomerRelationMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+        returnData.relationTypeTR = this.relationTypeMap.get(returnData.data.relationType);
+
         return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({
-              data, customerName: customer.name, actionType: change.type,
-              relationTypeTR: this.relationTypeMap.get(data.relationType)
-            });
+            returnData.customer = customer !== undefined ? customer : undefined;
+            return Object.assign({returnData});
           }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CustomerRelationModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<CustomerRelationMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('actionDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
-        let data = change.payload.doc.data() as CustomerRelationModel;
+        const data = change.payload.doc.data() as CustomerRelationModel;
         data.primaryKey = change.payload.doc.id;
-        data = this.checkFields(data);
+
+        const returnData = new CustomerRelationMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+        returnData.relationTypeTR = this.relationTypeMap.get(returnData.data.relationType);
 
         return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({
-              data, customerName: customer.name, actionType: change.type,
-              relationTypeTR: this.relationTypeMap.get(data.relationType)
-            });
+            returnData.customer = customer !== undefined ? customer : undefined;
+            return Object.assign({returnData});
           }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
@@ -175,16 +201,22 @@ export class CustomerRelationService {
   }
 
   getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date):
-    Promise<Array<CustomerRelationModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<CustomerRelationMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<CustomerRelationModel>();
+      const list = Array<CustomerRelationMainModel>();
       this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
-          let returnData = doc.data() as CustomerRelationModel;
-          returnData.primaryKey = doc.id;
-          returnData = this.checkFields(returnData);
+          const data = doc.data() as CustomerRelationModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new CustomerRelationMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.customer = returnData.data.parentPrimaryKey !== '-1' ?
+            this.customerMap.get(returnData.data.parentPrimaryKey) :
+            undefined;
+          returnData.relationTypeTR = this.relationTypeMap.get(returnData.data.relationType);
 
           list.push(returnData);
         });
@@ -195,5 +227,5 @@ export class CustomerRelationService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 }

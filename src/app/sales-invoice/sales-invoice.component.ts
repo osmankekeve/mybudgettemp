@@ -42,7 +42,6 @@ export class SalesInvoiceComponent implements OnInit {
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<SalesInvoiceMainModel>;
   selectedRecord: SalesInvoiceMainModel;
-  refModel: SalesInvoiceMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
@@ -117,20 +116,30 @@ export class SalesInvoiceComponent implements OnInit {
           const item = data.returnData as SalesInvoiceMainModel;
           if (item.actionType === 'added') {
             this.mainList.push(item);
-            this.totalValues.totalPrice += item.data.totalPrice;
-            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-          } else if (item.actionType === 'removed') {
-            this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
             this.totalValues.totalPrice -= item.data.totalPrice;
             this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
-          } else if (item.actionType === 'modified') {
-            this.mainList[this.mainList.indexOf(this.refModel)] = item;
-            this.totalValues.totalPrice -= this.refModel.data.totalPrice;
-            this.totalValues.totalPriceWithTax -= this.refModel.data.totalPriceWithTax;
-            this.totalValues.totalPrice += item.data.totalPrice;
-            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-          } else {
-            // nothing
+          }
+          if (item.actionType === 'removed') {
+            // tslint:disable-next-line:prefer-for-of
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.mainList.splice(i, 1);
+                this.totalValues.totalPrice -= item.data.totalPrice;
+                this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+              }
+            }
+          }
+          if (item.actionType === 'modified') {
+            // tslint:disable-next-line:prefer-for-of
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
+                this.totalValues.totalPriceWithTax -= this.mainList[i].data.totalPriceWithTax;
+                this.totalValues.totalPrice += item.data.totalPrice;
+                this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+                this.mainList[i] = item;
+              }
+            }
           }
         });
       });
@@ -277,7 +286,6 @@ export class SalesInvoiceComponent implements OnInit {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as SalesInvoiceMainModel;
-    this.refModel = record as SalesInvoiceMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
@@ -305,12 +313,19 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
-      await this.globService.returnPreviousModule();
-    } else {
-      this.selectedRecord = undefined;
-      await this.route.navigate(['sales-invoice', {}]);
-      this.populateCharts();
+    try {
+      const previousModule = this.router.snapshot.paramMap.get('previousModule').toString();
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        this.selectedRecord = undefined;
+        await this.route.navigate(['sales-invoice', {}]);
+        this.populateCharts();
+      }
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 

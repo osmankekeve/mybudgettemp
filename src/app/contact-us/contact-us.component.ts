@@ -18,7 +18,6 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   mainList: Array<ContactUsMainModel>;
   collection: AngularFirestoreCollection<ContactUsMainModel>;
   selectedRecord: ContactUsMainModel;
-  refModel: ContactUsMainModel;
   employeeDetail: any;
   isMainFilterOpened = false;
   filterBeginDate: any;
@@ -52,12 +51,22 @@ export class ContactUsComponent implements OnInit, OnDestroy {
         const item = data.returnData as ContactUsMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -70,7 +79,6 @@ export class ContactUsComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ContactUsMainModel;
-    this.refModel = record as ContactUsMainModel;
   }
 
   btnNew_Click(): void {
@@ -135,7 +143,6 @@ export class ContactUsComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 

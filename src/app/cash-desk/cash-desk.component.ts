@@ -66,12 +66,22 @@ export class CashDeskComponent implements OnInit, OnDestroy {
         const item = data.returnData as CashDeskMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -109,26 +119,32 @@ export class CashDeskComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)
               .then(() => {
-                this.finishProcessAndError(null, 'Kasa başarıyla kaydedildi.');
+                this.finishProcess(null, 'Kasa başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error, null);
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcessAndError(null, 'Kasa başarıyla güncellendi.');
+                this.finishProcess(null, 'Kasa başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error, null);
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.finishFinally();
               });
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error, null);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error, null);
+      this.finishProcess(error, null);
     }
   }
 
@@ -139,17 +155,20 @@ export class CashDeskComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcessAndError(null, 'Kasa başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Kasa başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcessAndError(error, null);
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.finishFinally();
             });
         })
         .catch((error) => {
-          this.finishProcessAndError(error, null);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error, null);
+      this.finishProcess(error, null);
     }
   }
 
@@ -283,7 +302,13 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishProcessAndError(error: any, info: any): void {
+  finishFinally(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+  finishProcess(error: any, info: any): void {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {

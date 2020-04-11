@@ -42,7 +42,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: PurchaseInvoiceMainModel;
   transactionList: Array<PurchaseInvoiceMainModel>;
-  refModel: PurchaseInvoiceMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
@@ -120,20 +119,30 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-          this.totalValues.totalPrice += item.data.totalPrice;
-          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
           this.totalValues.totalPrice -= item.data.totalPrice;
           this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-          this.totalValues.totalPrice -= this.refModel.data.totalPrice;
-          this.totalValues.totalPriceWithTax -= this.refModel.data.totalPriceWithTax;
-          this.totalValues.totalPrice += item.data.totalPrice;
-          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+              this.totalValues.totalPrice -= item.data.totalPrice;
+              this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
+              this.totalValues.totalPriceWithTax -= this.mainList[i].data.totalPriceWithTax;
+              this.totalValues.totalPrice += item.data.totalPrice;
+              this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -359,7 +368,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PurchaseInvoiceMainModel;
-    this.refModel = record as PurchaseInvoiceMainModel;
     this.selectedRecord.data.totalPrice = Math.abs(this.selectedRecord.data.totalPrice);
     this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -610,7 +618,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();

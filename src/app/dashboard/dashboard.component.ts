@@ -223,20 +223,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const item = data.returnData as TodoListMainModel;
         if (item.actionType === 'added') {
           this.todoList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.todoList.splice(this.todoList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.todoList.forEach(modifiedRecord => {
-            if (modifiedRecord.data.primaryKey === item.data.primaryKey) {
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.todoList.length; i++) {
+            if (this.todoList[i].data.primaryKey === item.data.primaryKey) {
+              this.todoList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.todoList.length; i++) {
+            if (this.todoList[i].data.primaryKey === item.data.primaryKey) {
               if (item.data.isActive === false) {
-                this.todoList.splice(this.todoList.indexOf(modifiedRecord), 1);
+                this.todoList.splice(i, 1);
               } else {
-                this.todoList[this.todoList.indexOf(modifiedRecord)] = item;
+                this.todoList[i] = item;
               }
             }
-          });
-        } else {
-          // nothing
+          }
         }
       });
     });

@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
-import { CashDeskService } from '../services/cash-desk.service';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
@@ -13,9 +12,9 @@ import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
 import {getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {Chart} from 'chart.js';
-import {VisitMainModel} from '../models/visit-main-model';
+import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-crm',
@@ -23,13 +22,9 @@ import {VisitMainModel} from '../models/visit-main-model';
   styleUrls: ['./crm.component.css']
 })
 export class CRMComponent implements OnInit, OnDestroy {
-  mainList: Array<CustomerRelationModel>;
-  collection: AngularFirestoreCollection<CustomerRelationModel>;
-  mainList$: Observable<CustomerRelationModel[]>;
+  mainList: Array<CustomerRelationMainModel>;
   customerList$: Observable<CustomerModel[]>;
-  selectedRecord: CustomerRelationModel;
-  refModel: CustomerRelationModel;
-  openedPanel: any;
+  selectedRecord: CustomerRelationMainModel;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
   encryptSecretKey: string = getEncryptionKey();
@@ -73,15 +68,26 @@ export class CRMComponent implements OnInit, OnDestroy {
 
     this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
-      list.forEach((item: any) => {
+      list.forEach((data: any) => {
+        const item = data.returnData as CustomerRelationMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item.data;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -100,22 +106,25 @@ export class CRMComponent implements OnInit, OnDestroy {
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<CustomerRelationModel>;
+          const returnData = values[0] as Array<CustomerRelationMainModel>;
           returnData.forEach(item => {
-            if (item.relationType === 'meeting') {
+            if (item.data.relationType === 'meeting') {
               chart1DataValues[0] += 1;
-            } else if (item.relationType === 'mailSending') {
+            }
+            if (item.data.relationType === 'mailSending') {
               chart1DataValues[1] += 1;
-            } else if (item.relationType === 'faxSending') {
+            }
+            if (item.data.relationType === 'faxSending') {
               chart1DataValues[2] += 1;
-            } else if (item.relationType === 'phoneCall') {
+            }
+            if (item.data.relationType === 'phoneCall') {
               chart1DataValues[3] += 1;
-            } else if (item.relationType === 'visit') {
+            }
+            if (item.data.relationType === 'visit') {
               chart1DataValues[4] += 1;
-            } else if (item.relationType === 'travel') {
+            }
+            if (item.data.relationType === 'travel') {
               chart1DataValues[5] += 1;
-            } else {
-              // nothing
             }
           });
         }
@@ -164,10 +173,8 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.openedPanel = 'mainPanel';
-    this.selectedRecord = record.data as CustomerRelationModel;
-    this.refModel = record.data as CustomerRelationModel;
-    const selectedDate = new Date(this.selectedRecord.actionDate);
+    this.selectedRecord = record as CustomerRelationMainModel;
+    const selectedDate = new Date(this.selectedRecord.data.actionDate);
     this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
   }
 
@@ -181,9 +188,9 @@ export class CRMComponent implements OnInit, OnDestroy {
       const date = new Date(this.today.year, this.today.month - 1, this.today.day);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-        if (this.selectedRecord.primaryKey === undefined) {
-          this.selectedRecord.primaryKey = '';
-          this.selectedRecord.actionDate = date.getTime();
+        if (this.selectedRecord.data.primaryKey === null) {
+          this.selectedRecord.data.primaryKey = '';
+          this.selectedRecord.data.actionDate = date.getTime();
           await this.service.addItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Etkinlik başarıyla kaydedildi.');
@@ -240,13 +247,9 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    if (this.openedPanel === 'mainPanel') {
-      this.selectedRecord = undefined;
-      await this.route.navigate(['crm', {}]);
-      this.populateCharts();
-    } else {
-      this.openedPanel = 'mainPanel';
-    }
+    this.selectedRecord = undefined;
+    await this.route.navigate(['crm', {}]);
+    this.populateCharts();
   }
 
   btnMainFilter_Click(): void {
@@ -270,14 +273,9 @@ export class CRMComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.openedPanel = 'mainPanel';
-    this.refModel = undefined;
     const selectedDate = new Date();
     this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
-    this.selectedRecord = {
-      primaryKey: undefined, description: '', status: 'waiting', parentType: 'customer',
-      userPrimaryKey: this.authService.getUid(), insertDate: Date.now(), employeePrimaryKey: this.authService.getEid()
-    };
+    this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {

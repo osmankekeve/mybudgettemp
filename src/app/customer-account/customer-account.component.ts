@@ -1,26 +1,14 @@
-import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {NoteModel} from '../models/note-model';
-import {NoteService} from '../services/note.service';
 import {ExcelService} from '../services/excel-service';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {
-  currencyFormat,
-  getDateForInput,
-  getFirstDayOfMonthForInput,
-  getFloat,
-  getInputDataForInsert,
-  getTodayForInput,
-  isNullOrEmpty, moneyFormat
-} from '../core/correct-library';
+import {getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/correct-library';
 import {SettingModel} from '../models/setting-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {Chart} from 'chart.js';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 import {Observable} from 'rxjs/internal/Observable';
@@ -42,7 +30,6 @@ export class CustomerAccountComponent implements OnInit {
   selectedRecord: CustomerAccountMainModel;
   customerList$: Observable<CustomerModel[]>;
   transactionList: Array<AccountTransactionModel>;
-  refModel: CustomerAccountMainModel;
   isMainFilterOpened = false;
   openedPanel: any;
   searchText: '';
@@ -78,12 +65,22 @@ export class CustomerAccountComponent implements OnInit {
         const item = data.returnData as CustomerAccountMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -183,7 +180,6 @@ export class CustomerAccountComponent implements OnInit {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CustomerAccountMainModel;
-    this.refModel = record as CustomerAccountMainModel;
     this.atService.getCustomerAccountTransactionItems(this.selectedRecord.data.customerPrimaryKey, this.selectedRecord.data.primaryKey)
       .subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
@@ -347,7 +343,6 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 

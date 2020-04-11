@@ -43,7 +43,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<PaymentMainModel>;
   selectedRecord: PaymentMainModel;
-  refModel: PaymentMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
@@ -121,15 +120,25 @@ export class PaymentComponent implements OnInit, OnDestroy {
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.amount += item.data.amount;
-        } else if (item.actionType === 'removed') {
-          this.mainList.splice(this.mainList.indexOf(this.refModel), 1);
-          this.totalValues.amount -= item.data.amount;
-        } else if (item.actionType === 'modified') {
-          this.mainList[this.mainList.indexOf(this.refModel)] = item;
-          this.totalValues.amount -= this.refModel.data.amount;
-          this.totalValues.amount += item.data.amount;
-        } else {
-          // nothing
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+              this.totalValues.amount -= item.data.amount;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.totalValues.amount -= this.mainList[i].data.amount;
+              this.totalValues.amount += item.data.amount;
+              this.mainList[i] = item;
+            }
+          }
         }
       });
     });
@@ -276,7 +285,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PaymentMainModel;
-    this.refModel = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
@@ -509,7 +517,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();

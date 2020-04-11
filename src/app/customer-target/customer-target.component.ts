@@ -31,7 +31,6 @@ export class CustomerTargetComponent implements OnInit {
   mainList3: Array<CustomerTargetMainModel> = [];
   selectedRecord: CustomerTargetMainModel;
   customerList$: Observable<CustomerModel[]>;
-  refModel: CustomerTargetMainModel;
   transactionList$: Observable<CollectionMainModel[]>;
   currentAmount = 0;
   encryptSecretKey: string = getEncryptionKey();
@@ -76,35 +75,59 @@ export class CustomerTargetComponent implements OnInit {
         if (item.actionType === 'added') {
           if (item.data.type === 'yearly') {
             this.mainList1.push(item);
-          } else if (item.data.type === 'monthly') {
+          }
+          if (item.data.type === 'monthly') {
             this.mainList2.push(item);
-          } else if (item.data.type === 'periodic') {
+          }
+          if (item.data.type === 'periodic') {
             this.mainList3.push(item);
-          } else {
-
           }
-        } else if (item.actionType === 'removed') {
+        }
+        if (item.actionType === 'removed') {
           if (item.data.type === 'yearly') {
-            this.mainList1.splice(this.mainList1.indexOf(this.refModel), 1);
-          } else if (item.data.type === 'monthly') {
-            this.mainList2.splice(this.mainList2.indexOf(this.refModel), 1);
-          } else if (item.data.type === 'periodic') {
-            this.mainList3.splice(this.mainList3.indexOf(this.refModel), 1);
-          } else {
-
+            for (let i = 0; i < this.mainList1.length; i++) {
+              if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
+                this.mainList1.splice(i, 1);
+              }
+            }
           }
-        } else if (item.actionType === 'modified') {
+          if (item.data.type === 'monthly') {
+            for (let i = 0; i < this.mainList2.length; i++) {
+              if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
+                this.mainList2.splice(i, 1);
+              }
+            }
+          }
+          if (item.data.type === 'periodic') {
+            for (let i = 0; i < this.mainList3.length; i++) {
+              if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
+                this.mainList3.splice(i, 1);
+              }
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
           if (item.data.type === 'yearly') {
-            this.mainList1[this.mainList1.indexOf(this.refModel)] = item;
-          } else if (item.data.type === 'monthly') {
-            this.mainList2[this.mainList2.indexOf(this.refModel)] = item;
-          } else if (item.data.type === 'periodic') {
-            this.mainList3[this.mainList3.indexOf(this.refModel)] = item;
-          } else {
-
+            for (let i = 0; i < this.mainList1.length; i++) {
+              if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
+                this.mainList1[i] = item;
+              }
+            }
           }
-        } else {
-          // nothing
+          if (item.data.type === 'monthly') {
+            for (let i = 0; i < this.mainList2.length; i++) {
+              if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
+                this.mainList2[i] = item;
+              }
+            }
+          }
+          if (item.data.type === 'periodic') {
+            for (let i = 0; i < this.mainList3.length; i++) {
+              if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
+                this.mainList3[i] = item;
+              }
+            }
+          }
         }
       });
     });
@@ -124,7 +147,6 @@ export class CustomerTargetComponent implements OnInit {
   showSelectedRecord(record: any): void {
     try {
       this.selectedRecord = record as CustomerTargetMainModel;
-      this.refModel = record as CustomerTargetMainModel;
       this.currentAmount = 0;
 
       let beginDate = new Date();
@@ -278,7 +300,6 @@ export class CustomerTargetComponent implements OnInit {
   clearSelectedRecord(): void {
     this.transactionList$ = new Observable<CollectionMainModel[]>();
     this.currentAmount = 0;
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 
