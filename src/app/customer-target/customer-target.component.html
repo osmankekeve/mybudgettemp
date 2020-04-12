@@ -399,6 +399,7 @@
                 </div>
               </div>
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                   (click)="showTransactionRecord(item)"
                    *ngFor="let item of transactionList; trackBy: primaryKey">
                 <div class="row">
                   <div class="col-sm-6">

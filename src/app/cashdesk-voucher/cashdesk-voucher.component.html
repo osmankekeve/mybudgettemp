@@ -125,13 +125,14 @@
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-8">
         <img src="../../assets/images/account_voucher.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Fiş Detayı
-          <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
-        </h4>
+        <h4 class="card-title float-left mr-2">Fiş Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+      <div class="col-sm-4">
+        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
       </div>
     </div>
   </div>

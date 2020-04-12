@@ -7,7 +7,7 @@ import {ExcelService} from '../services/excel-service';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/correct-library';
+import {getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/correct-library';
 import {SettingModel} from '../models/setting-model';
 import {Chart} from 'chart.js';
 import {AccountTransactionModel} from '../models/account-transaction-model';
@@ -19,6 +19,7 @@ import {SettingService} from '../services/setting.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-customer-account',
@@ -31,7 +32,6 @@ export class CustomerAccountComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   transactionList: Array<AccountTransactionModel>;
   isMainFilterOpened = false;
-  openedPanel: any;
   searchText: '';
   onTransaction = false;
   isRecordHasTransaction = false;
@@ -41,6 +41,7 @@ export class CustomerAccountComponent implements OnInit {
   totalValues = {
     amount: 0
   };
+  encryptSecretKey: string = getEncryptionKey();
 
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
@@ -53,6 +54,14 @@ export class CustomerAccountComponent implements OnInit {
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
     this.populateList();
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem.returnData);
+      }
+    }
   }
 
   populateList(): void {
@@ -169,9 +178,25 @@ export class CustomerAccountComponent implements OnInit {
             scales: {
               yAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
                 }
               }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
             }
           }
         });
@@ -201,7 +226,7 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
+    this.finishFinally();
     await this.route.navigate(['customer-account', {}]);
   }
 

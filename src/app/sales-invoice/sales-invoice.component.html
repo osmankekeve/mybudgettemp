@@ -127,7 +127,7 @@
                 </div>
               </div>
               <div class="work-area-6">
-                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                      (click)="showSelectedRecord(item)"
                      *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                   <div class="row">
@@ -186,11 +186,12 @@
               </div>
             </div>
             <div class="work-area-6">
-              <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+              <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
                   <div class="col-sm-3">
+                    <i class="fa fa-arrow-circle-right mr-2 text-purple"></i>
                     <span class="text-purple">{{item.customerName}}</span>
                     <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
                     <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
@@ -238,12 +239,17 @@
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
-    <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2">
-    <h4 class="card-title float-left mr-2">Satış Faturası Detayı
-      <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
-    </h4>
-    <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
-            (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+    <div class="row">
+      <div class="col-sm-8">
+        <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">Satış Faturası Detayı</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+      <div class="col-sm-4">
+        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
+      </div>
+    </div>
   </div>
   <div class="card-body">
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">

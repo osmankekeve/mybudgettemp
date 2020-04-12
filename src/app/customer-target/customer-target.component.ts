@@ -19,6 +19,8 @@ import {CollectionService} from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
 import {Router, ActivatedRoute} from '@angular/router';
 import {CollectionMainModel} from '../models/collection-main-model';
+import {RouterModel} from '../models/router-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-customer-target',
@@ -38,7 +40,7 @@ export class CustomerTargetComponent implements OnInit {
   searchText = '';
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public infoService: InformationService, public colService: CollectionService,
+              public infoService: InformationService, public colService: CollectionService, public globService: GlobalService,
               public cService: CustomerService, public service: CustomerTargetService, public db: AngularFirestore) {
   }
 
@@ -301,6 +303,15 @@ export class CustomerTargetComponent implements OnInit {
 
   onChangeFinishMonth($event: any): void {
     this.selectedRecord.finishMonthTr = $event.target.options[$event.target.options.selectedIndex].text;
+  }
+
+  async showTransactionRecord(item: any): Promise<void> {
+    const r = new RouterModel();
+    r.nextModule = 'collection';
+    r.nextModulePrimaryKey = item.returnData.data.primaryKey;
+    r.previousModule = 'customer-target';
+    r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
+    await this.globService.showTransactionRecord(r);
   }
 
   clearSelectedRecord(): void {

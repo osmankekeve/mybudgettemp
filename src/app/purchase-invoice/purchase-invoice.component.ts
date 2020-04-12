@@ -5,7 +5,6 @@ import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {Chart} from 'chart.js';
@@ -27,9 +26,7 @@ import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -64,7 +61,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   chart2Visibility = null;
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: PurchaseInvoiceService, public sService: SettingService,
+              public service: PurchaseInvoiceService, public sService: SettingService, public globService: GlobalService,
               public cService: CustomerService, public atService: AccountTransactionService, public infoService: InformationService,
               public excelService: ExcelService, public db: AngularFirestore, public accService: CustomerAccountService) {
   }
@@ -252,9 +249,25 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             scales: {
               yAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
                 }
               }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
             }
           }
         });
@@ -378,13 +391,20 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    /* if (this.fromModule) {
-      this.route.navigate([this.fromModule, {}]);
-    } else {
-      this.route.navigate(['purchaseInvoice', {}]);
-    } */
-    this.finishFinally();
-    await this.route.navigate(['purchaseInvoice', {}]);
+    try {
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        await this.route.navigate(['purchaseInvoice', {}]);
+        this.populateCharts();
+      }
+      this.finishFinally();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   btnMainFilter_Click(): void {

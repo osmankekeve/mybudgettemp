@@ -115,48 +115,65 @@ export class DashboardComponent implements OnInit, OnDestroy {
             }
           });
         }
-      }).finally(() => {
-      this.BarChart = new Chart('barChart', {
-        type: 'bar', // bar, pie, doughnut
-        data: {
-          labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
-          datasets: [{
-            label: '# of Votes',
-            data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          title: {
-            text: 'Aylık Cari Hareketler',
-            display: true
-          },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
-              }
+      })
+      .finally(() => {
+        this.BarChart = new Chart('barChart', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+            datasets: [{
+              label: '# of Votes',
+              data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
             }]
+          },
+          options: {
+            title: {
+              text: 'Aylık Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
+                }
+              }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
+            },
           }
-        }
+        });
       });
-    });
 
     this.populateActivityList();
     this.populateVisitList();

@@ -7,7 +7,6 @@ import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {AccountTransactionService} from '../services/account-transaction.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {InformationService} from '../services/information.service';
 import {
   getDateForInput,
@@ -27,9 +26,8 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {CustomerAccountService} from '../services/customer-account.service'
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-payment',
@@ -67,7 +65,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
               public service: PaymentService, public sService: SettingService, public cdService: CashDeskService,
               public cService: CustomerService, public db: AngularFirestore, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
-              public accService: CustomerAccountService) {
+              public accService: CustomerAccountService, public globService: GlobalService) {
   }
 
   ngOnInit() {
@@ -249,9 +247,25 @@ export class PaymentComponent implements OnInit, OnDestroy {
             scales: {
               yAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
                 }
               }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
             }
           }
         });
@@ -313,8 +327,20 @@ export class PaymentComponent implements OnInit, OnDestroy {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.finishFinally();
-    await this.route.navigate(['payment', {}]);
+    try {
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        await this.route.navigate(['payment', {}]);
+        this.populateCharts();
+      }
+      this.finishFinally();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   async btnNew_Click(): Promise<void> {

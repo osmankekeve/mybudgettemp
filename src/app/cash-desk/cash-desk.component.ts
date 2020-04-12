@@ -7,7 +7,7 @@ import {AccountTransactionService} from '../services/account-transaction.service
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
-  getBeginOfYear, getBeginOfYearForInput,
+  getBeginOfYear, getBeginOfYearForInput, getEncryptionKey,
   getFirstDayOfMonthForInput,
   getFloat,
   getNumber,
@@ -21,6 +21,7 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-cash-desk',
@@ -37,6 +38,7 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   totalValues = {
     amount: 0
   };
+  encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
   filterBeginDate: any;
@@ -54,6 +56,14 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem.returnData);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -284,6 +294,12 @@ export class CashDeskComponent implements OnInit, OnDestroy {
               ],
               borderWidth: 1
             }]
+          },
+          options: {
+            title: {
+              text: 'Cari Hareketler',
+              display: true
+            }
           }
         });
       });

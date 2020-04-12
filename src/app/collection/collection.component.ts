@@ -30,6 +30,7 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-collection',
@@ -66,7 +67,8 @@ export class CollectionComponent implements OnInit {
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: CollectionService, public cdService: CashDeskService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public cService: CustomerService,
-              public db: AngularFirestore, public sService: SettingService, public accService: CustomerAccountService) {
+              public db: AngularFirestore, public sService: SettingService, public accService: CustomerAccountService,
+              public globService: GlobalService) {
   }
 
   ngOnInit() {
@@ -245,9 +247,25 @@ export class CollectionComponent implements OnInit {
             scales: {
               yAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
                 }
               }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
             }
           }
         });
@@ -314,9 +332,20 @@ export class CollectionComponent implements OnInit {
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
-    await this.route.navigate(['collection', {}]);
-    this.populateCharts();
+    try {
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        await this.route.navigate(['collection', {}]);
+        this.populateCharts();
+      }
+      this.finishFinally();
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   async btnNew_Click(): Promise<void> {

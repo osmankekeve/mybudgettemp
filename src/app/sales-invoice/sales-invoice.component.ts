@@ -116,8 +116,8 @@ export class SalesInvoiceComponent implements OnInit {
           const item = data.returnData as SalesInvoiceMainModel;
           if (item.actionType === 'added') {
             this.mainList.push(item);
-            this.totalValues.totalPrice -= item.data.totalPrice;
-            this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+            this.totalValues.totalPrice += item.data.totalPrice;
+            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
           }
           if (item.actionType === 'removed') {
             for (let i = 0; i < this.mainList.length; i++) {
@@ -249,9 +249,25 @@ export class SalesInvoiceComponent implements OnInit {
             scales: {
               yAxes: [{
                 ticks: {
-                  beginAtZero: true
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
                 }
               }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
             }
           }
         });
@@ -314,7 +330,7 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      const previousModule = this.router.snapshot.paramMap.get('previousModule').toString();
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
       const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
 
       if (previousModule !== null && previousModulePrimaryKey !== null) {
@@ -324,6 +340,7 @@ export class SalesInvoiceComponent implements OnInit {
         await this.route.navigate(['sales-invoice', {}]);
         this.populateCharts();
       }
+      this.finishFinally();
     } catch (error) {
       this.infoService.error(error);
     }

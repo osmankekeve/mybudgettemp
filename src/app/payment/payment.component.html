@@ -125,7 +125,7 @@
                 </div>
               </div>
               <div class="work-area-6">
-                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                      (click)="showSelectedRecord(item)"
                      *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                   <div class="row">
@@ -170,7 +170,7 @@
               </div>
             </div>
             <div class="work-area-6">
-              <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+              <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
@@ -213,13 +213,14 @@
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-8">
         <img src="../../assets/images/payment.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Ödeme Detayı
-          <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
-        </h4>
+        <h4 class="card-title float-left mr-2">Ödeme Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+      <div class="col-sm-4">
+        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
       </div>
     </div>
   </div>

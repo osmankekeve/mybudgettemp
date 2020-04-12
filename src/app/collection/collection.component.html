@@ -178,6 +178,7 @@
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
                 <div class="row">
                   <div class="col-sm-3">
+                    <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
                     <span class="text-danger mr-2">{{item.customerName}}</span>
                     <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
                     <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
@@ -216,13 +217,14 @@
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-8">
         <img src="../../assets/images/collection.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Tahsilat Detayı
-          <fa name="cog" animation="spin" *ngIf="isRecordHasTransaction"></fa>
-        </h4>
+        <h4 class="card-title float-left mr-2">Tahsilat Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+      <div class="col-sm-4">
+        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
       </div>
     </div>
   </div>
@@ -328,7 +330,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction || !f.valid"
                 (click)="btnSave_Click()">Kaydet
         </button>
@@ -342,7 +344,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction"
                 (click)="btnApprove_Click()">Onayla
         </button>
@@ -356,7 +358,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnRemove_Click()">Kaldır
         </button>
@@ -370,7 +372,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnReject_Click()">Geri Çevir
         </button>
@@ -384,7 +386,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnReturnRecord_Click()">İptal Et
         </button>

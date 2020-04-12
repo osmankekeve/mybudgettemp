@@ -74,27 +74,26 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of mainList; index as i; trackBy: primaryKey">
-          <div class="card-list-parent">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col">
-                    <label class="font-weight-bold text-dark"
-                           *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</label>
-                    <label class="font-weight-bold text-dark" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm
-                      Kullanıcılar</label>
-                  </div>
-                  <div class="col">
-                    <label
-                      class="text-dark text-small float-right">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</label>
-                  </div>
-                </div>
-                <div class="text-dark text-small">{{item.data.description}}</div>
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-danger text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-2">Personel Adı</div>
+            <div class="col-sm-2">Tarih</div>
+            <div class="col-sm-8">Not</div>
+          </div>
+        </div>
+        <div class="work-area-6">
+          <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
+               (click)="showSelectedRecord(item)"
+               *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+            <div class="row">
+              <div class="col-sm-2">
+                <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
+                <span class="text-danger mr-2"*ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</span>
+                <span class="text-danger mr-2"*ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</span>
               </div>
+              <div class="col-sm-2">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
+              <div class="col-sm-8">{{item.data.description}}</div>
             </div>
           </div>
         </div>
