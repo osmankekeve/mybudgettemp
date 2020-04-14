@@ -19,6 +19,8 @@ import {AccountVoucherService} from '../services/account-voucher.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
+import {RouterModel} from '../models/router-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,7 +43,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
               public siService: SalesInvoiceService, public colService: CollectionService, public tdService: ToDoService,
-              public cdService: CashDeskVoucherService, public avService: AccountVoucherService,
+              public cdService: CashDeskVoucherService, public avService: AccountVoucherService, public globService: GlobalService,
               public atService: AccountTransactionService, public crmService: CustomerRelationService,
               public puService: PurchaseInvoiceService, public pService: PaymentService) {
   }
@@ -279,63 +281,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async showTransaction(item: AccountTransactionMainModel): Promise<void> {
-    let data;
-    if (item.data.transactionType === 'salesInvoice') {
-      data = await this.siService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['sales-invoice', {
-          paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-            this.encryptSecretKey).toString()
-        }]);
-      }
-    } else if (item.data.transactionType === 'collection') {
-      data = await this.colService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['collection',
-          {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-              this.encryptSecretKey).toString()
-          }]);
-      }
-    } else if (item.data.transactionType === 'purchaseInvoice') {
-      data = await this.puService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['purchaseInvoice',
-          {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-              this.encryptSecretKey).toString()
-          }]);
-      }
-    } else if (item.data.transactionType === 'payment') {
-      data = await this.pService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['payment',
-          {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-              this.encryptSecretKey).toString()
-          }]);
-      }
-    } else if (item.data.transactionType === 'accountVoucher') {
-      data = await this.avService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['account-voucher',
-          {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-              this.encryptSecretKey).toString()
-          }]);
-      }
-    } else if (item.data.transactionType === 'cashdeskVoucher') {
-      data = await this.cdService.getItem(item.data.transactionPrimaryKey);
-      if (data) {
-        await this.router.navigate(['cashdesk-voucher',
-          {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(data.returnData),
-              this.encryptSecretKey).toString()
-          }]);
-      }
-    } else {
-      this.infoService.error('Modül bulunamadı.');
-    }
+    const r = new RouterModel();
+    r.nextModule = item.data.transactionType;
+    r.nextModulePrimaryKey = item.data.transactionPrimaryKey;
+    r.previousModule = 'dashboard';
+    r.previousModulePrimaryKey = '';
+    await this.globService.showTransactionRecord(r);
   }
 
   btnRemoveTodo_Click(item: TodoListMainModel): void {

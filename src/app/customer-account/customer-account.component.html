@@ -124,6 +124,20 @@
                   <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="bankName">Banka Adı</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="bankName" name="bankName" type="text"
+                         [(ngModel)]="selectedRecord.data.bankName">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="accountNo">Hesap Numarası</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="accountNo" name="accountNo" type="text"
+                         [(ngModel)]="selectedRecord.data.accountNo">
+                </div>
+                <div class="col-sm-3">
                   <label class="col-form-label float-left" for="description">Açıklama</label>
                 </div>
                 <div class="col-sm-9">

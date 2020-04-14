@@ -121,6 +121,9 @@ export class GlobalService {
           }]);
         });
       }
+      if (previousModule === 'dashboard') {
+        await this.route.navigate([previousModule]);
+      }
     }
   }
 }

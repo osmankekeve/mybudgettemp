@@ -224,7 +224,7 @@
     <div class="col-sm-9">
     </div>
     <div class="col-sm-3">
-      <div class="card" style="border-radius: 25px;">
+      <div class="card" style="border-radius: 25px;max-width: 350px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
             <h4>My Budget</h4>
@@ -262,7 +262,7 @@
 
     </div>
     <div class="col-sm-3">
-      <div class="card" style="border-radius: 25px;">
+      <div class="card" style="border-radius: 25px;max-width: 350px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
             <h4>My Budget</h4>
@@ -284,7 +284,8 @@
           </div>
           <div class="form-group">
             <button type="button" style="border-radius: 25px;" class="btn btn-secondary btn-block"
-                    [disabled]="onTransaction" (click)="btnLoginEmployee_Click()">
+                    [disabled]="onTransaction"
+                    (click)="btnLoginEmployee_Click()">
               <i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kullanıcı Girişi
             </button>
           </div>

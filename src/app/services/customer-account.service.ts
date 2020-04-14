@@ -96,6 +96,8 @@ export class CustomerAccountService {
     if (model.currencyCode === undefined) { model.currencyCode = cleanModel.currencyCode; }
     if (model.description === undefined) { model.description = cleanModel.description; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.accountNo === undefined) { model.accountNo = cleanModel.accountNo; }
+    if (model.bankName === undefined) { model.bankName = cleanModel.bankName; }
     return model;
   }
 
@@ -108,6 +110,8 @@ export class CustomerAccountService {
     returnData.name = '';
     returnData.currencyCode = 'lira';
     returnData.description = '';
+    returnData.accountNo = '';
+    returnData.bankName = '';
     returnData.isActive = true;
     returnData.insertDate = Date.now();
 
