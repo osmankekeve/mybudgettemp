@@ -3,12 +3,10 @@ import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firest
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {NoteModel} from '../models/note-model';
 import {NoteService} from '../services/note.service';
 import {ExcelService} from '../services/excel-service';
 import {Router} from '@angular/router';
 import {NoteMainModel} from '../models/note-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-note',
