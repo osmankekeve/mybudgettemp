@@ -10,10 +10,11 @@ import {PaymentModel} from '../models/payment-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {MailMainModel} from '../models/mail-main-model';
-import {getCashDeskVoucherType, getMailParents, getString} from '../core/correct-library';
+import {getCashDeskVoucherType, getMailParents, getString, isNullOrEmpty} from '../core/correct-library';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {ProfileModel} from '../models/profile-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,20 @@ export class MailService {
   async updateItem(record: MailMainModel) {
     await this.logService.sendToLog(record, 'update', 'mail');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  checkForSave(record: MailMainModel): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (record.data.mailTo.trim() === '') {
+        reject('Lütfen alıcı adresi giriniz.');
+      } else if (record.data.subject.trim() === '') {
+        reject('Lütfen başlık giriniz.');
+      } else if (record.data.content.trim() === '') {
+        reject('Lütfen içerik giriniz.');
+      } else {
+        resolve(null);
+      }
+    });
   }
 
   clearSubModel(): MailModel {

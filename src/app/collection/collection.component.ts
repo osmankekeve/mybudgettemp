@@ -29,7 +29,6 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {GlobalService} from '../services/global.service';
 
 @Component({

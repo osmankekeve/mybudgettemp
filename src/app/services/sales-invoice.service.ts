@@ -14,7 +14,6 @@ import {currencyFormat, getFloat, getStatus, isNullOrEmpty} from '../core/correc
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
-import {InformationService} from './information.service';
 import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({

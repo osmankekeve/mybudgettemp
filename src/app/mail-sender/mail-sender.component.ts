@@ -19,7 +19,7 @@ import {SimpleModel} from '../models/simple-model';
   templateUrl: './mail-sender.component.html',
   styleUrls: ['./mail-sender.component.css']
 })
-export class MailSenderComponent implements OnInit, OnDestroy {
+export class MailSenderComponent implements OnInit {
   mainList: Array<MailMainModel>;
   receiversList: Array<SimpleModel>;
   selectedRecord: MailMainModel;
@@ -29,6 +29,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   searchText: '';
+  onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: MailService, public eService: ProfileService,
               public infoService: InformationService, public route: Router, public cService: CustomerService,
@@ -40,9 +41,6 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     this.populateList();
     this.userDetails = this.authService.isUserLoggedIn();
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
-  }
-
-  ngOnDestroy(): void {
   }
 
   populateList(): void {
@@ -100,50 +98,60 @@ export class MailSenderComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
   }
 
-  btnSave_Click() {
+  async btnSave_Click() {
+    this.onTransaction = true;
     try {
-      if (this.selectedRecord.data.mailTo === '') {
-        this.infoService.error('Lütfen alıcı adresi giriniz');
-      } else if (this.selectedRecord.data.subject === '') {
-        this.infoService.error('Lütfen başlık giriniz');
-      } else if (this.selectedRecord.data.content === '') {
-        this.infoService.error('Lütfen içerik giriniz');
-      } else {
-        if (this.selectedRecord.data.primaryKey === null) {
-          const mailAddress = this.selectedRecord.data.mailTo.split(';');
-          /*for (const item: string of mailAddress) {
-            console.log(item);
-          }*/
-          const sendData = {
-            receiverMailAddress: this.selectedRecord.data.mailTo,
-            receiverName: this.selectedRecord.customerName,
-            senderName: this.selectedRecord.employeeName,
-            subject: this.selectedRecord.data.subject,
-            content: this.selectedRecord.data.content
-          };
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          if (this.selectedRecord.data.primaryKey === null) {
+            const mailAddress = this.selectedRecord.data.mailTo.split(';');
+            /*for (const item: string of mailAddress) {
+              console.log(item);
+            }*/
+            if (this.selectedRecord.customerName.trim() === '') {this.selectedRecord.customerName = this.selectedRecord.data.mailTo;}
+            const sendData = {
+              receiverMailAddress: this.selectedRecord.data.mailTo,
+              receiverName: this.selectedRecord.customerName,
+              senderName: this.selectedRecord.employeeName,
+              subject: this.selectedRecord.data.subject,
+              content: this.selectedRecord.data.content
+            };
 
-          if (CONFIG.isSendMail) {
-            emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, sendData, CONFIG.mjsUserID)
-              .then((result: EmailJSResponseStatus) => {
-                if (result.text === 'OK') {
-                  this.selectedRecord.data.isSend = true;
-                  this.selectedRecord.isSendTr = 'Gönderildi';
-                } else {
-                  this.selectedRecord.data.isSend = false;
-                  this.selectedRecord.isSendTr = 'Gönderilemedi';
-                }
-                this.selectedRecord.data.primaryKey = '';
-                this.service.addItem(this.selectedRecord)
-                  .then((item) => {
-                    this.infoService.success('Mail başarıyla gönderildi.');
-                    this.selectedRecord = undefined;
-                  }).catch(err => this.infoService.error(err));
-              }, (error) => {
-                console.log(error.text);
-              });
+            if (CONFIG.isSendMail) {
+              emailjs.send(CONFIG.mjsServiceID, CONFIG.mjsMainTemplateID, sendData, CONFIG.mjsUserID)
+                .then(async (result: EmailJSResponseStatus) => {
+                  if (result.text === 'OK') {
+                    this.selectedRecord.data.isSend = true;
+                    this.selectedRecord.isSendTr = 'Gönderildi';
+                  } else {
+                    this.selectedRecord.data.isSend = false;
+                    this.selectedRecord.isSendTr = 'Gönderilemedi';
+                  }
+                  this.selectedRecord.data.primaryKey = '';
+                  await this.service.addItem(this.selectedRecord)
+                    .then((item) => {
+                      this.infoService.success('Mail başarıyla gönderildi.');
+                      this.selectedRecord = undefined;
+                    })
+                    .catch((error) => {
+                      this.finishProcess(error, null);
+                    })
+                    .finally(() => {
+                      this.finishFinally();
+                    });
+                })
+                .catch((error) => {
+                  this.finishProcess(error, null);
+                })
+                .finally(() => {
+                  this.finishFinally();
+                });
+            }
           }
-        }
-      }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (err) {
       this.infoService.error(err);
     }
@@ -215,5 +223,24 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
+  }
+
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  finishFinally(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
   }
 }
