@@ -5,7 +5,33 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-6">
-
+        <div *ngIf="mainList != undefined; else elseBlock2">
+          <div class="list-group mb-2" *ngIf="mainList.length > 0; else elseBlock">
+            <div class="list-group-item bg-success text-light main-list-item">
+              <div class="row">
+                <div class="col-sm-2">#</div>
+                <div class="col-sm-7">Dosya Adı</div>
+                <div class="col-sm-3">Boyut</div>
+              </div>
+            </div>
+            <div class="list-group-item list-group-item-action main-list-item"
+                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+              <div class="row">
+                <div class="col-sm-2"><img [src]="item.data.downloadURL" width="50px"></div>
+                <div class="col-sm-7">{{item.data.fileName}}</div>
+                <div class="col-sm-3">{{item.data.size}} Byte</div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock2>
+          <div class="loader"></div>
+        </ng-template>
       </div>
       <div class="col-sm-6">
 

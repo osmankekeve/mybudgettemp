@@ -8,6 +8,7 @@ import { AuthenticationService } from '../services/authentication.service';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
+import {FileMainModel} from '../models/file-main-model';
 
 @Component({
   selector: 'app-file-upload',
@@ -16,11 +17,11 @@ import { CustomerService } from '../services/customer.service';
 })
 
 export class FileUploadComponent implements OnInit {
-  mainList: Array<FileModel>;
+  mainList: Array<FileMainModel>;
   selectedFiles: FileList;
   currentFileUpload: FileUpload;
-  selectedRecord: FileModel;
-  refModel: FileModel;
+  selectedRecord: FileMainModel;
+  refModel: FileMainModel;
   customerList$: Observable<CustomerModel[]>;
   progress: { percentage: number } = { percentage: 0 };
   progressShow = false;
@@ -72,12 +73,12 @@ export class FileUploadComponent implements OnInit {
 
       this.storageService.uploadFileAsync(this.currentFileUpload, this.progress).then((data) => {
         if (data.state === 'success') {
-          this.selectedRecord.primaryKey = '';
-          this.selectedRecord.fileName = this.currentFileUpload.file.name;
-          this.selectedRecord.size = this.currentFileUpload.file.size;
-          this.selectedRecord.type = this.currentFileUpload.file.type;
-          this.selectedRecord.path = data.metadata.fullPath;
-          if (this.selectedRecord.parentType !== 'customer') { this.selectedRecord.customerPrimaryKey = '-1'; }
+          this.selectedRecord.data.primaryKey = '';
+          this.selectedRecord.data.fileName = this.currentFileUpload.file.name;
+          this.selectedRecord.data.size = this.currentFileUpload.file.size;
+          this.selectedRecord.data.type = this.currentFileUpload.file.type;
+          this.selectedRecord.data.path = data.metadata.fullPath;
+          if (this.selectedRecord.data.parentType !== 'customer') { this.selectedRecord.data.customerPrimaryKey = '-1'; }
           this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Dosya başarılı şekilde yüklendi.');
@@ -93,13 +94,13 @@ export class FileUploadComponent implements OnInit {
 
   btnDownloadFile_Click(): void {
     try {
-      this.storageRef.storage.ref(this.selectedRecord.path)
+      this.storageRef.storage.ref(this.selectedRecord.data.path)
       .getDownloadURL().then(url => {
         console.log(url);
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
         downloadLink.target = '_blank';
-        downloadLink.setAttribute('download', (this.selectedRecord.path));
+        downloadLink.setAttribute('download', (this.selectedRecord.data.path));
         document.body.appendChild(downloadLink);
         downloadLink.click();
       }).catch(err => this.infoService.error(err));
@@ -110,7 +111,7 @@ export class FileUploadComponent implements OnInit {
 
   btnRemoveFile_Click(): void {
     try {
-      this.storageRef.storage.ref(this.selectedRecord.path).delete().then(() => {
+      this.storageRef.storage.ref(this.selectedRecord.data.path).delete().then(() => {
         this.service.removeItem(this.selectedRecord)
         .then(() => {
           this.infoService.success('Dosya başarılı şekilde kaldırıldı.');
@@ -146,8 +147,8 @@ export class FileUploadComponent implements OnInit {
   }
 
   showSelectedRecord(file: any) {
-    this.selectedRecord = file.data as FileModel;
-    this.refModel = file.data as FileModel;
+    this.selectedRecord = file as FileMainModel;
+    this.refModel = file as FileMainModel;
   }
 
   sendFile() {
@@ -183,8 +184,7 @@ export class FileUploadComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.refModel = undefined;
-    this.selectedRecord = {primaryKey: undefined, customerPrimaryKey: '-1', fileName: '', path: '', size: 0, type: '-1',
-    userPrimaryKey: this.authService.getUid(), insertDate: new Date().getTime(), parentType: 'shared', downloadURL: '' };
+    this.selectedRecord = this.service.clearMainModel();
   }
 
 }

@@ -219,6 +219,13 @@ export const getModuleIcons = () => {
   ]);
 };
 
+export const getFileIcons = () => {
+  return new Map([
+    ['text', '../../assets/icons/text.png'],
+    ['pdf', '../../assets/icons/pdf.png'],
+  ]);
+};
+
 export const currencyFormat = (data: any) => {
   return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY'}).format(data);
 };

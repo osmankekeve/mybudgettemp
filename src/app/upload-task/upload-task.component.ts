@@ -7,6 +7,7 @@ import {FileUpload} from '../../file-upload.config';
 import {FileModel} from '../models/file-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {AuthenticationService} from '../services/authentication.service';
+import {FileMainModel} from '../models/file-main-model';
 
 @Component({
   selector: 'app-upload-task',
@@ -20,7 +21,8 @@ export class UploadTaskComponent implements OnInit {
   snapshot: Observable<any>;
   downloadURL: string;
 
-  constructor(private storage: AngularFireStorage, public authService: AuthenticationService, public service: FileUploadService) { }
+  constructor(private storage: AngularFireStorage, public db: AngularFirestore,
+              public authService: AuthenticationService, public service: FileUploadService) { }
 
   ngOnInit() {
     this.startUpload();
@@ -44,16 +46,14 @@ export class UploadTaskComponent implements OnInit {
       // The file's download URL
       finalize( async () =>  {
         this.downloadURL = await ref.getDownloadURL().toPromise();
-        const fileData = new FileModel();
-        fileData.customerPrimaryKey = '-1';
-        fileData.userPrimaryKey = this.authService.getUid();
-        fileData.insertDate = new Date().getTime();
-        fileData.downloadURL = this.downloadURL;
-        fileData.parentType = 'shared';
-        fileData.size = this.file.size;
-        fileData.type = this.file.type;
-        fileData.fileName = this.file.name;
-        await this.service.addItem(fileData);
+        const fileData = this.service.clearMainModel();
+        fileData.data.primaryKey = this.db.createId();
+        fileData.data.downloadURL = this.downloadURL;
+        fileData.data.parentType = 'shared';
+        fileData.data.size = this.file.size;
+        fileData.data.type = this.file.type;
+        fileData.data.fileName = this.file.name;
+        await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
       }),
     );
   }

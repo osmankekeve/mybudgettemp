@@ -11,13 +11,17 @@ import {Observable, combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
+import {currencyFormat, getFileIcons, getStatus} from '../core/correct-library';
+import {CollectionMainModel} from '../models/collection-main-model';
+import {FileMainModel} from '../models/file-main-model';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileUploadService {
   listCollection: AngularFirestoreCollection<FileModel>;
-  mainList$: Observable<FileModel[]>;
+  mainList$: Observable<FileMainModel[]>;
   tableName = 'tblFiles';
   storageRef = storage().ref('files');
   uid: string;
@@ -28,31 +32,75 @@ export class FileUploadService {
               public db: AngularFirestore) {
   }
 
-  getAllItems(): Observable<FileModel[]> {
-    this.listCollection = this.db.collection<FileModel>(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.valueChanges({idField: 'primaryKey'});
-    return this.mainList$;
-  }
-
-  async addItem(record: FileModel) {
+  async addItem(record: FileMainModel) {
     await this.logService.sendToLog(record, 'insert', 'fileUpload');
-    return await this.listCollection.add(record);
+    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: FileModel) {
+  async removeItem(record: FileMainModel) {
     await this.logService.sendToLog(record, 'delete', 'fileUpload');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: FileModel) {
+  async updateItem(record: FileMainModel) {
     await this.logService.sendToLog(record, 'update', 'fileUpload');
-    return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: FileModel, primaryKey: string) {
+  async setItem(record: FileMainModel, primaryKey: string) {
     await this.logService.sendToLog(record, 'insert', 'fileUpload');
     return await this.listCollection.doc(primaryKey).set(record);
+  }
+
+  clearSubModel(): FileModel {
+
+    const returnData = new FileModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.customerPrimaryKey = '-1';
+    returnData.parentType = 'shared';
+    returnData.fileName = '';
+    returnData.downloadURL = '';
+    returnData.path = '';
+    returnData.size = 0;
+    returnData.type = '';
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): FileMainModel {
+    const returnData = new FileMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.actionType = 'added';
+    return returnData;
+  }
+
+  checkFields(model: FileModel): FileModel {
+    const cleanModel = this.clearSubModel();
+    if (model.customerPrimaryKey === undefined) {
+      model.customerPrimaryKey = cleanModel.customerPrimaryKey;
+    }
+    if (model.parentType === undefined) {
+      model.parentType = cleanModel.parentType;
+    }
+    if (model.fileName === undefined) {
+      model.fileName = cleanModel.fileName;
+    }
+    if (model.type === undefined) {
+      model.type = cleanModel.type;
+    }
+    if (model.downloadURL === undefined) {
+      model.downloadURL = cleanModel.downloadURL;
+    }
+    if (model.path === undefined) {
+      model.path = cleanModel.path;
+    }
+    if (model.size === undefined) {
+      model.size = cleanModel.size;
+    }
+
+    return model;
   }
 
   uploadFile(fileUpload: FileUpload, progress: { percentage: number }) {
@@ -74,7 +122,6 @@ export class FileUploadService {
   }
 
   uploadFileAsync = async (fileUpload: FileUpload, progress: { percentage: number }):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<any> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const fileName: string = fileUpload.name;
@@ -94,7 +141,7 @@ export class FileUploadService {
     }
   })
 
-  getMainItems(): Observable<FileModel[]> {
+  getMainItems(): Observable<FileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
@@ -102,16 +149,24 @@ export class FileUploadService {
         const data = change.payload.doc.data() as FileModel;
         data.primaryKey = change.payload.doc.id;
 
+        const returnData = new FileMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+        if (data.type.startsWith('text')) {
+          data.downloadURL = getFileIcons().get('text');
+        }
+
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({data, actionType: change.type});
+            returnData.customerName = customer !== undefined ? customer.name : '';
+            return Object.assign({returnData});
           }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<FileModel[]> {
+  getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<FileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
         .where('customerPrimaryKey', '==', customerPrimaryKey));
@@ -120,9 +175,17 @@ export class FileUploadService {
         const data = change.payload.doc.data() as FileModel;
         data.primaryKey = change.payload.doc.id;
 
+        const returnData = new FileMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+        if (data.type.startsWith('text')) {
+          data.downloadURL = getFileIcons().get('text');
+        }
+
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            return Object.assign({data, actionType: change.type});
+            returnData.customerName = customer !== undefined ? customer.name : '';
+            return Object.assign({returnData});
           }));
       });
     }), flatMap(feeds => combineLatest(feeds)));

@@ -49,6 +49,7 @@ import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
+import {FileMainModel} from '../models/file-main-model';
 
 @Component({
   selector: 'app-customer',
@@ -85,7 +86,7 @@ export class CustomerComponent implements OnInit {
   transactionList: Array<AccountTransactionModel>;
   totalValues = 0;
   BarChart: any;
-  filesList$: Observable<FileModel[]>;
+  filesList$: Observable<FileMainModel[]>;
   visitList$: Observable<VisitMainModel[]>;
   targetList$: Observable<CustomerTargetMainModel[]>;
   mailList$: Observable<MailMainModel[]>;

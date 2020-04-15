@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import {FileModel} from '../models/file-model';
+import {FileUploadService} from '../services/file-upload.service';
+import {FileMainModel} from '../models/file-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-uploader',
@@ -6,11 +10,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./uploader.component.css']
 })
 export class UploaderComponent implements OnInit {
-  constructor() { }
+  constructor( public service: FileUploadService) { }
+  mainList: Array<FileMainModel>;
   isHovering: boolean;
   files: File[] = [];
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.populateList();
+  }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
@@ -20,6 +27,40 @@ export class UploaderComponent implements OnInit {
     for (let i = 0; i < files.length; i++) {
       this.files.push(files.item(i));
     }
+  }
+
+  populateList(): void {
+    this.mainList = undefined;
+    this.service.getMainItems().subscribe(list => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as FileMainModel;
+        if (item.actionType === 'added') {
+          this.mainList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+            }
+          }
+        }
+      });
+    });
+    setTimeout (() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
 }
