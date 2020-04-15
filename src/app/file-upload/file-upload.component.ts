@@ -184,7 +184,7 @@ export class FileUploadComponent implements OnInit {
   clearSelectedRecord(): void {
     this.refModel = undefined;
     this.selectedRecord = {primaryKey: undefined, customerPrimaryKey: '-1', fileName: '', path: '', size: 0, type: '-1',
-    userPrimaryKey: this.authService.getUid(), insertDate: new Date().getTime(), parentType: 'shared' };
+    userPrimaryKey: this.authService.getUid(), insertDate: new Date().getTime(), parentType: 'shared', downloadURL: '' };
   }
 
 }

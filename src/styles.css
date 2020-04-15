@@ -393,3 +393,24 @@ body {
   }
 }
 
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  font-weight: 200;
+  height: 300px;
+  border: 2px dashed #f16624;
+  border-radius: 5px;
+  background: white;
+  margin: 10px 0;
+ }
+
+.file-label {
+  font-size: 1.2em;
+}
+
+progress::-webkit-progress-value {
+  transition: width 0.1s ease;
+}
+

@@ -4,6 +4,7 @@ export class FileModel {
   customerPrimaryKey?: string;
   parentType: string; // shared, customer, user
   fileName: string;
+  downloadURL: string;
   path: string;
   size: number;
   type: string;

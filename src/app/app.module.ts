@@ -27,6 +27,9 @@ import { NoteFilterPipe } from './filters/note-filter.pipe';
 import { CashDeskFilterPipe } from './filters/cashDesk-filter.pipe';
 import { CashDeskVoucherFilterPipe } from './filters/cashDeskVoucher-filter.pipe';
 import {CustomerAccountFilterPipe} from './filters/customer-account-filter.pipe';
+import { DropzoneDirective } from './dropzone.directive';
+import { UploaderComponent } from './uploader/uploader.component';
+import { UploadTaskComponent } from './upload-task/upload-task.component';
 
 export const customCurrencyMaskConfig = {
   align: 'right',
@@ -44,7 +47,8 @@ export const customCurrencyMaskConfig = {
   declarations: [
     AppComponent, routingComponents,
     NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
-    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe
+    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
+    UploaderComponent, UploadTaskComponent
   ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule,

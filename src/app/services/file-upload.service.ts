@@ -92,7 +92,7 @@ export class FileUploadService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
-  });
+  })
 
   getMainItems(): Observable<FileModel[]> {
     this.listCollection = this.db.collection(this.tableName,

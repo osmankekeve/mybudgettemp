@@ -32,6 +32,7 @@ import { ContactUsComponent } from './contact-us/contact-us.component';
 import { MailSenderComponent } from './mail-sender/mail-sender.component';
 import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import {CustomerAccountComponent} from './customer-account/customer-account.component';
+import {UploaderComponent} from './uploader/uploader.component';
 
 
 const routes: Routes = [
@@ -72,6 +73,7 @@ const routes: Routes = [
   {path: 'mail-sender', component: MailSenderComponent, pathMatch: 'full'},
   {path: 'to-do-list', component: ToDoListComponent, pathMatch: 'full'},
   {path: 'customer-account', component: CustomerAccountComponent, pathMatch: 'full'},
+  {path: 'file-uploader', component: UploaderComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
