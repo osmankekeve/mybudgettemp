@@ -8,6 +8,9 @@ import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {CollectionModel} from '../models/collection-model';
+import {getUserTypes} from '../core/correct-library';
+import {CashDeskModel} from '../models/cash-desk-model';
+import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,11 +36,7 @@ export class ProfileService {
   }
 
   async updateItem(record: ProfileMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(record.data);
-  }
-
-  async getItem(record: ProfileMainModel) {
-    return this.db.collection(this.tableName).doc(record.data.primaryKey);
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
   checkForSave(record: ProfileMainModel): Promise<string> {
@@ -93,6 +92,7 @@ export class ProfileService {
     if (model.password === undefined) { model.password = cleanModel.password; }
     if (model.type === undefined) { model.type = cleanModel.type; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
 
     return model;
   }
@@ -105,6 +105,7 @@ export class ProfileService {
     returnData.phone = '';
     returnData.password = '';
     returnData.type = 'user';
+    returnData.pathOfProfilePicture = '../../assets/images/users.png';
     returnData.isActive = true;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
@@ -115,8 +116,9 @@ export class ProfileService {
   clearProfileMainModel(): ProfileMainModel {
     const returnData = new ProfileMainModel();
     returnData.data = this.clearProfileModel();
-    returnData.typeTr = this.typeMap.get(returnData.data.type);
+    returnData.typeTr = getUserTypes().get(returnData.data.type);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
     return returnData;
   }
 
@@ -136,9 +138,10 @@ export class ProfileService {
         data.primaryKey = change.payload.doc.id;
 
         const returnData = new ProfileMainModel();
-        returnData.data = data;
+        returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.typeTr = this.typeMap.get(data.type);
+        returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -149,13 +152,23 @@ export class ProfileService {
     return this.mainList$;
   }
 
-  getProfile(): any {
+  getItem(primaryKey: string, isSetToSession: boolean): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection('tblProfile').doc(JSON.parse(localStorage.getItem('employee'))).get().toPromise().then((item) => {
-        const returnData = new ProfileMainModel();
-        returnData.data = item.data() as ProfileModel;
-        returnData.typeTr = this.typeMap.get(returnData.data.type);
-        resolve(returnData);
+      this.db.collection(this.tableName).doc(primaryKey).get()
+        .toPromise()
+        .then(doc => {
+          if (doc.exists) {
+            const data = doc.data() as ProfileModel;
+            data.primaryKey = doc.id;
+
+            const returnData = this.clearProfileMainModel();
+            returnData.data = data;
+            returnData.typeTr = getUserTypes().get(returnData.data.type);
+            if (isSetToSession) {sessionStorage.setItem('employee', JSON.stringify(returnData)); }
+            resolve(Object.assign({returnData}));
+          } else {
+            resolve(null);
+          }
       });
     });
   }

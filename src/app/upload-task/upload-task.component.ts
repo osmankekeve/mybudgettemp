@@ -3,11 +3,9 @@ import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
-import {FileUpload} from '../../file-upload.config';
-import {FileModel} from '../models/file-model';
+import {FileUploadConfig} from '../../file-upload.config';
 import {FileUploadService} from '../services/file-upload.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {FileMainModel} from '../models/file-main-model';
 
 @Component({
   selector: 'app-upload-task',
@@ -31,7 +29,7 @@ export class UploadTaskComponent implements OnInit {
   startUpload() {
 
     // The storage path
-    const path = FileUpload.pathOfFiles + Date.now() + this.file.name;
+    const path = FileUploadConfig.pathOfFiles + Date.now() + this.file.name;
 
     // Reference to storage bucket
     const ref = this.storage.ref(path);

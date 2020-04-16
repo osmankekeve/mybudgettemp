@@ -9,9 +9,6 @@ import {CustomerModel} from '../models/customer-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
-import {NoteModel} from '../models/note-model';
-import {AccountTransactionService} from './account-transaction.service';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({

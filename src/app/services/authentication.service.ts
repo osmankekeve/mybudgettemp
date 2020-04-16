@@ -7,6 +7,7 @@ import { ProfileModel } from '../models/profile-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import { ProfileService } from './profile.service';
 import { LogService } from './log.service';
+import {getUserTypes} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -71,9 +72,32 @@ export class AuthenticationService {
     return user.data.primaryKey;
   }
 
+  checkFields(model: ProfileModel): ProfileModel {
+    const cleanModel = this.clearProfileModel();
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.longName === undefined) { model.longName = cleanModel.longName; }
+    if (model.mailAddress === undefined) { model.mailAddress = cleanModel.mailAddress; }
+    if (model.phone === undefined) { model.phone = cleanModel.phone; }
+    if (model.password === undefined) { model.password = cleanModel.password; }
+    if (model.type === undefined) { model.type = cleanModel.type; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
+
+    return model;
+  }
+
   clearProfileModel(): ProfileModel {
     const returnData = new ProfileModel();
     returnData.primaryKey = null;
+    returnData.longName = '';
+    returnData.mailAddress = '';
+    returnData.phone = '';
+    returnData.password = '';
+    returnData.type = 'user';
+    returnData.pathOfProfilePicture = '../../assets/images/users.png';
+    returnData.isActive = true;
     returnData.userPrimaryKey = this.getUid();
     returnData.insertDate = Date.now();
 
@@ -83,15 +107,18 @@ export class AuthenticationService {
   clearProfileMainModel(): ProfileMainModel {
     const returnData = new ProfileMainModel();
     returnData.data = this.clearProfileModel();
-    returnData.typeTr = 'admin';
+    returnData.typeTr = getUserTypes().get(returnData.data.type);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
     return returnData;
   }
 
   employeeLogin(email: string, password: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection('tblProfile',
-        ref => ref.where('userPrimaryKey', '==', this.getUid()).where('mailAddress', '==', email).where('password', '==', password)
+        ref => ref.where('userPrimaryKey', '==', this.getUid())
+          .where('mailAddress', '==', email)
+          .where('password', '==', password)
       ).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
@@ -99,14 +126,8 @@ export class AuthenticationService {
             data.primaryKey = doc.id;
 
             const returnData = this.clearProfileMainModel();
-            if (data.type === 'admin') {
-              returnData.typeTr = 'Administrator';
-            } else if (data.type === 'manager') {
-              returnData.typeTr = 'Yönetici';
-            } else {
-              returnData.typeTr = 'Kullanıcı';
-            }
-            returnData.data = data;
+            returnData.data = this.checkFields(data);
+            returnData.typeTr = getUserTypes().get(returnData.data.type);
             sessionStorage.setItem('employee', JSON.stringify(returnData));
             resolve(doc.id);
           });

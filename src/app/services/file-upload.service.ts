@@ -152,9 +152,10 @@ export class FileUploadService {
         const returnData = new FileMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        if (data.type.startsWith('text')) {
-          data.downloadURL = getFileIcons().get('text');
-        }
+
+        const lastDot = data.fileName.lastIndexOf('.');
+        const ext = data.fileName.substring(lastDot + 1);
+        returnData.fileIcon = getFileIcons().get(ext);
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {

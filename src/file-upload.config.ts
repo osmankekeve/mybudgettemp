@@ -2,7 +2,7 @@
 import * as colors from 'colors';
 
 // tslint:disable
-export const FileUpload = {
+export const FileUploadConfig = {
   pathOfFiles: 'files/',
-  pathOfProfileFiles: 'files/',
+  pathOfProfileFiles: 'profile/',
 };

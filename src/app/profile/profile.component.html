@@ -1,99 +1,154 @@
 <div class="card work-area">
-    <div class="card-header">
-        <div class="row">
-            <div class="col-sm-12">
-                <h4 class="card-title float-left mr-2">Profil</h4>
-            </div>
-        </div>
+  <div class="card-header">
+    <div class="row">
+      <div class="col-sm-12">
+        <h4 class="card-title float-left mr-2">Profil</h4>
+      </div>
     </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-sm-4">
-                    <div class="cursor-pointer mb-1" (click)="openPanel('mainPanel')">
-                        <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
-                            <div class="form-inline">
-                                <div style="width: 50px;">
-                                    <i class="fa fa-2x fa-user-circle mr-2"></i>
-                                </div>
-                                <label>Ana Sayfa</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cursor-pointer mb-1" (click)="openPanel('personalPanel')">
-                        <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
-                            <div class="form-inline">
-                                    <div style="width: 50px;">
-                                        <i class="fa fa-2x fa-address-card mr-2"></i>
-                                    </div>
-                                <label>Kişisel Bilgiler</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cursor-pointer mb-1" (click)="openPanel('securityPanel')">
-                        <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
-                            <div class="form-inline">
-                                    <div style="width: 50px;">
-                                        <i class="fa fa-2x fa-shield mr-2"></i>
-                                    </div>
-                                <label>Güvenlik</label>
-                            </div>
-                        </div>
-                    </div>
-
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-sm-4">
+        <div class="cursor-pointer mb-1" (click)="openPanel('mainPanel')">
+          <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+            <div class="form-inline">
+              <div style="width: 50px;">
+                <i class="fa fa-2x fa-user-circle mr-2"></i>
+              </div>
+              <label>Ana Sayfa</label>
             </div>
-            <div class="col-sm-8">
-                <div class="card bg-light" *ngIf="openedPanel == 'mainPanel'">
-                    <div class="card-body">
-                            mainPanel
-                    </div>
-                </div>
-                <div class="card bg-light" *ngIf="openedPanel == 'personalPanel'">
-                    <div class="card-body">
-                            <div class="text-center">
-                                <h4>Kişisel Bilgiler</h4>
-                                <h6 class="text-secondary">My Budget hizmetinizde kullanıcak kişisel bilgileriniz</h6>
-                            </div>
-                            <div class="form-inline">
-                                    <div class="col-sm-3">
-                                        <label class="col-form-label float-left" for="longName">Adı/Soyadı</label>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <input class="form-control form-control-sm w-100" id="longName" name="longName" type="text"
-                                            [(ngModel)]="selectedRecord.longName">
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <label class="col-form-label float-left" for="mailAddress">E Mail</label>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <input class="form-control form-control-sm w-100" id="mailAddress" name="mailAddress" type="text"
-                                            [(ngModel)]="selectedRecord.mailAddress">
-                                    </div>
-                                    <div class="col-sm-3">
-                                        <label class="col-form-label float-left" for="phone">Telefon</label>
-                                    </div>
-                                    <div class="col-sm-9">
-                                        <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
-                                            [(ngModel)]="selectedRecord.phone">
-                                    </div>
-                            </div>
-                    </div>
-                    <div class="card-footer">
-                        <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="btnSaveProfileClick()">
-                            <i class="fa fa-save mr-1"></i> Kaydet
-                        </button>
-                    </div>
+          </div>
+        </div>
+        <div class="cursor-pointer mb-1" (click)="openPanel('personalPanel')">
+          <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+            <div class="form-inline">
+              <div style="width: 50px;">
+                <i class="fa fa-2x fa-address-card mr-2"></i>
+              </div>
+              <label>Kişisel Bilgiler</label>
+            </div>
+          </div>
+        </div>
+        <div class="cursor-pointer mb-1" (click)="openPanel('securityPanel')">
+          <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+            <div class="form-inline">
+              <div style="width: 50px;">
+                <i class="fa fa-2x fa-shield mr-2"></i>
+              </div>
+              <label>Güvenlik</label>
+            </div>
+          </div>
+        </div>
 
+      </div>
+      <div class="col-sm-8">
+        <div class="card bg-light" *ngIf="openedPanel == 'mainPanel'">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-9">
+                <div class="list-group">
+                  <div class="list-group-item fs-14">
+                    <div class="row">
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Adı</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.longName}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Mail Adresi</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.mailAddress}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Telefon</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.phone}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Tipi</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.typeTr}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Durumu</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.isActiveTr}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Alım Sayısı</div>
+                      <div class="col-sm-6 text-secondary mb-1">-</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Ödeme Sayısı</div>
+                      <div class="col-sm-6 text-secondary mb-1">-</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Satış Sayısı</div>
+                      <div class="col-sm-6 text-secondary mb-1">-</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Tahsilat Sayısı</div>
+                      <div class="col-sm-6 text-secondary mb-1">-</div>
+                    </div>
+                  </div>
                 </div>
-                <div class="card bg-light" *ngIf="openedPanel == 'securityPanel'">
-                    <div class="card-body">
-                      <div class="text-center">
-                        <h4>Güvenlik Bilgileri</h4>
-                        <h6 class="text-secondary">My Budget sistemine giriş yapaılmeniz için şifre ve güvenlik adımlarıdır.</h6>
+              </div>
+              <div class="col-sm-3">
+                <img src='{{selectedRecord.data.pathOfProfilePicture}}' class="img-thumbnail text-center" width="250px">
+                <div class="custom-file mt-1">
+                  <div class="mb-1" *ngIf="progressShow">
+                    <div class="progress bg-success p-2">
+                      <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+                           [style.width]="progress?.percentage+'%'">
+                        {{progress?.percentage}}%
                       </div>
                     </div>
+                  </div>
+                  <input type="file" class="form-control mb-1"
+                         [disabled]="onTransaction"
+                         (change)="onFileChange($event)"/>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text success-icon-side">
+                        <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                        <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                      </span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-success form-control"
+                            [disabled]="onTransaction"
+                            (click)="btnUploadFile_Click()">Yükle
+                    </button>
+                  </div>
                 </div>
-
+              </div>
             </div>
+          </div>
         </div>
+        <div class="card bg-light" *ngIf="openedPanel == 'personalPanel'">
+          <div class="card-body">
+            <div class="text-center">
+              <h4>Kişisel Bilgiler</h4>
+              <h6 class="text-secondary">My Budget hizmetinizde kullanıcak kişisel bilgileriniz</h6>
+            </div>
+            <div class="form-inline">
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="longName">Adı/Soyadı</label>
+              </div>
+              <div class="col-sm-9">
+                <input class="form-control form-control-sm w-100" id="longName" name="longName" type="text"
+                       [(ngModel)]="selectedRecord.data.longName">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="mailAddress">E Mail</label>
+              </div>
+              <div class="col-sm-9">
+                <input class="form-control form-control-sm w-100" id="mailAddress" name="mailAddress" type="text"
+                       [(ngModel)]="selectedRecord.data.mailAddress">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="phone">Telefon</label>
+              </div>
+              <div class="col-sm-9">
+                <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
+                       [(ngModel)]="selectedRecord.data.phone">
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="btnSaveProfileClick()">
+              <i class="fa fa-save mr-1"></i> Kaydet
+            </button>
+          </div>
+
+        </div>
+        <div class="card bg-light" *ngIf="openedPanel == 'securityPanel'">
+          <div class="card-body">
+            <div class="text-center">
+              <h4>Güvenlik Bilgileri</h4>
+              <h6 class="text-secondary">My Budget sistemine giriş yapaılmeniz için şifre ve güvenlik adımlarıdır.</h6>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>

@@ -2,8 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { ProfileModel } from '../models/profile-model';
 import {ProfileService} from '../services/profile.service';
+import {ProfileMainModel} from '../models/profile-main-model';
+import {finalize} from 'rxjs/operators';
+import {FileUploadConfig} from '../../file-upload.config';
+import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
+import {Observable} from 'rxjs';
+import {FileUploadService} from '../services/file-upload.service';
 
 @Component({
   selector: 'app-profile',
@@ -12,14 +17,21 @@ import {ProfileService} from '../services/profile.service';
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   openedPanel = 'mainPanel';
-  selectedRecord: ProfileModel;
+  selectedRecord: ProfileMainModel;
+  selectedFiles: FileList;
+  progress: { percentage: number } = { percentage: 0 };
+  progressShow = false;
+  btnUploadProfilePicture = true;
+  snapshot: Observable<any>;
+  downloadURL: string;
+  onTransaction = false;
 
-  constructor(public authService: AuthenticationService,
-              public infoService: InformationService,
-              public service: ProfileService,
-              public db: AngularFirestore) { }
+  constructor(public authService: AuthenticationService, private storage: AngularFireStorage, public fuService: FileUploadService,
+              public infoService: InformationService, public service: ProfileService, public db: AngularFirestore) { }
 
   ngOnInit() {
+    this.selectedRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
+    console.log(this.selectedRecord);
   }
 
   ngOnDestroy(): void { }
@@ -32,15 +44,63 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  async showProfileData() {
-    const data = await this.service.getProfile();
+  async btnUploadFile_Click() {
+    try {
+      this.onTransaction = true;
+      if (this.selectedFiles === undefined) {
+        this.infoService.error('Lütfen dosya seçiniz.');
+        this.onTransaction = false;
+      } else {
+
+        const file = this.selectedFiles.item(0);
+        const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
+        const ref = await this.storage.ref(path);
+        this.storage.upload(path, file).then(async () => {
+          this.downloadURL = await ref.getDownloadURL().toPromise();
+          this.selectedRecord.data.pathOfProfilePicture = this.downloadURL;
+          this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.service.getItem(this.selectedRecord.data.primaryKey, true).then((item) => {
+                this.finishProcess(null, 'Profil resmi başarıyla değiştirildi.');
+              });
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        });
+      }
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
+  onFileChange(event) {
+    if (event) {
+      this.progress.percentage = 0;
+      this.progressShow = true;
+      this.btnUploadProfilePicture = false;
+      this.selectedFiles = event.target.files;
+    } else {
+      this.progress.percentage = 0;
+      this.progressShow = false;
+      this.btnUploadProfilePicture = true;
+      this.selectedFiles = new FileList();
+    }
   }
 
   openPanel(panel: string): void {
     this.openedPanel = panel;
-    if ( this.openedPanel === 'personalPanel') {
-      this.selectedRecord = JSON.parse(localStorage.getItem('employee'));
+  }
+
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
     }
+    this.onTransaction = false;
   }
 
 }

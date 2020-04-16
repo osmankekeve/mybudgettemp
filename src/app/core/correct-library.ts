@@ -168,6 +168,10 @@ export const getCurrencyTypes = () => {
   return new Map([['lira', 'Lira'], ['dollar', 'Dolar'], ['euro', 'Avro']]);
 };
 
+export const getUserTypes = () => {
+  return new Map([['admin', 'Administrator'], ['manager', 'Yönetici'], ['user', 'Kullanıcı']]);
+};
+
 export const getTerms = () => {
   return new Map([['cash', 'Nakit'], ['15G', '15 Gün'], ['30G', '30 Gün'], ['45G', '45 Gün'], ['60G', '60 Gün'], ['90G', '90 Gün'],
     ['120G', '120 Gün'], ['-1', 'Seçilmedi']]);
@@ -221,8 +225,28 @@ export const getModuleIcons = () => {
 
 export const getFileIcons = () => {
   return new Map([
-    ['text', '../../assets/icons/text.png'],
-    ['pdf', '../../assets/icons/pdf.png'],
+    ['txt', '../../assets/icons/txt-icon.png'],
+    ['7z', '../../assets/icons/7z-icon.png'],
+    ['ai', '../../assets/icons/ai-icon.png'],
+    ['doc', '../../assets/icons/doc-icon.png'],
+    ['rtf', '../../assets/icons/doc-icon.png'],
+    ['eps', '../../assets/icons/eps-icon.png'],
+    ['gif', '../../assets/icons/gif-icon.png'],
+    ['html', '../../assets/icons/html-icon.png'],
+    ['jpeg', '../../assets/icons/jpeg-icon.png'],
+    ['jpg', '../../assets/icons/jpg-icon.png'],
+    ['png', '../../assets/icons/png-icon.png'],
+    ['log', '../../assets/icons/log-icon.png'],
+    ['psd', '../../assets/icons/psd-icon.png'],
+    ['tiff', '../../assets/icons/tiff-icon.png'],
+    ['zip', '../../assets/icons/zip-icon.png'],
+    ['vcd', '../../assets/icons/vcd-icon.png'],
+    ['vcdx', '../../assets/icons/vcd-icon.png'],
+    ['vsd', '../../assets/icons/vcd-icon.png'],
+    ['vsdx', '../../assets/icons/vcd-icon.png'],
+    ['xls', '../../assets/icons/xls-icon.png'],
+    ['xlsx', '../../assets/icons/xlsx-icon.png'],
+    ['pdf', '../../assets/icons/pdf-icon.png'],
   ]);
 };
 
