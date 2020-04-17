@@ -50,6 +50,7 @@ import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
 import {FileMainModel} from '../models/file-main-model';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-customer',
@@ -103,7 +104,7 @@ export class CustomerComponent implements OnInit {
               public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
               public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
               public rService: ReportService, public proService: ProfileService, public accService: CustomerAccountService,
-              public mailService: MailService, public globService: GlobalService) {
+              public mailService: MailService, public globService: GlobalService, public gfuService: GlobalUploadService) {
   }
 
   async ngOnInit() {
@@ -496,6 +497,14 @@ export class CustomerComponent implements OnInit {
       } else {
         this.infoService.error('Aktarılacak kayıt bulunamadı.');
       }
+    } catch (error) {
+      this.infoService.error(error);
+    }
+  }
+
+  btnFileUpload_Click(): void {
+    try {
+      this.gfuService.showModal('', 'customer');
     } catch (error) {
       this.infoService.error(error);
     }

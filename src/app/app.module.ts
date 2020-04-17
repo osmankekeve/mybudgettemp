@@ -30,18 +30,7 @@ import {CustomerAccountFilterPipe} from './filters/customer-account-filter.pipe'
 import { DropzoneDirective } from './dropzone.directive';
 import { UploaderComponent } from './uploader/uploader.component';
 import { UploadTaskComponent } from './upload-task/upload-task.component';
-
-export const customCurrencyMaskConfig = {
-  align: 'right',
-  allowNegative: false,
-  allowZero: true,
-  decimal: ',',
-  precision: 2,
-  prefix: '₺ ',
-  suffix: '',
-  thousands: '.',
-  nullable: true
-};
+import {GlobalUploadService} from './services/global-upload.service';
 
 @NgModule({
   declarations: [
@@ -59,7 +48,7 @@ export const customCurrencyMaskConfig = {
     })
   ],
   providers: [
-    InformationService, CookieService, LogService, AuthenticationService, ExcelService
+    InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService
   ],
   bootstrap: [AppComponent]
 })

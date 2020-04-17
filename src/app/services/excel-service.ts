@@ -9,7 +9,6 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable()
 export class ExcelService {

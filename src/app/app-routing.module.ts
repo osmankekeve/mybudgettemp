@@ -33,6 +33,7 @@ import { MailSenderComponent } from './mail-sender/mail-sender.component';
 import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import {CustomerAccountComponent} from './customer-account/customer-account.component';
 import {UploaderComponent} from './uploader/uploader.component';
+import {GlobalUploadComponent} from './partials/global-upload/global-upload.component';
 
 
 const routes: Routes = [
@@ -89,7 +90,7 @@ export const routingComponents = [
   LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent,
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
-  AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent
+  AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.
