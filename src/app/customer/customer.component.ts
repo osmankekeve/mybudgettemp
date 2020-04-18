@@ -13,7 +13,6 @@ import {CashDeskService} from '../services/cash-desk.service';
 import {AccountVoucherService} from '../services/account-voucher.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
-import {FileModel} from '../models/file-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
@@ -87,8 +86,8 @@ export class CustomerComponent implements OnInit {
   transactionList: Array<AccountTransactionModel>;
   totalValues = 0;
   BarChart: any;
-  filesList$: Observable<FileMainModel[]>;
-  visitList$: Observable<VisitMainModel[]>;
+  filesList: Array<FileMainModel>;
+  visitList: Array<VisitMainModel>;
   targetList$: Observable<CustomerTargetMainModel[]>;
   mailList$: Observable<MailMainModel[]>;
   encryptSecretKey: string = getEncryptionKey();
@@ -504,7 +503,10 @@ export class CustomerComponent implements OnInit {
 
   btnFileUpload_Click(): void {
     try {
-      this.gfuService.showModal('', 'customer');
+      this.gfuService.showModal(
+        this.selectedCustomer.data.primaryKey,
+        'customer',
+        CryptoJS.AES.encrypt(JSON.stringify(this.selectedCustomer), this.encryptSecretKey).toString());
     } catch (error) {
       this.infoService.error(error);
     }
@@ -538,21 +540,28 @@ export class CustomerComponent implements OnInit {
         this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.data.primaryKey, panel);
       }
       if (this.openedPanel === 'salesInvoice') {
-        this.clearNewSalesInvoice();
-      } else if (this.openedPanel === 'collection') {
-        this.clearNewCollection();
-      } else if (this.openedPanel === 'purchaseInvoice') {
-        this.clearNewPurchaseInvoice();
-      } else if (this.openedPanel === 'payment') {
-        this.clearNewPayment();
-      } else if (this.openedPanel === 'accountVoucher') {
-        this.clearNewVoucher();
-      } else if (this.openedPanel === 'edit') {
+        await this.clearNewSalesInvoice();
+      }
+      if (this.openedPanel === 'collection') {
+        await this.clearNewCollection();
+      }
+      if (this.openedPanel === 'purchaseInvoice') {
+        await this.clearNewPurchaseInvoice();
+      }
+      if (this.openedPanel === 'payment') {
+        await this.clearNewPayment();
+      }
+      if (this.openedPanel === 'accountVoucher') {
+        await this.clearNewVoucher();
+      }
+      if (this.openedPanel === 'edit') {
 
-      } else if (this.openedPanel === 'target') {
+      }
+      if (this.openedPanel === 'target') {
         this.targetList$ = undefined;
         this.targetList$ = this.ctService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
-      } else if (this.openedPanel === 'accountSummary') {
+      }
+      if (this.openedPanel === 'accountSummary') {
         this.totalValues = 0;
         this.rService.getCustomerTransactionsWithDateControl(this.selectedCustomer.data.primaryKey, undefined, undefined).then(list => {
           this.transactionList = list;
@@ -560,19 +569,72 @@ export class CustomerComponent implements OnInit {
             this.totalValues += item.amount;
           });
         });
-      } else if (this.openedPanel === 'dashboard') {
+      }
+      if (this.openedPanel === 'dashboard') {
         if (!this.selectedCustomer.data.primaryKey) {
-          this.btnReturnList_Click();
+          await this.btnReturnList_Click();
         }
-      } else if (this.openedPanel === 'fileUpload') {
-        this.filesList$ = undefined;
-        this.filesList$ = this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
-      } else if (this.openedPanel === 'visit') {
-        this.visitList$ = undefined;
-        this.visitList$ = this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey);
-
-      } else {
-
+      }
+      if (this.openedPanel === 'fileUpload') {
+        this.filesList = undefined;
+        this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey)
+          .subscribe(list => {
+            if (this.filesList === undefined) {
+              this.filesList = [];
+            }
+            list.forEach((data: any) => {
+              const item = data.returnData as FileMainModel;
+              if (item.actionType === 'added') {
+                this.filesList.push(item);
+              }
+              if (item.actionType === 'removed') {
+                for (let i = 0; i < this.filesList.length; i++) {
+                  if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
+                    this.filesList.splice(i, 1);
+                  }
+                }
+              }
+            });
+          });
+        setTimeout(() => {
+          if (this.filesList === undefined) {
+            this.filesList = [];
+          }
+        }, 1000);
+      }
+      if (this.openedPanel === 'visit') {
+        this.visitList = undefined;
+        this.vService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey)
+          .subscribe(list => {
+            if (this.visitList === undefined) {
+              this.visitList = [];
+            }
+            list.forEach((data: any) => {
+              const item = data.returnData as VisitMainModel;
+              if (item.actionType === 'added') {
+                this.visitList.push(item);
+              }
+              if (item.actionType === 'removed') {
+                for (let i = 0; i < this.visitList.length; i++) {
+                  if (item.visit.primaryKey === this.visitList[i].visit.primaryKey) {
+                    this.visitList.splice(i, 1);
+                  }
+                }
+              }
+              if (item.actionType === 'modified') {
+                for (let i = 0; i < this.visitList.length; i++) {
+                  if (item.visit.primaryKey === this.visitList[i].visit.primaryKey) {
+                    this.visitList[i] = item;
+                  }
+                }
+              }
+            });
+          });
+        setTimeout(() => {
+          if (this.visitList === undefined) {
+            this.visitList = [];
+          }
+        }, 1000);
       }
     } catch (error) {
       this.infoService.error(error);

@@ -31,14 +31,15 @@ import { DropzoneDirective } from './dropzone.directive';
 import { UploaderComponent } from './uploader/uploader.component';
 import { UploadTaskComponent } from './upload-task/upload-task.component';
 import {GlobalUploadService} from './services/global-upload.service';
+import {DropzoneComponent} from './dropzone/dropzone.component';
 
 @NgModule({
-  declarations: [
-    AppComponent, routingComponents,
-    NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
-    ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-    UploaderComponent, UploadTaskComponent
-  ],
+    declarations: [
+        AppComponent, routingComponents,
+        NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
+        ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
+        UploaderComponent, UploadTaskComponent, DropzoneComponent
+    ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule,
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,

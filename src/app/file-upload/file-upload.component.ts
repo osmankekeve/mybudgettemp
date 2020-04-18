@@ -86,7 +86,7 @@ export class FileUploadComponent implements OnInit {
           this.selectedRecord.data.size = this.currentFileUpload.file.size;
           this.selectedRecord.data.type = this.currentFileUpload.file.type;
           this.selectedRecord.data.path = data.metadata.fullPath;
-          if (this.selectedRecord.data.parentType !== 'customer') { this.selectedRecord.data.customerPrimaryKey = '-1'; }
+          if (this.selectedRecord.data.parentType !== 'customer') { this.selectedRecord.data.parentPrimaryKey = '-1'; }
           this.service.addItem(this.selectedRecord)
           .then(() => {
             this.infoService.success('Dosya başarılı şekilde yüklendi.');

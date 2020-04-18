@@ -14,6 +14,7 @@ import {AuthenticationService} from '../services/authentication.service';
 })
 export class UploadTaskComponent implements OnInit {
   @Input() file: File;
+  @Input() recordData: any;
   task: AngularFireUploadTask;
   percentage: Observable<number>;
   snapshot: Observable<any>;
@@ -48,9 +49,15 @@ export class UploadTaskComponent implements OnInit {
         fileData.data.primaryKey = this.db.createId();
         fileData.data.downloadURL = this.downloadURL;
         fileData.data.parentType = 'shared';
+        fileData.data.parentPrimaryKey = '-1';
         fileData.data.size = this.file.size;
         fileData.data.type = this.file.type;
         fileData.data.fileName = this.file.name;
+        if (this.recordData !== null) {
+          fileData.data.parentType = this.recordData.componentKey;
+          fileData.data.parentPrimaryKey = this.recordData.primaryKey;
+        }
+
         await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
       }),
     );

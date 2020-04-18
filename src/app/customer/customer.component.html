@@ -10,8 +10,6 @@
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
-                (click)="btnFileUpload_Click()"><i class="fa fa-file-excel-o"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -90,6 +88,8 @@
                 (click)="btnAccountSummaryExportToExcel_Click()" *ngIf="openedPanel=='accountSummary'"><i
           class="fa fa-file-excel-o"></i>
         </button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
+                (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
       </div>
     </div>
   </div>
@@ -1276,58 +1276,72 @@
   </div>
   <div *ngIf="openedPanel=='fileUpload'">
     <div class="card-body">
-      <div class="list-group mb-2" *ngIf="filesList$ | async; let filesList; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-2">Sıra</div>
-            <div class="col-sm-6">Dosya Adı</div>
-            <div class="col-sm-2">Boyut</div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+      <div class="list-group mb-2" *ngIf="filesList != undefined; else elseBlock">
+        <div *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="list-group-item bg-success text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-1">#</div>
+              <div class="col-sm-7">Dosya Adı</div>
+              <div class="col-sm-2">Boyut</div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+               *ngFor="let item of filesList; index as i; trackBy: primaryKey">
+            <div class="row">
+              <div class="col-sm-1">
+                <a [href]="item.data.downloadURL" target="_blank" rel="noopener">
+                  <img [src]="item.fileIcon" width="24px">
+                </a>
+              </div>
+              <div class="col-sm-7">{{item.data.fileName}}</div>
+              <div class="col-sm-2">{{item.data.size}} Byte</div>
+              <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+            </div>
           </div>
         </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             *ngFor="let item of filesList; index as i; trackBy: primaryKey">
-          <div class="row">
-            <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
-            <div class="col-sm-6">{{item.data.fileName}}</div>
-            <div class="col-sm-2">{{item.data.size}} Byte</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+        <ng-template #elseBlock2>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
           </div>
-        </div>
+        </ng-template>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-danger text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
+        <div class="loader"></div>
       </ng-template>
     </div>
   </div>
   <div *ngIf="openedPanel=='visit'">
     <div class="card-body">
-      <div class="list-group mb-2" *ngIf="visitList$ | async; let visitList; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-2">Sıra</div>
-            <div class="col-sm-5">Personel</div>
-            <div class="col-sm-3">Açıklama</div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+      <div class="list-group mb-2" *ngIf="visitList != undefined; else elseBlock">
+        <div *ngIf="visitList.length > 0; else elseBlock2">
+          <div class="list-group-item bg-success text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-2">Sıra</div>
+              <div class="col-sm-5">Personel</div>
+              <div class="col-sm-3">Açıklama</div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            </div>
+          </div>
+          <div class="list-group-item list-group-item-action main-list-item"
+               *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+            <div class="row">
+              <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
+              <div class="col-sm-5">{{item.employeeName}}</div>
+              <div class="col-sm-3">{{item.visit.description}}</div>
+              <div class="col-sm-2"><span
+                class="float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</span></div>
+            </div>
           </div>
         </div>
-        <div class="list-group-item list-group-item-action main-list-item"
-             *ngFor="let item of visitList; index as i; trackBy: primaryKey">
-          <div class="row">
-            <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
-            <div class="col-sm-5">{{item.returnData.employeeName}}</div>
-            <div class="col-sm-3">{{item.returnData.visit.description}}</div>
-            <div class="col-sm-2"><span
-              class="float-right">{{item.returnData.visit.visitDate | date: 'yyyy.MM.dd'}}</span></div>
+        <ng-template #elseBlock2>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
           </div>
-        </div>
+        </ng-template>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-danger text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
+        <div class="loader"></div>
       </ng-template>
     </div>
   </div>

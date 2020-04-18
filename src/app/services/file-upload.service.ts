@@ -57,8 +57,8 @@ export class FileUploadService {
     const returnData = new FileModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
-    returnData.customerPrimaryKey = '-1';
-    returnData.parentType = 'shared';
+    returnData.parentPrimaryKey = '-1';
+    returnData.parentType = '';
     returnData.fileName = '';
     returnData.downloadURL = '';
     returnData.path = '';
@@ -78,8 +78,8 @@ export class FileUploadService {
 
   checkFields(model: FileModel): FileModel {
     const cleanModel = this.clearSubModel();
-    if (model.customerPrimaryKey === undefined) {
-      model.customerPrimaryKey = cleanModel.customerPrimaryKey;
+    if (model.parentPrimaryKey === undefined) {
+      model.parentPrimaryKey = cleanModel.parentPrimaryKey;
     }
     if (model.parentType === undefined) {
       model.parentType = cleanModel.parentType;
@@ -157,7 +157,7 @@ export class FileUploadService {
         const ext = data.fileName.substring(lastDot + 1);
         returnData.fileIcon = getFileIcons().get(ext);
 
-        return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
+        return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customerName = customer !== undefined ? customer.name : '';
             return Object.assign({returnData});
@@ -170,7 +170,7 @@ export class FileUploadService {
   getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<FileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
-        .where('customerPrimaryKey', '==', customerPrimaryKey));
+        .where('parentPrimaryKey', '==', customerPrimaryKey));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as FileModel;
@@ -179,11 +179,12 @@ export class FileUploadService {
         const returnData = new FileMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        if (data.type.startsWith('text')) {
-          data.downloadURL = getFileIcons().get('text');
-        }
 
-        return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
+        const lastDot = data.fileName.lastIndexOf('.');
+        const ext = data.fileName.substring(lastDot + 1);
+        returnData.fileIcon = getFileIcons().get(ext);
+
+        return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customerName = customer !== undefined ? customer.name : '';
             return Object.assign({returnData});

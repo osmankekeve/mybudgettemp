@@ -19,11 +19,11 @@ export class GlobalUploadService {
     return this.subject.asObservable();
   }
 
-  showModal(primaryKey: string, componentKey: string): void {
-    this.openModal(primaryKey, componentKey);
+  showModal(primaryKey: string, componentKey: string, model: any): void {
+    this.openModal(primaryKey, componentKey, model);
   }
 
-  private openModal(primaryKey: string, componentKey: string): void {
-    this.subject.next({key: primaryKey, component: componentKey});
+  private openModal(primaryKey: string, componentKey: string, model: any): void {
+    this.subject.next({key: primaryKey, component: componentKey, keyModel: model});
   }
 }

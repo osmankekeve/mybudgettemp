@@ -37,22 +37,8 @@
           <div class="loader"></div>
         </ng-template>
       </div>
-      <div class="col-sm-3">
-        <div class="dropzone"
-             appDropzone
-             (hovered)="toggleHover($event)"
-             (dropped)="onDrop($event)"
-             [class.hovering]="isHovering">
-          <h3>My Budget Web</h3>
-          <h4>Dosya Yükleme</h4>
-          <p>Dosya Sürükle ve Bırak</p>
-        </div>
-      </div>
-      <div class="col-sm-3">
-        <h3>Yüklemeler</h3>
-        <div *ngFor="let file of files">
-          <app-upload-task [file]="file"></app-upload-task>
-        </div>
+      <div class="col-sm-6">
+        <app-dropzone></app-dropzone>
       </div>
     </div>
   </div>

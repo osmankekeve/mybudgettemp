@@ -1,7 +1,7 @@
 export class FileModel {
   primaryKey: string;
   userPrimaryKey?: string;
-  customerPrimaryKey?: string;
+  parentPrimaryKey?: string;
   parentType: string; // shared, customer, user
   fileName: string;
   downloadURL: string;

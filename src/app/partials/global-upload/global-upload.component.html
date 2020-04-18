@@ -1,17 +1,16 @@
 ﻿
 <div class="modal fade" id="myModal">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
-
       <!-- Modal Header -->
       <div class="modal-header">
-        <h4 class="modal-title">{{componentKey}}</h4>
+        <h5 class="modal-title"><span class="font-weight-600">{{recordData.moduleName}}</span> : {{recordData.recordName}}</h5>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
       <!-- Modal body -->
       <div class="modal-body">
-        Modal body..
+        <app-dropzone [recordData]="recordData"></app-dropzone>
       </div>
 
       <!-- Modal footer -->

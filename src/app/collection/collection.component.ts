@@ -120,7 +120,6 @@ export class CollectionComponent implements OnInit {
           this.totalValues.amount += item.data.amount;
         }
         if (item.actionType === 'removed') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
@@ -129,7 +128,6 @@ export class CollectionComponent implements OnInit {
           }
         }
         if (item.actionType === 'modified') {
-          // tslint:disable-next-line:prefer-for-of
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.totalValues.amount -= this.mainList[i].data.amount;

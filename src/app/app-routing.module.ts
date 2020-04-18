@@ -34,6 +34,7 @@ import { ToDoListComponent } from './to-do-list/to-do-list.component';
 import {CustomerAccountComponent} from './customer-account/customer-account.component';
 import {UploaderComponent} from './uploader/uploader.component';
 import {GlobalUploadComponent} from './partials/global-upload/global-upload.component';
+import {DropzoneComponent} from './dropzone/dropzone.component';
 
 
 const routes: Routes = [
@@ -87,7 +88,7 @@ export class AppRoutingModule { }
 export const routingComponents = [
   PageNotFoundComponent, NavBarComponent, SideNavBarComponent, CustomerComponent, PurchaseInvoiceComponent,
   SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent,
-  LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent,
+  LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent, DropzoneComponent,
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent
