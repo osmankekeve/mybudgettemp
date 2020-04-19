@@ -19,7 +19,7 @@ export class UploaderComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItems('shared').subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }

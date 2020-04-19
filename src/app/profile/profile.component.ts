@@ -51,7 +51,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.infoService.error('Lütfen dosya seçiniz.');
         this.onTransaction = false;
       } else {
-
         const file = this.selectedFiles.item(0);
         const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
         const ref = await this.storage.ref(path);
@@ -59,10 +58,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.downloadURL = await ref.getDownloadURL().toPromise();
           this.selectedRecord.data.pathOfProfilePicture = this.downloadURL;
           this.service.updateItem(this.selectedRecord)
-            .then(() => {
-              this.service.getItem(this.selectedRecord.data.primaryKey, true).then((item) => {
-                this.finishProcess(null, 'Profil resmi başarıyla değiştirildi.');
-              });
+            .then(async () => {
+              const fileData = this.fuService.clearMainModel();
+              fileData.data.primaryKey = this.db.createId();
+              fileData.data.downloadURL = this.downloadURL;
+              fileData.data.parentType = 'profile';
+              fileData.data.parentPrimaryKey = this.selectedRecord.data.primaryKey;
+              fileData.data.size = file.size;
+              fileData.data.type = file.type;
+              fileData.data.fileName = file.name;
+              await this.db.collection('tblFiles').doc(fileData.data.primaryKey)
+                .set(Object.assign({}, fileData.data))
+                .then(() => {
+                  this.service.getItem(this.selectedRecord.data.primaryKey, true)
+                    .then((item) => {
+                    this.finishProcess(null, 'Profil resmi başarıyla değiştirildi.');
+                  });
+                });
             })
             .catch((error) => {
               this.finishProcess(error, null);

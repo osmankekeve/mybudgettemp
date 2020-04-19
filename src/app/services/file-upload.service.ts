@@ -6,7 +6,7 @@ import {FileUpload} from '../models/file-upload';
 import {UploadTask} from '@angular/fire/storage/interfaces';
 import {FileModel} from '../models/file-model';
 import {LogService} from './log.service';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable, combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {CustomerModel} from '../models/customer-model';
@@ -141,9 +141,17 @@ export class FileUploadService {
     }
   })
 
-  getMainItems(): Observable<FileMainModel[]> {
+  getMainItems(parentType: string): Observable<FileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        if (parentType !== null) {
+          query = query.where('parentType', '==', parentType);
+        }
+        return query;
+      }
+    );
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as FileModel;
