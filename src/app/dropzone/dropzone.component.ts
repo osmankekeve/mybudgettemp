@@ -3,6 +3,8 @@ import {FileModel} from '../models/file-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {FileMainModel} from '../models/file-main-model';
 import {CollectionMainModel} from '../models/collection-main-model';
+import {GlobalUploadService} from '../services/global-upload.service';
+import {CustomerService} from '../services/customer.service';
 
 @Component({
   selector: 'app-dropzone',
@@ -10,10 +12,15 @@ import {CollectionMainModel} from '../models/collection-main-model';
   styleUrls: ['./dropzone.component.css']
 })
 export class DropzoneComponent implements OnInit {
-  constructor() { }
   @Input() recordData: any;
   isHovering: boolean;
   files: File[] = [];
+
+  constructor(public service: GlobalUploadService) {
+    this.service.get().subscribe(() => {
+      this.files = [];
+    });
+  }
 
   ngOnInit() {}
 

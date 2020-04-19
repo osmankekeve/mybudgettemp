@@ -23,7 +23,6 @@ export class GlobalUploadComponent implements OnDestroy, OnInit {
     componentKey: '',
     recordName: ''
   };
-  files: File[] = [];
 
   constructor(public service: GlobalUploadService, public cusService: CustomerService) {
   }
@@ -32,6 +31,7 @@ export class GlobalUploadComponent implements OnDestroy, OnInit {
     this.subscription = this.service.get()
       .subscribe(async params => {
         if (params !== undefined) {
+          setTimeout(() => {});
           this.recordData.primaryKey = params.key;
           this.recordData.componentKey = params.component;
           if (params.keyModel) {
@@ -52,22 +52,21 @@ export class GlobalUploadComponent implements OnDestroy, OnInit {
             this.recordData.moduleName = 'Müşteri';
             this.recordData.recordName = this.model.data.name;
           }
+          const scrollToTop = window.setInterval(() => {
+            const pos = window.pageYOffset;
+            if (pos > 0) {
+              window.scrollTo(0, pos - 60); // how far to scroll on each step
+            } else {
+              window.clearInterval(scrollToTop);
+            }
+          }, 16);
         }
-        const scrollToTop = window.setInterval(() => {
-          const pos = window.pageYOffset;
-          if (pos > 0) {
-            window.scrollTo(0, pos - 60); // how far to scroll on each step
-          } else {
-            window.clearInterval(scrollToTop);
-          }
-        }, 16);
       });
   }
 
   ngOnDestroy(): void {
     if (this.subscription !== undefined) {
       this.subscription.unsubscribe();
-      this.files = [];
     }
   }
 

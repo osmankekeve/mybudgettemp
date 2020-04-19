@@ -12,8 +12,15 @@
   </div>
   <div class="col-sm-6">
     <h4>Yüklemeler</h4>
-    <div *ngFor="let file of files">
-      <app-upload-task [file]="file" [recordData]="recordData"></app-upload-task>
+    <div *ngIf="files.length > 0 else elseBlock">
+      <div *ngFor="let file of files">
+        <app-upload-task [file]="file" [recordData]="recordData"></app-upload-task>
+      </div>
     </div>
+    <ng-template #elseBlock>
+      <div class="card bg-danger text-white">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
   </div>
 </div>

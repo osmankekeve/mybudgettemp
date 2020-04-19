@@ -7,13 +7,35 @@
 
   {{ snap.bytesTransferred }} of {{ snap.totalBytes }}
 
-  <div *ngIf="downloadURL as url">
-    <h3>Results!</h3>
-    <img [src]="url" width="50px"><br>
-    <a [href]="url" target="_blank" rel="noopener">Download Me!</a>
+  <div *ngIf="downloadURL as url" style="border-bottom: thin solid #6c757d; margin: 5px 0 5px 0; padding: 10px 0 10px 0">
+    <div class="row">
+      <div class="col-sm-2">
+        <img [src]="url" width="50px"><br>
+      </div>
+      <div class="col-sm-10">
+        <div>
+          <a [href]="url" target="_blank" rel="noopener">İndir!</a>
+        </div>
+        <div class="row">
+          <div class="col-sm-4">
+            <button class="btn btn-sm btn-danger btn-block" type="button"
+                    (click)="task.cancel()"
+                    [disabled]="!isActive(snap)">İptal</button>
+          </div>
+          <div class="col-sm-4">
+            <button class="btn btn-sm btn-warning btn-block" type="button"
+                    (click)="task.pause()"
+                    [disabled]="!isActive(snap)">Duraklat</button>
+
+          </div>
+          <div class="col-sm-4">
+            <button class="btn btn-sm btn-success btn-block" type="button"
+                    (click)="task.resume()"
+                    [disabled]="!(snap?.state === 'paused')">Devam Et</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <button (click)="task.pause()" [disabled]="!isActive(snap)">Pause</button>
-  <button (click)="task.cancel()" [disabled]="!isActive(snap)">Cancel</button>
-  <button (click)="task.resume()" [disabled]="!(snap?.state === 'paused')">Resume</button>
 </div>

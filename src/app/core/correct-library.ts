@@ -229,6 +229,7 @@ export const getFileIcons = () => {
     ['7z', '../../assets/icons/7z-icon.png'],
     ['ai', '../../assets/icons/ai-icon.png'],
     ['doc', '../../assets/icons/doc-icon.png'],
+    ['docx', '../../assets/icons/doc-icon.png'],
     ['rtf', '../../assets/icons/doc-icon.png'],
     ['eps', '../../assets/icons/eps-icon.png'],
     ['gif', '../../assets/icons/gif-icon.png'],
