@@ -307,6 +307,9 @@ export class CollectionComponent implements OnInit {
       }
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    // File Uploader
+    this.recordData.primaryKey = this.selectedRecord.data.primaryKey;
+    this.recordData.recordName = this.selectedRecord.customerName;
   }
 
   btnShowMainFiler_Click(): void {

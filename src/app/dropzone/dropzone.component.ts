@@ -1,10 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {FileModel} from '../models/file-model';
-import {FileUploadService} from '../services/file-upload.service';
-import {FileMainModel} from '../models/file-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {GlobalUploadService} from '../services/global-upload.service';
-import {CustomerService} from '../services/customer.service';
 
 @Component({
   selector: 'app-dropzone',

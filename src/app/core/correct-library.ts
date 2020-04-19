@@ -248,6 +248,7 @@ export const getFileIcons = () => {
     ['xls', '../../assets/icons/xls-icon.png'],
     ['xlsx', '../../assets/icons/xlsx-icon.png'],
     ['pdf', '../../assets/icons/pdf-icon.png'],
+    ['js', '../../assets/icons/txt-icon.png'],
   ]);
 };
 

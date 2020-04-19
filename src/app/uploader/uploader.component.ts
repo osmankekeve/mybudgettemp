@@ -14,10 +14,6 @@ export class UploaderComponent implements OnInit {
   mainList: Array<FileMainModel>;
 
   ngOnInit() {
-    this.populateList();
-  }
-
-  populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems('shared').subscribe(list => {
       if (this.mainList === undefined) {
