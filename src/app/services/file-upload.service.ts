@@ -175,10 +175,10 @@ export class FileUploadService {
     return this.mainList$;
   }
 
-  getMainItemsWithCustomerPrimaryKey(customerPrimaryKey: string): Observable<FileMainModel[]> {
+  getMainItemsWithPrimaryKey(parentPrimaryKey: string): Observable<FileMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
-        .where('parentPrimaryKey', '==', customerPrimaryKey));
+        .where('parentPrimaryKey', '==', parentPrimaryKey));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as FileModel;

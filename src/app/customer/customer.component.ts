@@ -577,7 +577,7 @@ export class CustomerComponent implements OnInit {
       }
       if (this.openedPanel === 'fileUpload') {
         this.filesList = undefined;
-        this.fuService.getMainItemsWithCustomerPrimaryKey(this.selectedCustomer.data.primaryKey)
+        this.fuService.getMainItemsWithPrimaryKey(this.selectedCustomer.data.primaryKey)
           .subscribe(list => {
             if (this.filesList === undefined) {
               this.filesList = [];

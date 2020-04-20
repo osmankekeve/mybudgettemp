@@ -5,6 +5,9 @@ import {getEncryptionKey} from '../../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import {CustomerMainModel} from '../../models/customer-main-model';
 import {CustomerService} from '../../services/customer.service';
+import {CollectionMainModel} from '../../models/collection-main-model';
+import {ActivatedRoute} from '@angular/router';
+import {CollectionService} from '../../services/collection.service';
 
 @Component({
   selector: 'app-global-upload',
@@ -24,7 +27,8 @@ export class GlobalUploadComponent implements OnDestroy, OnInit {
     recordName: ''
   };
 
-  constructor(public service: GlobalUploadService, public cusService: CustomerService) {
+  constructor(public service: GlobalUploadService, public cusService: CustomerService,
+              protected colService: CollectionService) {
   }
 
   ngOnInit(): void {
@@ -51,6 +55,17 @@ export class GlobalUploadComponent implements OnDestroy, OnInit {
             }
             this.recordData.moduleName = 'Müşteri';
             this.recordData.recordName = this.model.data.name;
+          }
+          if (this.recordData.componentKey === 'collection') {
+            if (this.paramItem) {
+              this.model = this.paramItem as CollectionMainModel;
+            } else {
+              await this.colService.getItem(this.recordData.primaryKey).then(async (item) => {
+                this.model = item.returnData as CollectionMainModel;
+              });
+            }
+            this.recordData.moduleName = 'Tahsilat';
+            this.recordData.recordName = this.model.customerName;
           }
           const scrollToTop = window.setInterval(() => {
             const pos = window.pageYOffset;

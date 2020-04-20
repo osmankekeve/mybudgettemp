@@ -19,6 +19,7 @@ import {AccountVoucherModel} from '../models/account-voucher-model';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 import {InformationService} from './information.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +32,9 @@ export class CollectionService {
   customerMap = new Map();
   tableName = 'tblCollection';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public atService: AccountTransactionService) {
+  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
+              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
+              protected atService: AccountTransactionService, protected actService: ActionService) {
 
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
@@ -57,6 +58,7 @@ export class CollectionService {
       .then(async () => {
         await this.logService.sendToLog(record, 'insert', 'collection');
         await this.sService.increaseCollectionNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
   }
 
@@ -71,7 +73,8 @@ export class CollectionService {
   }
 
   async updateItem(record: CollectionMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey)
+      .update(Object.assign({}, record.data))
       .then(async value => {
         if (record.data.status === 'approved') {
           const trans = {
@@ -90,10 +93,13 @@ export class CollectionService {
           };
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.sendToLog(record, 'approved', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.sendToLog(record, 'rejected', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
           await this.logService.sendToLog(record, 'update', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
   }
@@ -103,6 +109,7 @@ export class CollectionService {
       .then(async value => {
         await this.logService.sendToLog(record, 'insert', 'collection');
         await this.sService.increaseCollectionNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
 
         if (record.data.status === 'approved') {
           const trans = {
@@ -242,8 +249,10 @@ export class CollectionService {
             .then((values: any) => {
               if (values[0] !== undefined || values[0] !== null) {
                 returnData.customer = values[0] as CustomerModel;
+                returnData.customerName = returnData.customer !== undefined ? returnData.customer.name : 'Belirlenemeyen Müşteri Kaydı';
               }
             });
+          this.actService.addAction(this.tableName, returnData.data.primaryKey, 5, 'Kayıt Görüntüleme');
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);

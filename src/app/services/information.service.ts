@@ -24,9 +24,7 @@ export class InformationService {
      * @param router: Router
      * @param modalService: NgbModal
      */
-    constructor(router: Router,
-                private authService: AuthenticationService,
-                private readonly modalService: NgbModal,
+    constructor(private router: Router, private authService: AuthenticationService, private readonly modalService: NgbModal,
                 private logService: LogService) {
         // clear alert message on route change
         router.events.subscribe(event => {
@@ -65,7 +63,7 @@ export class InformationService {
      * @param message: error text
      * @param keepAfterNavigationChange: do you want to keep message as shown even after gone to another page?
      */
-    error(message: any, keepAfterNavigationChange?: boolean): void {
+    async error(message: any, keepAfterNavigationChange?: boolean): Promise<void> {
         if (this.lastTimer) {
             clearTimeout(this.lastTimer);
         }
@@ -77,7 +75,7 @@ export class InformationService {
             }, 10000);
         }
         if (message.toString().startsWith('BUG')) {
-          this.logService.addToBug(message);
+          await this.logService.addToBug(message);
         }
     }
 

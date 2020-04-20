@@ -220,8 +220,11 @@
       <div class="col-sm-8">
         <img src="../../assets/images/collection.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Tahsilat Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
+                *ngIf="selectedRecord.data.primaryKey!=undefined"
+                (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
       </div>
       <div class="col-sm-4">
         <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
@@ -236,9 +239,12 @@
       <li class="nav-item">
         <a class="nav-link" data-toggle="tab" href="#files">Dosyalar</a>
       </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#actions">İşlemler</a>
+      </li>
     </ul>
     <div class="tab-content">
-      <div id="home" class="container tab-pane active">
+      <div id="home" class="tab-pane p-1 active">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
           <div class="form-row form-inline">
             <div class="col-sm-3">
@@ -331,8 +337,62 @@
           </div>
         </form>
       </div>
-      <div id="files" class="container tab-pane fade">
-        file list
+      <div id="files" class="tab-pane p-1 fade">
+        <div class="list-group mb-2" *ngIf="filesList != undefined; else elseBlock">
+          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+            <div class="list-group-item bg-success text-light main-list-item">
+              <div class="row">
+                <div class="col-sm-1">#</div>
+                <div class="col-sm-7">Dosya Adı</div>
+                <div class="col-sm-2">Boyut</div>
+                <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+              </div>
+            </div>
+            <div class="list-group-item list-group-item-action main-list-item"
+                 *ngFor="let item of filesList">
+              <div class="row">
+                <div class="col-sm-1">
+                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener">
+                    <img [src]="item.fileIcon" width="24px">
+                  </a>
+                </div>
+                <div class="col-sm-7">{{item.data.fileName}}</div>
+                <div class="col-sm-2">{{item.data.size}} Byte</div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock2>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock>
+          <div class="loader"></div>
+        </ng-template>
+      </div>
+      <div id="actions" class="tab-pane p-1 fade">
+        <div class="list-group">
+          <div class="list-group-item bg-danger text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-2">İşlem</div>
+              <div class="col-sm-8">Personel</div>
+              <div class="col-sm-2"><span class="float-right">İşlem Tarihi</span></div>
+            </div>
+          </div>
+          <div class="work-area-7">
+            <div class="list-group-item list-group-item-action main-list-item"
+                 *ngFor="let item of actionList">
+              <div class="row">
+                <div class="col-sm-2">{{item.data.action}}</div>
+                <div class="col-sm-8">{{item.employeeName}}</div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

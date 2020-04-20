@@ -30,6 +30,12 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
+import {ActionModel} from '../models/action-model';
+import {ActionService} from '../services/action.service';
+import {ActionMainModel} from '../models/action-main-model';
+import {FileMainModel} from '../models/file-main-model';
+import {FileUploadService} from '../services/file-upload.service';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-collection',
@@ -41,7 +47,9 @@ export class CollectionComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
+  actionList: Array<ActionMainModel>;
   transactionList: Array<CollectionMainModel>;
+  filesList: Array<FileMainModel>;
   selectedRecord: CollectionMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
@@ -63,11 +71,12 @@ export class CollectionComponent implements OnInit {
   chart1Visibility = null;
   chart2Visibility = null;
 
-  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: CollectionService, public cdService: CashDeskService, public atService: AccountTransactionService,
-              public infoService: InformationService, public excelService: ExcelService, public cService: CustomerService,
-              public db: AngularFirestore, public sService: SettingService, public accService: CustomerAccountService,
-              public globService: GlobalService) {
+  constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
+              protected service: CollectionService, protected cdService: CashDeskService, protected atService: AccountTransactionService,
+              protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
+              protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
+              protected globService: GlobalService, protected actService: ActionService, public fuService: FileUploadService,
+              protected gfuService: GlobalUploadService) {
   }
 
   ngOnInit() {
@@ -295,21 +304,59 @@ export class CollectionComponent implements OnInit {
     });
   }
 
-  showSelectedRecord(record: any): void {
+  populateFiles(): void {
+    this.filesList = undefined;
+    this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
+      .subscribe(list => {
+        if (this.filesList === undefined) {
+          this.filesList = [];
+        }
+        list.forEach((data: any) => {
+          const item = data.returnData as FileMainModel;
+          if (item.actionType === 'added') {
+            this.filesList.push(item);
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.filesList.length; i++) {
+              if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
+                this.filesList.splice(i, 1);
+              }
+            }
+          }
+        });
+      });
+    setTimeout(() => {
+      if (this.filesList === undefined) {
+        this.filesList = [];
+      }
+    }, 1000);
+  }
+
+  populateActions(): void {
+    this.actionList = undefined;
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ActionMainModel;
+        if (item.actionType === 'added') {
+          this.actionList.push(item);
+        }
+      });
+    });
+  }
+
+  async showSelectedRecord(record: any): Promise<void> {
     this.selectedRecord = record as CollectionMainModel;
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
-      if (list.length > 0) {
-        this.isRecordHasTransaction = true;
-
-      } else {
-        this.isRecordHasTransaction = false;
-      }
+      this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
-    // File Uploader
-    this.recordData.primaryKey = this.selectedRecord.data.primaryKey;
-    this.recordData.recordName = this.selectedRecord.customerName;
+    this.populateFiles();
+    this.populateActions();
   }
 
   btnShowMainFiler_Click(): void {
@@ -501,6 +548,17 @@ export class CollectionComponent implements OnInit {
   btnExportToXml_Click(): void {
     this.infoService.showHtmlInfo('osman', 'Osman KEKEVE', false);
 
+  }
+
+  btnFileUpload_Click(): void {
+    try {
+      this.gfuService.showModal(
+        this.selectedRecord.data.primaryKey,
+        'collection',
+        CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
+    } catch (error) {
+      this.infoService.error(error);
+    }
   }
 
   async btnCreateAccounts_Click(): Promise<void> {

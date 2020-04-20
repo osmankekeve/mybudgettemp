@@ -48,6 +48,7 @@ export class LogService {
     item.parentType = systemModule;
     item.type = 'notification';
     item.userPrimaryKey = this.authService.getUid();
+    item.employeePrimaryKey = this.authService.getEid();
     item.isActive = true;
     item.insertDate = Date.now();
     if (systemModule === 'salesInvoice') {
@@ -132,6 +133,7 @@ export class LogService {
     item.parentPrimaryKey = parentPrimaryKey;
     item.type = type; // notification
     item.userPrimaryKey = this.authService.getUid();
+    item.employeePrimaryKey = this.authService.getEid();
     item.isActive = true;
     item.log = log;
     item.insertDate = Date.now();
@@ -144,6 +146,7 @@ export class LogService {
     item.parentPrimaryKey = '';
     item.type = 'bug'; // notification
     item.userPrimaryKey = this.authService.getUid();
+    item.employeePrimaryKey = this.authService.getEid();
     item.isActive = true;
     item.log = log;
     item.insertDate = Date.now();

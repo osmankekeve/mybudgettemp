@@ -221,6 +221,12 @@ body {
   scrollbar-width: thin;
 }
 
+.work-area-7 {
+  max-height: calc(100vh - 320px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .bg-body {
   background-color: #eee !important;
 }
@@ -404,7 +410,7 @@ body {
   border-radius: 5px;
   background: white;
   margin: 10px 0;
- }
+}
 
 .file-label {
   font-size: 1.2em;
