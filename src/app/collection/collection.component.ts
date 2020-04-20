@@ -360,11 +360,7 @@ export class CollectionComponent implements OnInit {
   }
 
   btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
+    this.isMainFilterOpened = this.isMainFilterOpened !== true;
     this.clearMainFiler();
   }
 
