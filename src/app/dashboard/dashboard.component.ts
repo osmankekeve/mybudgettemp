@@ -42,10 +42,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   encryptSecretKey: string = getEncryptionKey();
 
   constructor(public db: AngularFirestore, public router: Router, public infoService: InformationService, public vService: VisitService,
-              public siService: SalesInvoiceService, public colService: CollectionService, public tdService: ToDoService,
-              public cdService: CashDeskVoucherService, public avService: AccountVoucherService, public globService: GlobalService,
-              public atService: AccountTransactionService, public crmService: CustomerRelationService,
-              public puService: PurchaseInvoiceService, public pService: PaymentService) {
+              public tdService: ToDoService, public globService: GlobalService, public atService: AccountTransactionService,
+              public crmService: CustomerRelationService) {
   }
 
   async ngOnInit() {
@@ -55,8 +53,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
     this.atService.getMainItems(start, end).subscribe(list => {
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
-      this.transactionList = list;
-      list.forEach(item => {
+      console.log(list);
+      list.forEach((data: any) => {
+        const item = data.returnData as AccountTransactionMainModel;
         if (item.data.transactionType === 'salesInvoice') {
           this.siAmount += getFloat(Math.abs(item.data.amount));
         }
@@ -75,6 +74,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         if (item.data.transactionType === 'cashDeskVoucher') {
           this.cvAmount += getFloat(Math.abs(item.data.amount));
         }
+        this.transactionList.push(item);
       });
     });
     setTimeout(() => {

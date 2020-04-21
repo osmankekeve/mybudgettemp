@@ -72,7 +72,7 @@ export class LogService {
       item.log = record.receiptNo + ' fiş numaralı Kasa ';
 
     } else if (systemModule === 'accountVoucher') {
-      item.parentPrimaryKey = record.primaryKey;
+      item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.receiptNo + ' fiş numaralı Hesap Fişi ';
 
     } else if (systemModule === 'cashdeskVoucher') {

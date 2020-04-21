@@ -11,6 +11,8 @@ import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {CashDeskService} from './cash-desk.service';
 import {PaymentMainModel} from '../models/payment-main-model';
+import {NoteMainModel} from '../models/note-main-model';
+import {NoteModel} from '../models/note-model';
 
 @Injectable({
   providedIn: 'root'
@@ -279,7 +281,7 @@ export class AccountTransactionService {
     return false;
   }
 
-  getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
+  getMainItemsold(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid()));
@@ -299,13 +301,48 @@ export class AccountTransactionService {
         } else {
           returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
         }
-
+        if (returnData.data.transactionType === 'cashDeskVoucher') {
+          returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
+        }
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
           .pipe(map((customer: CustomerModel) => {
             return Object.assign(returnData);
           }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainMainList$;
+  }
+
+  getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
+    // left join siz
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
+        .where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainMainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as AccountTransactionModel;
+          data.primaryKey = c.payload.doc.id;
+
+          const returnData = new AccountTransactionMainModel();
+          returnData.data = data;
+          returnData.actionType = c.type;
+          returnData.iconUrl = getModuleIcons().get(data.transactionType);
+          returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+
+          if (returnData.data.transactionType === 'cashDeskVoucher') {
+            returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
+          } else {
+            returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
+          }
+          if (returnData.data.transactionType === 'cashDeskVoucher') {
+            returnData.customer = this.customerMap.get(returnData.data.parentPrimaryKey);
+          }
+
+          return Object.assign({returnData});
+        })
+      )
+    );
     return this.mainMainList$;
   }
 
