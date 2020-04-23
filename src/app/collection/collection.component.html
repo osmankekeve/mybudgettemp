@@ -222,7 +222,7 @@
         <h4 class="card-title float-left mr-2">Tahsilat Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Dosya Yükle"
                 *ngIf="selectedRecord.data.primaryKey!=undefined"
                 (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
       </div>
@@ -352,11 +352,15 @@
                  *ngFor="let item of filesList">
               <div class="row">
                 <div class="col-sm-1">
-                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener">
+                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
+                       (click)="btnRemoveFile_Click(item)">
+                </div>
+                <div class="col-sm-7">
+                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
                     <img [src]="item.fileIcon" width="24px">
                   </a>
+                  {{item.data.fileName}}
                 </div>
-                <div class="col-sm-7">{{item.data.fileName}}</div>
                 <div class="col-sm-2">{{item.data.size}} Byte</div>
                 <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
               </div>

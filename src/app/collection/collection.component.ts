@@ -533,6 +533,16 @@ export class CollectionComponent implements OnInit {
     }
   }
 
+  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+    try {
+      await this.fuService.removeItem(item).then(() => {
+        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'collection');

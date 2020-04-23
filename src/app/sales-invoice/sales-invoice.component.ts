@@ -30,6 +30,11 @@ import {CollectionMainModel} from '../models/collection-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {PaymentService} from '../services/payment.service';
 import {GlobalService} from '../services/global.service';
+import {FileMainModel} from '../models/file-main-model';
+import {ActionMainModel} from '../models/action-main-model';
+import {ActionService} from '../services/action.service';
+import {FileUploadService} from '../services/file-upload.service';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -41,12 +46,13 @@ export class SalesInvoiceComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<SalesInvoiceMainModel>;
+  actionList: Array<ActionMainModel>;
+  filesList: Array<FileMainModel>;
   selectedRecord: SalesInvoiceMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
-  numberOnlyControl = numberOnly;
 
   searchText: any;
   filterBeginDate: any;
@@ -67,7 +73,8 @@ export class SalesInvoiceComponent implements OnInit {
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
               public sService: SettingService, public accService: CustomerAccountService, public db: AngularFirestore,
-              public globService: GlobalService) {
+              public globService: GlobalService, protected actService: ActionService, public fuService: FileUploadService,
+              protected gfuService: GlobalUploadService) {
   }
 
   async ngOnInit() {
@@ -300,6 +307,54 @@ export class SalesInvoiceComponent implements OnInit {
     });
   }
 
+  populateFiles(): void {
+    this.filesList = undefined;
+    this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
+      .subscribe(list => {
+        if (this.filesList === undefined) {
+          this.filesList = [];
+        }
+        list.forEach((data: any) => {
+          const item = data.returnData as FileMainModel;
+          if (item.actionType === 'added') {
+            this.filesList.push(item);
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.filesList.length; i++) {
+              if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
+                this.filesList.splice(i, 1);
+              }
+            }
+          }
+        });
+      });
+    setTimeout(() => {
+      if (this.filesList === undefined) {
+        this.filesList = [];
+      }
+    }, 1000);
+  }
+
+  populateActions(): void {
+    this.actionList = undefined;
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ActionMainModel;
+        if (item.actionType === 'added') {
+          this.actionList.push(item);
+        }
+      });
+    });
+    setTimeout(() => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+    }, 1000);
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as SalesInvoiceMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -307,6 +362,8 @@ export class SalesInvoiceComponent implements OnInit {
       this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    this.populateFiles();
+    this.populateActions();
   }
 
   btnShowMainFiler_Click(): void {
@@ -476,11 +533,32 @@ export class SalesInvoiceComponent implements OnInit {
     }
   }
 
+  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+    try {
+      await this.fuService.removeItem(item).then(() => {
+        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'salesInvoice');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  btnFileUpload_Click(): void {
+    try {
+      this.gfuService.showModal(
+        this.selectedRecord.data.primaryKey,
+        'collection',
+        CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
+    } catch (error) {
+      this.infoService.error(error);
     }
   }
 

@@ -24,7 +24,6 @@ export class FileUploadService {
   mainList$: Observable<FileMainModel[]>;
   tableName = 'tblFiles';
   storageRef = storage().ref('files');
-  uid: string;
 
   constructor(public firebaseAuth: AngularFireAuth, public firebaseStorage: AngularFireStorage,
               public logService: LogService,
@@ -33,22 +32,20 @@ export class FileUploadService {
   }
 
   async addItem(record: FileMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'fileUpload');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: FileMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'fileUpload');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    this.storageRef.storage.ref(record.data.path).delete().then(() => {
+      return this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    });
   }
 
   async updateItem(record: FileMainModel) {
-    await this.logService.sendToLog(record, 'update', 'fileUpload');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
   async setItem(record: FileMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'fileUpload');
     return await this.listCollection.doc(primaryKey).set(record);
   }
 

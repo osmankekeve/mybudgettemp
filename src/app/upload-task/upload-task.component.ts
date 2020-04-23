@@ -53,6 +53,7 @@ export class UploadTaskComponent implements OnInit {
         fileData.data.size = this.file.size;
         fileData.data.type = this.file.type;
         fileData.data.fileName = this.file.name;
+        fileData.data.path = path;
         if (this.recordData !== null && this.recordData !== undefined) {
           fileData.data.parentType = this.recordData.componentKey;
           fileData.data.parentPrimaryKey = this.recordData.primaryKey;
