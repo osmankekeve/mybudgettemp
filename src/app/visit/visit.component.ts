@@ -16,13 +16,14 @@ import {VisitMainModel} from '../models/visit-main-model';
 import * as CryptoJS from 'crypto-js';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {Chart} from 'chart.js';
+import {SettingModel} from '../models/setting-model';
 
 @Component({
   selector: 'app-visit',
   templateUrl: './visit.component.html',
   styleUrls: ['./visit.component.css']
 })
-export class VisitComponent implements OnInit, OnDestroy {
+export class VisitComponent implements OnInit {
   mainList: Array<VisitMainModel> = [];
   collection: AngularFirestoreCollection<VisitMainModel>;
   customerList$: Observable<CustomerModel[]>;
@@ -50,8 +51,8 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.customerList$ = this.cService.getAllItems();
     this.profileList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
+    this.generateCharts();
     this.populateList();
-    this.populateCharts();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -62,7 +63,26 @@ export class VisitComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -103,6 +123,10 @@ export class VisitComponent implements OnInit, OnDestroy {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  generateCharts(): void {
+    this.populateCharts();
   }
 
   populateCharts(): void {
@@ -192,18 +216,18 @@ export class VisitComponent implements OnInit, OnDestroy {
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      this.finishFinally();
+      await this.finishProcess(null, null);
       await this.route.navigate(['visit', {}]);
     } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.error(err);
     }
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
     } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.error(err);
     }
   }
 
@@ -214,36 +238,30 @@ export class VisitComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           if (this.selectedRecord.visit.primaryKey === null || this.selectedRecord.visit.primaryKey === '') {
             this.onTransaction = true;
-            this.selectedRecord.visit.primaryKey = '';
+            this.selectedRecord.visit.primaryKey = this.db.createId();
             this.selectedRecord.visit.visitDate = getInputDataForInsert(this.recordDate);
-            await this.service.addItem(this.selectedRecord)
+            await this.service.setItem(this.selectedRecord, this.selectedRecord.visit.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Ziyaret başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.visit.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Ziyaret başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.visit.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
-        .finally(() => {
-          this.finishFinally();
+        .catch((error) => {
+          this.finishProcess(error, null);
         });
     } catch (err) {
-      this.finishProcess(err, null);
+      await this.finishProcess(err, null);
     }
   }
 
@@ -259,16 +277,13 @@ export class VisitComponent implements OnInit, OnDestroy {
           })
           .catch((error) => {
             this.finishProcess(error, null);
-          })
-          .finally(() => {
-            this.finishFinally();
           });
       })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (err) {
-      this.finishProcess(err, null);
+      await this.finishProcess(err, null);
     }
   }
 
@@ -287,8 +302,8 @@ export class VisitComponent implements OnInit, OnDestroy {
     } else if (isNullOrEmpty(this.filterFinishDate)) {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
-      this.populateList();
       this.populateCharts();
+      this.populateList();
     }
   }
 
@@ -319,22 +334,18 @@ export class VisitComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

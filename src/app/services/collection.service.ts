@@ -252,7 +252,6 @@ export class CollectionService {
                 returnData.customerName = returnData.customer !== undefined ? returnData.customer.name : 'Belirlenemeyen Müşteri Kaydı';
               }
             });
-          this.actService.addAction(this.tableName, returnData.data.primaryKey, 5, 'Kayıt Görüntüleme');
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);

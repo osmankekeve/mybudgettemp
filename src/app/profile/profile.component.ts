@@ -4,9 +4,8 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {ProfileService} from '../services/profile.service';
 import {ProfileMainModel} from '../models/profile-main-model';
-import {finalize} from 'rxjs/operators';
 import {FileUploadConfig} from '../../file-upload.config';
-import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
+import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
 
@@ -15,7 +14,7 @@ import {FileUploadService} from '../services/file-upload.service';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
-export class ProfileComponent implements OnInit, OnDestroy {
+export class ProfileComponent implements OnInit {
   openedPanel = 'mainPanel';
   selectedRecord: ProfileMainModel;
   selectedFiles: FileList;
@@ -31,10 +30,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.selectedRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
-    console.log(this.selectedRecord);
   }
-
-  ngOnDestroy(): void { }
 
   btnSaveProfileClick(): void {
     try {
@@ -48,7 +44,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       if (this.selectedFiles === undefined) {
-        this.infoService.error('Lütfen dosya seçiniz.');
+        await this.infoService.error('Lütfen dosya seçiniz.');
         this.onTransaction = false;
       } else {
         const file = this.selectedFiles.item(0);
@@ -104,13 +100,21 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.openedPanel = panel;
   }
 
-  finishProcess(error: any, info: any): void {
+  clearSelectedRecord(): void {
+
+  }
+
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

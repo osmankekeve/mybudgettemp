@@ -337,7 +337,7 @@
           </div>
         </form>
       </div>
-      <div id="files" class="tab-pane p-1 fade">
+      <div id="files" class="tab-pane p-1 fade" *ngIf="selectedRecord.data.primaryKey!=undefined">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
           <div class="list-group-item bg-success text-light main-list-item">
             <div class="row">
@@ -376,7 +376,7 @@
           <div class="loader"></div>
         </ng-template>
       </div>
-      <div id="actions" class="tab-pane p-1 fade">
+      <div id="actions" class="tab-pane p-1 fade" *ngIf="selectedRecord.data.primaryKey!=undefined">
         <div class="list-group" *ngIf="actionList != undefined; else elseBlock">
           <div class="list-group-item bg-danger text-light main-list-item" *ngIf="actionList.length > 0; else elseBlock2">
             <div class="row">

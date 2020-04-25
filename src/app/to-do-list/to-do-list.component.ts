@@ -50,6 +50,28 @@ export class ToDoListComponent implements OnInit {
     }
   }
 
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   populateList(): void {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
@@ -88,16 +110,21 @@ export class ToDoListComponent implements OnInit {
     }, 5000);
   }
 
+  generateCharts(): void {
+
+  }
+
   showSelectedRecord(record: any): void {
     this.openedPanel = 'mainPanel';
     this.selectedRecord = record as TodoListMainModel;
     this.refModel = record as TodoListMainModel;
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     try {
       if (this.paramPrimaryKey !== undefined) {
-        this.route.navigate(['to-do-list', {}]);
+        await this.finishProcess(null, null);
+        await this.route.navigate(['to-do-list', {}]);
       }
       if (this.openedPanel === 'mainPanel') {
         this.selectedRecord = undefined;
@@ -109,11 +136,11 @@ export class ToDoListComponent implements OnInit {
     }
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
     } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.error(err);
     }
   }
 
@@ -126,24 +153,18 @@ export class ToDoListComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Kayıt başarıyla gerçekleşti.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Kayıt başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -151,7 +172,7 @@ export class ToDoListComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -166,24 +187,22 @@ export class ToDoListComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
-  btnMainFilter_Click(): void {
+  async btnMainFilter_Click(): Promise<void> {
     try {
+      this.generateCharts();
       this.populateList();
     } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.error(err);
     }
   }
 
@@ -208,21 +227,18 @@ export class ToDoListComponent implements OnInit {
     this.filterIsActive = '1';
   }
 
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

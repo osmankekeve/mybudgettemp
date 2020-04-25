@@ -1,15 +1,13 @@
-import {Component, OnInit, OnDestroy, OnChanges} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {ReminderModel} from '../models/reminder-model';
 import {ReminderService} from '../services/reminder.service';
 import {ProfileService} from '../services/profile.service';
-import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
+import {getDateForInput, getInputDataForInsert, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {ReminderMainModel} from '../models/reminder-main-model';
 
 @Component({
@@ -48,6 +46,32 @@ export class ReminderComponent implements OnInit {
         this.showSelectedRecord(data);
       }
     }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  generateCharts(): void {
+
   }
 
   populateList(): void {
@@ -97,8 +121,12 @@ export class ReminderComponent implements OnInit {
     await this.route.navigate(['reminder', {}]);
   }
 
-  btnNew_Click(): void {
-    this.clearSelectedRecord();
+  async btnNew_Click(): Promise<void> {
+    try {
+      this.clearSelectedRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   async btnSave_Click(): Promise<void> {
@@ -111,27 +139,21 @@ export class ReminderComponent implements OnInit {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
-            this.selectedRecord.data.primaryKey = '';
-            await this.service.addItem(this.selectedRecord)
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord , this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Hatırlatma başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hatırlatma başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -139,7 +161,7 @@ export class ReminderComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -154,21 +176,23 @@ export class ReminderComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
-  btnMainFilter_Click(): void {
-    this.populateList();
+  async btnMainFilter_Click(): Promise<void> {
+    try {
+      this.generateCharts();
+      this.populateList();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   btnShowMainFiler_Click(): void {
@@ -198,21 +222,18 @@ export class ReminderComponent implements OnInit {
     this.filterIsActive = '1';
   }
 
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

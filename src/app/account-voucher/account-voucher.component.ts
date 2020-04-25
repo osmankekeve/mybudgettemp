@@ -67,21 +67,7 @@ export class AccountVoucherComponent implements OnInit {
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
-    if (this.chart1Visibility === null && this.chart2Visibility === null) {
-      const chart1Visibility = this.sService.getItem('accountChart1Visibility');
-      const chart2Visibility = this.sService.getItem('accountChart2Visibility');
-      Promise.all([chart1Visibility, chart2Visibility])
-        .then((values: any) => {
-          const data1 = values[0].data as SettingModel;
-          const data2 = values[1].data as SettingModel;
-          this.chart1Visibility = data1.valueBool;
-          this.chart2Visibility = data2.valueBool;
-        }).finally(() => {
-        this.populateCharts();
-      });
-    } else {
-      this.populateCharts();
-    }
+    this.generateCharts();
     this.populateList();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -91,6 +77,28 @@ export class AccountVoucherComponent implements OnInit {
         this.showSelectedRecord(paramItem);
       }
     }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -136,6 +144,24 @@ export class AccountVoucherComponent implements OnInit {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  generateCharts(): void {
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('accountChart1Visibility');
+      const chart2Visibility = this.sService.getItem('accountChart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
   }
 
   populateCharts(): void {
@@ -310,11 +336,10 @@ export class AccountVoucherComponent implements OnInit {
         await this.globService.returnPreviousModule(this.router);
       } else {
         await this.route.navigate(['account-voucher', {}]);
-        this.populateCharts();
+        await this.finishProcess(null, null);
       }
-      this.finishFinally();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -336,24 +361,18 @@ export class AccountVoucherComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Fiş başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -372,13 +391,10 @@ export class AccountVoucherComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Fiş başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
@@ -397,13 +413,10 @@ export class AccountVoucherComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
@@ -426,9 +439,6 @@ export class AccountVoucherComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
@@ -441,9 +451,9 @@ export class AccountVoucherComponent implements OnInit {
 
   async btnReturnRecord_Click(): Promise<void> {
     try {
-      this.infoService.error('yazılmadı');
+      await this.infoService.error('yazılmadı');
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -456,22 +466,22 @@ export class AccountVoucherComponent implements OnInit {
     this.clearMainFiler();
   }
 
-  btnMainFilter_Click(): void {
+  async btnMainFilter_Click(): Promise<void> {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
-      this.populateCharts();
+      this.generateCharts();
     }
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'accountVoucher');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -535,6 +545,22 @@ export class AccountVoucherComponent implements OnInit {
     });
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        await this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
@@ -545,27 +571,6 @@ export class AccountVoucherComponent implements OnInit {
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.populateCharts();
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   format_amount($event): void {

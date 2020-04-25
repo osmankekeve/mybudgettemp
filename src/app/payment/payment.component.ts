@@ -8,15 +8,8 @@ import {CustomerService} from '../services/customer.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
-import {
-  getDateForInput,
-  getInputDataForInsert,
-  getTodayForInput,
-  getFirstDayOfMonthForInput,
-  isNullOrEmpty,
-  getEncryptionKey,
-  getFloat, currencyFormat, moneyFormat
-} from '../core/correct-library';
+import { getDateForInput, getInputDataForInsert, getTodayForInput, getFirstDayOfMonthForInput, isNullOrEmpty, getEncryptionKey,
+  getFloat, currencyFormat, moneyFormat} from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -26,20 +19,27 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from '../services/customer-account.service'
+import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
+import {FileMainModel} from '../models/file-main-model';
+import {ActionMainModel} from '../models/action-main-model';
+import {ActionService} from '../services/action.service';
+import {FileUploadService} from '../services/file-upload.service';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css']
 })
-export class PaymentComponent implements OnInit, OnDestroy {
+export class PaymentComponent implements OnInit {
   mainList: Array<PaymentMainModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<PaymentMainModel>;
+  actionList: Array<ActionMainModel>;
+  filesList: Array<FileMainModel>;
   selectedRecord: PaymentMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
@@ -61,11 +61,12 @@ export class PaymentComponent implements OnInit, OnDestroy {
   chart1Visibility = null;
   chart2Visibility = null;
 
-  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: PaymentService, public sService: SettingService, public cdService: CashDeskService,
-              public cService: CustomerService, public db: AngularFirestore, public excelService: ExcelService,
-              public infoService: InformationService, public atService: AccountTransactionService,
-              public accService: CustomerAccountService, public globService: GlobalService) {
+  constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
+              protected service: PaymentService, protected sService: SettingService, protected cdService: CashDeskService,
+              protected cService: CustomerService, protected db: AngularFirestore, protected excelService: ExcelService,
+              protected infoService: InformationService, protected atService: AccountTransactionService,
+              protected accService: CustomerAccountService, protected gfuService: GlobalUploadService,
+              protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService) {
   }
 
   ngOnInit() {
@@ -73,21 +74,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
-    if (this.chart1Visibility === null && this.chart2Visibility === null) {
-      const chart1Visibility = this.sService.getItem('paymentChart1Visibility');
-      const chart2Visibility = this.sService.getItem('paymentChart2Visibility');
-      Promise.all([chart1Visibility, chart2Visibility])
-        .then((values: any) => {
-          const data1 = values[0].data as SettingModel;
-          const data2 = values[1].data as SettingModel;
-          this.chart1Visibility = data1.valueBool;
-          this.chart2Visibility = data2.valueBool;
-        }).finally(() => {
-        this.populateCharts();
-      });
-    } else {
-      this.populateCharts();
-    }
+    this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -98,7 +85,26 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -146,6 +152,24 @@ export class PaymentComponent implements OnInit, OnDestroy {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  generateCharts(): void {
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('paymentChart1Visibility');
+      const chart2Visibility = this.sService.getItem('paymentChart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
   }
 
   populateCharts(): void {
@@ -298,6 +322,49 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
   }
 
+  populateFiles(): void {
+    this.filesList = undefined;
+    this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
+      .subscribe(list => {
+        if (this.filesList === undefined) {
+          this.filesList = [];
+        }
+        list.forEach((data: any) => {
+          const item = data.returnData as FileMainModel;
+          if (item.actionType === 'added') {
+            this.filesList.push(item);
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.filesList.length; i++) {
+              if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
+                this.filesList.splice(i, 1);
+              }
+            }
+          }
+        });
+      });
+    setTimeout(() => {
+      if (this.filesList === undefined) {
+        this.filesList = [];
+      }
+    }, 1000);
+  }
+
+  populateActions(): void {
+    this.actionList = undefined;
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ActionMainModel;
+        if (item.actionType === 'added') {
+          this.actionList.push(item);
+        }
+      });
+    });
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -305,6 +372,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
       this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateFiles();
+    this.populateActions();
   }
 
   btnMainFilter_Click(): void {
@@ -334,12 +404,11 @@ export class PaymentComponent implements OnInit, OnDestroy {
       if (previousModule !== null && previousModulePrimaryKey !== null) {
         await this.globService.returnPreviousModule(this.router);
       } else {
+        await this.finishProcess(null, null);
         await this.route.navigate(['payment', {}]);
-        this.populateCharts();
       }
-      this.finishFinally();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -362,24 +431,18 @@ export class PaymentComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = '';
             await this.service.setItem(this.selectedRecord, newId)
               .then(() => {
-                this.finishProcess(null, 'Ödeme başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Ödeme başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -387,7 +450,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -402,16 +465,13 @@ export class PaymentComponent implements OnInit, OnDestroy {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -423,20 +483,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -448,20 +505,17 @@ export class PaymentComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -473,11 +527,32 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+    try {
+      await this.fuService.removeItem(item).then(() => {
+        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      });
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'payment');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async btnFileUpload_Click(): Promise<void> {
+    try {
+      this.gfuService.showModal(
+        this.selectedRecord.data.primaryKey,
+        'payment',
+        CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -543,6 +618,22 @@ export class PaymentComponent implements OnInit, OnDestroy {
     });
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
@@ -554,26 +645,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
     this.filterStatus = '-1';
-  }
-
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   format_amount($event): void {

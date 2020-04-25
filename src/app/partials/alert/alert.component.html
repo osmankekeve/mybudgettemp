@@ -1,7 +1,23 @@
-﻿
-<div class="row" style="background-color: #31353D !important;">
-  <div class="col">
-    <div *ngIf="message" class="text-center"
-         [ngClass]="{ 'alert mt-4': message, 'alert-success': message.type === 'success', 'alert-danger': message.type === 'error' }">{{ message.text }}</div>
+﻿<div class="modal fade" id="myModal">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <span class="font-weight-600 text-success" *ngIf="message && message.type === 'success'">
+            <span class="fa fa-info-circle mr-1"></span>Bilgilendirme
+          </span>
+          <span class="font-weight-600 text-red" *ngIf="message && message.type === 'error'">
+            <span class="fa fa-exclamation-circle mr-1"></span>Uyarı
+          </span>
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div *ngIf="message" class="text-center"
+             [ngClass]="{ 'alert mb-0': message, 'alert-success': message.type === 'success', 'alert-danger': message.type === 'error' }">{{ message.text }}</div>
+      </div>
+    </div>
   </div>
 </div>

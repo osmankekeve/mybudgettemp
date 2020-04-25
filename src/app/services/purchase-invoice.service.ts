@@ -1,10 +1,5 @@
 import {Injectable} from '@angular/core';
-import {
-  AngularFirestore,
-  AngularFirestoreCollection,
-  CollectionReference,
-  Query
-} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {CustomerModel} from '../models/customer-model';
@@ -17,8 +12,8 @@ import {ProfileService} from './profile.service';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +26,9 @@ export class PurchaseInvoiceService {
   customerMap = new Map();
   tableName = 'tblPurchaseInvoice';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public atService: AccountTransactionService) {
+  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
+              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
+              protected atService: AccountTransactionService, protected actService: ActionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -56,6 +51,7 @@ export class PurchaseInvoiceService {
       .then(async result => {
         await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
         await this.sService.increasePurchaseInvoiceNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
   }
 
@@ -64,6 +60,7 @@ export class PurchaseInvoiceService {
       .then(async value => {
         await this.logService.sendToLog(record, 'insert', 'purchaseInvoice');
         await this.sService.increasePurchaseInvoiceNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
           const trans = {
             primaryKey: record.data.primaryKey,
@@ -120,10 +117,13 @@ export class PurchaseInvoiceService {
           };
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.sendToLog(record, 'approved', 'purchaseInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.sendToLog(record, 'rejected', 'purchaseInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
           await this.logService.sendToLog(record, 'update', 'purchaseInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
   }

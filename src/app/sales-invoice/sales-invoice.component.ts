@@ -81,21 +81,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
-    if (this.chart1Visibility === null && this.chart2Visibility === null) {
-      const chart1Visibility = this.sService.getItem('salesChart1Visibility');
-      const chart2Visibility = this.sService.getItem('salesChart2Visibility');
-      Promise.all([chart1Visibility, chart2Visibility])
-        .then((values: any) => {
-          const data1 = values[0].data as SettingModel;
-          const data2 = values[1].data as SettingModel;
-          this.chart1Visibility = data1.valueBool;
-          this.chart2Visibility = data2.valueBool;
-        }).finally(() => {
-        this.populateCharts();
-      });
-    } else {
-      this.populateCharts();
-    }
+    this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -104,6 +90,28 @@ export class SalesInvoiceComponent implements OnInit {
         this.showSelectedRecord(paramItem);
       }
     }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -155,6 +163,24 @@ export class SalesInvoiceComponent implements OnInit {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  generateCharts(): void {
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('salesChart1Visibility');
+      const chart2Visibility = this.sService.getItem('salesChart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
   }
 
   populateCharts(): void {
@@ -362,6 +388,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.populateFiles();
     this.populateActions();
   }
@@ -393,21 +420,23 @@ export class SalesInvoiceComponent implements OnInit {
       if (previousModule !== null && previousModulePrimaryKey !== null) {
         await this.globService.returnPreviousModule(this.router);
       } else {
-        this.selectedRecord = undefined;
+        await this.finishProcess(null, null);
         await this.route.navigate(['sales-invoice', {}]);
-        this.populateCharts();
       }
-      this.finishFinally();
     } catch (error) {
       this.infoService.error(error);
     }
   }
 
   async btnNew_Click(): Promise<void> {
-    this.clearSelectedRecord();
-    const receiptNoData = await this.sService.getSalesInvoiceCode();
-    if (receiptNoData !== null) {
-      this.selectedRecord.data.receiptNo = receiptNoData;
+    try {
+      this.clearSelectedRecord();
+      const receiptNoData = await this.sService.getSalesInvoiceCode();
+      if (receiptNoData !== null) {
+        this.selectedRecord.data.receiptNo = receiptNoData;
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -422,24 +451,18 @@ export class SalesInvoiceComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Fatura başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -447,7 +470,7 @@ export class SalesInvoiceComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -462,16 +485,13 @@ export class SalesInvoiceComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -483,20 +503,17 @@ export class SalesInvoiceComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -508,20 +525,17 @@ export class SalesInvoiceComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -555,7 +569,7 @@ export class SalesInvoiceComponent implements OnInit {
     try {
       this.gfuService.showModal(
         this.selectedRecord.data.primaryKey,
-        'collection',
+        'sales-invoice',
         CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
     } catch (error) {
       this.infoService.error(error);
@@ -649,22 +663,18 @@ export class SalesInvoiceComponent implements OnInit {
     this.filterStatus = '-1';
   }
 
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

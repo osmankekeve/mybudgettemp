@@ -15,6 +15,7 @@ import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,9 +30,10 @@ export class SalesInvoiceService {
   accountMap = new Map();
   tableName = 'tblSalesInvoice';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public accService: CustomerAccountService, public atService: AccountTransactionService) {
+  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
+              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
+              protected accService: CustomerAccountService, protected atService: AccountTransactionService,
+              protected actService: ActionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -60,6 +62,7 @@ export class SalesInvoiceService {
       .then(async result => {
         await this.logService.sendToLog(record, 'insert', 'salesInvoice');
         await this.sService.increaseSalesInvoiceNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
   }
 
@@ -93,10 +96,13 @@ export class SalesInvoiceService {
           };
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.sendToLog(record, 'approved', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
           await this.logService.sendToLog(record, 'update', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
   }
@@ -106,6 +112,7 @@ export class SalesInvoiceService {
       .then(async value => {
         await this.logService.sendToLog(record, 'insert', 'salesInvoice');
         await this.sService.increaseSalesInvoiceNumber();
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
           const trans = {
             primaryKey: record.data.primaryKey,

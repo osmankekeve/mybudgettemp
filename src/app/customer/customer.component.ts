@@ -17,16 +17,7 @@ import {FileUploadService} from '../services/file-upload.service';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {
-  currencyFormat,
-  getBeginOfYear,
-  getEncryptionKey,
-  getEndOfYear,
-  getFloat,
-  getInputDataForInsert,
-  getNumber,
-  getTodayForInput, isNullOrEmpty, moneyFormat
-} from '../core/correct-library';
+import { currencyFormat, getEncryptionKey, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat } from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import {CustomerTargetMainModel} from '../models/customer-target-main-model';
@@ -96,7 +87,7 @@ export class CustomerComponent implements OnInit {
   recordDate: any;
   onTransaction = false;
 
-  constructor(public db: AngularFirestore, public customerService: CustomerService, public piService: PurchaseInvoiceService,
+  constructor(public db: AngularFirestore, public service: CustomerService, public piService: PurchaseInvoiceService,
               public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
               public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
               public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
@@ -121,10 +112,36 @@ export class CustomerComponent implements OnInit {
     }
   }
 
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedCustomer(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedCustomer();
+        this.selectedCustomer = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  generateCharts(): void {
+
+  }
+
   populateCustomerList(): void {
     this.openedPanel = 'dashboard';
     this.mainList = undefined;
-    this.customerService.getMainItems(this.isActive).subscribe(list => {
+    this.service.getMainItems(this.isActive).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -270,7 +287,7 @@ export class CustomerComponent implements OnInit {
       this.selectedCustomer = undefined;
       await this.route.navigate(['customer', {}]);
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -289,63 +306,54 @@ export class CustomerComponent implements OnInit {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      Promise.all([this.customerService.checkForSave(this.selectedCustomer)])
+      Promise.all([this.service.checkForSave(this.selectedCustomer)])
         .then(async (values: any) => {
           if (this.selectedCustomer.data.primaryKey === null) {
             this.selectedCustomer.data.primaryKey = this.db.createId();
-            await this.customerService.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
+            await this.service.setItem(this.selectedCustomer, this.selectedCustomer.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Müşteri başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedCustomer.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
                 this.openedPanel = 'dashboard';
               })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           } else {
-            this.customerService.updateItem(this.selectedCustomer)
+            this.service.updateItem(this.selectedCustomer)
               .then(() => {
-                this.finishProcess(null, 'Müşteri başarıyla güncellendi.');
+                this.generateModule(true, this.selectedCustomer.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           }
         })
-        .catch((error) => {
-          this.finishProcess(error, null);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
   async btnRemove_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      Promise.all([this.customerService.checkForRemove(this.selectedCustomer)])
+      Promise.all([this.service.checkForRemove(this.selectedCustomer)])
         .then(async (values: any) => {
-          await this.customerService.removeItem(this.selectedCustomer)
+          await this.service.removeItem(this.selectedCustomer)
             .then(() => {
-              this.finishProcess(null, 'Müşteri başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
-            .catch((error) => {
-              this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
+            .catch(async (error) => {
+              await this.finishProcess(error, null);
             });
         })
-        .catch((error) => {
-          this.finishProcess(error, null);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -362,7 +370,7 @@ export class CustomerComponent implements OnInit {
                 this.infoService.success('Fatura başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcessAndError(error);
+                this.finishProcess(error, null);
               })
               .finally(() => {
                 this.clearNewSalesInvoice();
@@ -370,10 +378,10 @@ export class CustomerComponent implements OnInit {
           }
         })
         .catch((error) => {
-          this.finishProcessAndError(error);
+          this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -389,16 +397,13 @@ export class CustomerComponent implements OnInit {
               .then(() => {
                 this.infoService.success('Fatura başarıyla kaydedildi.');
               })
-              .catch((error) => {
-                this.finishProcessAndError(error);
-              })
-              .finally(() => {
-                this.clearNewPurchaseInvoice();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           }
         })
-        .catch((error) => {
-          this.finishProcessAndError(error);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
       this.infoService.error(error);
@@ -417,19 +422,16 @@ export class CustomerComponent implements OnInit {
               .then(() => {
                 this.infoService.success('Tahsilat başarıyla kaydedildi.');
               })
-              .catch((error) => {
-                this.finishProcessAndError(error);
-              })
-              .finally(() => {
-                this.clearNewCollection();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           }
         })
-        .catch((error) => {
-          this.finishProcessAndError(error);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -445,19 +447,16 @@ export class CustomerComponent implements OnInit {
               .then(() => {
                 this.infoService.success('Ödeme başarıyla kaydedildi.');
               })
-              .catch((error) => {
-                this.finishProcessAndError(error);
-              })
-              .finally(() => {
-                this.clearNewPayment();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           }
         })
-        .catch((error) => {
-          this.finishProcessAndError(error);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -473,19 +472,16 @@ export class CustomerComponent implements OnInit {
               .then(() => {
                 this.infoService.success('Fiş başarıyla kaydedildi.');
               })
-              .catch((error) => {
-                this.finishProcessAndError(error);
-              })
-              .finally(() => {
-                this.clearNewVoucher();
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
               });
           }
         })
-        .catch((error) => {
-          this.infoService.error(error);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcessAndError(error);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -660,7 +656,7 @@ export class CustomerComponent implements OnInit {
   clearSelectedCustomer(): void {
     this.accountList$ = new Observable<CustomerAccountModel[]>();
     this.openedPanel = 'edit';
-    this.selectedCustomer = this.customerService.clearMainModel();
+    this.selectedCustomer = this.service.clearMainModel();
   }
 
   async clearNewSalesInvoice(): Promise<void> {
@@ -734,29 +730,18 @@ export class CustomerComponent implements OnInit {
     }]);
   }
 
-  finishProcessAndError(error: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
-    this.onTransaction = false;
-    this.infoService.error(error.message !== undefined ? error.message : error);
-  }
-
-  finishFinally(): void {
-    this.clearSelectedCustomer();
-    this.selectedCustomer = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedCustomer();
       this.selectedCustomer = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

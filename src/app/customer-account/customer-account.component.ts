@@ -64,6 +64,28 @@ export class CustomerAccountComponent implements OnInit {
     }
   }
 
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
@@ -98,6 +120,10 @@ export class CustomerAccountComponent implements OnInit {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  generateCharts(): void {
+
   }
 
   populateTransactions(): void {
@@ -223,10 +249,11 @@ export class CustomerAccountComponent implements OnInit {
 
   btnMainFilter_Click(): void {
     this.populateTransactions();
+    this.generateCharts();
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.finishFinally();
+    await this.finishProcess(null, null);
     await this.route.navigate(['customer-account', {}]);
   }
 
@@ -244,24 +271,18 @@ export class CustomerAccountComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hesap başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hesap başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -269,7 +290,7 @@ export class CustomerAccountComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -284,16 +305,13 @@ export class CustomerAccountComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -367,6 +385,22 @@ export class CustomerAccountComponent implements OnInit {
     await this.globService.showTransactionRecord(r);
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
   }
@@ -374,25 +408,6 @@ export class CustomerAccountComponent implements OnInit {
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
-  }
-
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
 }

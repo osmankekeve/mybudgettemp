@@ -6,10 +6,8 @@ import {AuthenticationService} from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import {NoteModel} from '../models/note-model';
 import {getTodayForInput} from '../core/correct-library';
 import {ReminderMainModel} from '../models/reminder-main-model';
-import {NoteMainModel} from '../models/note-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +47,10 @@ export class ReminderService {
 
   async updateItem(record: ReminderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  async setItem(record: ReminderMainModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
   checkForSave(record: ReminderMainModel): Promise<string> {

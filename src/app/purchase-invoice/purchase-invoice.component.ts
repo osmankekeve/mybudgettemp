@@ -27,18 +27,25 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
+import {FileMainModel} from '../models/file-main-model';
+import {ActionMainModel} from '../models/action-main-model';
+import {ActionService} from '../services/action.service';
+import {FileUploadService} from '../services/file-upload.service';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-purchase-invoice',
   templateUrl: './purchase-invoice.component.html',
   styleUrls: ['./purchase-invoice.component.css']
 })
-export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
+export class PurchaseInvoiceComponent implements OnInit {
   mainList: Array<PurchaseInvoiceMainModel>;
   customerList$: Observable<CustomerModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: PurchaseInvoiceMainModel;
   transactionList: Array<PurchaseInvoiceMainModel>;
+  actionList: Array<ActionMainModel>;
+  filesList: Array<FileMainModel>;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
@@ -60,31 +67,19 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   chart1Visibility = null;
   chart2Visibility = null;
 
-  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public service: PurchaseInvoiceService, public sService: SettingService, public globService: GlobalService,
-              public cService: CustomerService, public atService: AccountTransactionService, public infoService: InformationService,
-              public excelService: ExcelService, public db: AngularFirestore, public accService: CustomerAccountService) {
+  constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
+              protected service: PurchaseInvoiceService, protected sService: SettingService, protected globService: GlobalService,
+              protected cService: CustomerService, protected atService: AccountTransactionService,
+              protected infoService: InformationService, protected gfuService: GlobalUploadService,
+              protected excelService: ExcelService, protected db: AngularFirestore, protected accService: CustomerAccountService,
+              protected actService: ActionService, protected fuService: FileUploadService) {
   }
 
   ngOnInit() {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
-    if (this.chart1Visibility === null && this.chart2Visibility === null) {
-      const chart1Visibility = this.sService.getItem('purchaseChart1Visibility');
-      const chart2Visibility = this.sService.getItem('purchaseChart2Visibility');
-      Promise.all([chart1Visibility, chart2Visibility])
-        .then((values: any) => {
-          const data1 = values[0].data as SettingModel;
-          const data2 = values[1].data as SettingModel;
-          this.chart1Visibility = data1.valueBool;
-          this.chart2Visibility = data2.valueBool;
-        }).finally(() => {
-        this.populateCharts();
-      });
-    } else {
-      this.populateCharts();
-    }
+    this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -95,7 +90,26 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -148,6 +162,24 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         this.mainList = [];
       }
     }, 5000);
+  }
+
+  generateCharts(): void {
+    if (this.chart1Visibility === null && this.chart2Visibility === null) {
+      const chart1Visibility = this.sService.getItem('purchaseChart1Visibility');
+      const chart2Visibility = this.sService.getItem('purchaseChart2Visibility');
+      Promise.all([chart1Visibility, chart2Visibility])
+        .then((values: any) => {
+          const data1 = values[0].data as SettingModel;
+          const data2 = values[1].data as SettingModel;
+          this.chart1Visibility = data1.valueBool;
+          this.chart2Visibility = data2.valueBool;
+        }).finally(() => {
+        this.populateCharts();
+      });
+    } else {
+      this.populateCharts();
+    }
   }
 
   populateCharts(): void {
@@ -302,6 +334,49 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     });
   }
 
+  populateFiles(): void {
+    this.filesList = undefined;
+    this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
+      .subscribe(list => {
+        if (this.filesList === undefined) {
+          this.filesList = [];
+        }
+        list.forEach((data: any) => {
+          const item = data.returnData as FileMainModel;
+          if (item.actionType === 'added') {
+            this.filesList.push(item);
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.filesList.length; i++) {
+              if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
+                this.filesList.splice(i, 1);
+              }
+            }
+          }
+        });
+      });
+    setTimeout(() => {
+      if (this.filesList === undefined) {
+        this.filesList = [];
+      }
+    }, 1000);
+  }
+
+  populateActions(): void {
+    this.actionList = undefined;
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+      if (this.actionList === undefined) {
+        this.actionList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ActionMainModel;
+        if (item.actionType === 'added') {
+          this.actionList.push(item);
+        }
+      });
+    });
+  }
+
   setChart1Data(): void {
     const chart1Data = JSON.parse(sessionStorage.getItem('purchase_invoice_chart_1'));
     this.chart1 = new Chart('chart1', {
@@ -388,6 +463,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateFiles();
+    this.populateActions();
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -398,21 +476,21 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       if (previousModule !== null && previousModulePrimaryKey !== null) {
         await this.globService.returnPreviousModule(this.router);
       } else {
+        await this.finishProcess(null, null);
         await this.route.navigate(['purchaseInvoice', {}]);
-        this.populateCharts();
       }
-      this.finishFinally();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
-  btnMainFilter_Click(): void {
+  async btnMainFilter_Click(): Promise<void> {
     if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+      await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
     } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+      await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
+      this.generateCharts();
       this.populateList();
     }
   }
@@ -444,24 +522,18 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Fatura başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Fatura başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -469,7 +541,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -484,16 +556,13 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -505,20 +574,17 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -530,28 +596,35 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
   async btnReturnRecord_Click(): Promise<void> {
     try {
-      this.infoService.error('yazılmadı');
+      this.infoService.success('yazılmadı');
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+    try {
+      await this.fuService.removeItem(item).then(() => {
+        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      });
+    } catch (error) {
+      await this.finishProcess(error, null);
     }
   }
 
@@ -592,6 +665,17 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async btnFileUpload_Click(): Promise<void> {
+    try {
+      this.gfuService.showModal(
+        this.selectedRecord.data.primaryKey,
+        'purchase-invoice',
+        CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -650,22 +734,18 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.filterStatus = '-1';
   }
 
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

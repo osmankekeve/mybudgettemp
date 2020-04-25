@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerService } from '../services/customer.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { CashDeskService } from '../services/cash-desk.service';
@@ -65,6 +64,28 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }
   }
 
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   ngOnDestroy(): void {
   }
 
@@ -111,6 +132,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  generateCharts(): void {
+
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CashDeskVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -121,9 +146,9 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     });
   }
 
-  btnReturnList_Click(): void {
-    this.selectedRecord = undefined;
-    this.route.navigate(['cashdesk-voucher', {}]);
+  async btnReturnList_Click(): Promise<void> {
+    await this.finishProcess(null, null);
+    await this.route.navigate(['cashdesk-voucher', {}]);
   }
 
   async btnNew_Click(): Promise<void> {
@@ -144,13 +169,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Fiş başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -173,16 +195,13 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
-        .catch((error) => {
-          this.finishProcess(error, null);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -194,20 +213,17 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
-            .catch((error) => {
-              this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
+            .catch(async (error) => {
+              await this.finishProcess(error, null);
             });
         })
-        .catch((error) => {
-          this.finishProcess(error, null);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -219,20 +235,17 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Kayıt başarıyla reddedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
             })
-            .catch((error) => {
-              this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
+            .catch(async (error) => {
+              await this.finishProcess(error, null);
             });
         })
-        .catch((error) => {
-          this.finishProcess(error, null);
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -240,7 +253,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     try {
       this.infoService.error('yazılmadı');
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -277,6 +290,22 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
       });
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   btnShowMainFiler_Click(): void {
     if (this.isMainFilterOpened === true) {
       this.isMainFilterOpened = false;
@@ -293,6 +322,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
+      this.generateCharts();
     }
   }
 
@@ -318,25 +348,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterStatus = '-1';
-  }
-
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   format_amount($event): void {

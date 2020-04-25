@@ -1,9 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import { CustomerRelationModel } from '../models/customer-relation-model';
 import { CustomerRelationService } from '../services/crm.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
@@ -14,14 +13,13 @@ import * as CryptoJS from 'crypto-js';
 import {getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Chart} from 'chart.js';
 import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-crm',
   templateUrl: './crm.component.html',
   styleUrls: ['./crm.component.css']
 })
-export class CRMComponent implements OnInit, OnDestroy {
+export class CRMComponent implements OnInit {
   mainList: Array<CustomerRelationMainModel>;
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: CustomerRelationMainModel;
@@ -47,7 +45,7 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.populateList();
-    this.populateCharts();
+    this.generateCharts();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -58,7 +56,26 @@ export class CRMComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -172,6 +189,10 @@ export class CRMComponent implements OnInit, OnDestroy {
     });
   }
 
+  generateCharts(): void {
+    this.populateCharts();
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CustomerRelationMainModel;
     const selectedDate = new Date(this.selectedRecord.data.actionDate);
@@ -193,24 +214,18 @@ export class CRMComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.actionDate = date.getTime();
           await this.service.addItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Etkinlik başarıyla kaydedildi.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         } else {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Etkinlik başarıyla güncellendi.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         }
       })
@@ -233,23 +248,19 @@ export class CRMComponent implements OnInit, OnDestroy {
           })
           .catch((error) => {
             this.finishProcess(error, null);
-          })
-          .finally(() => {
-            this.finishFinally();
           });
       })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
+    await this.finishProcess(null, null);
     await this.route.navigate(['crm', {}]);
-    this.populateCharts();
   }
 
   btnMainFilter_Click(): void {
@@ -259,7 +270,7 @@ export class CRMComponent implements OnInit, OnDestroy {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
-      this.populateCharts();
+      this.generateCharts();
     }
   }
 
@@ -283,22 +294,18 @@ export class CRMComponent implements OnInit, OnDestroy {
     this.filterFinishDate = getTodayForInput();
   }
 
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

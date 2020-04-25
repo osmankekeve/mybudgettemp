@@ -10,6 +10,7 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
 import {AccountTransactionModel} from '../models/account-transaction-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -43,6 +44,10 @@ export class CashDeskService {
 
   async updateItem(record: CashDeskMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+  }
+
+  async setItem(record: CashDeskMainModel, primaryKey: string) {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
   checkForSave(record: CashDeskMainModel): Promise<string> {

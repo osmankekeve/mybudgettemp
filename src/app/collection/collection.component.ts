@@ -47,8 +47,8 @@ export class CollectionComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
-  actionList: Array<ActionMainModel>;
   transactionList: Array<CollectionMainModel>;
+  actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
   selectedRecord: CollectionMainModel;
   isRecordHasTransaction = false;
@@ -75,7 +75,7 @@ export class CollectionComponent implements OnInit {
               protected service: CollectionService, protected cdService: CashDeskService, protected atService: AccountTransactionService,
               protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
               protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
-              protected globService: GlobalService, protected actService: ActionService, public fuService: FileUploadService,
+              protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
               protected gfuService: GlobalUploadService) {
   }
 
@@ -84,6 +84,85 @@ export class CollectionComponent implements OnInit {
     this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
+    this.generateCharts();
+    this.populateList();
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        this.showSelectedRecord(paramItem);
+      }
+    }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  populateList(): void {
+    this.mainList = undefined;
+    this.totalValues = {
+      amount: 0
+    };
+    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+      .subscribe(list => {
+        if (this.mainList === undefined) {
+          this.mainList = [];
+        }
+        list.forEach((data: any) => {
+          const item = data.returnData as CollectionMainModel;
+          if (item.actionType === 'added') {
+            this.mainList.push(item);
+            this.totalValues.amount += item.data.amount;
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.mainList.splice(i, 1);
+                this.totalValues.amount -= item.data.amount;
+              }
+            }
+          }
+          if (item.actionType === 'modified') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.totalValues.amount -= this.mainList[i].data.amount;
+                this.totalValues.amount += item.data.amount;
+                this.mainList[i] = item;
+              }
+            }
+          }
+        });
+      });
+    setTimeout(() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
+  }
+
+  generateCharts(): void {
     if (this.chart1Visibility === null && this.chart2Visibility === null) {
       const chart1Visibility = this.sService.getItem('collectionChart1Visibility');
       const chart2Visibility = this.sService.getItem('collectionChart2Visibility');
@@ -99,59 +178,6 @@ export class CollectionComponent implements OnInit {
     } else {
       this.populateCharts();
     }
-    this.populateList();
-
-    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
-      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
-      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      if (paramItem) {
-        this.showSelectedRecord(paramItem);
-      }
-    }
-  }
-
-  populateList(): void {
-    this.mainList = undefined;
-    this.totalValues = {
-      amount: 0
-    };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
-      .subscribe(list => {
-      if (this.mainList === undefined) {
-        this.mainList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as CollectionMainModel;
-        if (item.actionType === 'added') {
-          this.mainList.push(item);
-          this.totalValues.amount += item.data.amount;
-        }
-        if (item.actionType === 'removed') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
-              this.mainList.splice(i, 1);
-              this.totalValues.amount -= item.data.amount;
-            }
-          }
-        }
-        if (item.actionType === 'modified') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
-              this.totalValues.amount -= this.mainList[i].data.amount;
-              this.totalValues.amount += item.data.amount;
-              this.mainList[i] = item;
-            }
-          }
-        }
-      });
-    });
-    setTimeout(() => {
-      if (this.mainList === undefined) {
-        this.mainList = [];
-      }
-    }, 1000);
   }
 
   populateCharts(): void {
@@ -349,12 +375,12 @@ export class CollectionComponent implements OnInit {
 
   async showSelectedRecord(record: any): Promise<void> {
     this.selectedRecord = record as CollectionMainModel;
-    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.populateFiles();
     this.populateActions();
   }
@@ -371,6 +397,7 @@ export class CollectionComponent implements OnInit {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
+      this.generateCharts();
     }
   }
 
@@ -382,12 +409,11 @@ export class CollectionComponent implements OnInit {
       if (previousModule !== null && previousModulePrimaryKey !== null) {
         await this.globService.returnPreviousModule(this.router);
       } else {
+        await this.finishProcess(null, null);
         await this.route.navigate(['collection', {}]);
-        this.populateCharts();
       }
-      this.finishFinally();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -409,24 +435,18 @@ export class CollectionComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Tahsilat başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Tahsilat başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -434,7 +454,7 @@ export class CollectionComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -445,33 +465,17 @@ export class CollectionComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', this.selectedRecord.data.primaryKey))
-                .get()
-                .subscribe(list => {
-                  list.forEach((item) => {
-                    this.db.collection('tblAccountTransaction').doc(item.id).delete()
-                      .then(() => {
-                        this.finishProcess(null, 'Tahsilat başarıyla kaldırıldı.');
-                      })
-                      .catch((error) => {
-                        this.finishProcess(error, null);
-                      });
-                  });
-                });
+              this.finishProcess(null, 'Tahsilat başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -483,20 +487,17 @@ export class CollectionComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Tahsilat başarıyla onaylandıı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -508,28 +509,25 @@ export class CollectionComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Tahsilat başarıyla reddedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
   async btnReturnRecord_Click(): Promise<void> {
     try {
-      this.infoService.error('yazılmadı');
+      await this.infoService.error('yazılmadı');
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -539,31 +537,34 @@ export class CollectionComponent implements OnInit {
         this.infoService.success('Dosya başarıyla kaldırıldı.');
       });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'collection');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
-  btnExportToXml_Click(): void {
-    this.infoService.showHtmlInfo('osman', 'Osman KEKEVE', false);
-
+  async btnExportToXml_Click(): Promise<void> {
+    try {
+      this.infoService.showHtmlInfo('osman', 'Osman KEKEVE', false);
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
-  btnFileUpload_Click(): void {
+  async btnFileUpload_Click(): Promise<void> {
     try {
       this.gfuService.showModal(
         this.selectedRecord.data.primaryKey,
         'collection',
         CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString());
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -637,6 +638,22 @@ export class CollectionComponent implements OnInit {
     });
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
@@ -648,26 +665,6 @@ export class CollectionComponent implements OnInit {
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
     this.filterStatus = '-1';
-  }
-
-  finishFinally(): void {
-    this.populateCharts();
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   format_amount($event): void {

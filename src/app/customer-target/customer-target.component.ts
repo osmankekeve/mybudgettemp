@@ -7,13 +7,7 @@ import {CustomerTargetService} from '../services/customer-target.service';
 import {Observable} from 'rxjs';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
-import {
-  getFloat,
-  getNumber,
-  getTodayForInput,
-  getBeginOfYear,
-  getEndOfYear,
-  getEncryptionKey, currencyFormat, moneyFormat
+import { getFloat, getNumber, getTodayForInput, getBeginOfYear, getEndOfYear, getEncryptionKey, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import {CollectionService} from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
@@ -56,6 +50,28 @@ export class CustomerTargetComponent implements OnInit {
         this.showSelectedRecord(paramItem.returnData);
       }
     }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -152,6 +168,10 @@ export class CustomerTargetComponent implements OnInit {
     }, 5000);
   }
 
+  generateCharts(): void {
+
+  }
+
   showSelectedRecord(record: any): void {
     try {
       this.selectedRecord = record as CustomerTargetMainModel;
@@ -189,18 +209,18 @@ export class CustomerTargetComponent implements OnInit {
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      this.selectedRecord = undefined;
+      await this.finishProcess(null, null);
       await this.route.navigate(['customer-target', {}]);
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -223,24 +243,18 @@ export class CustomerTargetComponent implements OnInit {
             this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hedef başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hedef başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -248,7 +262,7 @@ export class CustomerTargetComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -259,20 +273,17 @@ export class CustomerTargetComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Hedef başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -314,29 +325,26 @@ export class CustomerTargetComponent implements OnInit {
     await this.globService.showTransactionRecord(r);
   }
 
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearSelectedRecord(): void {
     this.transactionList$ = new Observable<CollectionMainModel[]>();
     this.currentAmount = 0;
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   format_amount($event): void {

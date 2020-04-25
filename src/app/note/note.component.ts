@@ -33,7 +33,6 @@ export class NoteComponent implements OnInit {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
-      console.log(list);
       if (this.mainList === undefined) {
         this.mainList = [];
       }

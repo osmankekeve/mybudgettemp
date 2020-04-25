@@ -6,15 +6,7 @@ import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {
-  getBeginOfYear, getBeginOfYearForInput, getEncryptionKey,
-  getFirstDayOfMonthForInput,
-  getFloat,
-  getNumber,
-  getTodayForInput,
-  isNullOrEmpty,
-  padLeft
-} from '../core/correct-library';
+import { getBeginOfYearForInput, getEncryptionKey, getFloat, getTodayForInput, isNullOrEmpty } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
@@ -33,7 +25,6 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   collection: AngularFirestoreCollection<CashDeskModel>;
   transactionList: Array<AccountTransactionModel>;
   selectedRecord: CashDeskMainModel;
-  refModel: CashDeskMainModel;
   isMainFilterOpened = false;
   totalValues = {
     amount: 0
@@ -66,12 +57,37 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     }
   }
 
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   ngOnDestroy(): void {
   }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
     this.service.getMainItems().subscribe(list => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
       list.forEach((data: any) => {
         const item = data.returnData as CashDeskMainModel;
         if (item.actionType === 'added') {
@@ -99,26 +115,29 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     });
   }
 
+  generateCharts(): void {
+
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CashDeskMainModel;
-    this.refModel = record as CashDeskMainModel;
     this.populateTransactions();
   }
 
-  btnReturnList_Click(): void {
+  async btnReturnList_Click(): Promise<void> {
     try {
-      this.selectedRecord = undefined;
-      this.route.navigate(['cash-desk', {}]);
+      await this.finishProcess(null, null);
+      await this.route.navigate(['cash-desk', {}]);
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -128,27 +147,21 @@ export class CashDeskComponent implements OnInit, OnDestroy {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
-            this.selectedRecord.data.primaryKey = '';
-            await this.service.addItem(this.selectedRecord)
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Kasa başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Kasa başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -171,16 +184,13 @@ export class CashDeskComponent implements OnInit, OnDestroy {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -193,7 +203,23 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     await this.globService.showTransactionRecord(r);
   }
 
-  btnShowMainFiler_Click(): void {
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  async btnShowMainFiler_Click(): Promise<void> {
     try {
       if (this.isMainFilterOpened === true) {
         this.isMainFilterOpened = false;
@@ -202,33 +228,33 @@ export class CashDeskComponent implements OnInit, OnDestroy {
       }
       this.clearMainFiler();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
-  btnMainFilter_Click(): void {
+  async btnMainFilter_Click(): Promise<void> {
     try {
       if (isNullOrEmpty(this.filterBeginDate)) {
-        this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
+        await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
       } else if (isNullOrEmpty(this.filterFinishDate)) {
-        this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+        await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
       } else {
         this.populateTransactions();
       }
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
         this.excelService.exportToExcel(this.transactionList, 'cashdeskTransaction');
       } else {
-        this.infoService.error('Aktarılacak kayıt bulunamadı.');
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -311,29 +337,11 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
   }
 
   clearMainFiler(): void {
     this.filterBeginDate = getBeginOfYearForInput();
     this.filterFinishDate = getTodayForInput();
-  }
-
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 }
