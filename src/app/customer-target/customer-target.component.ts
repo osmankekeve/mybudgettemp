@@ -32,6 +32,10 @@ export class CustomerTargetComponent implements OnInit {
   encryptSecretKey: string = getEncryptionKey();
   onTransaction = false;
   searchText = '';
+  isMainFilterOpened = false;
+  filter = {
+    isActive: true
+  };
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public infoService: InformationService, public colService: CollectionService, public globService: GlobalService,
@@ -78,7 +82,7 @@ export class CustomerTargetComponent implements OnInit {
     this.mainList1 = undefined;
     this.mainList2 = undefined;
     this.mainList3 = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItems(this.filter.isActive).subscribe(list => {
       if (this.mainList1 === undefined) {
         this.mainList1 = [];
       }
@@ -287,6 +291,27 @@ export class CustomerTargetComponent implements OnInit {
     }
   }
 
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      if (this.isMainFilterOpened === true) {
+        this.isMainFilterOpened = false;
+      } else {
+        this.isMainFilterOpened = true;
+      }
+      this.clearMainFiler();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnMainFilter_Click(): Promise<void> {
+    try {
+      this.populateList();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   onChangeType(record: any): void {
     if (record === 'yearly') {
       this.selectedRecord.data.beginMonth = -1;
@@ -345,6 +370,10 @@ export class CustomerTargetComponent implements OnInit {
     this.transactionList$ = new Observable<CollectionMainModel[]>();
     this.currentAmount = 0;
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  clearMainFiler(): void {
+    this.filter.isActive = true;
   }
 
   format_amount($event): void {

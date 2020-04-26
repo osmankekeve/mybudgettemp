@@ -7,7 +7,7 @@ import { ProfileModel } from '../models/profile-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import { ProfileService } from './profile.service';
 import { LogService } from './log.service';
-import {getUserTypes} from '../core/correct-library';
+import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +84,13 @@ export class AuthenticationService {
     if (model.type === undefined) { model.type = cleanModel.type; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     if (model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.birthDate === undefined) { model.birthDate = cleanModel.birthDate; }
+    if (model.cityName === undefined) { model.cityName = cleanModel.cityName; }
+    if (model.districtName === undefined) { model.districtName = cleanModel.districtName; }
+    if (model.address === undefined) { model.address = cleanModel.address; }
+    if (model.educationStatus === undefined) { model.educationStatus = cleanModel.educationStatus; }
+    if (model.gender === undefined) { model.gender = cleanModel.gender; }
 
     return model;
   }
@@ -100,6 +107,12 @@ export class AuthenticationService {
     returnData.isActive = true;
     returnData.userPrimaryKey = this.getUid();
     returnData.insertDate = Date.now();
+    returnData.birthDate = Date.now();
+    returnData.cityName = '';
+    returnData.districtName = '';
+    returnData.address = '';
+    returnData.educationStatus = 'primarySchool'; // primarySchool, middleSchool, highSchool, university
+    returnData.gender = 'male'; // male, female
 
     return returnData;
   }
@@ -128,6 +141,9 @@ export class AuthenticationService {
             const returnData = this.clearProfileMainModel();
             returnData.data = this.checkFields(data);
             returnData.typeTr = getUserTypes().get(returnData.data.type);
+            returnData.genderTr = getGenders().get(returnData.data.gender);
+            returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
+            returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
             sessionStorage.setItem('employee', JSON.stringify(returnData));
             resolve(doc.id);
           });

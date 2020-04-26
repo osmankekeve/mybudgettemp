@@ -8,7 +8,7 @@ import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {CollectionModel} from '../models/collection-model';
-import {getUserTypes} from '../core/correct-library';
+import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
 import {CashDeskModel} from '../models/cash-desk-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
 
@@ -20,7 +20,6 @@ export class ProfileService {
   mainList$: Observable<ProfileMainModel[]>;
   mainList2$: Observable<ProfileModel[]>;
   tableName = 'tblProfile';
-  typeMap = new Map([['admin', 'Administrator'], ['manager', 'Yönetici'], ['user', 'Kullanıcı']]);
 
   constructor(public authService: AuthenticationService,
               public db: AngularFirestore) {
@@ -93,6 +92,13 @@ export class ProfileService {
     if (model.type === undefined) { model.type = cleanModel.type; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     if (model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
+    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.birthDate === undefined) { model.birthDate = cleanModel.birthDate; }
+    if (model.cityName === undefined) { model.cityName = cleanModel.cityName; }
+    if (model.districtName === undefined) { model.districtName = cleanModel.districtName; }
+    if (model.address === undefined) { model.address = cleanModel.address; }
+    if (model.educationStatus === undefined) { model.educationStatus = cleanModel.educationStatus; }
+    if (model.gender === undefined) { model.gender = cleanModel.gender; }
 
     return model;
   }
@@ -109,6 +115,12 @@ export class ProfileService {
     returnData.isActive = true;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
+    returnData.birthDate = Date.now();
+    returnData.cityName = '';
+    returnData.districtName = '';
+    returnData.address = '';
+    returnData.educationStatus = 'primarySchool'; // primarySchool, middleSchool, highSchool, university
+    returnData.gender = 'male'; // male, female
 
     return returnData;
   }
@@ -137,10 +149,12 @@ export class ProfileService {
         const data = change.payload.doc.data() as ProfileModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new ProfileMainModel();
+        const returnData = this.clearProfileMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.typeTr = this.typeMap.get(data.type);
+        returnData.typeTr = getUserTypes().get(returnData.data.type);
+        returnData.genderTr = getGenders().get(returnData.data.gender);
+        returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
         returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
 
         return this.db.collection('tblCustomer').doc('-1').valueChanges()
@@ -162,8 +176,11 @@ export class ProfileService {
             data.primaryKey = doc.id;
 
             const returnData = this.clearProfileMainModel();
-            returnData.data = data;
+            returnData.data = this.checkFields(data);
             returnData.typeTr = getUserTypes().get(returnData.data.type);
+            returnData.genderTr = getGenders().get(returnData.data.gender);
+            returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
+            returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
             if (isSetToSession) {sessionStorage.setItem('employee', JSON.stringify(returnData)); }
             resolve(Object.assign({returnData}));
           } else {

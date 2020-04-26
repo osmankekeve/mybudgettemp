@@ -5,4 +5,6 @@ export class ProfileMainModel {
   typeTr?: string;
   isActiveTr?: string;
   actionType?: string;
+  educationStatusTr?: string; // primarySchool, middleSchool, highSchool, university
+  genderTr?: string; // male, female
 }

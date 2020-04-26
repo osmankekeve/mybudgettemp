@@ -8,6 +8,7 @@ import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
+import {getInputDataForInsert} from '../core/correct-library';
 
 @Component({
   selector: 'app-profile',
@@ -32,11 +33,45 @@ export class ProfileComponent implements OnInit {
     this.selectedRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
   }
 
-  btnSaveProfileClick(): void {
-    try {
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey, true)
+          .then(item => {
+            this.selectedRecord = item.returnData;
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
 
+  async btnSave_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.error(err);
     }
   }
 

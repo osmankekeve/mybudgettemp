@@ -516,7 +516,7 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnShowMainFiler_Click(): void {
+  async btnShowMainFiler_Click(): Promise<void> {
     try {
       if (this.isMainFilterOpened === true) {
         this.isMainFilterOpened = false;
@@ -525,7 +525,7 @@ export class CustomerComponent implements OnInit {
       }
       this.clearMainFiler();
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 

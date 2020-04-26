@@ -51,11 +51,19 @@
                     <div class="row">
                       <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Adı</div>
                       <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.longName}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Cinsiyet</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.genderTr}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Öğrenim Durumu</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.educationStatusTr}}</div>
                       <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Mail Adresi</div>
                       <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.mailAddress}}</div>
                       <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Telefon</div>
                       <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.phone}}</div>
-                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Tipi</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Adres</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.address}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">İl/İlçe</div>
+                      <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.data.cityName}} / {{selectedRecord.data.districtName}}</div>
+                      <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Kullanıcı Tipi</div>
                       <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.typeTr}}</div>
                       <div class="col-sm-6 font-weight-600 text-dark-blue mb-1">Durumu</div>
                       <div class="col-sm-6 text-secondary mb-1">{{selectedRecord.isActiveTr}}</div>
@@ -130,14 +138,67 @@
                 <input class="form-control form-control-sm w-100" id="phone" name="phone" type="text"
                        [(ngModel)]="selectedRecord.data.phone">
               </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="gender">Cinsiyet</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="gender" name="gender"
+                        [(ngModel)]="selectedRecord.data.gender">
+                  <option value="male">Erkek</option>
+                  <option value="female">Kadın</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="educationStatus">Eğitim Durumu</label>
+              </div>
+              <div class="col-sm-3">
+                <select class="form-control form-control-sm w-100" id="educationStatus" name="educationStatus"
+                        [(ngModel)]="selectedRecord.data.educationStatus">
+                  <option value="primarySchool">İlk Okul</option>
+                  <option value="middleSchool">Orta Okul</option>
+                  <option value="highSchool">Lise</option>
+                  <option value="university">Üniversite</option>
+                </select>
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="cityName">Şehir</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control form-control-sm w-100" id="cityName" name="cityName" type="text"
+                       [(ngModel)]="selectedRecord.data.cityName">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="districtName">İlçe</label>
+              </div>
+              <div class="col-sm-3">
+                <input class="form-control form-control-sm w-100" id="districtName" name="districtName" type="text"
+                       [(ngModel)]="selectedRecord.data.districtName">
+              </div>
+              <div class="col-sm-3">
+                <label class="col-form-label float-left" for="address">Adres</label>
+              </div>
+              <div class="col-sm-9">
+                <input class="form-control form-control-sm w-100" id="address" name="address" type="text"
+                       [(ngModel)]="selectedRecord.data.address">
+              </div>
             </div>
           </div>
           <div class="card-footer">
-            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="btnSaveProfileClick()">
-              <i class="fa fa-save mr-1"></i> Kaydet
-            </button>
+            <div class="col-sm-3 float-right">
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-success form-control"
+                        [disabled]="onTransaction"
+                        (click)="btnSave_Click()">Kaydet
+                </button>
+              </div>
+            </div>
           </div>
-
         </div>
         <div class="card bg-light" *ngIf="openedPanel == 'securityPanel'">
           <div class="card-body">
@@ -147,7 +208,6 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>

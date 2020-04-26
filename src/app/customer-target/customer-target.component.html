@@ -6,6 +6,8 @@
         <h4 class="card-title float-left mr-2">Müşteri Hedefleri</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Hedef"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
+                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -21,6 +23,26 @@
     </div>
   </div>
   <div class="card-body">
+    <div class="card mb-2" *ngIf="isMainFilterOpened">
+      <div class="card-header">Filtreler</div>
+      <div class="card-body bg-light">
+        <div class="row">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Aktif Durumu</label>
+          </div>
+          <div class="col-sm-9">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filter.isActive">
+              <option [ngValue]="true">Aktif</option>
+              <option [ngValue]="false">Pasif</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button type="button" class="btn btn-sm btn-success" (click)="btnMainFilter_Click()">Filtrele</button>
+      </div>
+    </div>
     <div class="row">
       <div class="col-sm-4">
         <div class="card mb-2">
@@ -339,16 +361,32 @@
           </div>
           <div class="card-footer">
             <div class="col-sm-3 float-right">
-              <button type="button" class="btn btn-sm btn-success btn-block"
-                      [disabled]="onTransaction"
-                      (click)="btnSave_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaydet
-              </button>
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-success form-control"
+                        [disabled]="onTransaction || !f.valid"
+                        (click)="btnSave_Click()">Kaydet
+                </button>
+              </div>
             </div>
-            <div class="col-sm-3" *ngIf="selectedRecord.data.primaryKey!=undefined">
-              <button type="button" class="btn btn-sm btn-danger btn-block"
-                      [disabled]="onTransaction"
-                      (click)="btnRemove_Click()"><i class="fa fa-spinner fa-spin mr-2" *ngIf="onTransaction"></i>Kaldır
-              </button>
+            <div class="col-sm-3 float-left">
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger form-control"
+                        [disabled]="onTransaction"
+                        (click)="btnRemove_Click()">Kaldır
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -374,8 +412,9 @@
                 <td class="fs-14"
                     [ngClass]="selectedRecord.data.amount>currentAmount ? 'text-danger' : 'text-success'">
                   <span class="float-right">
-                    <i [ngClass]="selectedRecord.data.amount>currentAmount ? 'fa fa-angle-double-down' : 'fa fa-angle-double-up'"></i>
-                    {{currentAmount-selectedRecord.data.amount | currency:'₺'}}</span>
+                    <i
+                      [ngClass]="selectedRecord.data.amount>currentAmount ? 'fa fa-angle-double-down' : 'fa fa-angle-double-up'"></i>
+                    {{currentAmount - selectedRecord.data.amount | currency:'₺'}}</span>
                 </td>
               </tr>
               </tbody>

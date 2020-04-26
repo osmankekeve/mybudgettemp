@@ -177,6 +177,14 @@ export const getTerms = () => {
     ['120G', '120 Gün'], ['-1', 'Seçilmedi']]);
 };
 
+export const getGenders = () => {
+  return new Map([['male', 'Erkek'], ['female', 'Kadın']]);
+};
+
+export const getEducation = () => {
+  return new Map([['primarySchool', 'İlk Okul'], ['middleSchool', 'Orta Okul'], ['highSchool', 'Lise'], ['university', 'Üniversite']]);
+};
+
 export const getCashDeskVoucherType = () => {
   return new Map([['open', 'Açılış'], ['transfer', 'Transfer']]);
 };

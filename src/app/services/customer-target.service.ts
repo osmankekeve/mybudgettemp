@@ -80,8 +80,6 @@ export class CustomerTargetService {
     return new Promise((resolve, reject) => {
       if (record.data.customerCode === '-1' || record.data.customerCode === '') {
         reject('Lütfen müşteri seçiniz.');
-      } else if (getNumber(record.data.year) < getTodayForInput().year) {
-        reject('Lütfen yıl seçiniz.');
       } else if (record.data.type === 'monthly' && record.data.beginMonth < 1) {
         reject('Lütfen ay seçiniz.');
       } else if (record.data.type === 'periodic' && record.data.beginMonth < 1) {
@@ -125,6 +123,7 @@ export class CustomerTargetService {
     returnData.finishMonth = 12;
     returnData.year = getTodayForInput().year;
     returnData.amount = 0;
+    returnData.description = '';
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 
@@ -142,9 +141,10 @@ export class CustomerTargetService {
     return returnData;
   }
 
-  getMainItems(): Observable<CustomerTargetMainModel[]> {
+  getMainItems(isActive: boolean): Observable<CustomerTargetMainModel[]> {
     this.listCollection = this.db.collection<CustomerTargetModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()));
+    ref => ref.where('userPrimaryKey', '==', this.authService.getUid())
+      .where('isActive', '==', isActive));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes  => {
       return changes.map( change => {
         const data = change.payload.doc.data() as CustomerTargetModel;

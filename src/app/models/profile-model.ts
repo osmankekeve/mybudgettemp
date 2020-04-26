@@ -12,4 +12,9 @@ export class ProfileModel {
   isActive?: boolean;
   birthDate?: number;
   insertDate: number;
+  cityName?: string;
+  districtName?: string;
+  address?: string;
+  educationStatus?: string; // primarySchool, middleSchool, highSchool, university
+  gender?: string; // male, female
 }
