@@ -427,9 +427,8 @@ export class PaymentComponent implements OnInit {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
-            const newId = this.db.createId();
-            this.selectedRecord.data.primaryKey = '';
-            await this.service.setItem(this.selectedRecord, newId)
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
