@@ -366,8 +366,8 @@ export class CustomerComponent implements OnInit {
             this.newSalesInvoice.data.primaryKey = this.db.createId();
             this.newSalesInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.siService.setItem(this.newSalesInvoice, this.newSalesInvoice.data.primaryKey)
-              .then(() => {
-                this.infoService.success('Fatura başarıyla kaydedildi.');
+              .then(async () => {
+                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -394,11 +394,14 @@ export class CustomerComponent implements OnInit {
             this.newPurchaseInvoice.data.primaryKey = this.db.createId();
             this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.piService.setItem(this.newPurchaseInvoice, this.newPurchaseInvoice.data.primaryKey)
-              .then(() => {
-                this.infoService.success('Fatura başarıyla kaydedildi.');
+              .then(async () => {
+                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearNewPurchaseInvoice();
               });
           }
         })
@@ -419,11 +422,14 @@ export class CustomerComponent implements OnInit {
             this.newCollection.data.primaryKey = this.db.createId();
             this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.colService.setItem(this.newCollection, this.newCollection.data.primaryKey)
-              .then(() => {
-                this.infoService.success('Tahsilat başarıyla kaydedildi.');
+              .then(async () => {
+                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearNewCollection();
               });
           }
         })
@@ -444,11 +450,14 @@ export class CustomerComponent implements OnInit {
             this.newPayment.data.primaryKey = this.db.createId();
             this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.payService.setItem(this.newPayment, this.newPayment.data.primaryKey)
-              .then(() => {
-                this.infoService.success('Ödeme başarıyla kaydedildi.');
+              .then(async () => {
+                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearNewPayment();
               });
           }
         })
@@ -469,11 +478,14 @@ export class CustomerComponent implements OnInit {
             this.newVoucher.data.primaryKey = this.db.createId();
             this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
             await this.avService.setItem(this.newVoucher, this.newVoucher.data.primaryKey)
-              .then(() => {
-                this.infoService.success('Fiş başarıyla kaydedildi.');
+              .then(async () => {
+                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearNewVoucher();
               });
           }
         })
