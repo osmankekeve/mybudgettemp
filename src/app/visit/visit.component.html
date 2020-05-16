@@ -132,74 +132,124 @@
   </div>
   <div class="card-body">
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
-      <div class="row form-inline">
-        <div class="col-sm-3">
-          <label class="col-form-label float-left">Müşteri</label>
-        </div>
-        <div class="col-sm-9">
-          <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
-                  [disabled]="selectedRecord.visit.primaryKey"
-                  (change)="onChangeCustomer($event)"
-                  [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left">Personel</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
-                  [disabled]="selectedRecord.visit.primaryKey"
-                  (change)="onChangeEmployee($event)"
-                  [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
-            <option value={{item.returnData.data.primaryKey}}
-                    *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen personel seçiniz.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left">Tarih</label>
-        </div>
-        <div class="col-sm-3">
-          <div class="input-group">
-            <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
-                   [disabled]="selectedRecord.visit.primaryKey"
-                   name="d2" #c2="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d2="ngbDatepicker">
-            <div class="input-group-append">
-              <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"
-                      [disabled]="selectedRecord.visit.primaryKey"><i class="fa fa-calendar"></i></button>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title float-left mr-2">Ziyaret</h5>
+            </div>
+            <div class="card-body work-area-2">
+              <div class="row">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Müşteri</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
+                          [disabled]="selectedRecord.visit.primaryKey"
+                          (change)="onChangeCustomer($event)"
+                          [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
+                    <option value={{item.primaryKey}}
+                            *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Personel</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="employeePrimaryKey" name="employeePrimaryKey" required
+                          [disabled]="selectedRecord.visit.primaryKey"
+                          (change)="onChangeEmployee($event)"
+                          [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
+                    <option value={{item.returnData.data.primaryKey}}
+                            *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen personel seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Tarih</label>
+                </div>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                    <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
+                           [disabled]="selectedRecord.visit.primaryKey"
+                           name="d2" #c2="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d2="ngbDatepicker">
+                    <div class="input-group-append">
+                      <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"
+                              [disabled]="selectedRecord.visit.primaryKey"><i class="fa fa-calendar"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-9">
+                        <textarea class="form-control form-control-sm w-100" id="description" name="description"
+                                  type="text" cols="40" rows="2"
+                                  [(ngModel)]="selectedRecord.visit.description"
+                                  [disabled]="selectedRecord.visit.isVisited"></textarea>
+                  <div class="invalid-feedback invalid-input-info">Lütfen not alanını doldurunuz.</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="isVisited">Ziyaret Durumu</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="isVisited" name="isVisited"
-                  [(ngModel)]="selectedRecord.visit.isVisited">
-            <option [ngValue]="true">Yapıldı</option>
-            <option [ngValue]="false">Yapılmadı</option>
-          </select>
-        </div>
-        <div class="col-sm-6"></div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="description">Açıklama</label>
-        </div>
-        <div class="col-sm-9">
-                        <textarea class="form-control form-control-sm w-100" id="description" name="description"
-                                  type="text"
-                                  cols="40" rows="2" [(ngModel)]="selectedRecord.visit.description"></textarea>
-          <div class="invalid-feedback invalid-input-info">Lütfen not alanını doldurunuz.</div>
-        </div>
-        <div class="col-sm-3 mt-1">
-          <label class="col-form-label float-left" for="result">Sonuç</label>
-        </div>
-        <div class="col-sm-9 mt-1">
+        <div class="col-sm-6">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title float-left mr-2">Ziyaret Sonuç</h5>
+            </div>
+            <div class="card-body work-area-2" *ngIf="selectedRecord.visit.isVisited; else elseBlock2">
+              <div class="row">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Ziyaret Başlangıç</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">{{selectedRecord.visit.visitStartDate | date: 'yyyy.MM.dd HH:mm:ss'}}</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Ziyaret Bitiş</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">{{selectedRecord.visit.visitFinishDate | date: 'yyyy.MM.dd HH:mm:ss'}}</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Boylam</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">{{selectedRecord.visit.longitude}}</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Enlem</label>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">{{selectedRecord.visit.latitude}}</label>
+                </div>
+                <div class="col-sm-3 mt-1">
+                  <label class="col-form-label float-left" for="result">Sonuç</label>
+                </div>
+                <div class="col-sm-9 mt-1">
                         <textarea class="form-control form-control-sm w-100" id="result" name="result" type="text"
                                   cols="40" rows="2" [(ngModel)]="selectedRecord.visit.result"></textarea>
-          <div class="invalid-feedback invalid-input-info">Lütfen sonuç alanını doldurunuz.</div>
+                  <div class="invalid-feedback invalid-input-info">Lütfen sonuç alanını doldurunuz.</div>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-sm-12">
+                  <agm-map [latitude]="selectedRecord.visit.latitude" [longitude]="selectedRecord.visit.longitude">
+                    <agm-marker [latitude]="selectedRecord.visit.latitude" [longitude]="selectedRecord.visit.longitude"></agm-marker>
+                  </agm-map>
+                </div>
+              </div>
+            </div>
+            <ng-template #elseBlock2>
+              <div class="card-body">
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </div>
+            </ng-template>
+          </div>
         </div>
       </div>
     </form>

@@ -16,6 +16,7 @@ export class LocationComponent implements OnInit, OnDestroy {
   collection: AngularFirestoreCollection<LocationModel>;
   lat: any;
   lng: any;
+  searchText = '';
 
   constructor(public authService: AuthenticationService, public service: LocationService,
               public atService: AccountTransactionService,

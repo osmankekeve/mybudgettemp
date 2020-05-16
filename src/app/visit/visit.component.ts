@@ -94,9 +94,7 @@ export class VisitComponent implements OnInit {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        console.log(list);
         const item = data.returnData as VisitMainModel;
-        console.log(item);
         if (item.actionType === 'added') {
           this.mainList.push(item);
         }
