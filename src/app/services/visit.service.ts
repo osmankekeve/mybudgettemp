@@ -106,6 +106,10 @@ export class VisitService {
     returnData.primaryKey = null;
     returnData.isVisited = false;
     returnData.result = '';
+    returnData.longitude = 0.0;
+    returnData.latitude = 0.0;
+    returnData.visitStartDate = 0;
+    returnData.visitFinishDate = 0;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.insertDate = Date.now();
 

@@ -95,7 +95,7 @@ export class AccountVoucherService {
   async setItem(record: AccountVoucherMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record.data, 'insert', 'accountVoucher');
+        await this.logService.sendToLog(record, 'insert', 'accountVoucher');
         await this.sService.increaseAccountVoucherNumber();
         if (record.data.status === 'approved') {
           const trans = {
