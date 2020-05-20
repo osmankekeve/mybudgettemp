@@ -88,9 +88,9 @@
                *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
             <div class="row">
               <div class="col-sm-2">
-                <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
-                <span class="text-danger mr-2"*ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</span>
-                <span class="text-danger mr-2"*ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</span>
+                <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                <span class="text-red font-weight-600 mr-2" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</span>
+                <span class="text-red font-weight-600 mr-2" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</span>
               </div>
               <div class="col-sm-2">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
               <div class="col-sm-8">{{item.data.description}}</div>

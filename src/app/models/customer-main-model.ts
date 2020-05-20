@@ -9,4 +9,5 @@ export class CustomerMainModel {
   paymentTypeTr?: string;
   termTr?: string;
   isActiveTr?: string;
+  customerTypeTr?: string;
 }

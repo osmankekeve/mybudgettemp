@@ -11,8 +11,13 @@ import { AuthenticationService } from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
-import {getPaymentTypes, getTerms} from '../core/correct-library';
+import {getCustomerTypes, getPaymentTypes, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
+import 'rxjs-compat/add/observable/of';
+import 'rxjs-compat/add/operator/combineLatest';
+import 'rxjs-compat/add/observable/combineLatest';
+import 'rxjs-compat/add/observable/from';
+import 'rxjs-compat/add/operator/merge';
 
 @Injectable({
   providedIn: 'root'
@@ -40,17 +45,17 @@ export class CustomerService {
 
   getAllItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection<CustomerModel>(this.tableName,
-    ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('name', 'asc'));
-    return this.listCollection.valueChanges({ idField : 'primaryKey'});
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('name', 'asc'));
+    return this.listCollection.valueChanges({idField: 'primaryKey'});
   }
 
   getAllActiveItems(): Observable<CustomerModel[]> {
     this.listCollection = this.db.collection<CustomerModel>(this.tableName,
-    ref => ref
-    .where('userPrimaryKey', '==', this.authService.getUid())
-    .where('isActive', '==', true)
-    .orderBy('name', 'asc'));
-    return this.listCollection.valueChanges({ idField : 'primaryKey'});
+      ref => ref
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('isActive', '==', true)
+        .orderBy('name', 'asc'));
+    return this.listCollection.valueChanges({idField: 'primaryKey'});
   }
 
   async addItem(record: CustomerMainModel) {
@@ -122,22 +127,57 @@ export class CustomerService {
 
   checkFields(model: CustomerModel): CustomerModel {
     const cleanModel = this.clearModel();
-    if (model.employeePrimaryKey === undefined) { model.employeePrimaryKey = '-1'; }
-    if (model.executivePrimary === undefined) { model.executivePrimary = cleanModel.executivePrimary; }
-    if (model.code === undefined) { model.code = cleanModel.code; }
-    if (model.name === undefined) { model.name = cleanModel.name; }
-    if (model.owner === undefined) { model.owner = cleanModel.owner; }
-    if (model.phone1 === undefined) { model.phone1 = cleanModel.phone1; }
-    if (model.phone2 === undefined) { model.phone2 = cleanModel.phone2; }
-    if (model.email === undefined) { model.email = cleanModel.email; }
-    if (model.address === undefined) { model.address = cleanModel.address; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
-    if (model.taxOffice === undefined) { model.taxOffice = cleanModel.taxOffice; }
-    if (model.taxNumber === undefined) { model.taxNumber = cleanModel.taxNumber; }
-    if (model.postCode === undefined) { model.postCode = cleanModel.postCode; }
-    if (model.paymentTypeKey === undefined) { model.paymentTypeKey = cleanModel.paymentTypeKey; }
-    if (model.termKey === undefined) { model.termKey = cleanModel.termKey; }
-    if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
+    if (model.employeePrimaryKey === undefined) {
+      model.employeePrimaryKey = '-1';
+    }
+    if (model.executivePrimary === undefined) {
+      model.executivePrimary = cleanModel.executivePrimary;
+    }
+    if (model.code === undefined) {
+      model.code = cleanModel.code;
+    }
+    if (model.name === undefined) {
+      model.name = cleanModel.name;
+    }
+    if (model.owner === undefined) {
+      model.owner = cleanModel.owner;
+    }
+    if (model.phone1 === undefined) {
+      model.phone1 = cleanModel.phone1;
+    }
+    if (model.phone2 === undefined) {
+      model.phone2 = cleanModel.phone2;
+    }
+    if (model.email === undefined) {
+      model.email = cleanModel.email;
+    }
+    if (model.address === undefined) {
+      model.address = cleanModel.address;
+    }
+    if (model.isActive === undefined) {
+      model.isActive = cleanModel.isActive;
+    }
+    if (model.taxOffice === undefined) {
+      model.taxOffice = cleanModel.taxOffice;
+    }
+    if (model.taxNumber === undefined) {
+      model.taxNumber = cleanModel.taxNumber;
+    }
+    if (model.postCode === undefined) {
+      model.postCode = cleanModel.postCode;
+    }
+    if (model.paymentTypeKey === undefined) {
+      model.paymentTypeKey = cleanModel.paymentTypeKey;
+    }
+    if (model.termKey === undefined) {
+      model.termKey = cleanModel.termKey;
+    }
+    if (model.isActive === undefined) {
+      model.isActive = cleanModel.isActive;
+    }
+    if (model.customerType === undefined) {
+      model.customerType = cleanModel.customerType;
+    }
     return model;
   }
 
@@ -163,6 +203,7 @@ export class CustomerService {
     returnData.termKey = '-1';
     returnData.isActive = true;
     returnData.defaultAccountPrimaryKey = '-1';
+    returnData.customerType = 'customer';
 
     return returnData;
   }
@@ -176,6 +217,7 @@ export class CustomerService {
     returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
     returnData.termTr = getTerms().get(returnData.data.termKey);
     returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
+    returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
 
     return returnData;
   }
@@ -208,6 +250,7 @@ export class CustomerService {
           returnData.executive = this.employeeMap.get(data.executivePrimary);
           returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
           returnData.termTr = getTerms().get(returnData.data.termKey);
+          returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
           resolve(returnData);
         } else {
           resolve(null);
@@ -241,6 +284,7 @@ export class CustomerService {
           returnData.executive = this.employeeMap.get(data.executivePrimary);
           returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
           returnData.termTr = getTerms().get(returnData.data.termKey);
+          returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
           return Object.assign({returnData});
         })
       )
@@ -423,6 +467,33 @@ export class CustomerService {
           resolve(false);
         }
       });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getCustomers = async (customerType: string):
+    Promise<Array<CustomerModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CustomerModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('name', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerType', '==', customerType);
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as CustomerModel;
+            data.primaryKey = doc.id;
+
+            list.push(data);
+          });
+          resolve(list);
+        });
+
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});

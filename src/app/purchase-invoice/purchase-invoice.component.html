@@ -38,8 +38,7 @@
             <select class="form-control form-control-sm w-100"
                     [(ngModel)]="filterCustomerCode">
               <option value="-1">Hepsini Seç</option>
-              <option value={{item.primaryKey}}
-                      *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+              <option value={{item.primaryKey}} *ngFor="let item of customerList">{{item.name}}</option>
             </select>
           </div>
           <div class="col-sm-3">
@@ -133,7 +132,7 @@
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red">{{item.customerName}}</span>
+                      <span class="text-red font-weight-600">{{item.customerName}}</span>
                       <small> - {{item.customer.owner}}</small>
                     </div>
                   </div>
@@ -191,7 +190,7 @@
                 <div class="row">
                   <div class="col-sm-3">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                    <span class="text-red mr-2">{{item.customerName}}</span>
+                    <span class="text-red font-weight-600 mr-2">{{item.customerName}}</span>
                     <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
                     <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
                     <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
@@ -277,8 +276,7 @@
                       (change)="onChangeCustomer($event.target.value)"
                       [disabled]="selectedRecord.data.primaryKey!=undefined"
                       [(ngModel)]="selectedRecord.data.customerCode">
-                <option value={{item.primaryKey}}
-                        *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                <option value={{item.primaryKey}} *ngFor="let item of customerList">{{item.name}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
             </div>

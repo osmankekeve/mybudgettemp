@@ -88,7 +88,11 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
           <div class="row">
-            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.employee.longName}}</div>
+            <div class="col-sm-2">
+              <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>
+              <span class="text-red font-weight-600">{{item.employee.longName}}</span>
+
+            </div>
             <div class="col-sm-9">{{item.data.todoText}}</div>
             <div class="col-sm-1">{{item.isActiveTr}}</div>
           </div>

@@ -40,7 +40,7 @@ import {GlobalUploadService} from '../services/global-upload.service';
 })
 export class PurchaseInvoiceComponent implements OnInit {
   mainList: Array<PurchaseInvoiceMainModel>;
-  customerList$: Observable<CustomerModel[]>;
+  customerList: Array<CustomerModel>;
   accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: PurchaseInvoiceMainModel;
   transactionList: Array<PurchaseInvoiceMainModel>;
@@ -77,8 +77,8 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   ngOnInit() {
     this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
+    this.populateCustomers();
     this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -377,6 +377,25 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
   }
 
+  populateCustomers(): void {
+    Promise.all([this.cService.getCustomers('supplier')])
+      .then((values: any) => {
+        this.customerList = [];
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+        if (values[1] !== undefined || values[1] !== null) {
+          const returnData = values[1] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+      });
+  }
+
   setChart1Data(): void {
     const chart1Data = JSON.parse(sessionStorage.getItem('purchase_invoice_chart_1'));
     this.chart1 = new Chart('chart1', {
@@ -464,6 +483,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateCustomers();
     this.populateFiles();
     this.populateActions();
   }

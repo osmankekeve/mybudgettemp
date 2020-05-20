@@ -5,6 +5,29 @@ body {
   background-color: #eee !important;
 }
 
+.notPage {
+  background: url(assets/images/notpage.jpg) no-repeat;
+  padding: 20px;
+  width: 564px;
+  height: 161px;
+  position: absolute;
+  left: 30%;
+}
+
+.notPage h2 {
+  position: absolute;
+  top: 40px;
+  left: 180px;
+  color: #bf0b2d;
+}
+
+.notPage p {
+  position: absolute;
+  top: 80px;
+  left: 180px;
+  font-size: 13px;
+}
+
 .main-process-panel {
   width: 100%;
   font-size: 100px;

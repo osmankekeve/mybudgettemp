@@ -110,7 +110,10 @@
                    (click)="showSelectedRecord(item)" title="Kaydı Göster">
                 <i class="fa fa-ellipsis-h small-list-list-icon"></i>
                 <div class="card-body">
-                  <div class="font-weight-500 text-red"><i class="fa fa-arrow-circle-right mr-2"></i>{{item.customerName}}</div>
+                  <div class="font-weight-500 text-red">
+                    <i class="fa fa-arrow-circle-right mr-2"></i>
+                    <span class="text-red font-weight-600">{{item.customerName}}</span>
+                  </div>
                   <div class="row">
                     <div class="col">
                       <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
@@ -133,7 +136,10 @@
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
-                <div class="font-weight-500 text-red"><i class="fa fa-arrow-circle-right mr-2"></i>{{item.customerName}}</div>
+                <div class="font-weight-500 text-red">
+                  <i class="fa fa-arrow-circle-right mr-2"></i>
+                  <span class="text-red font-weight-600">{{item.customerName}}</span>
+                </div>
                 <div class="row">
                   <div class="col">
                     <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>

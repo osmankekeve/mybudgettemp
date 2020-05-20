@@ -5,6 +5,7 @@ export class CustomerModel {
   executivePrimary?: string;
   code?: string;
   name?: string;
+  customerType?: string; // customer, supplier, customer-supplier
   owner?: string;
   phone1?: string;
   phone2?: string;

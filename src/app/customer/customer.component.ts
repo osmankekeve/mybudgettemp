@@ -116,9 +116,9 @@ export class CustomerComponent implements OnInit {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
-        this.service.getItem(primaryKey)
+        this.service.getCustomer(primaryKey)
           .then(item => {
-            this.showSelectedCustomer(item.returnData);
+            this.showSelectedCustomer(item);
           })
           .catch(reason => {
             this.finishProcess(reason, null);
@@ -299,7 +299,7 @@ export class CustomerComponent implements OnInit {
         this.selectedCustomer.data.code = customerCodeData;
       }
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -526,6 +526,20 @@ export class CustomerComponent implements OnInit {
     } catch (error) {
       this.infoService.error(error);
     }
+  }
+
+  async btnFix_Click(): Promise<void> {
+    this.service.getMainItems(null).subscribe(list => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+      list.forEach((item: any) => {
+        const data = item.returnData as CustomerMainModel;
+        data.data.customerType = 'supplier';
+        this.service.updateItem(data);
+        console.log(data);
+      });
+    });
   }
 
   async btnShowMainFiler_Click(): Promise<void> {

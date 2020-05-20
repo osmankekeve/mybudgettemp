@@ -185,6 +185,10 @@ export const getEducation = () => {
   return new Map([['primarySchool', 'İlk Okul'], ['middleSchool', 'Orta Okul'], ['highSchool', 'Lise'], ['university', 'Üniversite']]);
 };
 
+export const getCustomerTypes = () => {
+  return new Map([['customer', 'Müşteri'], ['supplier', 'Tedarikçi'], ['customer-supplier', 'Müşteri-Tedarikçi']]);
+};
+
 export const getCashDeskVoucherType = () => {
   return new Map([['open', 'Açılış'], ['transfer', 'Transfer']]);
 };

@@ -43,7 +43,8 @@
                  *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i; trackBy: primaryKey">
               <div class="row">
                 <div class="col-sm-3">
-                  <i class="fa fa-arrow-circle-right mr-2 text-danger"></i>{{item.data.name}}
+                  <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                  <span class="text-red font-weight-600">{{item.data.name}}</span>
                 </div>
                 <div class="col-sm-3">{{item.customer.name}}</div>
                 <div class="col-sm-3">{{item.currencyTr}}</div>
@@ -258,8 +259,10 @@
                      (click)="showTransactionRecord(item)"
                      *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
                   <div class="row">
-                    <div class="col-sm-3 text-red"><i
-                      class="fa fa-arrow-circle-right mr-2"></i>{{item.transactionTypeTr}}</div>
+                    <div class="col-sm-3 text-red">
+                      <i class="fa fa-arrow-circle-right mr-2"></i>
+                      <span class="text-red font-weight-600">{{item.transactionTypeTr}}</span>
+                    </div>
                     <div class="col-sm-3">{{item.receiptNo}}</div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
                     <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>

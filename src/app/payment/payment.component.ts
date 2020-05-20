@@ -35,7 +35,7 @@ import {GlobalUploadService} from '../services/global-upload.service';
 export class PaymentComponent implements OnInit {
   mainList: Array<PaymentMainModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
-  customerList$: Observable<CustomerModel[]>;
+  customerList: Array<CustomerModel>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<PaymentMainModel>;
   actionList: Array<ActionMainModel>;
@@ -71,9 +71,9 @@ export class PaymentComponent implements OnInit {
 
   ngOnInit() {
     this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
+    this.populateCustomers();
     this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -365,6 +365,25 @@ export class PaymentComponent implements OnInit {
     });
   }
 
+  populateCustomers(): void {
+    Promise.all([this.cService.getCustomers('supplier')])
+      .then((values: any) => {
+        this.customerList = [];
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+        if (values[1] !== undefined || values[1] !== null) {
+          const returnData = values[1] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+      });
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -373,6 +392,7 @@ export class PaymentComponent implements OnInit {
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateCustomers();
     this.populateFiles();
     this.populateActions();
   }

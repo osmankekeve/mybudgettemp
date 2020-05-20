@@ -44,7 +44,7 @@ import {GlobalUploadService} from '../services/global-upload.service';
 })
 export class CollectionComponent implements OnInit {
   mainList: Array<CollectionMainModel>;
-  customerList$: Observable<CustomerModel[]>;
+  customerList: Array<CustomerModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<CollectionMainModel>;
@@ -81,9 +81,9 @@ export class CollectionComponent implements OnInit {
 
   async ngOnInit() {
     this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
+    this.populateCustomers();
     this.generateCharts();
     this.populateList();
 
@@ -373,6 +373,25 @@ export class CollectionComponent implements OnInit {
     });
   }
 
+  populateCustomers(): void {
+    Promise.all([this.cService.getCustomers('customer'), this.cService.getCustomers('customer-supplier')])
+      .then((values: any) => {
+        this.customerList = [];
+        if (values[0] !== undefined || values[0] !== null) {
+          const returnData = values[0] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+        if (values[1] !== undefined || values[1] !== null) {
+          const returnData = values[1] as Array<CustomerModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+      });
+  }
+
   async showSelectedRecord(record: any): Promise<void> {
     this.selectedRecord = record as CollectionMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
@@ -381,6 +400,7 @@ export class CollectionComponent implements OnInit {
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateCustomers();
     this.populateFiles();
     this.populateActions();
   }
