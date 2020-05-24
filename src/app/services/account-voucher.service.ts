@@ -204,6 +204,7 @@ export class AccountVoucherService {
           returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
+          returnData.customer = this.customerMap.get(returnData.data.customerCode);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
