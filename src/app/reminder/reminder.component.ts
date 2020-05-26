@@ -9,7 +9,6 @@ import {getDateForInput, getInputDataForInsert, getTodayForInput, isNullOrEmpty}
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ReminderMainModel} from '../models/reminder-main-model';
-
 @Component({
   selector: 'app-reminder',
   templateUrl: './reminder.component.html',
@@ -77,7 +76,6 @@ export class ReminderComponent implements OnInit {
   populateList(): void {
     this.mainList = undefined;
     this.service.getMainItemsTimeBetweenDates(null, null, this.filterIsActive, this.filterPeriodType).subscribe(list => {
-      console.log(list);
       if (this.mainList === undefined) {
         this.mainList = [];
       }

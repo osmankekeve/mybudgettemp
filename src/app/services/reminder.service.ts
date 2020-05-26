@@ -86,7 +86,7 @@ export class ReminderService {
     returnData.isPersonal = true;
     returnData.isActive = true;
     returnData.description = '';
-    returnData.periodType = 'oneTime'; // daily, monthly, yearly, oneTime
+    returnData.periodType = 'daily'; // daily, monthly, yearly
     returnData.year = getTodayForInput().year;
     returnData.month = getTodayForInput().month;
     returnData.day = getTodayForInput().day;
@@ -155,7 +155,7 @@ export class ReminderService {
           const returnData = new ReminderMainModel();
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
-          returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           return Object.assign({returnData});
         })
       )
@@ -185,7 +185,7 @@ export class ReminderService {
           const returnData = new ReminderMainModel();
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
-          returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           return Object.assign({returnData});
         })
       )
@@ -199,6 +199,9 @@ export class ReminderService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
+        .where('day', '==', startDate.getDate())
+        .where('month', '==', startDate.getMonth() + 1)
+        .where('year', '==', startDate.getFullYear())
         .where('periodType', '==', 'daily')
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>

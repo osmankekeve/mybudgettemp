@@ -130,8 +130,8 @@
           <select class="form-control form-control-sm w-100" id="isPersonal" name="isPersonal"
                   (change)="onChangeVoucherType($event.target.value)"
                   [(ngModel)]="selectedRecord.data.isPersonal">
-            <option value="true">Evet</option>
-            <option value="false">Hayır</option>
+            <option [ngValue]="true">Evet</option>
+            <option [ngValue]="false">Hayır</option>
           </select>
         </div>
         <div class="col-sm-3">
@@ -153,7 +153,6 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="periodType" name="periodType"
                   [(ngModel)]="selectedRecord.data.periodType">
-            <option value="oneTime">Tek Sefer</option>
             <option value="daily">Günlük</option>
             <option value="monthly">Aylık</option>
             <option value="yearly">Yıllık</option>
@@ -179,8 +178,8 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
                   [(ngModel)]="selectedRecord.data.isActive">
-            <option value="true">Aktif</option>
-            <option value="false">Pasif</option>
+            <option [ngValue]="true">Aktif</option>
+            <option [ngValue]="false">Pasif</option>
           </select>
         </div>
         <div class="col-sm-6"></div>
