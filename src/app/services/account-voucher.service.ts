@@ -159,6 +159,8 @@ export class AccountVoucherService {
     if (model.amount === undefined) { model.amount = cleanModel.amount; }
     if (model.status === undefined) { model.status = cleanModel.status; }
     if (model.platform === undefined) { model.platform = cleanModel.platform; }
+    if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
+    if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
     return model;
   }
 
@@ -175,6 +177,8 @@ export class AccountVoucherService {
     returnData.description = '';
     returnData.amount = 0;
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.approveByPrimaryKey = '-1';
+    returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
@@ -190,6 +194,7 @@ export class AccountVoucherService {
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
+    returnData.approverName = '';
     return returnData;
   }
 
@@ -205,6 +210,8 @@ export class AccountVoucherService {
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -227,6 +234,8 @@ export class AccountVoucherService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
           return Object.assign({returnData});
         })
       )
@@ -247,6 +256,8 @@ export class AccountVoucherService {
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
+        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -279,6 +290,8 @@ export class AccountVoucherService {
         returnData.actionType = change.type;
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
+        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -317,6 +330,9 @@ export class AccountVoucherService {
           returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
+          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
 
           list.push(returnData);
         });

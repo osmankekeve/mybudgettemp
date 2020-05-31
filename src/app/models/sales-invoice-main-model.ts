@@ -8,6 +8,7 @@ export class SalesInvoiceMainModel {
   customer?: CustomerModel;
   account?: CustomerAccountModel;
   employeeName?: string;
+  approverName?: string;
   actionType?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;

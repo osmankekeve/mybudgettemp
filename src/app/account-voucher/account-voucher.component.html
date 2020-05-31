@@ -121,7 +121,6 @@
                     <div class="col">
                       <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
                     </div>
-
                   </div>
                   <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
                 </div>
@@ -261,13 +260,30 @@
                  (blur)="format_amount($event)"
                  [(ngModel)]="selectedRecord.amountFormatted">
         </div>
-        <div class="col-sm-6"></div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left">Durum</label>
+        </div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left">{{selectedRecord.statusTr}}</label>
+        </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="description">Açıklama</label>
         </div>
         <div class="col-sm-9">
           <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
                  [(ngModel)]="selectedRecord.data.description">
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+          <label class="col-form-label float-left">Onaylayan Kişi</label>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+          <label class="col-form-label float-left">{{selectedRecord.approverName}}</label>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+          <label class="col-form-label float-left">Onaylama Tarihi</label>
+        </div>
+        <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+          <label class="col-form-label float-left">{{selectedRecord.data.approveDate | date: 'yyyy.MM.dd'}}</label>
         </div>
       </div>
     </form>
@@ -301,7 +317,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">

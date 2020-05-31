@@ -6,6 +6,7 @@ export class PaymentMainModel {
   customer?: CustomerModel;
   customerName?: string;
   employeeName?: string;
+  approverName?: string;
   actionType?: string;
   amountFormatted?: string;
   statusTr?: string;

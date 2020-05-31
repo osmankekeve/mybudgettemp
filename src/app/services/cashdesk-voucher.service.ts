@@ -231,6 +231,8 @@ export class CashDeskVoucherService {
     if (model.platform === undefined) {
       model.platform = cleanModel.platform;
     }
+    if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
+    if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
 
     return model;
   }
@@ -249,6 +251,8 @@ export class CashDeskVoucherService {
     returnData.amount = 0;
     returnData.description = '';
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.approveByPrimaryKey = '-1';
+    returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
@@ -282,6 +286,8 @@ export class CashDeskVoucherService {
           returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ?
             '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -318,6 +324,8 @@ export class CashDeskVoucherService {
         returnData.secondCashDeskName = data.secondCashDeskPrimaryKey === '-1' ? '-' : this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
         returnData.actionType = change.type;
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
+        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCashDesk').doc(data.firstCashDeskPrimaryKey).valueChanges().pipe(map((item: CashDeskModel) => {
           // returnData.casDeskName = item !== undefined ? item.name : 'Belirlenemeyen Kasa Kaydı';
@@ -359,6 +367,8 @@ export class CashDeskVoucherService {
             this.cashDeskMap.get(data.secondCashDeskPrimaryKey);
           returnData.actionType = 'added';
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
 
           list.push(returnData);
         });

@@ -6,6 +6,7 @@ export class CollectionMainModel {
   customer?: CustomerModel;
   customerName?: string;
   employeeName?: string;
+  approverName?: string;
   actionType?: string;
   statusTr?: string;
   platformTr?: string;

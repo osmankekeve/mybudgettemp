@@ -409,6 +409,8 @@ export class AccountVoucherComponent implements OnInit {
     try {
       this.onTransaction = true;
       this.selectedRecord.data.status = 'approved';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
@@ -431,6 +433,8 @@ export class AccountVoucherComponent implements OnInit {
     try {
       this.onTransaction = true;
       this.selectedRecord.data.status = 'rejected';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)

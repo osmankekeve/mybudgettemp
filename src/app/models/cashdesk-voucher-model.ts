@@ -10,6 +10,8 @@ export class CashdeskVoucherModel {
   amount?: number;
   description?: string;
   status?: string; // waitingForApprove, approved, rejected
+  approveByPrimaryKey?: string; // approved or rejected
+  approveDate?: number;
   platform?: string; // mobile, web
   insertDate?: number;
 }

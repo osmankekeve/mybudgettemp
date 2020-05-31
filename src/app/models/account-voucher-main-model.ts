@@ -6,6 +6,7 @@ export class AccountVoucherMainModel {
   customerName?: string;
   customer?: CustomerModel;
   employeeName?: string;
+  approverName?: string;
   actionType?: string;
   statusTr?: string;
   platformTr?: string;

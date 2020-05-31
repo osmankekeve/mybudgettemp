@@ -6,6 +6,7 @@ export class PurchaseInvoiceMainModel {
   customer?: CustomerModel;
   customerName?: string;
   employeeName?: string;
+  approverName?: string;
   actionType?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;

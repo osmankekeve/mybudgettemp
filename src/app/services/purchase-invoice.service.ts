@@ -168,6 +168,8 @@ export class PurchaseInvoiceService {
     if (model.description === undefined) { model.description = cleanModel.description; }
     if (model.status === undefined) { model.status = cleanModel.status; }
     if (model.platform === undefined) { model.platform = cleanModel.platform; }
+    if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
+    if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
 
     return model;
   }
@@ -186,6 +188,8 @@ export class PurchaseInvoiceService {
     returnData.totalPriceWithTax = 0;
     returnData.description = '';
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.approveByPrimaryKey = '-1';
+    returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
 
@@ -217,6 +221,8 @@ export class PurchaseInvoiceService {
           returnData.employeeName = this.employeeMap.get(getString(returnData.data.employeePrimaryKey));
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
           returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
 
           Promise.all([this.cusService.getItem(returnData.data.customerCode)])
             .then((values: any) => {
@@ -249,6 +255,8 @@ export class PurchaseInvoiceService {
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
           returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
           return Object.assign({returnData});
         })
       )
@@ -270,6 +278,8 @@ export class PurchaseInvoiceService {
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -311,6 +321,8 @@ export class PurchaseInvoiceService {
         returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
         returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -348,6 +360,8 @@ export class PurchaseInvoiceService {
           returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
+          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+          returnData.statusTr = getStatus().get(returnData.data.status);
 
           list.push(returnData);
         });
