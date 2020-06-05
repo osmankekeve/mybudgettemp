@@ -32,6 +32,7 @@ import { UploaderComponent } from './uploader/uploader.component';
 import { UploadTaskComponent } from './upload-task/upload-task.component';
 import {GlobalUploadService} from './services/global-upload.service';
 import {DropzoneComponent} from './dropzone/dropzone.component';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
     declarations: [
@@ -41,7 +42,7 @@ import {DropzoneComponent} from './dropzone/dropzone.component';
         UploaderComponent, UploadTaskComponent, DropzoneComponent
     ],
   imports: [
-    NgbModule, BrowserModule, FormsModule, AppRoutingModule,
+    NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
@@ -49,7 +50,7 @@ import {DropzoneComponent} from './dropzone/dropzone.component';
     })
   ],
   providers: [
-    InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService
+    InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule
   ],
   bootstrap: [AppComponent]
 })

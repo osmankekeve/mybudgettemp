@@ -35,6 +35,7 @@ import {CustomerAccountComponent} from './customer-account/customer-account.comp
 import {UploaderComponent} from './uploader/uploader.component';
 import {GlobalUploadComponent} from './partials/global-upload/global-upload.component';
 import {DropzoneComponent} from './dropzone/dropzone.component';
+import {AccountMatchComponent} from './account-match/account-match.component';
 
 
 const routes: Routes = [
@@ -76,6 +77,7 @@ const routes: Routes = [
   {path: 'to-do-list', component: ToDoListComponent, pathMatch: 'full'},
   {path: 'customer-account', component: CustomerAccountComponent, pathMatch: 'full'},
   {path: 'file-uploader', component: UploaderComponent, pathMatch: 'full'},
+  {path: 'account-match', component: AccountMatchComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -87,7 +89,7 @@ export class AppRoutingModule { }
 
 export const routingComponents = [
   PageNotFoundComponent, NavBarComponent, SideNavBarComponent, CustomerComponent, PurchaseInvoiceComponent,
-  SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent,
+  SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent, AccountMatchComponent,
   LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent, DropzoneComponent,
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
