@@ -1,15 +1,9 @@
 import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {AuthenticationService} from './authentication.service';
-import {LogModel} from '../models/log-model';
 import {Observable, combineLatest} from 'rxjs';
-import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {ActionModel} from '../models/action-model';
-import {CollectionModel} from '../models/collection-model';
-import {CustomerAccountModel} from '../models/customer-account-model';
-import {currencyFormat} from '../core/correct-library';
 import {ProfileModel} from '../models/profile-model';
 import {ActionMainModel} from '../models/action-main-model';
 

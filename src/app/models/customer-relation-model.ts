@@ -6,6 +6,7 @@ export class CustomerRelationModel {
   parentType?: string; // customer
   relationType?: string; // meeting, mailSending, phoneCall, visit, faxSending
   status?: string;
+  platform?: string;
   description?: string;
   actionDate?: number;
   insertDate: number;

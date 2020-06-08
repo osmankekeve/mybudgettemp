@@ -2,18 +2,12 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap, startWith} from 'rxjs/operators';
+import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {CustomerRelationModel} from '../models/customer-relation-model';
-import {AccountVoucherModel} from '../models/account-voucher-model';
-import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
 import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
-import {CollectionModel} from '../models/collection-model';
-import {SettingService} from './setting.service';
 import {CustomerService} from './customer.service';
 
 @Injectable({
@@ -105,6 +99,9 @@ export class CustomerRelationService {
     if (model.actionDate === undefined) {
       model.actionDate = cleanModel.actionDate;
     }
+    if (model.platform === undefined) {
+      model.platform = cleanModel.platform;
+    }
 
     return model;
   }
@@ -119,6 +116,7 @@ export class CustomerRelationService {
     returnData.parentType = 'customer'; // customer
     returnData.relationType = '-1'; // meeting, mailSending, phoneCall, visit, faxSending
     returnData.status = 'waiting'; // waiting
+    returnData.platform = 'web'; // waiting
     returnData.description = '';
     returnData.actionDate = Date.now();
     returnData.insertDate = Date.now();

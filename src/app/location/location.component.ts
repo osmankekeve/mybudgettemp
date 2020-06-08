@@ -5,6 +5,8 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {LocationService} from '../services/location.service';
 import {LocationModel} from '../models/location-model';
+import {LocationMainModel} from '../models/location-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-location',
@@ -12,16 +14,13 @@ import {LocationModel} from '../models/location-model';
   styleUrls: ['./location.component.css']
 })
 export class LocationComponent implements OnInit, OnDestroy {
-  mainList: Array<LocationModel>;
-  collection: AngularFirestoreCollection<LocationModel>;
+  mainList: Array<LocationMainModel>;
   lat: any;
   lng: any;
   searchText = '';
 
-  constructor(public authService: AuthenticationService, public service: LocationService,
-              public atService: AccountTransactionService,
-              public infoService: InformationService,
-              public db: AngularFirestore) { }
+  constructor(public authService: AuthenticationService, public service: LocationService, public atService: AccountTransactionService,
+              public infoService: InformationService, public db: AngularFirestore) { }
 
   ngOnInit() {
     this.showCurrentLocation();
@@ -32,30 +31,38 @@ export class LocationComponent implements OnInit, OnDestroy {
   }
 
   populateList(): void {
-    this.mainList = [];
+    this.mainList = undefined;
+
     this.service.getMainItems().subscribe(list => {
-      list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          this.mainList.push(item);
+        if (this.mainList === undefined) {
+          this.mainList = [];
         }
-        if (item.actionType === 'removed') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
-              this.mainList.splice(i, 1);
-              break;
+        list.forEach((data: any) => {
+          const item = data.returnData as LocationMainModel;
+          if (item.actionType === 'added') {
+            this.mainList.push(item);
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.mainList.splice(i, 1);
+              }
             }
           }
-        }
-        if (item.actionType === 'modified') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.primaryKey === this.mainList[i].primaryKey) {
-              this.mainList[i] = item;
-              break;
+          if (item.actionType === 'modified') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.mainList[i] = item;
+              }
             }
           }
-        }
+        });
       });
-    });
+    setTimeout(() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   showSelectedRecord(record: any): void {

@@ -210,9 +210,9 @@ export class CRMComponent implements OnInit {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
         if (this.selectedRecord.data.primaryKey === null) {
-          this.selectedRecord.data.primaryKey = '';
+          this.selectedRecord.data.primaryKey = this.db.createId();
           this.selectedRecord.data.actionDate = date.getTime();
-          await this.service.addItem(this.selectedRecord)
+          await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
             .then(() => {
               this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
             })
