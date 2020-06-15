@@ -36,6 +36,7 @@ import {ActionMainModel} from '../models/action-main-model';
 import {FileMainModel} from '../models/file-main-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 
 @Component({
   selector: 'app-collection',
@@ -93,6 +94,22 @@ export class CollectionComponent implements OnInit {
       if (paramItem) {
         await this.showSelectedRecord(paramItem);
       }
+    }
+    if (this.router.snapshot.paramMap.get('postType') !== null) {
+      this.onTransaction = true;
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('record'), this.encryptSecretKey);
+      const record = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (record) {
+        const salesInvoiceRecord = record as SalesInvoiceMainModel;
+        await this.btnNew_Click();
+        this.selectedRecord.data.customerCode = salesInvoiceRecord.data.customerCode;
+        await this.onChangeCustomer(this.selectedRecord.data.customerCode);
+        this.selectedRecord.data.accountPrimaryKey = salesInvoiceRecord.data.accountPrimaryKey;
+        this.selectedRecord.data.amount = salesInvoiceRecord.data.totalPriceWithTax;
+        this.selectedRecord.amountFormatted = salesInvoiceRecord.totalPriceWithTaxFormatted;
+        this.selectedRecord.data.description = salesInvoiceRecord.data.description;
+      }
+      this.onTransaction = false;
     }
   }
 

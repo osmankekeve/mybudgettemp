@@ -2,14 +2,8 @@ import { Injectable } from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
-import { CustomerModel } from '../models/customer-model';
 import { NoteModel } from '../models/note-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
-import {CustomerTargetModel} from '../models/customer-target-model';
-import {CustomerMainModel} from '../models/customer-main-model';
 import { NoteMainModel } from '../models/note-main-model';
 
 @Injectable({

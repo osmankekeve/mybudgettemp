@@ -684,6 +684,20 @@ export class PurchaseInvoiceComponent implements OnInit {
     });
   }
 
+  async btnCreatePayment_Click(): Promise<void> {
+    try {
+      const routeData = {
+        postType: 'oppositeRecord',
+        record: CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString(),
+        previousModule: 'purchaseInvoice',
+        previousModulePrimaryKey: this.selectedRecord.data.primaryKey,
+      };
+      await this.route.navigate(['payment', routeData]);
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');

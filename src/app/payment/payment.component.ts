@@ -26,6 +26,8 @@ import {ActionMainModel} from '../models/action-main-model';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 
 @Component({
   selector: 'app-payment',
@@ -69,7 +71,7 @@ export class PaymentComponent implements OnInit {
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.clearMainFiler();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.selectedRecord = undefined;
@@ -82,6 +84,22 @@ export class PaymentComponent implements OnInit {
       if (paramItem) {
         this.showSelectedRecord(paramItem);
       }
+    }
+    if (this.router.snapshot.paramMap.get('postType') !== null) {
+      this.onTransaction = true;
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('record'), this.encryptSecretKey);
+      const record = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (record) {
+        const purchaseInvoiceRecord = record as PurchaseInvoiceMainModel;
+        await this.btnNew_Click();
+        this.selectedRecord.data.customerCode = purchaseInvoiceRecord.data.customerCode;
+        await this.onChangeCustomer(this.selectedRecord.data.customerCode);
+        this.selectedRecord.data.accountPrimaryKey = purchaseInvoiceRecord.data.accountPrimaryKey;
+        this.selectedRecord.data.amount = purchaseInvoiceRecord.data.totalPriceWithTax;
+        this.selectedRecord.amountFormatted = purchaseInvoiceRecord.totalPriceWithTaxFormatted;
+        this.selectedRecord.data.description = purchaseInvoiceRecord.data.description;
+      }
+      this.onTransaction = false;
     }
   }
 

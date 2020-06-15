@@ -22,9 +22,7 @@ export class ReminderService {
   employeeMap = new Map();
   tableName = 'tblReminder';
 
-  constructor(public authService: AuthenticationService,
-              public eService: ProfileService,
-              public db: AngularFirestore) {
+  constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore) {
 
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {

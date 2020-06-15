@@ -4,12 +4,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject } from 'rxjs';
 import { HtmlInfoComponent } from '../partials/html-info/html-info.component';
 import { LogService } from './log.service';
-import { LogModel } from '../models/log-model';
 import { AuthenticationService } from './authentication.service';
 
-/**
- * Alert Service
- */
 @Injectable()
 export class InformationService {
     /** collection of messages */

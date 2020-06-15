@@ -247,6 +247,9 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Dosya Yükle"
                 *ngIf="selectedRecord.data.primaryKey!=undefined"
                 (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tahsilat Kaydı Oluştur"
+                *ngIf="selectedRecord.data.primaryKey!=undefined"
+                (click)="btnCreateCollection_Click()"><i class="fa fa-external-link"></i></button>
       </div>
       <div class="col-sm-4">
         <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>

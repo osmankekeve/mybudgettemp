@@ -14,7 +14,6 @@ import {
   getInputDataForInsert,
   getDateForInput,
   getEncryptionKey,
-  numberOnly,
   getFloat, currencyFormat, moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
@@ -26,15 +25,13 @@ import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {PaymentService} from '../services/payment.service';
 import {GlobalService} from '../services/global.service';
 import {FileMainModel} from '../models/file-main-model';
 import {ActionMainModel} from '../models/action-main-model';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {RouterModel} from '../models/router-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -387,7 +384,6 @@ export class SalesInvoiceComponent implements OnInit {
     Promise.all([this.cService.getCustomers('customer'), this.cService.getCustomers('customer-supplier')])
       .then((values: any) => {
         this.customerList = [];
-        console.table(values);
         if (values[0] !== undefined || values[0] !== null) {
           const returnData = values[0] as Array<CustomerModel>;
           returnData.forEach(value => {
@@ -568,7 +564,7 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnReturnRecord_Click(): Promise<void> {
     try {
-      this.infoService.error('yazılmadı');
+      await this.infoService.error('yazılmadı');
     } catch (error) {
       this.finishProcess(error, null);
     }
@@ -581,6 +577,20 @@ export class SalesInvoiceComponent implements OnInit {
       });
     } catch (error) {
       this.finishProcess(error, null);
+    }
+  }
+
+  async btnCreateCollection_Click(): Promise<void> {
+    try {
+      const routeData = {
+        postType: 'oppositeRecord',
+        record: CryptoJS.AES.encrypt(JSON.stringify(this.selectedRecord), this.encryptSecretKey).toString(),
+        previousModule: 'sales-invoice',
+        previousModulePrimaryKey: this.selectedRecord.data.primaryKey,
+      };
+      await this.route.navigate(['collection', routeData]);
+    } catch (error) {
+      await this.finishProcess(error, null);
     }
   }
 

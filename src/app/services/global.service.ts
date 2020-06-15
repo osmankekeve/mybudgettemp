@@ -27,7 +27,7 @@ export class GlobalService {
               public siService: SalesInvoiceService, public cusService: CustomerService, public caService: CustomerAccountService,
               public colService: CollectionService, public piService: PurchaseInvoiceService, public cdService: CashDeskService,
               public avService: AccountVoucherService, public payService: PaymentService, public atService: AccountTransactionService,
-              public logService: LogService, public router: ActivatedRoute, public ctService: CustomerTargetService,) {
+              public logService: LogService, public router: ActivatedRoute, public ctService: CustomerTargetService) {
 
   }
 
@@ -118,6 +118,20 @@ export class GlobalService {
         await this.caService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
+          }]);
+        });
+      }
+      if (previousModule === 'sales-invoice') {
+        await this.siService.getItem(previousModulePrimaryKey).then(async (item) => {
+          await this.route.navigate([previousModule, {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+          }]);
+        });
+      }
+      if (previousModule === 'purchaseInvoice') {
+        await this.piService.getItem(previousModulePrimaryKey).then(async (item) => {
+          await this.route.navigate([previousModule, {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);
         });
       }

@@ -36,6 +36,8 @@ import {UploaderComponent} from './uploader/uploader.component';
 import {GlobalUploadComponent} from './partials/global-upload/global-upload.component';
 import {DropzoneComponent} from './dropzone/dropzone.component';
 import {AccountMatchComponent} from './account-match/account-match.component';
+import {BuySaleComponent} from './buy-sell/buy-sale.component';
+import {BuySellCurrencyComponent} from './buy-sell-currency/buy-sell-currency.component';
 
 
 const routes: Routes = [
@@ -78,6 +80,8 @@ const routes: Routes = [
   {path: 'customer-account', component: CustomerAccountComponent, pathMatch: 'full'},
   {path: 'file-uploader', component: UploaderComponent, pathMatch: 'full'},
   {path: 'account-match', component: AccountMatchComponent, pathMatch: 'full'},
+  {path: 'buy-sell-currency', component: BuySellCurrencyComponent, pathMatch: 'full'},
+  {path: 'buy-sale', component: BuySaleComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -88,10 +92,10 @@ const routes: Routes = [
 export class AppRoutingModule { }
 
 export const routingComponents = [
-  PageNotFoundComponent, NavBarComponent, SideNavBarComponent, CustomerComponent, PurchaseInvoiceComponent,
+  PageNotFoundComponent, NavBarComponent, SideNavBarComponent, CustomerComponent, PurchaseInvoiceComponent, BuySaleComponent,
   SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent, AccountMatchComponent,
   LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent, DropzoneComponent,
-  TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent,
+  TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent, BuySellCurrencyComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent
 ];

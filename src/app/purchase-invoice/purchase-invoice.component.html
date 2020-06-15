@@ -246,6 +246,9 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Dosya Yükle"
                 *ngIf="selectedRecord.data.primaryKey!=undefined"
                 (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ödeme Kaydı Oluştur"
+                *ngIf="selectedRecord.data.primaryKey!=undefined"
+                (click)="btnCreatePayment_Click()"><i class="fa fa-external-link"></i></button>
       </div>
       <div class="col-sm-4">
         <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
@@ -479,7 +482,7 @@
       </div>
     </div>
     <div class="col-sm-2 float-left"
-         *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+         *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
