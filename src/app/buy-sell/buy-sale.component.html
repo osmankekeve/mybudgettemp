@@ -38,7 +38,15 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i; trackBy: primaryKey">
           <div class="row">
-            <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.currencyName}}</div>
+            <div class="col-sm-2">
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-2">{{item.currencyName}}</span>
+              <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
+              <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
+              <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
+              <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
+              <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
+            </div>
             <div class="col-sm-2">{{item.employeeName}}</div>
             <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>
             <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}} {{item.currencyName}}</span></div>
@@ -62,11 +70,14 @@
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
     <div class="row">
-      <div class="col-sm-12">
+      <div class="col-sm-8">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Alış&Satış Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+      <div class="col-sm-4">
+        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
       </div>
     </div>
   </div>
@@ -79,6 +90,14 @@
           </div>
           <div class="card-body">
             <form (ngSubmit)="btnSave_Click()" class="row was-validated" #f="ngForm">
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                       [(ngModel)]="selectedRecord.data.receiptNo" required>
+                <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+              </div>
               <div class="col-sm-6">
                 <label class="col-form-label float-left">Kayıt Tarihi</label>
               </div>
@@ -141,7 +160,7 @@
                 <label class="col-form-label float-left" for="unitValue">Birim Miktar</label>
               </div>
               <div class="col-sm-6">
-                <input class="form-control form-control-sm w-100" id="unitValue" name="unitValue" type="number"
+                <input class="form-control form-control-sm w-100" id="unitValue" name="unitValue" type="text"
                        [(ngModel)]="selectedRecord.data.unitValue">
               </div>
               <div class="col-sm-6">
@@ -154,16 +173,22 @@
                        [(ngModel)]="selectedRecord.totalAmountFormatted">
               </div>
               <div class="col-sm-6">
+                <label class="col-form-label float-left">Durum</label>
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left">{{selectedRecord.statusTr}}</label>
+              </div>
+              <div class="col-sm-6">
                 <label class="col-form-label float-left" for="description">Açıklama</label>
               </div>
               <div class="col-sm-6">
-                <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                       [(ngModel)]="selectedRecord.data.description">
+                <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                          cols="40" rows="2" [(ngModel)]="selectedRecord.data.description"></textarea>
               </div>
             </form>
           </div>
           <div class="card-footer">
-            <div class="col-sm-3 float-right">
+            <div class="col-sm-3 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
               <div class="input-group">
                 <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -174,6 +199,21 @@
                 <button type="button" class="btn btn-sm btn-success form-control"
                         [disabled]="onTransaction || !f.valid"
                         (click)="btnSave_Click()">Kaydet
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-3 float-right"
+                 *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-thumbs-up" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-success form-control"
+                        [disabled]="onTransaction || !f.valid"
+                        (click)="btnApprove_Click()">Onayla
                 </button>
               </div>
             </div>

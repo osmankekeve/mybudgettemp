@@ -107,6 +107,10 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.name + ' isimli Müşteri ';
 
+    } else if (systemModule === 'buy-sale') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.currencyName + ' dövize ait ' + ' ' + record.transactionTypeTr + ' işlemi ';
+
     } else {
       item.log = ' bilinmeyen modül ';
     }

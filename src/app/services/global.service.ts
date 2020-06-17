@@ -16,6 +16,7 @@ import {CustomerService} from './customer.service';
 import {RouterModel} from '../models/router-model';
 import {CustomerTargetService} from './customer-target.service';
 import {CustomerAccountService} from './customer-account.service';
+import {BuySaleService} from './buy-sale.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,8 @@ export class GlobalService {
               public siService: SalesInvoiceService, public cusService: CustomerService, public caService: CustomerAccountService,
               public colService: CollectionService, public piService: PurchaseInvoiceService, public cdService: CashDeskService,
               public avService: AccountVoucherService, public payService: PaymentService, public atService: AccountTransactionService,
-              public logService: LogService, public router: ActivatedRoute, public ctService: CustomerTargetService) {
+              public logService: LogService, public router: ActivatedRoute, public ctService: CustomerTargetService,
+              public byService: BuySaleService) {
 
   }
 
@@ -84,6 +86,14 @@ export class GlobalService {
       if (data) {
         routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
         await this.route.navigate(['cashdesk-voucher', routeData]);
+      }
+    }
+    if (item.nextModule === 'buy-sale') {
+
+      data = await this.byService.getItem(item.nextModulePrimaryKey);
+      if (data) {
+        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+        await this.route.navigate(['buy-sale', routeData]);
       }
     }
   }

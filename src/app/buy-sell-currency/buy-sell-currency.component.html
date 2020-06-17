@@ -6,8 +6,6 @@
         <h4 class="card-title float-left mr-2">Alış&Satış Döviz Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Kayıt"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -132,10 +130,12 @@
       <div class="col-sm-6">
         <div class="card bg-light">
           <div class="card-header bg-gray-gradient">
-            <h5 class="float-left text-red">Hareketler</h5>
+            <h5 class="card-title float-left text-red mr-2">Hareketler</h5>
+            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                    (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
           </div>
-          <div class="card-body work-area-2" *ngIf="transactionList$ | async; let transactionList; else elseBlock">
-            <div class="list-group">
+          <div class="card-body work-area-2" *ngIf="transactionList!= undefined; else elseBlock">
+            <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock2">
               <div class="list-group-item bg-red text-light main-list-item">
                 <div class="row">
                   <div class="col-sm-2">Döviz Cinsi</div>
@@ -149,11 +149,11 @@
                    (click)="showTransactionRecord(item)"
                    *ngFor="let item of transactionList; trackBy: primaryKey">
                 <div class="row">
-                  <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.returnData.currencyName}}</div>
-                  <div class="col-sm-2"><span class="float-right">{{item.returnData.data.unitAmount | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{item.returnData.data.unitValue}}</span></div>
-                  <div class="col-sm-3"><span class="float-right">{{item.returnData.totalAmountFormatted}}</span></div>
-                  <div class="col-sm-3"><span class="float-right">{{item.returnData.data.recordDate | date: 'yyyy.MM.dd'}}</span>
+                  <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.currencyName}}</div>
+                  <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>
+                  <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}}</span></div>
+                  <div class="col-sm-3"><span class="float-right">{{item.totalAmountFormatted}}</span></div>
+                  <div class="col-sm-3"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
                   </div>
                 </div>
               </div>
@@ -163,11 +163,14 @@
                 </div>
               </ng-template>
             </div>
+            <ng-template #elseBlock2>
+              <div class="card bg-danger text-white m-2">
+                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+              </div>
+            </ng-template>
           </div>
           <ng-template #elseBlock>
-            <div class="card bg-danger text-white m-2">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
+            <div class="loader"></div>
           </ng-template>
         </div>
       </div>

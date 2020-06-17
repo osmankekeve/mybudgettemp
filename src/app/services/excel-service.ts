@@ -196,6 +196,32 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'buy-sell-currency-transactions') {
+      fileName = 'buy-sell-currency-transactions';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          Employee: data.employeeName,
+          Currency: data.currencyName,
+          Amount: data.amountFormatted,
+          Value: data.data.unitValue,
+          'Total Amount': data.totalAmountFormatted,
+        });
+      });
+    }
+    if (record === 'buy-sale') {
+      fileName = 'buy-sale';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          Employee: data.employeeName,
+          Currency: data.currencyName,
+          Amount: data.amountFormatted,
+          Value: data.data.unitValue,
+          'Total Amount': data.totalAmountFormatted,
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

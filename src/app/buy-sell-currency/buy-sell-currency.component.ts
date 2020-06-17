@@ -11,6 +11,10 @@ import {CollectionMainModel} from '../models/collection-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import {BuySaleService} from '../services/buy-sale.service';
+import {BuySaleMainModel} from '../models/buy-sale-main-model';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import {getFloat} from '../core/correct-library';
+import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-buy-sell-currency',
@@ -19,7 +23,7 @@ import {BuySaleService} from '../services/buy-sale.service';
 })
 export class BuySellCurrencyComponent implements OnInit {
   mainList: Array<BuySaleCurrencyMainModel>;
-  transactionList$: Observable<CollectionMainModel[]>;
+  transactionList: Array<BuySaleMainModel>;
   selectedRecord: BuySaleCurrencyMainModel;
   searchText: '';
   onTransaction = false;
@@ -71,9 +75,18 @@ export class BuySellCurrencyComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
+    this.transactionList = undefined;
     this.selectedRecord = record as BuySaleCurrencyMainModel;
     if (this.selectedRecord.data.primaryKey != null) {
-      this.transactionList$ = this.bsService.getMainItems(this.selectedRecord.data.primaryKey);
+      Promise.all([this.bsService.getCurrencyTransactions(this.selectedRecord.data.primaryKey)]).then((values: any) => {
+          if (values[0] !== undefined || values[0] !== null) {
+            const returnData = values[0] as Array<BuySaleMainModel>;
+            this.transactionList = [];
+            returnData.forEach((item: any) => {
+              this.transactionList.push(item);
+            });
+          }
+        });
     }
   }
 
@@ -162,11 +175,11 @@ export class BuySellCurrencyComponent implements OnInit {
     await this.globService.showTransactionRecord(r);
   }
 
-  btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'note');
+  async btnExportToExcel_Click(): Promise<void> {
+    if (this.transactionList.length > 0) {
+      this.excelService.exportToExcel(this.transactionList, 'buy-sell-currency-transactions');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

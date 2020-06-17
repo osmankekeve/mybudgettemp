@@ -3,19 +3,27 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import {BuySaleService} from '../services/buy-sale.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {CollectionService} from '../services/collection.service';
 import {CashDeskService} from '../services/cash-desk.service';
 import {BuySaleCurrencyMainModel} from '../models/buy-sale-currency-main-model';
 import {BuySaleCurrencyService} from '../services/buy-sale-currency.service';
-import {currencyFormat, getDateForInput, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat} from '../core/correct-library';
+import {
+  currencyFormat,
+  getDateForInput,
+  getEncryptionKey,
+  getFloat,
+  getInputDataForInsert,
+  getTodayForInput,
+  moneyFormat
+} from '../core/correct-library';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import * as CryptoJS from 'crypto-js';
 
 @Component({
   selector: 'app-buy-sale',
@@ -24,24 +32,55 @@ import {currencyFormat, getDateForInput, getFloat, getInputDataForInsert, getTod
 })
 export class BuySaleComponent implements OnInit {
   mainList: Array<BuySaleMainModel>;
-  transactionList$: Observable<CollectionMainModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   currencyList$: Observable<BuySaleCurrencyMainModel[]>;
   selectedRecord: BuySaleMainModel;
   searchText: '';
   onTransaction = false;
   recordDate: any;
+  isRecordHasTransaction = false;
+  encryptSecretKey: string = getEncryptionKey();
 
   constructor(public authService: AuthenticationService, public service: BuySaleService, public globService: GlobalService,
               public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router, protected cdService: CashDeskService, protected cscService: BuySaleCurrencyService) {
+              public route: Router, protected cdService: CashDeskService, protected cscService: BuySaleCurrencyService,
+              protected atService: AccountTransactionService, protected router: ActivatedRoute) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.cashDeskList$ = this.cdService.getMainItems();
     this.currencyList$ = this.cscService.getMainItems();
     this.selectedRecord = undefined;
     this.populateList();
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        await this.showSelectedRecord(paramItem);
+      }
+    }
+  }
+
+  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.service.getItem(primaryKey)
+          .then(item => {
+            this.showSelectedRecord(item.returnData);
+          })
+          .catch(reason => {
+            this.finishProcess(reason, null);
+          });
+      } else {
+        // this.generateCharts();
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -83,18 +122,32 @@ export class BuySaleComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as BuySaleMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.isRecordHasTransaction = list.length > 0;
+    });
   }
 
   async btnReturnList_Click(): Promise<void> {
-    this.selectedRecord = undefined;
-    await this.route.navigate(['buy-sale', {}]);
+    try {
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        await this.finishProcess(null, null);
+        await this.route.navigate(['buy-sale', {}]);
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
-  btnNew_Click(): void {
+  async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -102,6 +155,7 @@ export class BuySaleComponent implements OnInit {
     try {
       this.onTransaction = true;
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.unitValue = getFloat(this.selectedRecord.data.unitValue);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           this.onTransaction = true;
@@ -109,7 +163,7 @@ export class BuySaleComponent implements OnInit {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.finishProcess(null, 'Hatırlatma başarıyla kaydedildi.');
+                this.finishProcess(null, 'Döviz işlemi başarıyla kaydedildi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -120,7 +174,7 @@ export class BuySaleComponent implements OnInit {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Hatırlatma başarıyla güncellendi.');
+                this.finishProcess(null, 'Döviz işlemi başarıyla güncellendi.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -135,6 +189,30 @@ export class BuySaleComponent implements OnInit {
         });
     } catch (error) {
       this.finishProcess(error, null);
+    }
+  }
+
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      await this.finishProcess(error, null);
     }
   }
 
@@ -158,7 +236,7 @@ export class BuySaleComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -171,11 +249,11 @@ export class BuySaleComponent implements OnInit {
     await this.globService.showTransactionRecord(r);
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'note');
+      this.excelService.exportToExcel(this.mainList, 'buy-sale');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -190,7 +268,7 @@ export class BuySaleComponent implements OnInit {
     this.onTransaction = false;
   }
 
-  finishProcess(error: any, info: any): void {
+  async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
@@ -198,7 +276,7 @@ export class BuySaleComponent implements OnInit {
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }
