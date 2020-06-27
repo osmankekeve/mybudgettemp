@@ -272,7 +272,10 @@ export class BuySaleComponent implements OnInit {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      // this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {

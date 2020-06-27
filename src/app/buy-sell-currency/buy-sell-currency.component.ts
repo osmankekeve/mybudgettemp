@@ -86,7 +86,11 @@ export class BuySellCurrencyComponent implements OnInit {
               this.transactionList.push(item);
             });
           }
-        });
+        }).finally(() => {
+          if (this.transactionList === undefined) {this.transactionList = []; }
+      });
+    } else {
+      this.transactionList = [];
     }
   }
 
@@ -185,6 +189,7 @@ export class BuySellCurrencyComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
+    this.transactionList = [];
   }
 
   finishFinally(): void {
