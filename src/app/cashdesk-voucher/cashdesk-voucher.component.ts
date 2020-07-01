@@ -138,7 +138,7 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as CashDeskVoucherMainModel;
-    this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
+    this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
     if (this.selectedRecord.data.type === 'open') { this.selectedRecord.data.secondCashDeskPrimaryKey = '-1'; }
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey)
     .subscribe(list => {
@@ -162,7 +162,8 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.insertDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {

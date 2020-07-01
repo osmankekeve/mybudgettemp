@@ -16,4 +16,5 @@ export class PaymentModel {
   approveDate?: number;
   platform?: string; // mobile, web
   insertDate?: number;
+  recordDate?: number;
 }

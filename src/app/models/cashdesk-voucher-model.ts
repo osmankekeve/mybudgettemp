@@ -14,4 +14,5 @@ export class CashdeskVoucherModel {
   approveDate?: number;
   platform?: string; // mobile, web
   insertDate?: number;
+  recordDate?: number;
 }

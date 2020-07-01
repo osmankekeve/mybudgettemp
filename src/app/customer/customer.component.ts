@@ -364,7 +364,8 @@ export class CustomerComponent implements OnInit {
         .then(async (values: any) => {
           if (this.newSalesInvoice.data.primaryKey === null) {
             this.newSalesInvoice.data.primaryKey = this.db.createId();
-            this.newSalesInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
+            this.newSalesInvoice.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.newSalesInvoice.data.insertDate = Date.now();
             await this.siService.setItem(this.newSalesInvoice, this.newSalesInvoice.data.primaryKey)
               .then(async () => {
                 await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
@@ -392,7 +393,8 @@ export class CustomerComponent implements OnInit {
         .then(async (values: any) => {
           if (this.newPurchaseInvoice.data.primaryKey === null) {
             this.newPurchaseInvoice.data.primaryKey = this.db.createId();
-            this.newPurchaseInvoice.data.insertDate = getInputDataForInsert(this.recordDate);
+            this.newPurchaseInvoice.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.newPurchaseInvoice.data.insertDate = Date.now();
             await this.piService.setItem(this.newPurchaseInvoice, this.newPurchaseInvoice.data.primaryKey)
               .then(async () => {
                 await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
@@ -420,7 +422,8 @@ export class CustomerComponent implements OnInit {
         .then(async (values: any) => {
           if (this.newCollection.data.primaryKey === null) {
             this.newCollection.data.primaryKey = this.db.createId();
-            this.newCollection.data.insertDate = getInputDataForInsert(this.recordDate);
+            this.newCollection.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.newCollection.data.insertDate = Date.now();
             await this.colService.setItem(this.newCollection, this.newCollection.data.primaryKey)
               .then(async () => {
                 await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
@@ -448,7 +451,8 @@ export class CustomerComponent implements OnInit {
         .then(async (values: any) => {
           if (this.newPayment.data.primaryKey === null) {
             this.newPayment.data.primaryKey = this.db.createId();
-            this.newPayment.data.insertDate = getInputDataForInsert(this.recordDate);
+            this.newPayment.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.newPayment.data.insertDate = Date.now();
             await this.payService.setItem(this.newPayment, this.newPayment.data.primaryKey)
               .then(async () => {
                 await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
@@ -476,7 +480,8 @@ export class CustomerComponent implements OnInit {
         .then(async (values: any) => {
           if (this.newVoucher.data.primaryKey === null) {
             this.newVoucher.data.primaryKey = this.db.createId();
-            this.newVoucher.data.insertDate = getInputDataForInsert(this.recordDate);
+            this.newVoucher.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.newVoucher.data.insertDate = Date.now();
             await this.avService.setItem(this.newVoucher, this.newVoucher.data.primaryKey)
               .then(async () => {
                 await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');

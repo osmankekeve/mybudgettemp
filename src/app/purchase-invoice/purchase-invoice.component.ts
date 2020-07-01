@@ -210,11 +210,11 @@ export class PurchaseInvoiceComponent implements OnInit {
             } else {
               creatingData.set(item.customer.name, item.data.totalPriceWithTax);
             }
-            if (item.data.insertDate >= date1.getTime() && item.data.insertDate < date2.getTime()) {
+            if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.totalPriceWithTax;
-            } else if (item.data.insertDate >= date2.getTime() && item.data.insertDate < date3.getTime()) {
+            } else if (item.data.recordDate >= date2.getTime() && item.data.recordDate < date3.getTime()) {
               chart2DataValues[1] = getFloat(chart2DataValues[1]) + item.data.totalPriceWithTax;
-            } else if (item.data.insertDate >= date3.getTime() && item.data.insertDate < date4.getTime()) {
+            } else if (item.data.recordDate >= date3.getTime() && item.data.recordDate < date4.getTime()) {
               chart2DataValues[2] = getFloat(chart2DataValues[2]) + item.data.totalPriceWithTax;
             } else {
               chart2DataValues[3] = getFloat(chart2DataValues[3]) + item.data.totalPriceWithTax;
@@ -477,7 +477,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.selectedRecord = record as PurchaseInvoiceMainModel;
     this.selectedRecord.data.totalPrice = Math.abs(this.selectedRecord.data.totalPrice);
     this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
-    this.recordDate = getDateForInput(this.selectedRecord.data.insertDate);
+    this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
@@ -535,7 +535,8 @@ export class PurchaseInvoiceComponent implements OnInit {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      this.selectedRecord.data.insertDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.insertDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {

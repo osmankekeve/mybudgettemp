@@ -161,6 +161,7 @@ export class AccountVoucherService {
     if (model.platform === undefined) { model.platform = cleanModel.platform; }
     if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
     if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
+    if (model.recordDate === undefined) { model.recordDate = model.insertDate; }
     return model;
   }
 
@@ -181,6 +182,7 @@ export class AccountVoucherService {
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
+    returnData.recordDate = Date.now();
 
     return returnData;
   }

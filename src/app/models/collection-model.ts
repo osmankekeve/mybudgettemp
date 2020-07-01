@@ -14,4 +14,5 @@ export class CollectionModel {
   approveDate?: number;
   platform?: string; // mobile, web
   insertDate?: number;
+  recordDate?: number;
 }

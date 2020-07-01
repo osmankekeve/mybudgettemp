@@ -176,6 +176,7 @@ export class CollectionService {
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
+    returnData.recordDate = Date.now();
 
     return returnData;
   }
@@ -226,6 +227,7 @@ export class CollectionService {
     }
     if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
     if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
+    if (model.recordDate === undefined) { model.recordDate = model.insertDate; }
     // if (model.status === undefined && model.primaryKey !== null) { model.status = 'approved'; }
 
     return model;

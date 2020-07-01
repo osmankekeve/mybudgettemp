@@ -67,7 +67,7 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Ödeme ';
 
-    }  else if (systemModule === 'cashDesk') {
+    } else if (systemModule === 'cashDesk') {
       item.parentPrimaryKey = record.primaryKey;
       item.log = record.receiptNo + ' fiş numaralı Kasa ';
 
