@@ -102,7 +102,7 @@
   /*----------------sidebar-wrapper----------------*/
 
   .sidebar-wrapper {
-    height: calc(100vh - 48px);
+    height: calc(100vh - 101px);
     width: 100%;
     /*position: fixed;*/
     position: absolute;
@@ -155,7 +155,7 @@
   /*--------------------sidebar-header----------------------*/
 
   .sidebar-wrapper .sidebar-header {
-    padding: 20px;
+    padding: 10px 20px 20px 20px;
     overflow: hidden;
   }
 

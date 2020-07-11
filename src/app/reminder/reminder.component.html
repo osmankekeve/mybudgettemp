@@ -79,7 +79,8 @@
           <div class="row">
             <div class="col-sm-2">Personel Adı</div>
             <div class="col-sm-2">Tarih</div>
-            <div class="col-sm-8">Not</div>
+            <div class="col-sm-2">Period</div>
+            <div class="col-sm-6">Not</div>
           </div>
         </div>
         <div class="work-area-6">
@@ -93,7 +94,8 @@
                 <span class="text-red font-weight-600 mr-2" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</span>
               </div>
               <div class="col-sm-2">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
-              <div class="col-sm-8">{{item.data.description}}</div>
+              <div class="col-sm-2">{{item.periodTypeTr}}</div>
+              <div class="col-sm-6">{{item.data.description}}</div>
             </div>
           </div>
         </div>
@@ -153,6 +155,7 @@
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="periodType" name="periodType"
                   [(ngModel)]="selectedRecord.data.periodType">
+            <option value="oneTime">Tek Sefer</option>
             <option value="daily">Günlük</option>
             <option value="monthly">Aylık</option>
             <option value="yearly">Yıllık</option>

@@ -119,7 +119,7 @@
                       <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
                     </div>
                     <div class="col">
-                      <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                      <div class="text-small text-dark float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</div>
                     </div>
                   </div>
                   <div class="text-small text-dark">{{item.data.amount | currency:'₺'}}</div>
@@ -144,7 +144,7 @@
                     <div class="text-small text-dark float-left">{{item.data.receiptNo}}-<small>{{item.employeeName}}</small></div>
                   </div>
                   <div class="col">
-                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
+                    <div class="text-small text-dark float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</div>
                   </div>
 
                 </div>
@@ -231,7 +231,7 @@
           <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left">Kayıt Tarihi</label>
+          <label class="col-form-label float-left">Döküman Tarihi</label>
         </div>
         <div class="col-sm-3">
           <div class="input-group">

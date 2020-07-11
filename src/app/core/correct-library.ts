@@ -201,6 +201,10 @@ export const getBuySaleType = () => {
   return new Map([['buy', 'Alış'], ['sale', 'Satış']]);
 };
 
+export const getReminderType = () => {
+  return new Map([['oneTime', 'Tek Sefer'], ['daily', 'Günlük'], ['monthly', 'Aylık'], ['yearly', 'Yıllık']]);
+};
+
 export const getMailParents = () => {
   return new Map([['anyone', 'Mail Adresi'], ['customer', 'Müşteri'], ['employee', 'Personel']]);
 };

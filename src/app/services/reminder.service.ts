@@ -6,7 +6,7 @@ import {AuthenticationService} from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import {getTodayForInput} from '../core/correct-library';
+import {getReminderType, getStatus, getTodayForInput} from '../core/correct-library';
 import {ReminderMainModel} from '../models/reminder-main-model';
 
 @Injectable({
@@ -18,6 +18,7 @@ export class ReminderService {
   listEmployeeDailyReminderCollection$: Observable<ReminderMainModel[]>;
   listEmployeeMonthlyReminderCollection$: Observable<ReminderMainModel[]>;
   listEmployeeYearlyReminderCollection$: Observable<ReminderMainModel[]>;
+  listEmployeeOneTimeReminderCollection$: Observable<ReminderMainModel[]>;
   customerList$: Observable<CustomerModel[]>;
   employeeMap = new Map();
   tableName = 'tblReminder';
@@ -109,6 +110,7 @@ export class ReminderService {
           const returnData = new ReminderMainModel();
           returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -130,6 +132,7 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )
@@ -154,6 +157,7 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )
@@ -184,6 +188,7 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )
@@ -191,16 +196,13 @@ export class ReminderService {
     return this.mainList$;
   }
 
-  getEmployeeDailyReminderCollection(startDate: Date): Observable<ReminderMainModel[]> {
-    this.listEmployeeDailyReminderCollection$ = this.db.collection(this.tableName,
+  getEmployeeOneTimeReminderCollection(startDate: Date): Observable<ReminderMainModel[]> {
+    this.listEmployeeOneTimeReminderCollection$ = this.db.collection(this.tableName,
       ref => ref.orderBy('reminderDate')
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
-        .where('day', '==', startDate.getDate())
-        .where('month', '==', startDate.getMonth() + 1)
-        .where('year', '==', startDate.getFullYear())
-        .where('periodType', '==', 'daily')
+        .where('periodType', '==', 'oneTime')
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
@@ -211,6 +213,31 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          return Object.assign({returnData});
+        })
+      )
+    );
+    return this.listEmployeeOneTimeReminderCollection$;
+  }
+
+  getEmployeeDailyReminderCollection(startDate: Date): Observable<ReminderMainModel[]> {
+    this.listEmployeeDailyReminderCollection$ = this.db.collection(this.tableName,
+      ref => ref.orderBy('reminderDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('employeePrimaryKey', '==', this.authService.getEid())
+        .where('isActive', '==', true)
+        .where('periodType', '==', 'daily')).stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as ReminderModel;
+          data.primaryKey = c.payload.doc.id;
+
+          const returnData = new ReminderMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.actionType = c.type;
+          returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )
@@ -236,6 +263,7 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )
@@ -262,6 +290,7 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
+          returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
           return Object.assign({returnData});
         })
       )

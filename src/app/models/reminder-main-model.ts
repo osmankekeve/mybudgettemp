@@ -4,4 +4,5 @@ export class ReminderMainModel {
   data?: ReminderModel;
   employeeName?: string;
   actionType?: string;
+  periodTypeTr?: string;
 }

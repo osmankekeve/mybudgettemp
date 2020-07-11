@@ -191,19 +191,19 @@ body {
 }
 
 .work-area {
-  height: calc(100vh - 72px);
+  height: calc(100vh - 123px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-2 {
-  max-height: calc(100vh - 225px);
+  max-height: calc(100vh - 276px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-3 {
-  max-height: calc(100vh - 160px);
+  max-height: calc(100vh - 211px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -221,7 +221,7 @@ body {
 }
 
 .work-area-4 {
-  max-height: calc(100vh - 290px);
+  max-height: calc(100vh - 341px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -233,19 +233,19 @@ body {
 }
 
 .work-area-5 {
-  max-height: calc(100vh - 275px);
+  max-height: calc(100vh - 326px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-6 {
-  max-height: calc(100vh - 210px);
+  max-height: calc(100vh - 261px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-7 {
-  max-height: calc(100vh - 320px);
+  max-height: calc(100vh - 371px);
   overflow: auto;
   scrollbar-width: thin;
 }

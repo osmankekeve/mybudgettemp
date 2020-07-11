@@ -87,7 +87,7 @@
             <div class="col-sm-2">Ana Kasa</div>
             <div class="col-sm-2">Hedef Kasa</div>
             <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            <div class="col-sm-2"><span class="float-right text-center">Döküman Tarihi</span></div>
 
           </div>
         </div>
@@ -104,7 +104,7 @@
             <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey !=='-1'">{{item.secondCashDeskName}}</div>
             <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey ==='-1'"><i class="fa fa-times-circle mr-2 text-danger"></i></div>
             <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
           </div>
         </div>
         <li class="list-group-item list-group-item-success main-list-item">
@@ -204,7 +204,7 @@
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-3">
-          <label class="col-form-label float-left">Kayıt Tarihi</label>
+          <label class="col-form-label float-left">Döküman Tarihi</label>
         </div>
         <div class="col-sm-3">
           <div class="input-group">

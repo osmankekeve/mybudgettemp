@@ -272,6 +272,34 @@ export class AppComponent implements OnInit {
   }
 
   populateEmployeeReminderList(): void {
+
+    this.remService.getEmployeeOneTimeReminderCollection(getTodayStart()).subscribe(list => {
+      list.forEach((data: any) => {
+        const item = data.returnData as ReminderMainModel;
+        if (item.actionType === 'added') {
+          this.reminderCount++;
+          this.reminderList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderCount--;
+              this.reminderList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.reminderList.length; i++) {
+            if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
+              this.reminderList[i] = item;
+              break;
+            }
+          }
+        }
+      });
+    });
+
     this.remService.getEmployeeDailyReminderCollection(getTodayStart()).subscribe(list => {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
@@ -488,8 +516,8 @@ export class AppComponent implements OnInit {
     }
   }
 
-  showReminder(item: any): void {
-    this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
+  async showReminder(item: any): Promise<void> {
+    await this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
   }
 
   async showWaitingWorkRecord(item: any): Promise<void> {

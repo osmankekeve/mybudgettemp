@@ -1,12 +1,13 @@
-<div *ngIf="userDetails && employeeDetail">
+<div *ngIf="userDetails && employeeDetail" class="mb-5  d-inline-block">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
     <div class="container-fluid">
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
               aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <a class="navbar-brand" href="#">My Budget Web</a>
-
+      <a class="navbar-brand" href="#">
+        <img src="assets/logo/kekeve_web_logo_white.png" alt="My Budget Web" />
+      </a>
       <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
         </ul>
@@ -205,14 +206,14 @@
 <div class="container-fluid mt-5">
   <app-alert></app-alert>
 </div>
-<div class="container-fluid" *ngIf="userDetails && employeeDetail">
+<div class="container-fluid d-inline-block" *ngIf="userDetails && employeeDetail">
   <div class="row">
-    <div class="col-sm-3 col-sm-2-5 pt-4">
+    <div class="col-sm-3 col-sm-2-5 pt-2">
       <aside>
         <app-side-nav-bar></app-side-nav-bar>
       </aside>
     </div>
-    <div class="col-sm-9 col-sm-7-5 pt-4">
+    <div class="col-sm-9 col-sm-7-5 pt-3">
       <main>
         <app-global-upload></app-global-upload>
         <router-outlet></router-outlet>
@@ -228,7 +229,7 @@
       <div class="card" style="border-radius: 25px;max-width: 350px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
-            <h4>My Budget</h4>
+            <img src="assets/logo/kekeve_web_logo_black.png" alt="My Budget Web" />
           </div>
         </div>
         <div class="card-body">
@@ -266,7 +267,7 @@
       <div class="card" style="border-radius: 25px;max-width: 350px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
-            <h4>My Budget</h4>
+            <img src="assets/logo/kekeve_web_logo_black.png" alt="My Budget Web" />
           </div>
         </div>
         <div class="card-body">

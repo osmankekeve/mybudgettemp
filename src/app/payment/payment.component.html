@@ -120,7 +120,7 @@
                   <div class="col-sm-6">Müşteri Adı</div>
                   <div class="col-sm-2">Fiş No</div>
                   <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-                  <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+                  <div class="col-sm-2"><span class="float-right text-center">Döküman Tarihi</span></div>
                 </div>
               </div>
               <div class="work-area-6">
@@ -144,7 +144,7 @@
                     </div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
                   </div>
                 </div>
                 <li class="list-group-item list-group-item-success main-list-item">
@@ -165,7 +165,7 @@
                 <div class="col-sm-3">Yetkili</div>
                 <div class="col-sm-2">Fiş No</div>
                 <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-                <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+                <div class="col-sm-2"><span class="float-right text-center">Döküman Tarihi</span></div>
               </div>
             </div>
             <div class="work-area-6">
@@ -307,7 +307,7 @@
                      [(ngModel)]="selectedRecord.amountFormatted">
             </div>
             <div class="col-sm-3">
-              <label class="col-form-label float-left">Kayıt Tarihi</label>
+              <label class="col-form-label float-left">Döküman Tarihi</label>
             </div>
             <div class="col-sm-3">
               <div class="input-group">
@@ -372,7 +372,7 @@
                   {{item.data.fileName}}
                 </div>
                 <div class="col-sm-2">{{item.data.size}} Byte</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
               </div>
             </div>
           </div>
@@ -447,7 +447,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
