@@ -5,4 +5,6 @@ export class ReminderMainModel {
   employeeName?: string;
   actionType?: string;
   periodTypeTr?: string;
+  transactionTypeTr?: string;
+  parentTypeTr?: string;
 }

@@ -147,7 +147,7 @@ export const getDateForExcel = (value: number) => {
 
 export const getTransactionTypes = () => {
   return new Map([['salesInvoice', 'Satış Faturası'], ['collection', 'Tahsilat'], ['purchaseInvoice', 'Alım Faturası'],
-    ['payment', 'Ödeme'], ['accountVoucher', 'Cari Fiş'], ['cashDeskVoucher', 'Kasa Fişi'], ['buy-sale', 'Alış-Satış']]);
+    ['payment', 'Ödeme'], ['accountVoucher', 'Cari Fiş'], ['cashDeskVoucher', 'Kasa Fişi'], ['buy-sale', 'Alış-Satış'], ['-1', 'Genel']]);
 };
 
 export const getMonths = () => {
@@ -187,6 +187,10 @@ export const getEducation = () => {
 
 export const getCustomerTypes = () => {
   return new Map([['customer', 'Müşteri'], ['supplier', 'Tedarikçi'], ['customer-supplier', 'Müşteri-Tedarikçi']]);
+};
+
+export const getAllParentTypes = () => {
+  return new Map([['-1', 'Genel'], ['customer', 'Müşteri'], ['supplier', 'Tedarikçi'], ['customer-supplier', 'Müşteri-Tedarikçi']]);
 };
 
 export const getCashDeskVoucherType = () => {

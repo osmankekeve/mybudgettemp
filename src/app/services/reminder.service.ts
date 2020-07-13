@@ -6,7 +6,7 @@ import {AuthenticationService} from './authentication.service';
 import {ReminderModel} from '../models/reminder-model';
 import {CustomerModel} from '../models/customer-model';
 import {ProfileService} from './profile.service';
-import {getReminderType, getStatus, getTodayForInput} from '../core/correct-library';
+import {getAllParentTypes, getReminderType, getStatus, getTodayForInput, getTransactionTypes} from '../core/correct-library';
 import {ReminderMainModel} from '../models/reminder-main-model';
 
 @Injectable({
@@ -56,6 +56,8 @@ export class ReminderService {
     return new Promise((resolve, reject) => {
       if (record.data.description.trim() === '') {
         reject('Lütfen açıklama giriniz.');
+      } else if (record.data.parentType !== '-1' && record.data.parentPrimaryKey === '-1') {
+        reject('Lütfen müşteri seçiniz.');
       } else {
         resolve(null);
       }
@@ -74,6 +76,9 @@ export class ReminderService {
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     if (model.description === undefined) { model.description = cleanModel.description; }
     if (model.periodType === undefined) { model.periodType = cleanModel.periodType; }
+    if (model.parentType === undefined) { model.parentType = cleanModel.parentType; }
+    if (model.parentPrimaryKey === undefined) { model.parentPrimaryKey = cleanModel.parentPrimaryKey; }
+    if (model.parentTransactionType === undefined) { model.parentTransactionType = cleanModel.parentTransactionType; }
     return model;
   }
 
@@ -85,6 +90,9 @@ export class ReminderService {
     returnData.isPersonal = true;
     returnData.isActive = true;
     returnData.description = '';
+    returnData.parentType = '-1';
+    returnData.parentPrimaryKey = '';
+    returnData.parentTransactionType = '-1'; // salesInvoice, collection, purchaseInvoice, payment, accountVoucher, cashDeskVoucher
     returnData.periodType = 'daily'; // daily, monthly, yearly
     returnData.year = getTodayForInput().year;
     returnData.month = getTodayForInput().month;
@@ -97,6 +105,11 @@ export class ReminderService {
   clearMainModel(): ReminderMainModel {
     const returnData = new ReminderMainModel();
     returnData.data = this.clearSubModel();
+    returnData.actionType = 'added';
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+    returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+    returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
     return returnData;
   }
 
@@ -111,6 +124,8 @@ export class ReminderService {
           returnData.data = this.checkFields(data);
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -133,6 +148,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -145,6 +162,7 @@ export class ReminderService {
       ref => ref.orderBy('reminderDate')
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('isActive', '==', true)
+        .where('isPersonal', '==', false)
         .where('periodType', '==', 'oneTime')
         .startAt(startDate.getTime()).endAt(endDate.getTime()));
     this.mainList$ = this.listCollection.stateChanges().pipe(
@@ -158,6 +176,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -189,6 +209,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -202,6 +224,7 @@ export class ReminderService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
+        .where('isPersonal', '==', true)
         .where('periodType', '==', 'oneTime')
         .startAfter(startDate.getTime())).stateChanges().pipe(
       map(changes =>
@@ -214,6 +237,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -227,6 +252,7 @@ export class ReminderService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
+        .where('isPersonal', '==', true)
         .where('periodType', '==', 'daily')).stateChanges().pipe(
       map(changes =>
         changes.map(c => {
@@ -238,6 +264,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -251,6 +279,7 @@ export class ReminderService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
+        .where('isPersonal', '==', true)
         .where('day', '==', startDate.getDate())
         .where('periodType', '==', 'monthly')
         .startAfter(startDate.getTime())).stateChanges().pipe(
@@ -264,6 +293,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )
@@ -277,6 +308,7 @@ export class ReminderService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('employeePrimaryKey', '==', this.authService.getEid())
         .where('isActive', '==', true)
+        .where('isPersonal', '==', true)
         .where('day', '==', startDate.getDate())
         .where('month', '==', startDate.getMonth() + 1)
         .where('periodType', '==', 'yearly')
@@ -291,6 +323,8 @@ export class ReminderService {
           returnData.actionType = c.type;
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.periodTypeTr = getReminderType().get(returnData.data.periodType);
+          returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.parentTransactionType);
+          returnData.parentTypeTr = getAllParentTypes().get(returnData.data.parentType);
           return Object.assign({returnData});
         })
       )

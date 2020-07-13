@@ -215,7 +215,7 @@ body {
 }
 
 .dashboard-work-area {
-  height: calc(100vh - 126px);
+  height: calc(100vh - 177px);
   overflow: auto;
   scrollbar-width: thin;
 }

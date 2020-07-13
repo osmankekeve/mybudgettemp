@@ -9,6 +9,9 @@ import {getDateForInput, getInputDataForInsert, getTodayForInput, isNullOrEmpty}
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ReminderMainModel} from '../models/reminder-main-model';
+import {CustomerModel} from '../models/customer-model';
+import {ExcelService} from '../services/excel-service';
+import {CustomerService} from '../services/customer.service';
 @Component({
   selector: 'app-reminder',
   templateUrl: './reminder.component.html',
@@ -17,6 +20,7 @@ import {ReminderMainModel} from '../models/reminder-main-model';
 export class ReminderComponent implements OnInit {
   mainList: Array<ReminderMainModel>;
   employeeList$: Observable<ProfileMainModel[]>;
+  customerList$: Observable<CustomerModel[]>;
   selectedRecord: ReminderMainModel;
   recordDate: any;
   searchText: '';
@@ -27,7 +31,7 @@ export class ReminderComponent implements OnInit {
   filterIsActive = '1';
   onTransaction = false;
 
-  constructor(public authService: AuthenticationService, public service: ReminderService,
+  constructor(public authService: AuthenticationService, public service: ReminderService, protected cService: CustomerService,
               public proService: ProfileService, public router: ActivatedRoute,
               public infoService: InformationService, public route: Router,
               public db: AngularFirestore) {
@@ -37,12 +41,13 @@ export class ReminderComponent implements OnInit {
     this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
     this.clearMainFiler();
     this.populateList();
+    this.customerList$ = this.cService.getAllItems();
     this.employeeList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
     if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
       const data = await this.service.getItem(this.paramPrimaryKey);
       if (data) {
-        this.showSelectedRecord(data);
+        this.showSelectedRecord(data.returnData);
       }
     }
   }
@@ -206,6 +211,17 @@ export class ReminderComponent implements OnInit {
     this.selectedRecord.data.employeePrimaryKey = '-1';
     if (isPersonal === 'true') {
       this.selectedRecord.data.employeePrimaryKey = this.authService.getEid();
+    }
+  }
+
+  onChangeCustomer(value: any): void {
+    this.selectedRecord.data.parentPrimaryKey = value;
+  }
+
+  onChangeParentType(value: any): void {
+    if (value === '-1') {
+      this.selectedRecord.data.parentPrimaryKey = '-1';
+      this.selectedRecord.data.parentTransactionType = '-1';
     }
   }
 

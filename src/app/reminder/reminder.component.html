@@ -77,10 +77,11 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
-            <div class="col-sm-2">Personel Adı</div>
+            <div class="col-sm-4">Personel Adı</div>
             <div class="col-sm-2">Tarih</div>
             <div class="col-sm-2">Period</div>
-            <div class="col-sm-6">Not</div>
+            <div class="col-sm-2">Bağlı Kayıt Tipi</div>
+            <div class="col-sm-2">Bağlı Kayıt İşlemi</div>
           </div>
         </div>
         <div class="work-area-6">
@@ -88,14 +89,18 @@
                (click)="showSelectedRecord(item)"
                *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
             <div class="row">
-              <div class="col-sm-2">
+              <div class="col-sm-4">
                 <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                 <span class="text-red font-weight-600 mr-2" *ngIf="item.data.employeePrimaryKey != '-1'">{{item.employeeName}}</span>
                 <span class="text-red font-weight-600 mr-2" *ngIf="item.data.employeePrimaryKey == '-1'">Tüm Kullanıcılar</span>
               </div>
               <div class="col-sm-2">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</div>
               <div class="col-sm-2">{{item.periodTypeTr}}</div>
-              <div class="col-sm-6">{{item.data.description}}</div>
+              <div class="col-sm-2">{{item.parentTypeTr}}</div>
+              <div class="col-sm-2">{{item.transactionTypeTr}}</div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">{{item.data.description}}</div>
             </div>
           </div>
         </div>
@@ -185,7 +190,53 @@
             <option [ngValue]="false">Pasif</option>
           </select>
         </div>
-        <div class="col-sm-6"></div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="parentType">Bağlı Kayıt Tipi</label>
+        </div>
+        <div class="col-sm-3">
+          <select class="form-control form-control-sm w-100" id="parentType" name="parentType"
+                  (change)="onChangeParentType($event.target.value)"
+                  [disabled]="selectedRecord.data.primaryKey!=undefined"
+                  [(ngModel)]="selectedRecord.data.parentType">
+            <option value="-1">Genel</option>
+            <option value="customer">Müşteri</option>
+            <option value="supplier">Tedarikçi</option>
+            <option value="customer-supplier">Müşteri-Tedarikçi</option>
+          </select>
+        </div>
+        <div class="col-sm-12" *ngIf="selectedRecord.data.parentType != '-1'">
+          <div class="row">
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="customerCode">Müşteri</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
+                      (change)="onChangeCustomer($event.target.value)"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      [(ngModel)]="selectedRecord.data.parentPrimaryKey">
+                <option value={{item.primaryKey}}
+                        *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+              </select>
+              <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="parentTransactionType">Hatırlatıcak İşlem</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="parentTransactionType" name="parentTransactionType"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      [(ngModel)]="selectedRecord.data.parentTransactionType">
+                <option value="-1">Genel</option>
+                <option value="salesInvoice">Satış Faturası</option>
+                <option value="collection">Tahsilat</option>
+                <option value="purchaseInvoice">Alım Faturası</option>
+                <option value="payment">Ödeme</option>
+                <option value="accountVoucher">Cari Fişi</option>
+                <option value="cashDeskVoucher">Kasa Fişi</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="description">Açıklama</label>
         </div>
