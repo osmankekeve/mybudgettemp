@@ -128,7 +128,7 @@
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showSelectedRecord(item)"
-                     *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                     *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -174,7 +174,7 @@
             <div class="work-area-6">
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                    (click)="showSelectedRecord(item)"
-                   *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+                   *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
                 <div class="row">
                   <div class="col-sm-3">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -266,7 +266,7 @@
                       [disabled]="selectedRecord.data.primaryKey!=undefined"
                       [(ngModel)]="selectedRecord.data.accountPrimaryKey">
                 <option value={{item.primaryKey}}
-                        *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                        *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
             </div>
@@ -290,7 +290,7 @@
               <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
                       [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
                 <option value={{item.returnData.data.primaryKey}}
-                        *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
+                        *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
             </div>

@@ -591,7 +591,6 @@ export class CollectionComponent implements OnInit {
 
   async btnExportToXml_Click(): Promise<void> {
     try {
-      this.infoService.showHtmlInfo('osman', 'Osman KEKEVE', false);
     } catch (error) {
       await this.infoService.error(error);
     }

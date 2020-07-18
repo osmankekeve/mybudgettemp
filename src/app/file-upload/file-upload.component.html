@@ -20,7 +20,7 @@
             </div>
             <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                  (click)="showSelectedRecord(item)"
-                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                 *ngFor="let item of mainList; index as i;">
               <div class="row">
                 <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
                 <div class="col-sm-6">{{item.data.fileName}}</div>
@@ -51,21 +51,21 @@
               </div>
               <input type="file" class="form-control mb-1" (change)="onFileChange($event)" />
               <select class="form-control form-control-sm w-100 mb-1" id="parentType" name="parentType"
-                      [(ngModel)]="selectedRecord.parentType">
+                      [(ngModel)]="selectedRecord.data.parentType">
                 <option value="shared">Paylaşılan Dosya</option>
                 <option value="customer">Müşteri Dosyası</option>
                 <option value="user">Kullanıcı Dosyası</option>
               </select>
               <select class="form-control form-control-sm w-100 mb-1" id="customerPrimaryKey" name="customerPrimaryKey"
-              [(ngModel)]="selectedRecord.customerPrimaryKey" *ngIf="selectedRecord.parentType=='customer'">
+              [(ngModel)]="selectedRecord.data.parentPrimaryKey" *ngIf="selectedRecord.data.parentType=='customer'">
               <option value="-1">Lütfen Seçiniz</option>
-                  <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                  <option value={{item.primaryKey}} *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
               </select>
             <button type="submit" class="btn btn-sm btn-success btn-block mt-2" [disabled]="btnDis">Kaydet</button>
           </div>
         </form>
         <div class="card" *ngIf="refModel">
-          <div class="card-header">Dosya Adı: {{selectedRecord.fileName}}</div>
+          <div class="card-header">Dosya Adı: {{selectedRecord.data.fileName}}</div>
           <div class="card-body">
               <div class="row">
                 <div class="col-sm-4">

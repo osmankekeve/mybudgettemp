@@ -22,7 +22,7 @@
         <div class="col-sm-4 work-area-3">
           <div *ngIf="mainList != undefined; else elseBlock2">
             <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-              <div class="col-sm-12" *ngFor="let item of mainList | filterDataLocation : searchText; index as i; trackBy: primaryKey">
+              <div class="col-sm-12" *ngFor="let item of mainList | filterDataLocation : searchText; index as i;">
                 <div class="card-list-parent">
                   <div class="card mb-2 bg-light cursor-pointer"
                        (click)="showSelectedRecord(item)" title="Kaydı Göster">

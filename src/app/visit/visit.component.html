@@ -85,7 +85,7 @@
           </div>
         </div>
         <div class="col-sm-6">
-          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
@@ -149,7 +149,7 @@
                           (change)="onChangeCustomer($event)"
                           [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
                     <option value={{item.primaryKey}}
-                            *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                            *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
                   </select>
                   <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
                 </div>
@@ -162,7 +162,7 @@
                           (change)="onChangeEmployee($event)"
                           [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
                     <option value={{item.returnData.data.primaryKey}}
-                            *ngFor="let item of profileList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
+                            *ngFor="let item of profileList$ | async; index as i;">{{item.returnData.data.longName}}</option>
                   </select>
                   <div class="invalid-feedback invalid-input-info">Lütfen personel seçiniz.</div>
                 </div>

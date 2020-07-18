@@ -57,7 +57,7 @@
             <div *ngIf="notificationCount > 0; else elseBlock">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of notificationList; index as i; trackBy: primaryKey"
+                     *ngFor="let item of notificationList; index as i;"
                      style="font-size: 85%">
                   <div class="row">
                     <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
@@ -95,7 +95,7 @@
             <div *ngIf="actionCount > 0; else elseBlock2">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of actionList; index as i; trackBy: primaryKey"
+                     *ngFor="let item of actionList; index as i;"
                      style="font-size: 85%">
                   <div class="row">
                     <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
@@ -127,7 +127,7 @@
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                      (click)="showReminder(item)"
-                     *ngFor="let item of reminderList; index as i; trackBy: primaryKey"
+                     *ngFor="let item of reminderList; index as i;"
                      style="font-size: 85%">
                   <div class="row">
                     <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</div>

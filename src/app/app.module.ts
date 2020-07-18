@@ -33,6 +33,7 @@ import { UploadTaskComponent } from './upload-task/upload-task.component';
 import {GlobalUploadService} from './services/global-upload.service';
 import {DropzoneComponent} from './dropzone/dropzone.component';
 import {HttpClientModule} from '@angular/common/http';
+import {HashLocationStrategy, LocationStrategy} from '@angular/common';
 
 @NgModule({
     declarations: [
@@ -49,7 +50,7 @@ import {HttpClientModule} from '@angular/common/http';
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
     })
   ],
-  providers: [
+  providers: [{provide: LocationStrategy, useClass: HashLocationStrategy},
     InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule
   ],
   bootstrap: [AppComponent]

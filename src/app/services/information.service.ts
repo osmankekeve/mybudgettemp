@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, Subject } from 'rxjs';
-import { HtmlInfoComponent } from '../partials/html-info/html-info.component';
 import { LogService } from './log.service';
 import { AuthenticationService } from './authentication.service';
 
@@ -80,44 +79,6 @@ export class InformationService {
      */
     getMessage(): Observable<any> {
         return this.subject.asObservable();
-    }
-
-    showHtmlInfo(title: string, details: any, isJson?: boolean): void {
-        const activeModal = this.modalService.open(HtmlInfoComponent, {size: 'lg'});
-        const comp = activeModal.componentInstance as HtmlInfoComponent;
-        comp.title = title;
-        if (isJson) {
-            if (details.hasOwnProperty('data') && Object.keys(details).length === 1) {
-                comp.details = undefined;
-                comp.detailsPre = details.data;
-                comp.detailsJson = undefined;
-            } else {
-                comp.details = undefined;
-                comp.detailsPre = undefined;
-                comp.detailsJson = details;
-                try {
-                    Object.keys(comp.detailsJson)
-                        .forEach(key => {
-                            if (typeof comp.detailsJson[key] === 'object') {
-                                Object.keys(comp.detailsJson[key])
-                                    .forEach(prop => {
-                                        if (prop === 'commandData') {
-                                            comp.detailsJson[key][prop] = JSON.parse(comp.detailsJson[key][prop]);
-                                        }
-                                    });
-                            } else if (key === 'commandData') {
-                                comp.detailsJson[key] = JSON.parse(comp.detailsJson[key]);
-                            }
-                        });
-                } catch (e) {
-                    // pass
-                }
-            }
-        } else {
-            comp.details = details;
-            comp.detailsPre = undefined;
-            comp.detailsJson = undefined;
-        }
     }
 
     /**

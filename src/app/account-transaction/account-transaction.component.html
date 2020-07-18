@@ -69,7 +69,7 @@
                 </div>
             <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                 (click)="showSelectedRecord(item)"
-                *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                *ngFor="let item of mainList; index as i;">
                 <div class="row">
                     <div class="col-sm-3">{{item.data.receiptNo}}</div>
                     <div class="col-sm-3">{{item.data.transactionType}}</div>

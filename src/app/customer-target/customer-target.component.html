@@ -53,7 +53,7 @@
         <div *ngIf="mainList1 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
             <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList1 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                 *ngFor="let item of mainList1 | filterCustomer : searchText; index as i;"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
@@ -100,7 +100,7 @@
         <div *ngIf="mainList2 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
             <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList2 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                 *ngFor="let item of mainList2 | filterCustomer : searchText; index as i;"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
@@ -153,7 +153,7 @@
         <div *ngIf="mainList3 != undefined; else elseBlock2">
           <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
             <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList3 | filterCustomer : searchText; index as i; trackBy: primaryKey"
+                 *ngFor="let item of mainList3 | filterCustomer : searchText; index as i;"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
@@ -233,7 +233,7 @@
                         (change)="onChangeCustomer($event)"
                         [(ngModel)]="selectedRecord.data.customerCode">
                   <option value={{item.primaryKey}}
-                          *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                          *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
                 </select>
                 <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
               </div>
@@ -276,7 +276,6 @@
                     <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.beginMonth"
                             id="beginMonth" name="beginMonth"
                             (change)="onChangeBeginMonth($event.target.value)"
-                            [disabled]="selectedRecord.data.type == 'yearly'"
                             required>
                       <option value="-1">Seçilmedi</option>
                       <option value="1">1</option>
@@ -308,7 +307,6 @@
                     <select class="form-control form-control-sm w-100" [(ngModel)]="selectedRecord.data.finishMonth"
                             id="finishMonth" name="finishMonth"
                             (change)="onChangeFinishMonth($event.target.value)"
-                            [disabled]="selectedRecord.data.type == 'yearly' || selectedRecord.data.type == 'monthly'"
                             required>
                       <option value="-1">Seçilmedi</option>
                       <option value="1">1</option>
@@ -439,7 +437,7 @@
               </div>
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                    (click)="showTransactionRecord(item)"
-                   *ngFor="let item of transactionList; trackBy: primaryKey">
+                   *ngFor="let item of transactionList;">
                 <div class="row">
                   <div class="col-sm-6">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>

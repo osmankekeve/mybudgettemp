@@ -80,7 +80,7 @@
         </div>
         <div class="col-sm-6">
           <div class="card-list-parent"
-               *ngFor="let item of mainList | filterCustomer: searchText; index as i; trackBy: primaryKey">
+               *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
@@ -133,7 +133,7 @@
                   [disabled]="selectedRecord.data.primaryKey!=undefined"
                   [(ngModel)]="selectedRecord.data.parentPrimaryKey">
             <option value={{item.primaryKey}}
-                    *ngFor="let item of customerList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                    *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
         </div>

@@ -30,7 +30,7 @@
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList | filterNote: searchText; index as i; trackBy: primaryKey">
+             *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
             <div class="col-sm-10"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.data.currencyName}}</div>
             <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
@@ -147,7 +147,7 @@
               </div>
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                    (click)="showTransactionRecord(item)"
-                   *ngFor="let item of transactionList; trackBy: primaryKey">
+                   *ngFor="let item of transactionList;">
                 <div class="row">
                   <div class="col-sm-2"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.currencyName}}</div>
                   <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>

@@ -15,7 +15,7 @@
               </div>
             </div>
             <div class="list-group-item list-group-item-action main-list-item"
-                 *ngFor="let item of mainList; index as i; trackBy: primaryKey">
+                 *ngFor="let item of mainList; index as i;">
               <div class="row">
                 <div class="col-sm-2">
                   <a [href]="item.data.downloadURL" target="_blank" rel="noopener">

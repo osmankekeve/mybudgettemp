@@ -62,7 +62,7 @@
         <div class="work-area-6">
           <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                (click)="showSelectedCustomer(item)"
-               *ngFor="let item of mainList | filterDataCustomer: searchText; index as i; trackBy: primaryKey">
+               *ngFor="let item of mainList | filterDataCustomer: searchText; index as i;">
             <div class="row">
               <div class="col-sm-3">
                 <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -361,7 +361,7 @@
                     <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
                             [(ngModel)]="newSalesInvoice.data.accountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                   </div>
@@ -460,7 +460,7 @@
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showTransactionRecord(item)"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                     *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -506,7 +506,7 @@
                     <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
                             [(ngModel)]="newCollection.data.accountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                   </div>
@@ -530,7 +530,7 @@
                             required
                             [(ngModel)]="newCollection.data.cashDeskPrimaryKey">
                       <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
+                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -609,7 +609,7 @@
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showTransactionRecord(item)"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                     *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -650,7 +650,7 @@
                     <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
                             [(ngModel)]="newPurchaseInvoice.data.accountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                   </div>
@@ -750,7 +750,7 @@
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showTransactionRecord(item)"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                     *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -796,7 +796,7 @@
                     <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
                             [(ngModel)]="newPayment.data.accountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                   </div>
@@ -820,7 +820,7 @@
                             required
                             [(ngModel)]="newPayment.data.cashDeskPrimaryKey">
                       <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
+                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -899,7 +899,7 @@
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showTransactionRecord(item)"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                     *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -945,7 +945,7 @@
                     <select class="form-control form-control-sm w-100" name="accountPrimaryKey" required
                             [(ngModel)]="newVoucher.data.accountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                   </div>
@@ -969,7 +969,7 @@
                             required
                             [(ngModel)]="newVoucher.data.cashDeskPrimaryKey">
                       <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.name}}</option>
+                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -1048,7 +1048,7 @@
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showTransactionRecord(item)"
-                     *ngFor="let item of transactionList; trackBy: primaryKey">
+                     *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -1158,7 +1158,7 @@
                             [(ngModel)]="selectedCustomer.data.executivePrimary">
                       <option [value]="-1">Seçilmedi</option>
                       <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of executiveList$ | async; index as i; trackBy: primaryKey">{{item.returnData.data.longName}}</option>
+                              *ngFor="let item of executiveList$ | async; index as i;">{{item.returnData.data.longName}}</option>
                     </select>
                   </div>
                   <div class="col-sm-3">
@@ -1187,7 +1187,7 @@
                     <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
                             [(ngModel)]="selectedCustomer.data.defaultAccountPrimaryKey">
                       <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i; trackBy: primaryKey">{{item.name}}</option>
+                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
                     </select>
                   </div>
                   <div class="col-sm-3">
@@ -1284,7 +1284,7 @@
             </div>
           </div>
           <div class="list-group-item list-group-item-action main-list-item"
-               *ngFor="let item of transactionList; index as i; trackBy: primaryKey">
+               *ngFor="let item of transactionList; index as i;">
             <div class="row">
               <div class="col-sm-6">
                 <img src='{{item.iconUrl}}' width="30px" class="mr-2">
@@ -1326,7 +1326,7 @@
             </div>
           </div>
           <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-               *ngFor="let item of filesList; index as i; trackBy: primaryKey">
+               *ngFor="let item of filesList; index as i;">
             <div class="row">
               <div class="col-sm-1">
                 <a [href]="item.data.downloadURL" target="_blank" rel="noopener">
@@ -1363,7 +1363,7 @@
             </div>
           </div>
           <div class="list-group-item list-group-item-action main-list-item"
-               *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+               *ngFor="let item of visitList; index as i;">
             <div class="row">
               <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
               <div class="col-sm-5">{{item.employeeName}}</div>
@@ -1387,7 +1387,7 @@
   <div *ngIf="openedPanel=='target'">
     <div class="card-body">
       <div class="row" *ngIf="targetList$ | async; let targetList; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of targetList; index as i; trackBy: primaryKey"
+        <div class="col-sm-4" *ngFor="let item of targetList; index as i;"
              (click)="showTargetRecord(item)">
           <div class="card-list-parent">
             <div class="card mb-2 bg-light cursor-pointer">
@@ -1504,7 +1504,7 @@
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item"
-             *ngFor="let item of visitList; index as i; trackBy: primaryKey">
+             *ngFor="let item of visitList; index as i;">
           <div class="row">
             <div class="col-sm-2"><i
               class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
