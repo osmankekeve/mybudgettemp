@@ -5,6 +5,11 @@ body {
   background-color: #eee !important;
 }
 
+.main-logo {
+  background-color: unset !important;
+  border: unset !important;
+}
+
 .notPage {
   background: url(assets/images/notpage.jpg) no-repeat;
   padding: 20px;
@@ -216,6 +221,12 @@ body {
 
 .dashboard-work-area {
   height: calc(100vh - 177px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.login-work-area {
+  height: calc(100vh - 48px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -441,5 +452,11 @@ body {
 
 progress::-webkit-progress-value {
   transition: width 0.1s ease;
+}
+
+.bottom-info {
+  bottom: 0px;
+  position: fixed;
+  width: 100%;
 }
 
