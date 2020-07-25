@@ -1,12 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
-import {LocationService} from '../services/location.service';
-import {LocationModel} from '../models/location-model';
-import {LocationMainModel} from '../models/location-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
+import { LocationService } from '../services/location.service';
+import { LocationMainModel } from '../models/location-main-model';
 
 @Component({
   selector: 'app-location',
