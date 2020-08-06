@@ -41,22 +41,22 @@ export class VisitService {
   }
 
   async addItem(record: VisitMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'visit');
+    await this.logService.addTransactionLog(record, 'insert', 'visit');
     return await this.listCollection.add(Object.assign({}, record.visit));
   }
 
   async removeItem(record: VisitMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'visit');
+    await this.logService.addTransactionLog(record, 'delete', 'visit');
     return await this.db.collection(this.tableName).doc(record.visit.primaryKey).delete();
   }
 
   async updateItem(record: VisitMainModel) {
-    await this.logService.sendToLog(record, 'update', 'visit');
+    await this.logService.addTransactionLog(record, 'update', 'visit');
     return await this.db.collection(this.tableName).doc(record.visit.primaryKey).update(record.visit);
   }
 
   async setItem(record: VisitMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'visit');
+    await this.logService.addTransactionLog(record, 'insert', 'visit');
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.visit));
   }
 

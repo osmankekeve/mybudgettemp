@@ -49,7 +49,7 @@ export class PaymentService {
   async addItem(record: PaymentMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async result => {
-        await this.logService.sendToLog(record, 'insert', 'payment');
+        await this.logService.addTransactionLog(record, 'insert', 'payment');
         await this.sService.increasePaymentNumber();
       });
   }
@@ -57,7 +57,7 @@ export class PaymentService {
   async removeItem(record: PaymentMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
-        await this.logService.sendToLog(record, 'delete', 'payment');
+        await this.logService.addTransactionLog(record, 'delete', 'payment');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -83,11 +83,11 @@ export class PaymentService {
             insertDate: record.data.insertDate,
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'payment');
+          await this.logService.addTransactionLog(record, 'approved', 'payment');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'payment');
+          await this.logService.addTransactionLog(record, 'rejected', 'payment');
         } else {
-          await this.logService.sendToLog(record, 'update', 'payment');
+          await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });
   }
@@ -95,7 +95,7 @@ export class PaymentService {
   async setItem(record: PaymentMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record, 'insert', 'payment');
+        await this.logService.addTransactionLog(record, 'insert', 'payment');
         await this.sService.increasePaymentNumber();
         if (record.data.status === 'approved') {
           const trans = {
@@ -113,11 +113,11 @@ export class PaymentService {
             insertDate: record.data.insertDate,
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'payment');
+          await this.logService.addTransactionLog(record, 'approved', 'payment');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'payment');
+          await this.logService.addTransactionLog(record, 'rejected', 'payment');
         } else {
-          // await this.logService.sendToLog(record, 'update', 'payment');
+          // await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });
   }

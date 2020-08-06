@@ -53,7 +53,7 @@ export class CashDeskVoucherService {
   async addItem(record: CashDeskVoucherMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async result => {
-        await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+        await this.logService.addTransactionLog(record, 'insert', 'cashdeskVoucher');
         await this.sService.increaseCashDeskNumber();
       });
   }
@@ -61,7 +61,7 @@ export class CashDeskVoucherService {
   async removeItem(record: CashDeskVoucherMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
-        await this.logService.sendToLog(record, 'delete', 'cashdeskVoucher');
+        await this.logService.addTransactionLog(record, 'delete', 'cashdeskVoucher');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -110,11 +110,11 @@ export class CashDeskVoucherService {
             await this.atService.addItem(trans2);
           }
 
-          await this.logService.sendToLog(record, 'approved', 'cashdeskVoucher');
+          await this.logService.addTransactionLog(record, 'approved', 'cashdeskVoucher');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'cashdeskVoucher');
+          await this.logService.addTransactionLog(record, 'rejected', 'cashdeskVoucher');
         } else {
-          await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
+          await this.logService.addTransactionLog(record, 'update', 'cashdeskVoucher');
         }
       });
   }
@@ -122,7 +122,7 @@ export class CashDeskVoucherService {
   async setItem(record: CashDeskVoucherMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record, 'insert', 'cashdeskVoucher');
+        await this.logService.addTransactionLog(record, 'insert', 'cashdeskVoucher');
         await this.sService.increaseCashDeskNumber();
 
         if (record.data.status === 'approved') {
@@ -164,11 +164,11 @@ export class CashDeskVoucherService {
             await this.atService.addItem(trans2);
           }
 
-          await this.logService.sendToLog(record, 'approved', 'cashdeskVoucher');
+          await this.logService.addTransactionLog(record, 'approved', 'cashdeskVoucher');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'cashdeskVoucher');
+          await this.logService.addTransactionLog(record, 'rejected', 'cashdeskVoucher');
         } else {
-          // await this.logService.sendToLog(record, 'update', 'cashdeskVoucher');
+          // await this.logService.addTransactionLog(record, 'update', 'cashdeskVoucher');
         }
       });
   }

@@ -70,13 +70,13 @@ export class BuySaleService {
             amount: record.data.transactionType === 'buy' ? record.data.totalAmount * -1 : record.data.totalAmount
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'buy-sale');
+          await this.logService.addTransactionLog(record, 'approved', 'buy-sale');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'buy-sale');
+          await this.logService.addTransactionLog(record, 'rejected', 'buy-sale');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
-          await this.logService.sendToLog(record, 'update', 'buy-sale');
+          await this.logService.addTransactionLog(record, 'update', 'buy-sale');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });

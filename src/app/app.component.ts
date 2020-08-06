@@ -501,7 +501,12 @@ export class AppComponent implements OnInit {
                 localStorage.removeItem('cookieEMA');
               }
             }
-            this.logService.addToLog('employee', this.authService.getEid(), 'login', 'Sistem girişi başarılı.');
+            this.logService.addToLogUser(
+              'employee',
+              this.authService.getEid(),
+              'login',
+              'Web Sistem girişi başarılı.',
+              this.authService.getEid());
             this.finishProcess(null, 'Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
         })
           .catch((error) => {

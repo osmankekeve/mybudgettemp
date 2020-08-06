@@ -8,9 +8,10 @@ import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {CollectionModel} from '../models/collection-model';
-import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
+import {getEducation, getGenders, getStatus, getUserTypes} from '../core/correct-library';
 import {CashDeskModel} from '../models/cash-desk-model';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -189,6 +190,34 @@ export class ProfileService {
       });
     });
   }
+
+  getMainItemsAsPromise = async ():
+    Promise<Array<ProfileMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProfileMainModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.where('isActive', '==', true);
+        return query;
+      }).get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as ProfileModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new ProfileMainModel();
+          returnData.data = this.checkFields(data);
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
   isCustomerHasSalesInvoice = async (primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
