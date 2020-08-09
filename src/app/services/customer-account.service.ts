@@ -50,22 +50,22 @@ export class CustomerAccountService {
   }
 
   async addItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'customer-account');
+    await this.logService.addTransactionLog(record, 'insert', 'customer-account');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'customer-account');
+    await this.logService.addTransactionLog(record, 'delete', 'customer-account');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'update', 'customer-account');
+    await this.logService.addTransactionLog(record, 'update', 'customer-account');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
   async setItem(record: CustomerAccountMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'customer-account');
+    await this.logService.addTransactionLog(record, 'insert', 'customer-account');
     return await this.listCollection.doc(record.data.primaryKey).set(Object.assign({}, record.data));
   }
 

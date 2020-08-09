@@ -31,7 +31,7 @@
     "eslint-config-defaults": "^9.0.0",
     "file-save": "^0.2.0",
     "file-saver": "^2.0.2",
-    "firebase": "^6.6.2",
+    "firebase": "^7.17.2",
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
     "materialize-css": "^1.0.0",

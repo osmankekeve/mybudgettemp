@@ -30,7 +30,7 @@ export class LocationService {
   }
 
   async addItem(record: LocationMainModel) {
-    await this.logService.sendToLog(record.data, 'insert', 'location');
+    await this.logService.addTransactionLog(record.data, 'insert', 'location');
     return await this.listCollection.add(record.data);
   }
 
@@ -41,17 +41,17 @@ export class LocationService {
         }).then().catch(err => console.error(err));
       }); */
 
-    await this.logService.sendToLog(record.data, 'delete', 'location');
+    await this.logService.addTransactionLog(record.data, 'delete', 'location');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: LocationMainModel) {
-    await this.logService.sendToLog(record.data, 'update', 'location');
+    await this.logService.addTransactionLog(record.data, 'update', 'location');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(record.data);
   }
 
   async setItem(record: LocationMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record.data, 'insert', 'location');
+    await this.logService.addTransactionLog(record.data, 'insert', 'location');
     return await this.listCollection.doc(primaryKey).set(record.data);
   }
 

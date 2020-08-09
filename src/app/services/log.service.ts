@@ -14,8 +14,7 @@ export class LogService {
   mainList$: Observable<LogModel[]>;
   tableName = 'tblLogs';
 
-  constructor(protected authService: AuthenticationService,
-              protected db: AngularFirestore) {
+  constructor(protected authService: AuthenticationService, protected db: AngularFirestore) {
 
   }
 
@@ -23,26 +22,11 @@ export class LogService {
     return await this.db.collection(this.tableName).add(Object.assign({}, record));
   }
 
-  getNotificationsBetweenDates(startDate: Date, endDate: Date): Observable<LogModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate')
-        .where('userPrimaryKey', '==', this.authService.getUid())
-        .where('isActive', '==', true)
-        .where('type', '==', 'notification')
-        .startAt(startDate.getTime()).endAt(endDate.getTime()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as LogModel;
-        data.primaryKey = change.payload.doc.id;
-        return this.db.collection('tblCustomer').doc('-1').valueChanges().pipe(map((customer: CustomerModel) => {
-          return Object.assign({data, actionType: change.type});
-        }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
+  async setItemToUser(record: LogModel, profilePrimaryKey: string) {
+    return await this.db.collection('tblProfile').doc(profilePrimaryKey).collection(this.tableName).add(Object.assign({}, record));
   }
 
-  async sendToLog(record: any, action: string, systemModule: string) {
+  async addTransactionLog(record: any, action: string, systemModule: string) {
     // main model mantigindaki modellerde problem olusuyor. main model icerisindeki modelden primary keyler alamiyor.
     const item = new LogModel();
     item.parentType = systemModule;
@@ -128,7 +112,7 @@ export class LogService {
     } else {
       //
     }
-    return await this.setItem(item);
+    return await this.setItemToUser(item, this.authService.getEid());
   }
 
   async addToLog(parentType: string, parentPrimaryKey: string, type: string, log: string) {
@@ -189,6 +173,25 @@ export class LogService {
           .pipe(map((customer: CustomerModel) => {
             return Object.assign({data, actionType: change.type});
           }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getNotificationsBetweenDates(startDate: Date, endDate: Date): Observable<LogModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.orderBy('insertDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('isActive', '==', true)
+        .where('type', '==', 'notification')
+        .startAt(startDate.getTime()).endAt(endDate.getTime()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
+        const data = change.payload.doc.data() as LogModel;
+        data.primaryKey = change.payload.doc.id;
+        return this.db.collection('tblCustomer').doc('-1').valueChanges().pipe(map((customer: CustomerModel) => {
+          return Object.assign({data, actionType: change.type});
+        }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;

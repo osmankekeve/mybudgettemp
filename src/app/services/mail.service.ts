@@ -40,7 +40,7 @@ export class MailService {
   }
 
   async addItem(record: MailMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'mail');
+    await this.logService.addTransactionLog(record, 'insert', 'mail');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
@@ -49,7 +49,7 @@ export class MailService {
   }
 
   async updateItem(record: MailMainModel) {
-    await this.logService.sendToLog(record, 'update', 'mail');
+    await this.logService.addTransactionLog(record, 'update', 'mail');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 

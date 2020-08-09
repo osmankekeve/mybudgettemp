@@ -380,7 +380,10 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   populateCustomers(): void {
-    Promise.all([this.cService.getCustomers('customer'), this.cService.getCustomers('customer-supplier')])
+    const list = Array<string>();
+    list.push('customer');
+    list.push('customer-supplier');
+    Promise.all([this.cService.getCustomers(list)])
       .then((values: any) => {
         this.customerList = [];
         if (values[0] !== undefined || values[0] !== null) {

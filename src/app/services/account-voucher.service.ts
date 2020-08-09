@@ -49,7 +49,7 @@ export class AccountVoucherService {
   async addItem(record: AccountVoucherMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async result => {
-        await this.logService.sendToLog(record, 'insert', 'accountVoucher');
+        await this.logService.addTransactionLog(record, 'insert', 'accountVoucher');
         await this.sService.increaseAccountVoucherNumber();
       });
   }
@@ -57,7 +57,7 @@ export class AccountVoucherService {
   async removeItem(record: AccountVoucherMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
-        await this.logService.sendToLog(record, 'delete', 'accountVoucher');
+        await this.logService.addTransactionLog(record, 'delete', 'accountVoucher');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -83,11 +83,11 @@ export class AccountVoucherService {
             insertDate: record.data.insertDate,
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'accountVoucher');
+          await this.logService.addTransactionLog(record, 'approved', 'accountVoucher');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'accountVoucher');
+          await this.logService.addTransactionLog(record, 'rejected', 'accountVoucher');
         } else {
-          await this.logService.sendToLog(record, 'update', 'accountVoucher');
+          await this.logService.addTransactionLog(record, 'update', 'accountVoucher');
         }
       });
   }
@@ -95,7 +95,7 @@ export class AccountVoucherService {
   async setItem(record: AccountVoucherMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record, 'insert', 'accountVoucher');
+        await this.logService.addTransactionLog(record, 'insert', 'accountVoucher');
         await this.sService.increaseAccountVoucherNumber();
         if (record.data.status === 'approved') {
           const trans = {
@@ -113,11 +113,11 @@ export class AccountVoucherService {
             insertDate: record.data.insertDate,
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'accountVoucher');
+          await this.logService.addTransactionLog(record, 'approved', 'accountVoucher');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'accountVoucher');
+          await this.logService.addTransactionLog(record, 'rejected', 'accountVoucher');
         } else {
-          // await this.logService.sendToLog(record, 'update', 'accountVoucher');
+          // await this.logService.addTransactionLog(record, 'update', 'accountVoucher');
         }
       });
   }

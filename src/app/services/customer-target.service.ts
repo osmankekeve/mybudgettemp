@@ -31,17 +31,17 @@ export class CustomerTargetService {
   }
 
   async addItem(record: CustomerTargetMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'customerTarget');
+    await this.logService.addTransactionLog(record, 'insert', 'customerTarget');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerTargetMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'customerTarget');
+    await this.logService.addTransactionLog(record, 'delete', 'customerTarget');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerTargetMainModel) {
-    await this.logService.sendToLog(record, 'update', 'customerTarget');
+    await this.logService.addTransactionLog(record, 'update', 'customerTarget');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 

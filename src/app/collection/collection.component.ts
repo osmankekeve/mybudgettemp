@@ -389,9 +389,14 @@ export class CollectionComponent implements OnInit {
   }
 
   populateCustomers(): void {
-    Promise.all([this.cService.getCustomers('customer'), this.cService.getCustomers('customer-supplier')])
+    const list = Array<string>();
+    list.push('customer');
+    list.push('customer-supplier');
+    Promise.all([this.cService.getCustomers(list)])
       .then((values: any) => {
         this.customerList = [];
+        console.log(values[0]);
+        console.log(values[1]);
         if (values[0] !== undefined || values[0] !== null) {
           const returnData = values[0] as Array<CustomerModel>;
           returnData.forEach(value => {

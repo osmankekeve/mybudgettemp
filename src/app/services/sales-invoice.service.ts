@@ -60,7 +60,7 @@ export class SalesInvoiceService {
   async addItem(record: SalesInvoiceMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async result => {
-        await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+        await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
         await this.sService.increaseSalesInvoiceNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
@@ -69,7 +69,7 @@ export class SalesInvoiceService {
   async removeItem(record: SalesInvoiceMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
-        await this.logService.sendToLog(record, 'delete', 'salesInvoice');
+        await this.logService.addTransactionLog(record, 'delete', 'salesInvoice');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -95,13 +95,13 @@ export class SalesInvoiceService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
-          await this.logService.sendToLog(record, 'update', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
@@ -110,7 +110,7 @@ export class SalesInvoiceService {
   async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record, 'insert', 'salesInvoice');
+        await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
         await this.sService.increaseSalesInvoiceNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
@@ -129,11 +129,11 @@ export class SalesInvoiceService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
         } else {
-          // await this.logService.sendToLog(record, 'update', 'salesInvoice');
+          // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
         }
       });
   }

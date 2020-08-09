@@ -36,22 +36,22 @@ export class CustomerRelationService {
   }
 
   async addItem(record: CustomerRelationMainModel) {
-    await this.logService.sendToLog(record, 'insert', 'crm');
+    await this.logService.addTransactionLog(record, 'insert', 'crm');
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerRelationMainModel) {
-    await this.logService.sendToLog(record, 'delete', 'crm');
+    await this.logService.addTransactionLog(record, 'delete', 'crm');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: CustomerRelationMainModel) {
-    await this.logService.sendToLog(record, 'update', 'crm');
+    await this.logService.addTransactionLog(record, 'update', 'crm');
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
   async setItem(record: CustomerRelationMainModel, primaryKey: string) {
-    await this.logService.sendToLog(record, 'insert', 'crm');
+    await this.logService.addTransactionLog(record, 'insert', 'crm');
     return await this.listCollection.doc(primaryKey).set(record.data);
   }
 

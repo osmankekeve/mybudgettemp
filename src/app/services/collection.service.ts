@@ -50,7 +50,7 @@ export class CollectionService {
   async addItem(record: CollectionMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async () => {
-        await this.logService.sendToLog(record, 'insert', 'collection');
+        await this.logService.addTransactionLog(record, 'insert', 'collection');
         await this.sService.increaseCollectionNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
@@ -59,7 +59,7 @@ export class CollectionService {
   async removeItem(record: CollectionMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
-        await this.logService.sendToLog(record, 'delete', 'collection');
+        await this.logService.addTransactionLog(record, 'delete', 'collection');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -86,13 +86,13 @@ export class CollectionService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'collection');
+          await this.logService.addTransactionLog(record, 'approved', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'collection');
+          await this.logService.addTransactionLog(record, 'rejected', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
-          await this.logService.sendToLog(record, 'update', 'collection');
+          await this.logService.addTransactionLog(record, 'update', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
@@ -101,7 +101,7 @@ export class CollectionService {
   async setItem(record: CollectionMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.sendToLog(record, 'insert', 'collection');
+        await this.logService.addTransactionLog(record, 'insert', 'collection');
         await this.sService.increaseCollectionNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
 
@@ -121,11 +121,11 @@ export class CollectionService {
             insertDate: record.data.insertDate
           };
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.sendToLog(record, 'approved', 'collection');
+          await this.logService.addTransactionLog(record, 'approved', 'collection');
         } else if (record.data.status === 'rejected') {
-          await this.logService.sendToLog(record, 'rejected', 'collection');
+          await this.logService.addTransactionLog(record, 'rejected', 'collection');
         } else {
-          // await this.logService.sendToLog(record, 'update', 'collection');
+          // await this.logService.addTransactionLog(record, 'update', 'collection');
         }
       });
   }
