@@ -10,5 +10,6 @@ export class AccountTransactionModel {
   cashDeskPrimaryKey?: string;
   amount?: number;
   amountType?: string;
+  paidAmount?: number;
   insertDate?: number;
 }

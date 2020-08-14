@@ -62,20 +62,18 @@ export class PurchaseInvoiceService {
         await this.sService.increasePurchaseInvoiceNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
-          const trans = {
-            primaryKey: record.data.primaryKey,
-            userPrimaryKey: record.data.userPrimaryKey,
-            receiptNo: record.data.receiptNo,
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'purchaseInvoice',
-            parentPrimaryKey: record.data.customerCode,
-            parentType: 'customer',
-            accountPrimaryKey: record.data.accountPrimaryKey,
-            cashDeskPrimaryKey: '-1',
-            amount: record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1,
-            amountType: record.data.type === 'purchase' ? 'credit' : 'debit',
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = record.data.primaryKey;
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'purchaseInvoice';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = '-1';
+          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'purchase' ? 'credit' : 'debit';
+          trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
         } else if (record.data.status === 'rejected') {
@@ -101,20 +99,18 @@ export class PurchaseInvoiceService {
       .update(Object.assign({}, record.data))
       .then(async value => {
         if (record.data.status === 'approved') {
-          const trans = {
-            primaryKey: record.data.primaryKey,
-            userPrimaryKey: record.data.userPrimaryKey,
-            receiptNo: record.data.receiptNo,
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'purchaseInvoice',
-            parentPrimaryKey: record.data.customerCode,
-            parentType: 'customer',
-            accountPrimaryKey: record.data.accountPrimaryKey,
-            cashDeskPrimaryKey: '-1',
-            amount: record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1,
-            amountType: record.data.type === 'purchase' ? 'credit' : 'debit',
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = record.data.primaryKey;
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'purchaseInvoice';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = '-1';
+          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'purchase' ? 'credit' : 'debit';
+          trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');

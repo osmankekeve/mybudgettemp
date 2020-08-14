@@ -55,20 +55,18 @@ export class BuySaleService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async value => {
         if (record.data.status === 'approved') {
-          const trans = {
-            primaryKey: record.data.primaryKey,
-            userPrimaryKey: record.data.userPrimaryKey,
-            receiptNo: record.data.receiptNo,
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'buy-sale',
-            parentPrimaryKey: record.data.currencyPrimaryKey,
-            parentType: 'buy-sale-currency',
-            accountPrimaryKey: '-1',
-            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
-            insertDate: record.data.insertDate,
-            amountType: record.data.transactionType === 'buy' ? 'debit' : 'credit',
-            amount: record.data.transactionType === 'buy' ? record.data.totalAmount * -1 : record.data.totalAmount
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = record.data.primaryKey;
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'buy-sale';
+          trans.parentPrimaryKey = record.data.currencyPrimaryKey;
+          trans.parentType = 'buy-sale-currency';
+          trans.accountPrimaryKey = '-1';
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.transactionType === 'buy' ? record.data.totalAmount * -1 : record.data.totalAmount;
+          trans.amountType = record.data.transactionType === 'buy' ? 'debit' : 'credit';
+          trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'buy-sale');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');

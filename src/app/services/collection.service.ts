@@ -14,6 +14,7 @@ import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library'
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -71,20 +72,19 @@ export class CollectionService {
       .update(Object.assign({}, record.data))
       .then(async value => {
         if (record.data.status === 'approved') {
-          const trans = {
-            primaryKey: record.data.primaryKey,
-            userPrimaryKey: record.data.userPrimaryKey,
-            receiptNo: record.data.receiptNo,
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'collection',
-            parentPrimaryKey: record.data.customerCode,
-            parentType: 'customer',
-            accountPrimaryKey: record.data.accountPrimaryKey,
-            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
-            amount: record.data.amount,
-            amountType: 'credit',
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = record.data.primaryKey;
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'collection';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount;
+          trans.amountType = 'credit';
+          trans.insertDate = record.data.insertDate;
+
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
@@ -106,20 +106,19 @@ export class CollectionService {
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
 
         if (record.data.status === 'approved') {
-          const trans = {
-            primaryKey: record.data.primaryKey,
-            userPrimaryKey: record.data.userPrimaryKey,
-            receiptNo: record.data.receiptNo,
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'collection',
-            parentPrimaryKey: record.data.customerCode,
-            parentType: 'customer',
-            accountPrimaryKey: record.data.accountPrimaryKey,
-            cashDeskPrimaryKey: record.data.cashDeskPrimaryKey,
-            amount: record.data.amount,
-            amountType: 'credit',
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = record.data.primaryKey;
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'collection';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount;
+          trans.amountType = 'credit';
+          trans.insertDate = record.data.insertDate;
+
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
         } else if (record.data.status === 'rejected') {

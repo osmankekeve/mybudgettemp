@@ -380,17 +380,12 @@ export class PurchaseInvoiceComponent implements OnInit {
   populateCustomers(): void {
     const list = Array<string>();
     list.push('supplier');
+    list.push('customer-supplier');
     Promise.all([this.cService.getCustomers(list)])
       .then((values: any) => {
         this.customerList = [];
         if (values[0] !== undefined || values[0] !== null) {
           const returnData = values[0] as Array<CustomerModel>;
-          returnData.forEach(value => {
-            this.customerList.push(value);
-          });
-        }
-        if (values[1] !== undefined || values[1] !== null) {
-          const returnData = values[1] as Array<CustomerModel>;
           returnData.forEach(value => {
             this.customerList.push(value);
           });

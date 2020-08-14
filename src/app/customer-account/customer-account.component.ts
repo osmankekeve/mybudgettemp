@@ -321,11 +321,11 @@ export class CustomerAccountComponent implements OnInit {
     });
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'customer-account');
     } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

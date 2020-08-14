@@ -191,15 +191,14 @@ export class ProfileService {
     });
   }
 
-  getMainItemsBetweenDatesAsPromise = async ():
+  getMainItemsAsPromise = async ():
     Promise<Array<ProfileMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<ProfileMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
         query = query.where('isActive', '==', true);
-        //query = query.where('isActive', 'in', ['USA', 'Japan']);
         return query;
       }).get().subscribe(snapshot => {
         snapshot.forEach(doc => {

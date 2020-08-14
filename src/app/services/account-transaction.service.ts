@@ -3,16 +3,23 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import {Observable} from 'rxjs/Observable';
 import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AuthenticationService} from './authentication.service';
-import {getTransactionTypes, getTodayStart, getTodayEnd, getModuleIcons, getFloat} from '../core/correct-library';
+import {
+  getTransactionTypes,
+  getTodayStart,
+  getTodayEnd,
+  getModuleIcons,
+  getFloat,
+  getStatus,
+  currencyFormat
+} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {CashDeskService} from './cash-desk.service';
-import {PaymentMainModel} from '../models/payment-main-model';
-import {NoteMainModel} from '../models/note-main-model';
-import {NoteModel} from '../models/note-model';
+import {CollectionModel} from '../models/collection-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -125,6 +132,63 @@ export class AccountTransactionService {
           this.db.collection(this.tableName).doc(doc.id).delete().then(() => console.log(doc.id));
         });
       });
+  }
+
+  clearSubModel(): AccountTransactionModel {
+
+    const returnData = new AccountTransactionModel();
+    returnData.primaryKey = null;
+    returnData.userPrimaryKey = this.authService.getUid();
+    returnData.receiptNo = '';
+    returnData.transactionPrimaryKey = '-1';
+    returnData.transactionType = '-1';
+    returnData.parentPrimaryKey = '-1';
+    returnData.parentType = '-1';
+    returnData.accountPrimaryKey = '-1';
+    returnData.cashDeskPrimaryKey = '-1';
+    returnData.amount = 0;
+    returnData.amountType = '-1';
+    returnData.paidAmount = 0;
+    returnData.insertDate = Date.now();
+
+    return returnData;
+  }
+
+  clearMainModel(): AccountTransactionMainModel {
+    const returnData = new AccountTransactionMainModel();
+    returnData.data = this.clearSubModel();
+    returnData.customer = null;
+    returnData.actionType = 'added';
+    returnData.transactionTypeTr = this.transactionTypes.get(returnData.data.transactionType);
+    returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.transactionType);
+    return returnData;
+  }
+
+  checkFields(model: AccountTransactionModel): AccountTransactionModel {
+    const cleanModel = this.clearSubModel();
+    if (model.accountPrimaryKey === undefined) {
+      model.accountPrimaryKey = cleanModel.accountPrimaryKey;
+    }
+    if (model.cashDeskPrimaryKey === undefined) {
+      model.cashDeskPrimaryKey = cleanModel.cashDeskPrimaryKey;
+    }
+    if (model.receiptNo === undefined) {
+      model.receiptNo = cleanModel.receiptNo;
+    }
+    if (model.parentType === undefined) {
+      model.parentType = cleanModel.parentType;
+    }
+    if (model.parentPrimaryKey === undefined) {
+      model.parentPrimaryKey = cleanModel.parentPrimaryKey;
+    }
+    if (model.amount === undefined) {
+      model.amount = cleanModel.amount;
+    }
+    if (model.insertDate === undefined) { model.insertDate = cleanModel.insertDate; }
+    if (model.amountType === undefined) { model.amountType = cleanModel.amountType; }
+    if (model.paidAmount === undefined) { model.paidAmount = cleanModel.paidAmount; }
+
+    return model;
   }
 
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
@@ -249,7 +313,7 @@ export class AccountTransactionService {
           data.primaryKey = doc.id;
 
           const returnData = new AccountTransactionMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = 'added';
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
@@ -281,38 +345,6 @@ export class AccountTransactionService {
     return false;
   }
 
-  getMainItemsold(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainMainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as AccountTransactionModel;
-        data.primaryKey = change.payload.doc.id;
-
-        const returnData = new AccountTransactionMainModel();
-        returnData.data = data;
-        returnData.actionType = change.type;
-        returnData.iconUrl = getModuleIcons().get(data.transactionType);
-        returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
-
-        if (returnData.data.transactionType === 'cashDeskVoucher') {
-          returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
-        } else {
-          returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
-        }
-        if (returnData.data.transactionType === 'cashDeskVoucher') {
-          returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
-        }
-        return this.db.collection('tblCustomer').doc('-1').valueChanges()
-          .pipe(map((customer: CustomerModel) => {
-            return Object.assign(returnData);
-          }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainMainList$;
-  }
-
   getMainItems(startDate: Date, endDate: Date): Observable<AccountTransactionMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,
@@ -325,7 +357,7 @@ export class AccountTransactionService {
           data.primaryKey = c.payload.doc.id;
 
           const returnData = new AccountTransactionMainModel();
-          returnData.data = data;
+          returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
@@ -345,5 +377,43 @@ export class AccountTransactionService {
     );
     return this.mainMainList$;
   }
+
+  getAccountTransactionsByAmountType = async (accountPrimaryKey: string, amountType: string, transactionType: Array<string>):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<AccountTransactionMainModel>();
+      this.db.collection(this.tableName, ref =>
+        ref.orderBy('insertDate')
+          .where('accountPrimaryKey', '==', accountPrimaryKey)
+          .where('amountType', '==', amountType)
+          .where('transactionType', 'in', transactionType))
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          data.primaryKey = doc.id;
+
+          const returnData = new AccountTransactionMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.actionType = 'added';
+          returnData.iconUrl = getModuleIcons().get(data.transactionType);
+          returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+
+          if (returnData.data.transactionType === 'cashDeskVoucher') {
+            returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
+          } else {
+            returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
+          }
+
+          list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }

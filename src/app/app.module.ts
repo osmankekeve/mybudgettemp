@@ -26,21 +26,22 @@ import { CookieService } from 'ngx-cookie-service';
 import { NoteFilterPipe } from './filters/note-filter.pipe';
 import { CashDeskFilterPipe } from './filters/cashDesk-filter.pipe';
 import { CashDeskVoucherFilterPipe } from './filters/cashDeskVoucher-filter.pipe';
-import {CustomerAccountFilterPipe} from './filters/customer-account-filter.pipe';
+import { CustomerAccountFilterPipe} from './filters/customer-account-filter.pipe';
 import { DropzoneDirective } from './dropzone.directive';
 import { UploaderComponent } from './uploader/uploader.component';
 import { UploadTaskComponent } from './upload-task/upload-task.component';
-import {GlobalUploadService} from './services/global-upload.service';
-import {DropzoneComponent} from './dropzone/dropzone.component';
-import {HttpClientModule} from '@angular/common/http';
-import {HashLocationStrategy, LocationStrategy} from '@angular/common';
+import { GlobalUploadService } from './services/global-upload.service';
+import { DropzoneComponent } from './dropzone/dropzone.component';
+import { HttpClientModule } from '@angular/common/http';
+import { HashLocationStrategy, LocationStrategy } from '@angular/common';
+import { PrettyPrintPipe } from './filters/pretty-print.pipe';
 
 @NgModule({
     declarations: [
         AppComponent, routingComponents,
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-        UploaderComponent, UploadTaskComponent, DropzoneComponent
+        UploaderComponent, UploadTaskComponent, DropzoneComponent, PrettyPrintPipe
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,

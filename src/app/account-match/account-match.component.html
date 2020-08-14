@@ -1,1 +1,215 @@
-<div> account match</div>
+<div class="card work-area" *ngIf="!isMatchPanelOpened">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-8">
+        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">Hesap Kapama Listesi</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+      </div>
+      <div class="col-sm-4 head-filter">
+        <div class="input-group input-group-round">
+          <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+          </div>
+          <input type="search" class="form-control filter-list-input" placeholder="Hesap Ara.."
+                 [(ngModel)]="searchText">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+        <div *ngIf="mainList != undefined; else elseBlock2">
+          <div *ngIf="mainList.length > 0; else elseBlock">
+            <div class="list-group">
+              <div class="list-group-item bg-danger text-light main-list-item">
+                <div class="row">
+                  <div class="col-sm-5">Hesap Adı</div>
+                  <div class="col-sm-5">Müşteri Adı</div>
+                  <div class="col-sm-2">Döviz Tipi</div>
+                </div>
+              </div>
+              <div class="work-area-6">
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showSelectedRecord(item)"
+                     *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
+                  <div class="row">
+                    <div class="col-sm-5">
+                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <span class="text-red font-weight-600">{{item.data.name}}</span>
+                    </div>
+                    <div class="col-sm-5">{{item.customer.name}}</div>
+                    <div class="col-sm-2">{{item.currencyTr}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock2>
+          <div class="loader"></div>
+        </ng-template>
+      </div>
+      <div class="col">
+        <div class="card bg-light" *ngIf="selectedRecord!=undefined">
+          <div class="card-body">
+            <div class="list-group">
+              <div class="list-group-item fs-14">
+                <div class="row">
+                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Müşteri</div>
+                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.customer.name}}</div>
+                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Hesap Adı</div>
+                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.name}}</div>
+                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Banka Adı</div>
+                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.bankName}}</div>
+                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Hesap No</div>
+                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.accountNo}}</div>
+                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Açıklama</div>
+                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.description}}</div>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-sm-8"><label><i class="fa fa-info text-success mr-1"></i>Otomatik hesap kapama, tarih sıralaması ilk olandan itibaren kapama yapılmasını sağlar.</label></div>
+              <div class="col-sm-4 float-right">
+                <button type="button" class="btn btn-sm btn-success form-control" title="Otomatik Hesap Kapama"
+                        (click)="btnAutoMatchAccount_Click()">Otomatik Hesap Kapama</button>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-sm-8"><label><i class="fa fa-info text-success mr-1"></i>Manuel hesap kapama, girdi ve çıktıları kullanıcı seçimine bırakır.</label></div>
+              <div class="col-sm-4 float-right">
+                <button type="button" class="btn btn-sm btn-success form-control" title="Manuel Hesap Kapama"
+                        (click)="btnManuelMatchAccount_Click()">Manuel Hesap Kapama</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card work-area" *ngIf="isMatchPanelOpened">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">Hesap Kapama Detayı</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5 class="card-title float-left mr-2">Borç Kayıtlar</h5>
+          </div>
+          <div class="card-body work-area-2">
+            <div *ngIf="debitTransactionList != undefined; else elseBlock3">
+              <div class="list-group" *ngIf="debitTransactionList.length > 0; else elseBlock">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-3">İşlem Tipi</div>
+                    <div class="col-sm-3">Fiş Numarası</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar/Kapanan Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     [ngClass]="{'bg-yellow': item.data.primaryKey === debitSelectedRecordPrimaryKey}"
+                     (click)="selectDebitRecord(item)"
+                     *ngFor="let item of debitTransactionList; index as i;">
+                  <div class="row">
+                    <div class="col-sm-3 text-red">
+                      <i class="fa fa-arrow-circle-right mr-2"></i>
+                      <span class="text-red font-weight-600">{{item.transactionTypeTr}}</span>
+                    </div>
+                    <div class="col-sm-3">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-3">
+                      <span class="float-right">
+                        {{item.data.amount | currency:'₺'}} / <span class="text-success">{{item.data.paidAmount | currency:'₺'}}</span>
+                      </span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="loader"></div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5 class="card-title float-left mr-2">Alacak Kayıtlar</h5>
+          </div>
+          <div class="card-body work-area-2">
+            <div *ngIf="creditTransactionList != undefined; else elseBlock3">
+              <div class="list-group" *ngIf="creditTransactionList.length > 0; else elseBlock">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-3">İşlem Tipi</div>
+                    <div class="col-sm-3">Fiş Numarası</div>
+                    <div class="col-sm-3"><span class="float-right">Tutar/Kapanan Tutar</span></div>
+                    <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="selectCreditRecord(item)"
+                     [ngClass]="{'bg-yellow': item.data.primaryKey === creditSelectedRecordPrimaryKey}"
+                     *ngFor="let item of creditTransactionList; index as i;">
+                  <div class="row">
+                    <div class="col-sm-3 text-red">
+                      <i class="fa fa-arrow-circle-right mr-2"></i>
+                      <span class="text-red font-weight-600">{{item.transactionTypeTr}}</span>
+                    </div>
+                    <div class="col-sm-3">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-3">
+                      <span class="float-right">
+                        {{item.data.amount | currency:'₺'}} / <span class="text-success">{{item.data.paidAmount | currency:'₺'}}</span>
+                      </span>
+                    </div>
+                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="loader"></div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer">
+    <div class="col-sm-3">
+      <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnAccountMatch_Click()">Kapama Yap</button>
+    </div>
+  </div>
+</div>

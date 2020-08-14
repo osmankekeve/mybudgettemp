@@ -392,12 +392,6 @@ export class SalesInvoiceComponent implements OnInit {
             this.customerList.push(value);
           });
         }
-        if (values[1] !== undefined || values[1] !== null) {
-          const returnData = values[1] as Array<CustomerModel>;
-          returnData.forEach(value => {
-            this.customerList.push(value);
-          });
-        }
       });
   }
 

@@ -17,6 +17,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
   filterBeginDate: any;
   filterFinishDate: any;
   searchText: '';
+  jsonData: any;
   onTransaction = false;
 
   constructor(public infoService: InformationService, public service: AccountTransactionService, public db: AngularFirestore) { }
@@ -68,6 +69,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as AccountTransactionMainModel;
+    this.jsonData = JSON.stringify(this.selectedRecord, null, 2);
   }
 
   async btnRemove_Click(): Promise<void> {

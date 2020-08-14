@@ -78,35 +78,31 @@ export class CashDeskVoucherService {
           let calculatedAmount2 = record.data.transactionType === 'credit' ? record.data.amount * -1 : record.data.amount;
           if (record.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
 
-          const trans = {
-            primaryKey: '',
-            userPrimaryKey: record.data.userPrimaryKey,
-            parentPrimaryKey: record.data.firstCashDeskPrimaryKey,
-            parentType: 'cashDesk',
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'cashDeskVoucher',
-            amountType: record.data.transactionType,
-            amount: calculatedAmount1,
-            cashDeskPrimaryKey: record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1' ,
-            receiptNo: record.data.receiptNo,
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = '';
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'cashDeskVoucher';
+          trans.parentPrimaryKey = record.data.firstCashDeskPrimaryKey;
+          trans.parentType = 'cashDesk';
+          trans.cashDeskPrimaryKey = record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1';
+          trans.amount = calculatedAmount1;
+          trans.amountType = record.data.transactionType;
+          trans.insertDate = record.data.insertDate;
           await this.atService.addItem(trans);
 
           if (record.data.type === 'transfer') {
-            const trans2 = {
-              primaryKey: '',
-              userPrimaryKey: record.data.userPrimaryKey,
-              parentPrimaryKey: record.data.secondCashDeskPrimaryKey,
-              parentType: 'cashDesk',
-              transactionPrimaryKey: record.data.primaryKey,
-              transactionType: 'cashDeskVoucher',
-              amountType: record.data.transactionType,
-              amount: calculatedAmount2,
-              cashDeskPrimaryKey: record.data.firstCashDeskPrimaryKey,
-              receiptNo: record.data.receiptNo,
-              insertDate: record.data.insertDate
-            };
+            const trans2 = this.atService.clearSubModel();
+            trans2.primaryKey = '';
+            trans2.receiptNo = record.data.receiptNo;
+            trans2.transactionPrimaryKey = record.data.primaryKey;
+            trans2.transactionType = 'cashDeskVoucher';
+            trans2.parentPrimaryKey = record.data.secondCashDeskPrimaryKey;
+            trans2.parentType = 'cashDesk';
+            trans2.cashDeskPrimaryKey = record.data.firstCashDeskPrimaryKey;
+            trans2.amount = calculatedAmount2;
+            trans2.amountType = record.data.transactionType;
+            trans2.insertDate = record.data.insertDate;
             await this.atService.addItem(trans2);
           }
 
@@ -132,35 +128,31 @@ export class CashDeskVoucherService {
           let calculatedAmount2 = record.data.transactionType === 'credit' ? record.data.amount * -1 : record.data.amount;
           if (record.data.type === 'transfer') { calculatedAmount2 =  calculatedAmount2 * -1; }
 
-          const trans = {
-            primaryKey: '',
-            userPrimaryKey: record.data.userPrimaryKey,
-            parentPrimaryKey: record.data.firstCashDeskPrimaryKey,
-            parentType: 'cashDesk',
-            transactionPrimaryKey: record.data.primaryKey,
-            transactionType: 'cashDeskVoucher',
-            amountType: record.data.transactionType,
-            amount: calculatedAmount1,
-            cashDeskPrimaryKey: record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1' ,
-            receiptNo: record.data.receiptNo,
-            insertDate: record.data.insertDate
-          };
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = '';
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'cashDeskVoucher';
+          trans.parentPrimaryKey = record.data.firstCashDeskPrimaryKey;
+          trans.parentType = 'cashDesk';
+          trans.cashDeskPrimaryKey = record.data.type === 'transfer' ? record.data.secondCashDeskPrimaryKey : '-1';
+          trans.amount = calculatedAmount1;
+          trans.amountType = record.data.transactionType;
+          trans.insertDate = record.data.insertDate;
           await this.atService.addItem(trans);
 
           if (record.data.type === 'transfer') {
-            const trans2 = {
-              primaryKey: '',
-              userPrimaryKey: record.data.userPrimaryKey,
-              parentPrimaryKey: record.data.secondCashDeskPrimaryKey,
-              parentType: 'cashDesk',
-              transactionPrimaryKey: record.data.primaryKey,
-              transactionType: 'cashDeskVoucher',
-              amountType: record.data.transactionType,
-              amount: calculatedAmount2,
-              cashDeskPrimaryKey: record.data.firstCashDeskPrimaryKey,
-              receiptNo: record.data.receiptNo,
-              insertDate: record.data.insertDate
-            };
+            const trans2 = this.atService.clearSubModel();
+            trans2.primaryKey = '';
+            trans2.receiptNo = record.data.receiptNo;
+            trans2.transactionPrimaryKey = record.data.primaryKey;
+            trans2.transactionType = 'cashDeskVoucher';
+            trans2.parentPrimaryKey = record.data.secondCashDeskPrimaryKey;
+            trans2.parentType = 'cashDesk';
+            trans2.cashDeskPrimaryKey = record.data.firstCashDeskPrimaryKey;
+            trans2.amount = calculatedAmount2;
+            trans2.amountType = record.data.transactionType;
+            trans2.insertDate = record.data.insertDate;
             await this.atService.addItem(trans2);
           }
 
