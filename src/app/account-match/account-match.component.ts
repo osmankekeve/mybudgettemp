@@ -31,6 +31,8 @@ export class AccountMatchComponent implements OnInit {
   isMatchPanelOpened = false;
   debitSelectedRecordPrimaryKey: string;
   creditSelectedRecordPrimaryKey: string;
+  debitAccountMatchType = 'open';
+  creditAccountMatchType = 'open';
   public xmlItems: any;
 
   constructor(public authService: AuthenticationService, public service: CustomerAccountService, public infoService: InformationService,
@@ -109,7 +111,17 @@ export class AccountMatchComponent implements OnInit {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           this.debitTransactionList = [];
           returnData.forEach((item: any) => {
-            this.debitTransactionList.push(item);
+            if (this.debitAccountMatchType === 'open') {
+              if (item.remainingAmount > 0) {
+                this.debitTransactionList.push(item);
+              }
+            } else if (this.debitAccountMatchType === 'close') {
+              if (item.remainingAmount === 0) {
+                this.debitTransactionList.push(item);
+              }
+            } else {
+              this.debitTransactionList.push(item);
+            }
           });
         }
       });
@@ -129,7 +141,17 @@ export class AccountMatchComponent implements OnInit {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           this.creditTransactionList = [];
           returnData.forEach((item: any) => {
-            this.creditTransactionList.push(item);
+            if (this.creditAccountMatchType === 'open') {
+              if (item.remainingAmount > 0) {
+                this.creditTransactionList.push(item);
+              }
+            } else if (this.creditAccountMatchType === 'close') {
+              if (item.remainingAmount === 0) {
+                this.creditTransactionList.push(item);
+              }
+            } else {
+              this.creditTransactionList.push(item);
+            }
           });
         }
       });
@@ -140,6 +162,8 @@ export class AccountMatchComponent implements OnInit {
 
     this.creditSelectedRecordPrimaryKey = '';
     this.debitSelectedRecordPrimaryKey = '';
+    this.debitAccountMatchType = 'open';
+    this.creditAccountMatchType = 'open';
     this.populateDebitTransactions();
     this.populateCreditTransactions();
   }
@@ -191,7 +215,6 @@ export class AccountMatchComponent implements OnInit {
 
   async btnManuelMatchAccount_Click(): Promise<void> {
     try {
-      this.onTransaction = true;
       this.isMatchPanelOpened = true;
     } catch (error) {
       await this.finishProcess(error, null);
@@ -200,87 +223,113 @@ export class AccountMatchComponent implements OnInit {
 
   async btnAccountMatch_Click(): Promise<void> {
     try {
-      this.onTransaction = true;
+      if (this.debitSelectedRecordPrimaryKey === '') {
+        await this.infoService.error('Lütfen borç kaydı seçiniz');
+      } else if (this.creditSelectedRecordPrimaryKey === '') {
+        await this.infoService.error('Lütfen alacak kaydı seçiniz');
+      } else {
+        this.onTransaction = true;
 
-      const debitRecord =  await this.service.getItem(this.debitSelectedRecordPrimaryKey);
-      const creditRecord = await this.service.getItem(this.creditSelectedRecordPrimaryKey);
+        const debitRecord =  await this.atService.getItem(this.debitSelectedRecordPrimaryKey);
+        const creditRecord = await this.atService.getItem(this.creditSelectedRecordPrimaryKey);
 
-      const debit = debitRecord.returnData as AccountTransactionMainModel;
-      const credit = creditRecord.returnData as AccountTransactionMainModel;
+        const debit = debitRecord as AccountTransactionMainModel;
+        const credit = creditRecord as AccountTransactionMainModel;
 
-      const creditRemainingAmount = Math.abs(credit.data.amount) - Math.abs(credit.data.paidAmount);
-      if (creditRemainingAmount > 0) {
-        // kapama yapilacak miktar mevcut
+        const creditRemainingAmount = Math.abs(credit.data.amount) - Math.abs(credit.data.paidAmount);
+        if (creditRemainingAmount > 0) {
+          // kapama yapilacak miktar mevcut
 
-        const debitRemainingAmount = Math.abs(debit.data.amount) - Math.abs(debit.data.paidAmount);
-        if (debitRemainingAmount > 0) {
+          const debitRemainingAmount = Math.abs(debit.data.amount) - Math.abs(debit.data.paidAmount);
+          if (debitRemainingAmount > 0) {
 
-          if (debitRemainingAmount > creditRemainingAmount) {
-            // eger odeme yapilacak miktar, faturanin kapatilmasi miktarindan buyuk ise fatura sifirlanir,
-            // odeme, faturanin kalan miktari kadar kapatilir
-            const batch = this.db.firestore.batch();
+            if (debitRemainingAmount > creditRemainingAmount) {
+              // eger odeme yapilacak miktar, faturanin kapatilmasi miktarindan buyuk ise fatura sifirlanir,
+              // odeme, faturanin kalan miktari kadar kapatilir
+              const batch = this.db.firestore.batch();
 
-            const debitRef = this.db.firestore.collection(this.atService.tableName).doc(this.debitSelectedRecordPrimaryKey);
-            batch.update(debitRef, {paidAmount: debit.data.paidAmount + creditRemainingAmount});
+              const debitRef = this.db.firestore.collection(this.atService.tableName).doc(this.debitSelectedRecordPrimaryKey);
+              batch.update(debitRef, {paidAmount: debit.data.paidAmount + creditRemainingAmount});
 
-            const creditRef = this.db.firestore.collection(this.atService.tableName).doc(this.creditSelectedRecordPrimaryKey);
-            batch.update(creditRef, {paidAmount: credit.data.amount});
+              const creditRef = this.db.firestore.collection(this.atService.tableName).doc(this.creditSelectedRecordPrimaryKey);
+              batch.update(creditRef, {paidAmount: credit.data.amount});
 
-            const matchData = this.amService.clearSubModel();
-            matchData.primaryKey = this.db.createId();
-            matchData.debitPrimaryKey = debit.data.primaryKey;
-            matchData.debitType = debit.data.transactionType;
-            matchData.debitParentPrimaryKey = debit.data.transactionPrimaryKey;
-            matchData.creditPrimaryKey = credit.data.primaryKey;
-            matchData.creditType = credit.data.transactionType;
-            matchData.creditParentPrimaryKey = credit.data.transactionPrimaryKey;
-            matchData.amount = creditRemainingAmount;
-            matchData.insertDate = Date.now();
+              const matchData = this.amService.clearSubModel();
+              matchData.primaryKey = this.db.createId();
+              matchData.debitPrimaryKey = debit.data.primaryKey;
+              matchData.debitType = debit.data.transactionType;
+              matchData.debitParentPrimaryKey = debit.data.transactionPrimaryKey;
+              matchData.creditPrimaryKey = credit.data.primaryKey;
+              matchData.creditType = credit.data.transactionType;
+              matchData.creditParentPrimaryKey = credit.data.transactionPrimaryKey;
+              matchData.amount = creditRemainingAmount;
+              matchData.insertDate = Date.now();
 
-            const matchRef = this.db.firestore.collection(this.amService.tableName).doc(matchData.primaryKey);
-            batch.set(matchRef, Object.assign({}, matchData));
+              const matchRef = this.db.firestore.collection(this.amService.tableName).doc(matchData.primaryKey);
+              batch.set(matchRef, Object.assign({}, matchData));
 
-            await batch.commit();
-            await this.finishProcess(null, 'Hesap kapama başarılı.');
+              await batch.commit();
+              this.creditSelectedRecordPrimaryKey = '';
+              this.debitSelectedRecordPrimaryKey = '';
+              await this.finishProcess(null, 'Hesap kapama başarılı.');
 
+            } else {
+              // eger odeme yapilacak miktar, faturanin kapatilmasi miktarindan kucuk ise odeme sifirlanir,
+              // faturada odeme yapilacak miktar kadar kapatilir
+
+              // region Account Match
+              const batch = this.db.firestore.batch();
+
+              const debitRef = this.db.firestore.collection(this.atService.tableName).doc(this.debitSelectedRecordPrimaryKey);
+              batch.update(debitRef, {paidAmount: debit.data.amount});
+
+              const creditRef = this.db.firestore.collection(this.atService.tableName).doc(this.creditSelectedRecordPrimaryKey);
+              batch.update(creditRef, {paidAmount: credit.data.paidAmount + debitRemainingAmount});
+
+              const matchData = this.amService.clearSubModel();
+              matchData.primaryKey = this.db.createId();
+              matchData.debitPrimaryKey = debit.data.primaryKey;
+              matchData.debitType = debit.data.transactionType;
+              matchData.debitParentPrimaryKey = debit.data.transactionPrimaryKey;
+              matchData.creditPrimaryKey = credit.data.primaryKey;
+              matchData.creditType = credit.data.transactionType;
+              matchData.creditParentPrimaryKey = credit.data.transactionPrimaryKey;
+              matchData.amount = debitRemainingAmount;
+              matchData.insertDate = Date.now();
+
+              const matchRef = this.db.firestore.collection(this.amService.tableName).doc(matchData.primaryKey);
+              batch.set(matchRef, Object.assign({}, matchData));
+              await batch.commit();
+              await this.finishProcess(null, 'Hesap kapama başarılı.');
+              // endregion
+            }
           } else {
-            // eger odeme yapilacak miktar, faturanin kapatilmasi miktarindan kucuk ise odeme sifirlanir,
-            // faturada odeme yapilacak miktar kadar kapatilir
-
-            // region Account Match
-            const batch = this.db.firestore.batch();
-
-            const debitRef = this.db.firestore.collection(this.atService.tableName).doc(this.debitSelectedRecordPrimaryKey);
-            batch.update(debitRef, {paidAmount: debit.data.amount});
-
-            const creditRef = this.db.firestore.collection(this.atService.tableName).doc(this.creditSelectedRecordPrimaryKey);
-            batch.update(creditRef, {paidAmount: credit.data.paidAmount + debitRemainingAmount});
-
-            const matchData = this.amService.clearSubModel();
-            matchData.primaryKey = this.db.createId();
-            matchData.debitPrimaryKey = debit.data.primaryKey;
-            matchData.debitType = debit.data.transactionType;
-            matchData.debitParentPrimaryKey = debit.data.transactionPrimaryKey;
-            matchData.creditPrimaryKey = credit.data.primaryKey;
-            matchData.creditType = credit.data.transactionType;
-            matchData.creditParentPrimaryKey = credit.data.transactionPrimaryKey;
-            matchData.amount = debitRemainingAmount;
-            matchData.insertDate = Date.now();
-
-            const matchRef = this.db.firestore.collection(this.amService.tableName).doc(matchData.primaryKey);
-            batch.set(matchRef, Object.assign({}, matchData));
-            await batch.commit();
-            await this.finishProcess(null, 'Hesap kapama başarılı.');
-            // endregion
+            // kapatılacak yapilacak miktar yok
+            await this.finishProcess(Error('Kapama yapmak için yeterli miktar bulunmamaktadır'), null);
           }
         } else {
-          // kapatılacak yapilacak miktar yok
-          await this.finishProcess(Error('debitRemainingAmount > 0'), null);
+          // kapama yapilacak miktar yok
+          await this.finishProcess(Error('Kapatılacak miktar bulunmamaktadır'), null);
         }
-      } else {
-        // kapama yapilacak miktar yok
-        await this.finishProcess(Error('creditRemainingAmount > 0'), null);
       }
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnShowDebitRecords_Click(param: string): Promise<void> {
+    try {
+      this.debitAccountMatchType = param;
+      this.populateDebitTransactions();
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnShowCreditRecords_Click(param: string): Promise<void> {
+    try {
+      this.creditAccountMatchType = param;
+      this.populateCreditTransactions();
     } catch (error) {
       await this.finishProcess(error, null);
     }

@@ -90,7 +90,7 @@ export class AccountTransactionService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as AccountTransactionModel;
+          const data = this.checkFields(doc.data()) as AccountTransactionModel;
           data.primaryKey = doc.id;
           resolve(Object.assign({data}));
         } else {
@@ -159,6 +159,8 @@ export class AccountTransactionService {
     returnData.data = this.clearSubModel();
     returnData.customer = null;
     returnData.actionType = 'added';
+    returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.paidAmount);
+    returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
     returnData.transactionTypeTr = this.transactionTypes.get(returnData.data.transactionType);
     returnData.transactionTypeTr = getTransactionTypes().get(returnData.data.transactionType);
     return returnData;
@@ -317,6 +319,8 @@ export class AccountTransactionService {
           returnData.actionType = 'added';
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+          returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.paidAmount);
+          returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
 
           if (returnData.data.transactionType === 'cashDeskVoucher') {
             returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
@@ -361,6 +365,8 @@ export class AccountTransactionService {
           returnData.actionType = c.type;
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+          returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.amount);
+          returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
 
           if (returnData.data.transactionType === 'cashDeskVoucher') {
             returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
@@ -398,6 +404,8 @@ export class AccountTransactionService {
           returnData.actionType = 'added';
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+          returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.paidAmount);
+          returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
 
           if (returnData.data.transactionType === 'cashDeskVoucher') {
             returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
@@ -415,5 +423,13 @@ export class AccountTransactionService {
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
+
+  getMatchTypeTr(remainingAmount: number): string {
+    if (remainingAmount > 0) {
+      return 'Açık Hesap';
+    } else {
+      return 'Kapalı Hesap';
+    }
+  }
 
 }
