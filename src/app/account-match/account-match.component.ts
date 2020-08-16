@@ -33,6 +33,23 @@ export class AccountMatchComponent implements OnInit {
   creditSelectedRecordPrimaryKey: string;
   debitAccountMatchType = 'open';
   creditAccountMatchType = 'open';
+  accountSummary = {
+    piAmount: 0,
+    piPaidAmount: 0,
+    piRemainingAmount: 0,
+    payAmount: 0,
+    payPaidAmount: 0,
+    payRemainingAmount: 0,
+    siAmount: 0,
+    siPaidAmount: 0,
+    siRemainingAmount: 0,
+    colAmount: 0,
+    colPaidAmount: 0,
+    colRemainingAmount: 0,
+    avAmount: 0,
+    avPaidAmount: 0,
+    avRemainingAmount: 0
+  };
   public xmlItems: any;
 
   constructor(public authService: AuthenticationService, public service: CustomerAccountService, public infoService: InformationService,
@@ -122,6 +139,31 @@ export class AccountMatchComponent implements OnInit {
             } else {
               this.debitTransactionList.push(item);
             }
+            if (item.data.transactionType === 'salesInvoice') {
+              this.accountSummary.siAmount += Math.abs(item.data.amount);
+              this.accountSummary.siPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.siRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'collection') {
+              this.accountSummary.colAmount += Math.abs(item.data.amount);
+              this.accountSummary.colPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.colRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'purchaseInvoice') {
+              this.accountSummary.piAmount += Math.abs(item.data.amount);
+              this.accountSummary.piPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.piRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'payment') {
+              this.accountSummary.payAmount += Math.abs(item.data.amount);
+              this.accountSummary.payPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.payRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'accountVoucher') {
+              this.accountSummary.avAmount += Math.abs(item.data.amount);
+              this.accountSummary.avPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.avRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
           });
         }
       });
@@ -152,6 +194,31 @@ export class AccountMatchComponent implements OnInit {
             } else {
               this.creditTransactionList.push(item);
             }
+            if (item.data.transactionType === 'salesInvoice') {
+              this.accountSummary.siAmount += Math.abs(item.data.amount);
+              this.accountSummary.siPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.siRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'collection') {
+              this.accountSummary.colAmount += Math.abs(item.data.amount);
+              this.accountSummary.colPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.colRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'purchaseInvoice') {
+              this.accountSummary.piAmount += Math.abs(item.data.amount);
+              this.accountSummary.piPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.piRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'payment') {
+              this.accountSummary.payAmount += Math.abs(item.data.amount);
+              this.accountSummary.payPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.payRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
+            if (item.data.transactionType === 'accountVoucher') {
+              this.accountSummary.avAmount += Math.abs(item.data.amount);
+              this.accountSummary.avPaidAmount += Math.abs(item.data.paidAmount);
+              this.accountSummary.avRemainingAmount += Math.abs(item.data.amount) - Math.abs(item.data.paidAmount);
+            }
           });
         }
       });
@@ -164,6 +231,7 @@ export class AccountMatchComponent implements OnInit {
     this.debitSelectedRecordPrimaryKey = '';
     this.debitAccountMatchType = 'open';
     this.creditAccountMatchType = 'open';
+    this.clearAccountSummary();
     this.populateDebitTransactions();
     this.populateCreditTransactions();
   }
@@ -189,6 +257,11 @@ export class AccountMatchComponent implements OnInit {
   async btnReturnList_Click(): Promise<void> {
     try {
       this.isMatchPanelOpened = false;
+      this.debitAccountMatchType = 'open';
+      this.creditAccountMatchType = 'open';
+      this.clearAccountSummary();
+      this.populateDebitTransactions();
+      this.populateCreditTransactions();
     } catch (error) {
       await this.finishProcess(error, null);
     }
@@ -352,6 +425,26 @@ export class AccountMatchComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
+  }
+
+  clearAccountSummary(): void {
+    this.accountSummary = {
+      piAmount: 0,
+      piPaidAmount: 0,
+      piRemainingAmount: 0,
+      payAmount: 0,
+      payPaidAmount: 0,
+      payRemainingAmount: 0,
+      siAmount: 0,
+      siPaidAmount: 0,
+      siRemainingAmount: 0,
+      colAmount: 0,
+      colPaidAmount: 0,
+      colRemainingAmount: 0,
+      avAmount: 0,
+      avPaidAmount: 0,
+      avRemainingAmount: 0,
+    };
   }
 
   loadXML() {

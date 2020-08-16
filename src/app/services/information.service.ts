@@ -14,11 +14,6 @@ export class InformationService {
     /** last timer (just for auto hide) */
     private lastTimer: any;
 
-    /**
-     * constructor of AlertService
-     * @param router: Router
-     * @param modalService: NgbModal
-     */
     constructor(private router: Router, private authService: AuthenticationService, private readonly modalService: NgbModal,
                 private logService: LogService) {
         // clear alert message on route change

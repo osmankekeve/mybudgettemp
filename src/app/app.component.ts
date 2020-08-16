@@ -143,16 +143,18 @@ export class AppComponent implements OnInit {
       } else {
         this.authService.login(this.emailInput, this.passwordInput)
           .then(res => {
-            this.isUserLoggedIn();
-            this.populateSettings();
-            if (this.isCMAChecked) {
-              localStorage.setItem('cookieCMA', this.emailInput);
-            } else {
-              if (localStorage.getItem('cookieCMA') !== null) {
-                localStorage.removeItem('cookieCMA');
+            if (res != null) {
+              this.isUserLoggedIn();
+              this.populateSettings();
+              if (this.isCMAChecked) {
+                localStorage.setItem('cookieCMA', this.emailInput);
+              } else {
+                if (localStorage.getItem('cookieCMA') !== null) {
+                  localStorage.removeItem('cookieCMA');
+                }
               }
+              this.finishProcess(null, 'Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
             }
-            this.finishProcess(null, 'Mail adresi ve şifre doğrulandı. Lütfen kullanıcı girişini gerçekleştiriniz.');
           })
           .catch((error) => {
             this.finishProcess(error, null);

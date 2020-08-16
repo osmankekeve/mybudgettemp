@@ -36,6 +36,7 @@
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showSelectedRecord(item)"
+                     [ngClass]="{'bg-yellow': item.data.primaryKey === selectedRecord?.data.primaryKey}"
                      *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-5">
@@ -65,16 +66,76 @@
             <div class="list-group">
               <div class="list-group-item fs-14">
                 <div class="row">
-                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Müşteri</div>
-                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.customer.name}}</div>
-                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Hesap Adı</div>
-                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.name}}</div>
-                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Banka Adı</div>
-                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.bankName}}</div>
-                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Hesap No</div>
-                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.accountNo}}</div>
-                  <div class="col-sm-4 font-weight-600 text-dark-blue mb-1">Açıklama</div>
-                  <div class="col-sm-8 text-secondary mb-1">{{selectedRecord.data.description}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.name}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Hesap Adı</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.name}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Banka Adı</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.bankName}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Hesap No</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.accountNo}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açıklama</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.description}}</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Satış Faturası</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tutar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Kapanan Miktar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açık Miktar</div>
+                  <div class="col-sm-3 mb-1"></div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.siAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.siPaidAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1"
+                       [ngClass]="{'text-success': accountSummary.siRemainingAmount === 0 , 'text-danger': accountSummary.siRemainingAmount > 0}"
+                  >{{accountSummary.siRemainingAmount | currency:'₺'}}
+                    <i class="fa fa-exclamation-triangle ml-1" *ngIf="accountSummary.siRemainingAmount > 0"></i>
+                  </div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tahsilat</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tutar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Kapanan Miktar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açık Miktar</div>
+                  <div class="col-sm-3 mb-1"></div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.colAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.colPaidAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1"
+                       [ngClass]="{'text-success': accountSummary.colRemainingAmount === 0 , 'text-danger': accountSummary.colRemainingAmount > 0}"
+                  >{{accountSummary.colRemainingAmount | currency:'₺'}}
+                    <i class="fa fa-exclamation-triangle ml-1" *ngIf="accountSummary.colRemainingAmount > 0"></i>
+                  </div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Alım Faturası</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tutar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Kapanan Miktar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açık Miktar</div>
+                  <div class="col-sm-3 mb-1"></div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.piAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.piPaidAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1"
+                       [ngClass]="{'text-success': accountSummary.piRemainingAmount === 0 , 'text-danger': accountSummary.piRemainingAmount > 0}"
+                  >{{accountSummary.piRemainingAmount | currency:'₺'}}
+                    <i class="fa fa-exclamation-triangle ml-1" *ngIf="accountSummary.piRemainingAmount > 0"></i>
+                  </div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Ödeme</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tutar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Kapanan Miktar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açık Miktar</div>
+                  <div class="col-sm-3 mb-1"></div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.payAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.payPaidAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1"
+                       [ngClass]="{'text-success': accountSummary.payRemainingAmount === 0 , 'text-danger': accountSummary.payRemainingAmount > 0}"
+                  >{{accountSummary.payRemainingAmount | currency:'₺'}}
+                    <i class="fa fa-exclamation-triangle ml-1" *ngIf="accountSummary.payRemainingAmount > 0"></i>
+                  </div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Cari Fiş</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Tutar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Kapanan Miktar</div>
+                  <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Açık Miktar</div>
+                  <div class="col-sm-3 mb-1"></div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.avAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1">{{accountSummary.avPaidAmount | currency:'₺'}}</div>
+                  <div class="col-sm-3 text-secondary mb-1"
+                       [ngClass]="{'text-success': accountSummary.avRemainingAmount === 0 , 'text-danger': accountSummary.avRemainingAmount > 0}"
+                  >{{accountSummary.avRemainingAmount | currency:'₺'}}
+                    <i class="fa fa-exclamation-triangle ml-1" *ngIf="accountSummary.avRemainingAmount > 0"></i>
+                  </div>
                 </div>
               </div>
             </div>
