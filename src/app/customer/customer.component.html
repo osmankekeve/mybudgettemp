@@ -106,6 +106,7 @@
           class="fa fa-file-excel-o"></i>
         </button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
+                *ngIf="selectedCustomer.data.primaryKey!=undefined"
                 (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
       </div>
     </div>

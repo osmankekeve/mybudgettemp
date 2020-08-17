@@ -38,6 +38,8 @@ import {DropzoneComponent} from './dropzone/dropzone.component';
 import {AccountMatchComponent} from './account-match/account-match.component';
 import {BuySaleComponent} from './buy-sell/buy-sale.component';
 import {BuySellCurrencyComponent} from './buy-sell-currency/buy-sell-currency.component';
+import {ProductComponent} from './product/product.component';
+import {ProductUnitComponent} from './product-unit/product-unit.component';
 
 
 const routes: Routes = [
@@ -82,6 +84,8 @@ const routes: Routes = [
   {path: 'account-match', component: AccountMatchComponent, pathMatch: 'full'},
   {path: 'buy-sell-currency', component: BuySellCurrencyComponent, pathMatch: 'full'},
   {path: 'buy-sale', component: BuySaleComponent, pathMatch: 'full'},
+  {path: 'product', component: ProductComponent, pathMatch: 'full'},
+  {path: 'product-unit', component: ProductUnitComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -96,8 +100,9 @@ export const routingComponents = [
   SalesInvoiceComponent, CashDeskComponent, CollectionComponent, PaymentComponent, DashboardComponent, AccountMatchComponent,
   LoginComponent, AlertComponent, AccountVoucherComponent, CashdeskVoucherComponent, ReportsComponent, DropzoneComponent,
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent, BuySellCurrencyComponent,
-  SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent,
-  AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent
+  SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent, ProductComponent,
+  AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
+  ProductUnitComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

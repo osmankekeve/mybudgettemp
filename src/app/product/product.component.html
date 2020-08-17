@@ -1,0 +1,310 @@
+<div class="card work-area" *ngIf="selectedRecord==undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-8">
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h4 class="card-title float-left mr-2">Ürün Listesi</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Ürün"
+                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+      </div>
+      <div class="col-sm-4 head-filter">
+        <div class="input-group input-group-round">
+          <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+          </div>
+          <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="searchText">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-danger text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-2">Ürün Kodu</div>
+            <div class="col-sm-4">Ürün Adı</div>
+            <div class="col-sm-2">Ürün Tipi</div>
+            <div class="col-sm-2">KDV %</div>
+            <div class="col-sm-2">Aktif Mi?</div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterProfile: searchText; index as i;">
+          <div class="row">
+            <div class="col-sm-2">{{item.data.productCode}}</div>
+            <div class="col-sm-4">{{item.data.productName}}</div>
+            <div class="col-sm-2">{{item.stockTypeTr}}</div>
+            <div class="col-sm-2">{{item.data.taxRate}}</div>
+            <div class="col-sm-2">{{item.isActiveTr}}</div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
+  </div>
+</div>
+<div class="card work-area" *ngIf="selectedRecord!=undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h4 class="card-title float-left mr-2">Ürün Detayı</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#home">Ana Ekran</a>
+      </li>
+      <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
+        <a class="nav-link" data-toggle="tab" href="#files">Dosyalar</a>
+      </li>
+      <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
+        <a class="nav-link" data-toggle="tab" href="#actions">İşlemler</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div id="home" class="tab-pane p-1 active">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+          <div class="form-row form-inline">
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="productCode">Ürün Kodu</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="productCode" name="productCode" type="text"
+                     [(ngModel)]="selectedRecord.data.productCode" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="productBaseCode">Ürün Taban Kodu</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="productBaseCode" name="productBaseCode" type="text"
+                     [(ngModel)]="selectedRecord.data.productBaseCode" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="productName">Ürün Adı</label>
+            </div>
+            <div class="col-sm-9">
+              <input class="form-control form-control-sm w-100" id="productName" name="productName" type="text"
+                     [(ngModel)]="selectedRecord.data.productName" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="stockType">Ürün Tipi</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="stockType" name="stockType" required
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      [(ngModel)]="selectedRecord.data.stockType">
+                <option value="normal">Normal Ürün</option>
+                <option value="promotion">Promosyon Ürün</option>
+                <option value="service">Hizmet Ürün</option>
+              </select>
+              <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="defaultUnitCode">Ürün Birim</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="defaultUnitCode" name="defaultUnitCode" required
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      [(ngModel)]="selectedRecord.data.defaultUnitCode">
+                <option value="normal">Normal</option>
+                <option value="promotion">Promosyon</option>
+                <option value="service">Hizmet</option>
+              </select>
+              <div class="invalid-feedback invalid-input-info">Lütfen birim seçiniz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="taxRate">KDV %</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="taxRate" name="taxRate" type="text"
+                     [(ngModel)]="selectedRecord.data.taxRate">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="sctAmount">ÖTV Tutarı</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="sctAmount" name="sctAmount" type="text"
+                     (focus)="focus_amount()"
+                     (blur)="format_amount($event)"
+                     [(ngModel)]="selectedRecord.sctAmountFormatted">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                      [(ngModel)]="selectedRecord.data.isActive">
+                <option [ngValue]="true">Aktif</option>
+                <option [ngValue]="false">Pasif</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="isWebProduct">Web Ürün Mü?</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="isWebProduct" name="isWebProduct"
+                      [(ngModel)]="selectedRecord.data.isWebProduct">
+                <option [ngValue]="true">Evet</option>
+                <option [ngValue]="false">Hayır</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="weight">Ağarlık</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="weight" name="weight" type="text"
+                     [(ngModel)]="selectedRecord.data.weight">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="height">Yükseklik</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="height" name="height" type="text"
+                     [(ngModel)]="selectedRecord.data.height">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="barcode1">Barcode 1</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="barcode1" name="barcode1" type="text"
+                     [(ngModel)]="selectedRecord.data.barcode1">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="barcode2">Barcode 2</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="barcode2" name="barcode2" type="text"
+                     [(ngModel)]="selectedRecord.data.barcode2">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="description">Açıklama</label>
+            </div>
+            <div class="col-sm-9">
+              <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                     [(ngModel)]="selectedRecord.data.description">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div id="files" class="tab-pane p-1 fade">
+        <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
+          <div class="list-group-item bg-success text-light main-list-item">
+            <div class="row">
+              <div class="col-sm-1">#</div>
+              <div class="col-sm-7">Dosya Adı</div>
+              <div class="col-sm-2">Boyut</div>
+              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            </div>
+          </div>
+          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+            <div class="list-group-item list-group-item-action main-list-item"
+                 *ngFor="let item of filesList">
+              <div class="row">
+                <div class="col-sm-1">
+                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
+                       (click)="btnRemoveFile_Click(item)">
+                </div>
+                <div class="col-sm-7">
+                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
+                    <img [src]="item.fileIcon" width="24px">
+                  </a>
+                  {{item.data.fileName}}
+                </div>
+                <div class="col-sm-2">{{item.data.size}} Byte</div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock2>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock>
+          <div class="loader"></div>
+        </ng-template>
+      </div>
+      <div id="actions" class="tab-pane p-1 fade">
+        <div class="list-group" *ngIf="actionList != undefined; else elseBlock">
+          <div class="list-group-item bg-danger text-light main-list-item" *ngIf="actionList.length > 0; else elseBlock2">
+            <div class="row">
+              <div class="col-sm-2">İşlem</div>
+              <div class="col-sm-8">Personel</div>
+              <div class="col-sm-2"><span class="float-right">İşlem Tarihi</span></div>
+            </div>
+          </div>
+          <div class="work-area-7">
+            <div class="list-group-item list-group-item-action main-list-item"
+                 *ngFor="let item of actionList">
+              <div class="row">
+                <div class="col-sm-2">{{item.data.action}}</div>
+                <div class="col-sm-8">{{item.employeeName}}</div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock2>
+            <div class="card bg-danger text-white">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock>
+          <div class="loader"></div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer">
+    <div class="col-sm-2 float-right">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-sm btn-success form-control"
+                [disabled]="onTransaction || !f.valid"
+                (click)="btnSave_Click()">Kaydet
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2 float-left"
+         *ngIf="selectedRecord.data.primaryKey!=undefined">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-sm btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnRemove_Click()">Kaldır
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

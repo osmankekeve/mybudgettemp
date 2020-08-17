@@ -1,0 +1,146 @@
+<div class="card work-area" *ngIf="selectedRecord==undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-8">
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h4 class="card-title float-left mr-2">Ürün Birim Listesi</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Ürün Birim"
+                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+      </div>
+      <div class="col-sm-4 head-filter">
+        <div class="input-group input-group-round">
+          <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+          </div>
+          <input type="search" class="form-control filter-list-input" placeholder="Ürün Birim Ara.." [(ngModel)]="searchText">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-danger text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-10">Ürün Kodu</div>
+            <div class="col-sm-2">Aktif Mi?</div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterProfile: searchText; index as i;">
+          <div class="row">
+            <div class="col-sm-10">
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600">{{item.data.unitName}}</span>
+            </div>
+            <div class="col-sm-2">{{item.isActiveTr}}</div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
+  </div>
+</div>
+<div class="card work-area" *ngIf="selectedRecord!=undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
+        <h4 class="card-title float-left mr-2">Ürün Birim Detayı</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="form-row">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header bg-secondary text-light">
+            <h6>Ürün Birim Bilgileri</h6>
+          </div>
+          <div class="card-body">
+            <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+              <div class="form-row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="unitName">Birim Adı</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="unitName" name="unitName" type="text"
+                         [(ngModel)]="selectedRecord.data.unitName" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                          [(ngModel)]="selectedRecord.data.isActive">
+                    <option [ngValue]="true">Aktif</option>
+                    <option [ngValue]="false">Pasif</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                         [(ngModel)]="selectedRecord.data.description">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer">
+            <div class="col-sm-3 float-right">
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-success form-control"
+                        [disabled]="onTransaction || !f.valid"
+                        (click)="btnSave_Click()">Kaydet
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-3 float-left"
+                 *ngIf="selectedRecord.data.primaryKey!=undefined">
+              <div class="input-group">
+                <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger form-control"
+                        [disabled]="onTransaction"
+                        (click)="btnRemove_Click()">Kaldır
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card bg-light">
+          <div class="card-header bg-secondary text-light">
+            <h6 class="float-left">Birime Bağlı Ürünler</h6>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
