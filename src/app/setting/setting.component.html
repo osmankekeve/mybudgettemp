@@ -89,6 +89,16 @@
               </div>
             </div>
           </div>
+          <div class="cursor-pointer mb-1" (click)="openedPanel='product'">
+            <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+              <div class="form-inline">
+                <div style="width: 50px;">
+                  <i class="fa fa-2x fa-shield mr-2"></i>
+                </div>
+                <div>Ürün Kartı</div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="col-sm-9">
           <div *ngIf="openedPanel=='general'">
@@ -471,6 +481,51 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="openedPanel=='product'">
+            <div class="card mb-1">
+              <div class="card-header">
+                Ürün Otomatik Kodu
+              </div>
+              <div class="card-body">
+                <div class="row form-inline">
+                  <div class="col-sm-3">Ön Eki</div>
+                  <div class="col-sm-3">Sıra</div>
+                  <div class="col-sm-3">Son Eki</div>
+                  <div class="col-sm-3">Uzunluk</div>
+                </div>
+                <div class="row form-inline">
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="product.prefix">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="product.number">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="product.suffix">
+                  </div>
+                  <div class="col-sm-3">
+                    <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="product.length">
+                  </div>
+                </div>
+                <div class="row form-inline">
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Birim Tipi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultUnitCode($event.target.value)"
+                            [(ngModel)]="product.defaultUnitCode">
+                      <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button type="button" class="btn btn-sm btn-success"
+                        (click)="btnSaveProductAutoCode_Click()">Kaydet</button>
               </div>
             </div>
           </div>

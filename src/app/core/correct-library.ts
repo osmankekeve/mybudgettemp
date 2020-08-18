@@ -213,6 +213,10 @@ export const getMailParents = () => {
   return new Map([['anyone', 'Mail Adresi'], ['customer', 'Müşteri'], ['employee', 'Personel']]);
 };
 
+export const getProductTypes = () => {
+  return new Map([['normal', 'Normal Ürün'], ['promotion', 'Promosyon Ürün'], ['service', 'Hizmet Ürün']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };

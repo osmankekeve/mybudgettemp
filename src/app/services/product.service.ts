@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getPaymentTypes, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -38,6 +38,7 @@ export class ProductService {
   async addItem(record: ProductMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async () => {
+        await this.sService.increaseProductNumber();
         await this.logService.addTransactionLog(record, 'insert', 'product');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
@@ -62,6 +63,7 @@ export class ProductService {
   async setItem(record: ProductMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
+        await this.sService.increaseProductNumber();
         await this.logService.addTransactionLog(record, 'insert', 'product');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
@@ -81,8 +83,6 @@ export class ProductService {
         reject('Lütfen ürün varsayılan birim seçiniz.');
       } else if (record.data.taxRate <= 0) {
         reject('Lütfen vergi oranı giriniz.');
-      } else if (record.data.sctAmount <= 0) {
-        reject('Lütfen ötv miktarı giriniz.');
       } else {
         resolve(null);
       }
@@ -126,7 +126,9 @@ export class ProductService {
     returnData.data = this.clearSubModel();
     returnData.actionType = 'added';
     returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
     returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
+    returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
     return returnData;
   }
 
@@ -146,6 +148,9 @@ export class ProductService {
           const returnData = new ProductMainModel();
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+          returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
+          returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
+          returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
           return Object.assign({returnData});
         } else {
           resolve(null);
@@ -172,10 +177,47 @@ export class ProductService {
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+          returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
+          returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
+          returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
           return Object.assign({returnData});
         })
       )
     );
     return this.mainList$;
   }
+
+  getProductsForSelection = async (stockTypes: Array<string>):
+    Promise<Array<ProductMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductMainModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        if (stockTypes !== undefined) {
+          query = query.where('stockType', 'in', stockTypes);
+        }
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as ProductModel;
+            data.primaryKey = doc.id;
+
+            const returnData = new ProductMainModel();
+            returnData.data = this.checkFields(data);
+            returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+            returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
+            returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
+            returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
+
+            list.push(returnData);
+          });
+          resolve(list);
+        });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

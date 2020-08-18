@@ -4,6 +4,9 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { SettingService } from '../services/setting.service';
 import {getBool} from '../core/correct-library';
+import {ProductUnitModel} from '../models/product-unit-model';
+import {GlobalUploadService} from '../services/global-upload.service';
+import {ProductUnitService} from '../services/product-unit.service';
 
 @Component({
   selector: 'app-setting',
@@ -11,6 +14,7 @@ import {getBool} from '../core/correct-library';
   styleUrls: ['./setting.component.css']
 })
 export class SettingComponent implements OnInit {
+  unitList: Array<ProductUnitModel>;
   purchaseInvoice = {
     prefix: '',
     number: '',
@@ -68,98 +72,159 @@ export class SettingComponent implements OnInit {
     suffix: '',
     length: ''
   };
+  product = {
+    prefix: '',
+    number: '',
+    suffix: '',
+    length: '',
+    defaultUnitCode: ''
+  };
   openedPanel = 'general';
 
   constructor(public authService: AuthenticationService, public service: SettingService, public infoService: InformationService,
-              public db: AngularFirestore) { }
+              public db: AngularFirestore, protected puService: ProductUnitService) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.populateUnits();
     this.service.getAllItems().subscribe(list => {
       list.forEach((item: any) => {
         if (item.key === 'purchaseInvoicePrefix') {
           this.purchaseInvoice.prefix = item.value;
-        } else if (item.key === 'purchaseInvoiceNumber') {
+        }
+        if (item.key === 'purchaseInvoiceNumber') {
           this.purchaseInvoice.number = item.value;
-        } else if (item.key === 'purchaseInvoiceSuffix') {
+        }
+        if (item.key === 'purchaseInvoiceSuffix') {
           this.purchaseInvoice.suffix = item.value;
-        } else if (item.key === 'purchaseInvoiceLength') {
+        }
+        if (item.key === 'purchaseInvoiceLength') {
           this.purchaseInvoice.length = item.value;
-        } else if (item.key === 'purchaseChart1Visibility') {
+        }
+        if (item.key === 'purchaseChart1Visibility') {
           this.purchaseInvoice.chart1Visibility = item.valueBool;
-        } else if (item.key === 'purchaseChart2Visibility') {
+        }
+        if (item.key === 'purchaseChart2Visibility') {
           this.purchaseInvoice.chart2Visibility = item.valueBool;
-        } else if (item.key === 'paymentPrefix') {
+        }
+        if (item.key === 'paymentPrefix') {
           this.payment.prefix = item.value;
-        } else if (item.key === 'paymentNumber') {
+        }
+        if (item.key === 'paymentNumber') {
           this.payment.number = item.value;
-        } else if (item.key === 'paymentSuffix') {
+        }
+        if (item.key === 'paymentSuffix') {
           this.payment.suffix = item.value;
-        } else if (item.key === 'paymentLength') {
+        }
+        if (item.key === 'paymentLength') {
           this.payment.length = item.value;
-        } else if (item.key === 'paymentChart1Visibility') {
+        }
+        if (item.key === 'paymentChart1Visibility') {
           this.payment.chart1Visibility = item.valueBool;
-        } else if (item.key === 'paymentChart2Visibility') {
+        }
+        if (item.key === 'paymentChart2Visibility') {
           this.payment.chart2Visibility = item.valueBool;
-        } else if (item.key === 'salesInvoicePrefix') {
+        }
+        if (item.key === 'salesInvoicePrefix') {
           this.salesInvoice.prefix = item.value;
-        } else if (item.key === 'salesInvoiceNumber') {
+        }
+        if (item.key === 'salesInvoiceNumber') {
           this.salesInvoice.number = item.value;
-        } else if (item.key === 'salesInvoiceSuffix') {
+        }
+        if (item.key === 'salesInvoiceSuffix') {
           this.salesInvoice.suffix = item.value;
-        } else if (item.key === 'salesInvoiceLength') {
+        }
+        if (item.key === 'salesInvoiceLength') {
           this.salesInvoice.length = item.value;
-        } else if (item.key === 'salesChart1Visibility') {
+        }
+        if (item.key === 'salesChart1Visibility') {
           this.salesInvoice.chart1Visibility = item.valueBool;
-        } else if (item.key === 'salesChart2Visibility') {
+        }
+        if (item.key === 'salesChart2Visibility') {
           this.salesInvoice.chart2Visibility = item.valueBool;
-        } else if (item.key === 'collectionPrefix') {
+        }
+        if (item.key === 'collectionPrefix') {
           this.collection.prefix = item.value;
-        } else if (item.key === 'collectionNumber') {
+        }
+        if (item.key === 'collectionNumber') {
           this.collection.number = item.value;
-        } else if (item.key === 'collectionSuffix') {
+        }
+        if (item.key === 'collectionSuffix') {
           this.collection.suffix = item.value;
-        } else if (item.key === 'collectionLength') {
+        }
+        if (item.key === 'collectionLength') {
           this.collection.length = item.value;
-        } else if (item.key === 'collectionChart1Visibility') {
+        }
+        if (item.key === 'collectionChart1Visibility') {
           this.collection.chart1Visibility = item.valueBool;
-        } else if (item.key === 'collectionChart2Visibility') {
+        }
+        if (item.key === 'collectionChart2Visibility') {
           this.collection.chart2Visibility = item.valueBool;
-        } else if (item.key === 'accountVoucherPrefix') {
+        }
+        if (item.key === 'accountVoucherPrefix') {
           this.accountVoucher.prefix = item.value;
-        } else if (item.key === 'accountVoucherNumber') {
+        }
+        if (item.key === 'accountVoucherNumber') {
           this.accountVoucher.number = item.value;
-        } else if (item.key === 'accountVoucherSuffix') {
+        }
+        if (item.key === 'accountVoucherSuffix') {
           this.accountVoucher.suffix = item.value;
-        } else if (item.key === 'accountVoucherLength') {
+        }
+        if (item.key === 'accountVoucherLength') {
           this.accountVoucher.length = item.value;
-        } else if (item.key === 'accountChart1Visibility') {
+        }
+        if (item.key === 'accountChart1Visibility') {
           this.accountVoucher.chart1Visibility = item.valueBool;
-        } else if (item.key === 'accountChart2Visibility') {
+        }
+        if (item.key === 'accountChart2Visibility') {
           this.accountVoucher.chart2Visibility = item.valueBool;
-        } else if (item.key === 'cashDeskVoucherPrefix') {
+        }
+        if (item.key === 'cashDeskVoucherPrefix') {
           this.cashDeskVoucher.prefix = item.value;
-        } else if (item.key === 'cashDeskVoucherNumber') {
+        }
+        if (item.key === 'cashDeskVoucherNumber') {
           this.cashDeskVoucher.number = item.value;
-        } else if (item.key === 'cashDeskVoucherSuffix') {
+        }
+        if (item.key === 'cashDeskVoucherSuffix') {
           this.cashDeskVoucher.suffix = item.value;
-        } else if (item.key === 'cashDeskVoucherLength') {
+        }
+        if (item.key === 'cashDeskVoucherLength') {
           this.cashDeskVoucher.length = item.value;
-        } else if (item.key === 'cashDeskChart1Visibility') {
+        }
+        if (item.key === 'cashDeskChart1Visibility') {
           this.cashDeskVoucher.chart1Visibility = item.valueBool;
-        } else if (item.key === 'cashDeskChart2Visibility') {
+        }
+        if (item.key === 'cashDeskChart2Visibility') {
           this.cashDeskVoucher.chart2Visibility = item.valueBool;
-        } else if (item.key === 'defaultCurrencyCode') {
+        }
+        if (item.key === 'defaultCurrencyCode') {
           this.general.defaultCurrencyCode = item.value;
-        } else if (item.key === 'customerPrefix') {
+        }
+        if (item.key === 'customerPrefix') {
           this.customer.prefix = item.value;
-        } else if (item.key === 'customerNumber') {
+        }
+        if (item.key === 'customerNumber') {
           this.customer.number = item.value;
-        } else if (item.key === 'customerSuffix') {
+        }
+        if (item.key === 'customerSuffix') {
           this.customer.suffix = item.value;
-        } else if (item.key === 'customerLength') {
+        }
+        if (item.key === 'customerLength') {
           this.customer.length = item.value;
-        } else {
-
+        }
+        if (item.key === 'productPrefix') {
+          this.product.prefix = item.value;
+        }
+        if (item.key === 'productNumber') {
+          this.product.number = item.value;
+        }
+        if (item.key === 'productSuffix') {
+          this.product.suffix = item.value;
+        }
+        if (item.key === 'productLength') {
+          this.product.length = item.value;
+        }
+        if (item.key === 'defaultUnitCode') {
+          this.product.defaultUnitCode = item.value;
         }
       });
     });
@@ -230,6 +295,17 @@ export class SettingComponent implements OnInit {
     });
   }
 
+  async btnSaveProductAutoCode_Click(): Promise<void> {
+    Promise.all([
+      await this.service.setItem({ key: 'productPrefix', value: this.product.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'productNumber', value: this.product.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'productSuffix', value: this.product.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'productLength', value: this.product.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.infoService.success('Ürün ayarları kaydedildi.');
+    });
+  }
+
   async cbChart1Visibility_Changed(module: string): Promise<void> {
     const data = this.service.cleanModel();
     if (module === 'salesInvoice') {
@@ -287,6 +363,21 @@ export class SettingComponent implements OnInit {
     data.key = 'defaultCurrencyCode';
     data.value = value;
     await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
+  async onChangeDefaultUnitCode(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultUnitCode';
+    data.value = value;
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
+  async populateUnits(): Promise<void> {
+    this.unitList = [];
+    const units = await this.puService.getItemsForSelect();
+    units.forEach(item => {
+      this.unitList.push(item);
+    });
   }
 
 }

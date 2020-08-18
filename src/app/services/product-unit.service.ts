@@ -11,6 +11,7 @@ import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
+import {CustomerModel} from '../models/customer-model';
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +52,7 @@ export class ProductUnitService {
   async setItem(record: ProductUnitMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.addTransactionLog(record, 'insert', 'product');
+        await this.logService.addTransactionLog(record, 'insert', 'product-unit');
       });
   }
 
@@ -66,7 +67,12 @@ export class ProductUnitService {
   }
 
   checkForRemove(record: ProductUnitMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isUnitUsedOnProduct(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Birim ürün kartında olduğundan silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -140,4 +146,53 @@ export class ProductUnitService {
     );
     return this.mainList$;
   }
+
+  getItemsForSelect = async ():
+    Promise<Array<ProductUnitModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductUnitModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('unitName', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('isActive', '==', true);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          let data = doc.data() as ProductUnitModel;
+          data.primaryKey = doc.id;
+          data = this.checkFields(data);
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUnitUsedOnProduct = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProduct', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('defaultUnitCode', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

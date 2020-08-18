@@ -34,14 +34,15 @@ import { GlobalUploadService } from './services/global-upload.service';
 import { DropzoneComponent } from './dropzone/dropzone.component';
 import { HttpClientModule } from '@angular/common/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
-import { PrettyPrintPipe } from './filters/pretty-print.pipe';
+import { ProductSelectComponent } from './partials/product-select/product-select.component';
+import {ProductFilterPipe} from './filters/product-filter.pipe';
 
 @NgModule({
-    declarations: [
+  declarations: [
         AppComponent, routingComponents,
-        NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe,
+        NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-        UploaderComponent, UploadTaskComponent, DropzoneComponent, PrettyPrintPipe
+        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -54,6 +55,7 @@ import { PrettyPrintPipe } from './filters/pretty-print.pipe';
   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy},
     InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ ProductSelectComponent ]
 })
 export class AppModule { }

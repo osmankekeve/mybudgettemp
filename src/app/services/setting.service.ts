@@ -230,6 +230,28 @@ export class SettingService {
     });
   }
 
+  async getProductCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const productPrefix = this.getItem('productPrefix');
+      const productNumber = this.getItem('productNumber');
+      const productSuffix = this.getItem('productSuffix');
+      const productLength = this.getItem('productLength');
+      Promise.all([productPrefix, productNumber, productSuffix, productLength])
+        .then((values: any) => {
+          const prefix = values[0].data as SettingModel;
+          const numb = values[1].data as SettingModel;
+          const suffix = values[2].data as SettingModel;
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
   async increasePurchaseInvoiceNumber() {
     const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
     Promise.all([ purchaseInvoiceNumber])
@@ -333,6 +355,22 @@ export class SettingService {
         if (numb.value !== '') {
           return this.setItem({
             key: 'customerNumber',
+            value: getString(getNumber(numb.value) + 1),
+            valueBool: false,
+            valueNumber: 0
+          });
+        }
+      });
+  }
+
+  async increaseProductNumber() {
+    const productNumber = this.getItem('productNumber');
+    Promise.all([ productNumber])
+      .then((values: any) => {
+        const numb = values[0].data as SettingModel;
+        if (numb.value !== '') {
+          return this.setItem({
+            key: 'productNumber',
             value: getString(getNumber(numb.value) + 1),
             valueBool: false,
             valueNumber: 0

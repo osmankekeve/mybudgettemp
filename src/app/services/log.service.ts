@@ -85,7 +85,7 @@ export class LogService {
 
     } else if (systemModule === 'visit') {
       item.parentPrimaryKey = record.visit.primaryKey;
-      item.log = record.customerName + ' müşteriye Ziyaret ';
+      item.log = record.customerName + ' müşteriye ziyaret ';
 
     } else if (systemModule === 'fileUpload') {
       item.parentPrimaryKey = record.primaryKey;
@@ -106,6 +106,18 @@ export class LogService {
     } else if (systemModule === 'customer') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.name + ' isimli Müşteri ';
+
+    } else if (systemModule === 'product') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.productName + '(' + record.data.productCode + ')' + ' isimli Ürün ';
+
+    } else if (systemModule === 'product-unit') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.name + ' isimli Ürün Birimi ';
+
+    } else if (systemModule === 'product-price') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.product.productName + ' isimli ürüne Fiyat  ';
 
     } else if (systemModule === 'buy-sale') {
       item.parentPrimaryKey = record.data.primaryKey;

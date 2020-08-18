@@ -1,70 +1,55 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {CashDeskModel} from '../models/cash-desk-model';
-import {CashDeskService} from '../services/cash-desk.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
-import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
   currencyFormat,
-  getBeginOfYearForInput,
+  getBeginOfYearForInput, getDateForInput,
   getEncryptionKey,
-  getFloat,
+  getFloat, getInputDataForInsert,
   getTodayForInput,
   isNullOrEmpty,
   moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {Chart} from 'chart.js';
-import {GlobalService} from '../services/global.service';
-import {RouterModel} from '../models/router-model';
 import * as CryptoJS from 'crypto-js';
+import {PriceListMainModel} from '../models/price-list-main-model';
+import {PriceListService} from '../services/price-list.service';
+import {ProductPriceMainModel} from '../models/product-price-main-model';
+import {ProductPriceService} from '../services/product-price.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {ProductMainModel} from '../models/product-main-model';
-import {ProductModel} from '../models/product-model';
-import {ProductService} from '../services/product.service';
-import {ActionMainModel} from '../models/action-main-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {ActionService} from '../services/action.service';
-import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {FileMainModel} from '../models/file-main-model';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
-import {ProductUnitService} from '../services/product-unit.service';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
-import {SettingService} from '../services/setting.service';
 
 @Component({
-  selector: 'app-product',
-  templateUrl: './product.component.html',
-  styleUrls: ['./product.component.css']
+  selector: 'app-price-list',
+  templateUrl: './price-list.component.html',
+  styleUrls: ['./price-list.component.css']
 })
-export class ProductComponent implements OnInit, OnDestroy {
-  mainList: Array<ProductMainModel>;
-  collection: AngularFirestoreCollection<ProductModel>;
-  actionList: Array<ActionMainModel>;
-  filesList: Array<FileMainModel>;
-  unitList: Array<ProductUnitModel>;
-  selectedRecord: ProductMainModel;
+export class PriceListComponent implements OnInit, OnDestroy {
+  mainList: Array<PriceListMainModel>;
+  selectedRecord: PriceListMainModel;
+  selectedProductPrice: ProductPriceMainModel;
+  productsOnList: Array<ProductPriceMainModel>;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
+  recordBeginDate: any;
+  recordFinishDate: any;
+  isNewPricePanelOpened = false;
 
-  constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
-              public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
-              protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
-              protected gfuService: GlobalUploadService, protected puService: ProductUnitService, protected sService: SettingService) {
+  constructor(protected authService: AuthenticationService, protected service: PriceListService, protected infoService: InformationService,
+              protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService,
+              protected db: AngularFirestore, protected ppService: ProductPriceService, public modalService: NgbModal) {
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.clearMainFiler();
     this.populateList();
-    await this.populateUnits();
     this.selectedRecord = undefined;
+    this.selectedProductPrice = null;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -106,7 +91,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        const item = data.returnData as ProductMainModel;
+        const item = data.returnData as PriceListMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         }
@@ -132,24 +117,53 @@ export class ProductComponent implements OnInit, OnDestroy {
     });
   }
 
-  async populateUnits(): Promise<void> {
-    this.unitList = [];
-    const units = await this.puService.getItemsForSelect();
-    units.forEach(item => {
-      this.unitList.push(item);
-    });
-  }
-
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as ProductMainModel;
-    this.populateFiles();
-    this.populateActions();
+    this.selectedRecord = record as PriceListMainModel;
+    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
+    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
+    this.isNewPricePanelOpened = false;
+
+    this.productsOnList = undefined;
+    this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
+      list.forEach((data: any) => {
+        if (this.productsOnList === undefined) {
+          this.productsOnList = [];
+        }
+        const item = data.returnData as ProductPriceMainModel;
+        if (item.actionType === 'added') {
+          this.productsOnList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.productsOnList[i].data.primaryKey) {
+              this.productsOnList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.productsOnList.length; i++) {
+            if (item.data.primaryKey === this.productsOnList[i].data.primaryKey) {
+              this.productsOnList[i] = item;
+              break;
+            }
+          }
+        }
+      });
+    });
+    setTimeout(() => {
+      if (this.productsOnList === undefined) {
+        this.productsOnList = [];
+      }
+    }, 2000);
   }
 
   async btnReturnList_Click(): Promise<void> {
     try {
       await this.finishProcess(null, null);
-      await this.route.navigate(['product', {}]);
+      await this.route.navigate(['price-list', {}]);
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -158,10 +172,6 @@ export class ProductComponent implements OnInit, OnDestroy {
   async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
-      const receiptNoData = await this.sService.getProductCode();
-      if (receiptNoData !== null) {
-        this.selectedRecord.data.productCode = receiptNoData;
-      }
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -172,6 +182,8 @@ export class ProductComponent implements OnInit, OnDestroy {
       this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
+          this.selectedRecord.data.beginDate = getInputDataForInsert(this.recordBeginDate);
+          this.selectedRecord.data.finishDate = getInputDataForInsert(this.recordFinishDate);
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
@@ -259,7 +271,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'product');
+        this.excelService.exportToExcel(this.mainList, 'price-list');
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }
@@ -268,76 +280,83 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+  async btnSelectProduct_Click(): Promise<void> {
     try {
-      await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      const modalRef = this.modalService.open(ProductSelectComponent);
+      modalRef.componentInstance.product = 'Osman KEKEVE';
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedProductPrice.product = result.data;
+        }
       });
+
     } catch (error) {
-      await this.finishProcess(error, null);
+      await this.infoService.error(error);
     }
   }
 
-  populateFiles(): void {
-    this.filesList = undefined;
-    this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
-      .subscribe(list => {
-        if (this.filesList === undefined) {
-          this.filesList = [];
+  async btnNewProduct_Click(): Promise<void> {
+    try {
+      this.isNewPricePanelOpened = true;
+      this.selectedProductPrice = this.ppService.clearMainModel();
+      /*const modalRef = this.modalService.open(ProductSelectComponent);
+      modalRef.componentInstance.product = 'Osman KEKEVE';
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log('PL: ' + result);
         }
-        list.forEach((data: any) => {
-          const item = data.returnData as FileMainModel;
-          if (item.actionType === 'added') {
-            this.filesList.push(item);
-          }
-          if (item.actionType === 'removed') {
-            for (let i = 0; i < this.filesList.length; i++) {
-              if (item.data.primaryKey === this.filesList[i].data.primaryKey) {
-                this.filesList.splice(i, 1);
-              }
-            }
-          }
-        });
-      });
-    setTimeout(() => {
-      if (this.filesList === undefined) {
-        this.filesList = [];
-      }
-    }, 1000);
+      });*/
+
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        }
-      });
-    });
+  async btnSaveProduct_Click(): Promise<void> {
+    try {
+
+
+
+
+
+
+
+      
+      this.clearSelectedProductRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveProduct_Click(): Promise<void> {
+    try {
+      this.clearSelectedProductRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnOpenList_Click(): Promise<void> {
+    try {
+      this.clearSelectedProductRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
+    this.recordBeginDate = getTodayForInput();
+    this.recordFinishDate = getTodayForInput();
+    this.isNewPricePanelOpened = false;
+  }
+
+  clearSelectedProductRecord(): void {
+    this.isNewPricePanelOpened = false;
+    this.selectedProductPrice = null;
   }
 
   clearMainFiler(): void {
 
-  }
-
-  format_amount($event): void {
-    this.selectedRecord.data.sctAmount = getFloat(moneyFormat($event.target.value));
-    this.selectedRecord.sctAmountFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-  }
-
-  focus_amount(): void {
-    if (this.selectedRecord.data.sctAmount === 0) {
-      this.selectedRecord.data.sctAmount = null;
-      this.selectedRecord.sctAmountFormatted = null;
-    }
   }
 }
