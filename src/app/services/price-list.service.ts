@@ -21,6 +21,7 @@ import {currencyFormat, getStatus} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {PriceListModel} from '../models/price-list-model';
 import {PriceListMainModel} from '../models/price-list-main-model';
+import {ProductPriceService} from './product-price.service';
 
 @Injectable({
   providedIn: 'root'
@@ -32,7 +33,7 @@ export class PriceListService {
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService, protected actService: ActionService) {
+              protected ppService: ProductPriceService, protected actService: ActionService) {
 
   }
 
@@ -110,6 +111,27 @@ export class PriceListService {
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
           returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
+          return Object.assign({returnData});
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  }
+
+  getItemWithDetail(primaryKey: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
+        if (doc.exists) {
+          const data = doc.data() as PriceListModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new PriceListMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+          returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
+
+          [returnData.productList] = await Promise.all([this.ppService.getProductsForListDetail(returnData.data.primaryKey)]);
           return Object.assign({returnData});
         } else {
           resolve(null);

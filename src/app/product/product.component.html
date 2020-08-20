@@ -27,8 +27,8 @@
             <div class="col-sm-2">Ürün Kodu</div>
             <div class="col-sm-3">Ürün Adı</div>
             <div class="col-sm-1">Ürün Tipi</div>
-            <div class="col-sm-1">KDV %</div>
-            <div class="col-sm-1">Ötv Tutarı</div>
+            <div class="col-sm-1"><span class="float-right">KDV %</span></div>
+            <div class="col-sm-1"><span class="float-right">Ötv Tutarı</span></div>
             <div class="col-sm-1">Barkod 1</div>
             <div class="col-sm-1">Barkod 2</div>
             <div class="col-sm-1">Aktif Mi?</div>
@@ -45,8 +45,8 @@
             </div>
             <div class="col-sm-3">{{item.data.productName}}</div>
             <div class="col-sm-1">{{item.stockTypeTr}}</div>
-            <div class="col-sm-1">%{{item.data.taxRate}}</div>
-            <div class="col-sm-1">{{item.sctAmountFormatted}}</div>
+            <div class="col-sm-1"><span class="float-right">%{{item.data.taxRate}}</span></div>
+            <div class="col-sm-1"><span class="float-right">{{item.sctAmountFormatted}}</span></div>
             <div class="col-sm-1">{{item.data.barcode1}}</div>
             <div class="col-sm-1">{{item.data.barcode2}}</div>
             <div class="col-sm-1">{{item.isActiveTr}}</div>

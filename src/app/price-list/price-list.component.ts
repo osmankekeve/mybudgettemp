@@ -69,7 +69,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
             this.showSelectedRecord(item.returnData);
           })
           .catch(reason => {
-            this.finishProcess(reason, null);
+            this.finishProcess(reason, null, true);
           });
       } else {
         this.clearSelectedRecord();
@@ -125,10 +125,10 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
     this.productsOnList = undefined;
     this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
+      if (this.productsOnList === undefined) {
+        this.productsOnList = [];
+      }
       list.forEach((data: any) => {
-        if (this.productsOnList === undefined) {
-          this.productsOnList = [];
-        }
         const item = data.returnData as ProductPriceMainModel;
         if (item.actionType === 'added') {
           this.productsOnList.push(item);
@@ -157,12 +157,12 @@ export class PriceListComponent implements OnInit, OnDestroy {
       if (this.productsOnList === undefined) {
         this.productsOnList = [];
       }
-    }, 2000);
+    }, 1000);
   }
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      await this.finishProcess(null, null);
+      await this.finishProcess(null, null, true);
       await this.route.navigate(['price-list', {}]);
     } catch (error) {
       await this.infoService.error(error);
@@ -191,7 +191,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null);
+                this.finishProcess(error, null, true);
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -199,15 +199,15 @@ export class PriceListComponent implements OnInit, OnDestroy {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null);
+                this.finishProcess(error, null, true);
               });
           }
         })
         .catch((error) => {
-          this.finishProcess(error, null);
+          this.finishProcess(error, null, true);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null, true);
     }
   }
 
@@ -218,29 +218,31 @@ export class PriceListComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Liste başarıyla kaldırıldı.', true);
             })
             .catch((error) => {
-              this.finishProcess(error, null);
+              this.finishProcess(error, null, true);
             });
         })
         .catch((error) => {
-          this.finishProcess(error, null);
+          this.finishProcess(error, null, true);
         });
     } catch (error) {
-      await this.finishProcess(error, null);
+      await this.finishProcess(error, null, true);
     }
   }
 
-  async finishProcess(error: any, info: any): Promise<void> {
+  async finishProcess(error: any, info: any, returnMainList: boolean): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
         this.infoService.success(info);
       }
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
+      if (returnMainList) {
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
@@ -283,13 +285,12 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnSelectProduct_Click(): Promise<void> {
     try {
       const modalRef = this.modalService.open(ProductSelectComponent);
-      modalRef.componentInstance.product = 'Osman KEKEVE';
+      modalRef.componentInstance.product = this.selectedProductPrice.product;
       modalRef.result.then((result: any) => {
         if (result) {
-          this.selectedProductPrice.product = result.data;
+          this.selectedProductPrice.product = result;
         }
       });
-
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -299,14 +300,6 @@ export class PriceListComponent implements OnInit, OnDestroy {
     try {
       this.isNewPricePanelOpened = true;
       this.selectedProductPrice = this.ppService.clearMainModel();
-      /*const modalRef = this.modalService.open(ProductSelectComponent);
-      modalRef.componentInstance.product = 'Osman KEKEVE';
-      modalRef.result.then((result: any) => {
-        if (result) {
-          console.log('PL: ' + result);
-        }
-      });*/
-
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -314,15 +307,35 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   async btnSaveProduct_Click(): Promise<void> {
     try {
-
-
-
-
-
-
-
-      
-      this.clearSelectedProductRecord();
+      this.onTransaction = true;
+      Promise.all([this.ppService.checkForSave(this.selectedProductPrice)])
+        .then(async (values: any) => {
+          this.selectedProductPrice.data.priceListPrimaryKey = this.selectedRecord.data.primaryKey;
+          this.selectedProductPrice.data.productPrimaryKey = this.selectedProductPrice.product.data.primaryKey;
+          if (this.selectedProductPrice.data.primaryKey === null) {
+            this.selectedProductPrice.data.primaryKey = this.db.createId();
+            await this.ppService.setItem(this.selectedProductPrice, this.selectedProductPrice.data.primaryKey)
+              .then(() => {
+                this.clearSelectedProductRecord();
+                this.finishProcess(null, 'Ürün başarıyla eklendi.', false);
+              })
+              .catch((error) => {
+                this.finishProcess(error, null, false);
+              });
+          } else {
+            await this.ppService.updateItem(this.selectedProductPrice)
+              .then(() => {
+                this.clearSelectedProductRecord();
+                this.finishProcess(null, 'Ürün başarıyla güncellendi.', false);
+              })
+              .catch((error) => {
+                this.finishProcess(error, null, false);
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, false);
+        });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -330,7 +343,21 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   async btnRemoveProduct_Click(): Promise<void> {
     try {
-      this.clearSelectedProductRecord();
+      this.onTransaction = true;
+      Promise.all([this.ppService.checkForRemove(this.selectedProductPrice)])
+        .then(async (values: any) => {
+          await this.ppService.removeItem(this.selectedProductPrice)
+            .then(() => {
+              this.clearSelectedProductRecord();
+              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+            })
+            .catch((error) => {
+              this.finishProcess(error, null, false);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, false);
+        });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -344,6 +371,11 @@ export class PriceListComponent implements OnInit, OnDestroy {
     }
   }
 
+  showSelectedProduct(record: any): void {
+    this.selectedProductPrice = record as ProductPriceMainModel;
+    this.isNewPricePanelOpened = true;
+  }
+
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
     this.recordBeginDate = getTodayForInput();
@@ -353,10 +385,22 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   clearSelectedProductRecord(): void {
     this.isNewPricePanelOpened = false;
-    this.selectedProductPrice = null;
+    this.selectedProductPrice = undefined;
   }
 
   clearMainFiler(): void {
 
+  }
+
+  format_amount($event): void {
+    this.selectedProductPrice.data.productPrice = getFloat(moneyFormat($event.target.value));
+    this.selectedProductPrice.priceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
+  }
+
+  focus_amount(): void {
+    if (this.selectedProductPrice.data.productPrice === 0) {
+      this.selectedProductPrice.data.productPrice = null;
+      this.selectedProductPrice.priceFormatted = null;
+    }
   }
 }

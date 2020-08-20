@@ -22,7 +22,9 @@ export class ProductSelectComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.product = this.pService.clearMainModel();
+    if (this.product === null) {
+      this.product = this.pService.clearMainModel();
+    }
     const list = Array<string>();
     list.push('normal');
     Promise.all([this.pService.getProductsForSelection(list)]).then((values: any) => {

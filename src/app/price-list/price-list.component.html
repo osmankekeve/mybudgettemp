@@ -194,14 +194,15 @@
                   </div>
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showSelectedProduct(item)"
                      *ngFor="let item of productsOnList | filterProfile: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-3">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red font-weight-600">{{item.data.productPrimaryKey}}</span>
+                      <span class="text-red font-weight-600">{{item.product.data.productCode}}</span>
                     </div>
-                    <div class="col-sm-2">{{item.product.productName}}</div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.productPrice | currency:'₺'}}</span></div>
+                    <div class="col-sm-6">{{item.product.data.productName}}</div>
+                    <div class="col-sm-3"><span class="float-right">{{item.data.productPrice | currency:'₺'}}</span></div>
                   </div>
                 </div>
               </div>
@@ -233,7 +234,7 @@
                 <div class="col-sm-9">
                   <div class="input-group">
                     <input class="form-control form-control-sm" name="productName" id="productName"
-                           [(ngModel)]="selectedProductPrice.product.productName" disabled>
+                           [(ngModel)]="selectedProductPrice.product.data.productName" disabled>
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
                         class="fa fa-arrow-circle-right"></i></button>
@@ -245,7 +246,9 @@
                 </div>
                 <div class="col-sm-9">
                   <input class="form-control form-control-sm w-100" id="productPrice" name="productPrice" type="text"
-                         [(ngModel)]="selectedProductPrice.data.productPrice">
+                         (focus)="focus_amount()"
+                         (blur)="format_amount($event)"
+                         [(ngModel)]="selectedProductPrice.priceFormatted">
                 </div>
               </div>
             </form>

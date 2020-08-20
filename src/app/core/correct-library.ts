@@ -26,6 +26,16 @@ export const getString = (value: any) => {
   return '';
 };
 
+export const getStringCorrected = (value: any, returnValue: any) => {
+  if (value === undefined || value === null) {
+    return returnValue;
+  }
+  if (String(value)) {
+    return value.toString();
+  }
+  return returnValue;
+};
+
 export const getBool = (value: any) => {
   if (Boolean(value)) {
     return value;

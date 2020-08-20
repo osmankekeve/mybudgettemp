@@ -138,6 +138,16 @@ export class ProductService {
     return model;
   }
 
+  convertMainModel(model: ProductModel): ProductMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
+    returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
+    returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
+    return returnData;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -173,13 +183,7 @@ export class ProductService {
           const data = c.payload.doc.data() as ProductModel;
           data.primaryKey = c.payload.doc.id;
 
-          const returnData = new ProductMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.actionType = c.type;
-          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-          returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
-          returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
-          returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
+          const returnData = this.convertMainModel(data);
           return Object.assign({returnData});
         })
       )
@@ -203,15 +207,7 @@ export class ProductService {
           snapshot.forEach(doc => {
             const data = doc.data() as ProductModel;
             data.primaryKey = doc.id;
-
-            const returnData = new ProductMainModel();
-            returnData.data = this.checkFields(data);
-            returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-            returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
-            returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
-            returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
-
-            list.push(returnData);
+            list.push(this.convertMainModel(data));
           });
           resolve(list);
         });

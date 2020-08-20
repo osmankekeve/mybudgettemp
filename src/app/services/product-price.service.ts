@@ -20,6 +20,7 @@ import {CollectionModel} from '../models/collection-model';
 import {currencyFormat, getStatus} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
+import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'
@@ -68,7 +69,7 @@ export class ProductPriceService {
     return new Promise((resolve, reject) => {
       if (record.data.productPrimaryKey === '' || record.data.productPrimaryKey === '-1') {
         reject('Lütfen ürün seçiniz.');
-      } else if (record.product.stockType === 'normal' && record.data.productPrice <= 0) {
+      } else if (record.product.data.stockType === 'normal' && record.data.productPrice <= 0) {
         reject('Lütfen fiyat giriniz.');
       } else if (record.data.productPrice < 0) {
         reject('Lütfen fiyat giriniz.');
@@ -97,9 +98,10 @@ export class ProductPriceService {
 
   clearMainModel(): ProductPriceMainModel {
     const returnData = new ProductPriceMainModel();
-    returnData.product = this.pService.clearSubModel();
+    returnData.product = this.pService.clearMainModel();
     returnData.data = this.clearSubModel();
     returnData.actionType = 'added';
+    returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
     return returnData;
   }
 
@@ -118,9 +120,11 @@ export class ProductPriceService {
 
           const returnData = new ProductPriceMainModel();
           returnData.data = this.checkFields(data);
+          returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
+
           return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
             .pipe(map((product: ProductModel) => {
-              returnData.product = product;
+              returnData.product = this.pService.convertMainModel(product);
               return Object.assign({returnData});
             }));
         } else {
@@ -141,10 +145,11 @@ export class ProductPriceService {
         const returnData = new ProductPriceMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
+        returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
 
         return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
           .pipe(map((product: ProductModel) => {
-            returnData.product = product;
+            returnData.product = this.pService.convertMainModel(product);
             return Object.assign({returnData});
           }));
       });
@@ -154,12 +159,8 @@ export class ProductPriceService {
 
   getProductsOnList(priceListPrimaryKey: string): Observable<ProductPriceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid())
-          .where('priceListPrimaryKey', '==', priceListPrimaryKey);
-        return query;
-      });
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid())
+        .where('priceListPrimaryKey', '==', priceListPrimaryKey));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as ProductPriceModel;
@@ -168,9 +169,49 @@ export class ProductPriceService {
         const returnData = new ProductPriceMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        return Object.assign({returnData});
+        returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
+
+        return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
+          .pipe(map((product: ProductModel) => {
+            returnData.product = this.pService.convertMainModel(product);
+            return Object.assign({returnData});
+          }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getProductsForListDetail = async (priceListPrimaryKey: string):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<Array<ProductPriceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductPriceMainModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('priceListPrimaryKey', '==', priceListPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as ProductPriceModel;
+
+          const returnData = new ProductPriceMainModel();
+          returnData.data = this.checkFields(data);
+          returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
+
+          return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
+            .pipe(map((product: ProductModel) => {
+              returnData.product = this.pService.convertMainModel(product);
+              list.push(returnData);
+            }));
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }
