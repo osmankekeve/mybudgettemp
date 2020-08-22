@@ -22,38 +22,41 @@ import {combineLatest} from 'rxjs';
 import {PriceListModel} from '../models/price-list-model';
 import {PriceListMainModel} from '../models/price-list-main-model';
 import {ProductPriceService} from './product-price.service';
+import {DiscountListMainModel} from '../models/discount-list-main-model';
+import {DiscountListModel} from '../models/discount-list-model';
+import {ProductDiscountService} from './product-discount.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PriceListService {
-  listCollection: AngularFirestoreCollection<PriceListModel>;
-  mainList$: Observable<PriceListMainModel[]>;
-  tableName = 'tblPriceList';
+export class DiscountListService {
+  listCollection: AngularFirestoreCollection<DiscountListModel>;
+  mainList$: Observable<DiscountListMainModel[]>;
+  tableName = 'tblDiscountList';
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected db: AngularFirestore,
-              protected ppService: ProductPriceService, protected actService: ActionService) {
+              protected ppService: ProductDiscountService, protected actService: ActionService) {
 
   }
 
-  async addItem(record: PriceListMainModel) {
+  async addItem(record: DiscountListMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: PriceListMainModel) {
+  async removeItem(record: DiscountListMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: PriceListMainModel) {
+  async updateItem(record: DiscountListMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: PriceListMainModel, primaryKey: string) {
+  async setItem(record: DiscountListMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
-  checkForSave(record: PriceListMainModel): Promise<string> {
+  checkForSave(record: DiscountListMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       if (record.data.listName === '' ) {
         reject('Lütfen liste adı giriniz.');
@@ -63,19 +66,19 @@ export class PriceListService {
     });
   }
 
-  checkForRemove(record: PriceListMainModel): Promise<string> {
+  checkForRemove(record: DiscountListMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
       resolve(null);
     });
   }
 
-  clearSubModel(): PriceListModel {
+  clearSubModel(): DiscountListModel {
 
-    const returnData = new PriceListModel();
+    const returnData = new DiscountListModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.listName = '';
-    returnData.type = '-1';
+    returnData.type = '-1'; // sales, purchase
     returnData.isActive = true;
     returnData.description = '';
     returnData.beginDate = Date.now();
@@ -85,8 +88,8 @@ export class PriceListService {
     return returnData;
   }
 
-  clearMainModel(): PriceListMainModel {
-    const returnData = new PriceListMainModel();
+  clearMainModel(): DiscountListMainModel {
+    const returnData = new DiscountListMainModel();
     returnData.data = this.clearSubModel();
     returnData.actionType = 'added';
     returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
@@ -94,7 +97,7 @@ export class PriceListService {
     return returnData;
   }
 
-  checkFields(model: PriceListModel): PriceListModel {
+  checkFields(model: DiscountListModel): DiscountListModel {
     const cleanModel = this.clearSubModel();
 
     return model;
@@ -104,10 +107,10 @@ export class PriceListService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as PriceListModel;
+          const data = doc.data() as DiscountListModel;
           data.primaryKey = doc.id;
 
-          const returnData = new PriceListMainModel();
+          const returnData = new DiscountListMainModel();
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
           returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
@@ -123,10 +126,10 @@ export class PriceListService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
-          const data = doc.data() as PriceListModel;
+          const data = doc.data() as DiscountListModel;
           data.primaryKey = doc.id;
 
-          const returnData = new PriceListMainModel();
+          const returnData = new DiscountListMainModel();
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
           returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
@@ -140,7 +143,7 @@ export class PriceListService {
     });
   }
 
-  getMainItems(): Observable<PriceListMainModel[]> {
+  getMainItems(): Observable<DiscountListMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,
       ref => {
@@ -151,10 +154,10 @@ export class PriceListService {
     this.mainList$ = this.listCollection.stateChanges().pipe(
       map(changes =>
         changes.map(c => {
-          const data = c.payload.doc.data() as PriceListModel;
+          const data = c.payload.doc.data() as DiscountListModel;
           data.primaryKey = c.payload.doc.id;
 
-          const returnData = new PriceListMainModel();
+          const returnData = new DiscountListMainModel();
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';

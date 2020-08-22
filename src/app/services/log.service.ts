@@ -117,7 +117,7 @@ export class LogService {
 
     } else if (systemModule === 'product-price') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.product.productName + ' isimli ürüne Fiyat  ';
+      item.log = record.product.data.productName + ' isimli ürüne Fiyat  ';
 
     } else if (systemModule === 'buy-sale') {
       item.parentPrimaryKey = record.data.primaryKey;

@@ -14,24 +14,23 @@ import {
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
 import * as CryptoJS from 'crypto-js';
-import {PriceListMainModel} from '../models/price-list-main-model';
-import {PriceListService} from '../services/price-list.service';
-import {ProductPriceMainModel} from '../models/product-price-main-model';
-import {ProductPriceService} from '../services/product-price.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
-import {ProductMainModel} from '../models/product-main-model';
+import {DiscountListMainModel} from '../models/discount-list-main-model';
+import {ProductDiscountMainModel} from '../models/product-discount-main-model';
+import {ProductDiscountService} from '../services/product-discount.service';
+import {DiscountListService} from '../services/discount-list.service';
 
 @Component({
-  selector: 'app-price-list',
-  templateUrl: './price-list.component.html',
-  styleUrls: ['./price-list.component.css']
+  selector: 'app-discount-list',
+  templateUrl: './discount-list.component.html',
+  styleUrls: ['./discount-list.component.css']
 })
-export class PriceListComponent implements OnInit, OnDestroy {
-  mainList: Array<PriceListMainModel>;
-  selectedRecord: PriceListMainModel;
-  selectedProductPrice: ProductPriceMainModel;
-  productsOnList: Array<ProductPriceMainModel>;
+export class DiscountListComponent implements OnInit, OnDestroy {
+  mainList: Array<DiscountListMainModel>;
+  selectedRecord: DiscountListMainModel;
+  selectedProductDiscount: ProductDiscountMainModel;
+  productsOnList: Array<ProductDiscountMainModel>;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   onTransaction = false;
@@ -39,18 +38,19 @@ export class PriceListComponent implements OnInit, OnDestroy {
   productSearchText: '';
   recordBeginDate: any;
   recordFinishDate: any;
-  isNewPricePanelOpened = false;
+  isNewDiscountPanelOpened = false;
 
-  constructor(protected authService: AuthenticationService, protected service: PriceListService, protected infoService: InformationService,
-              protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService,
-              protected db: AngularFirestore, protected ppService: ProductPriceService, public modalService: NgbModal) {
+  constructor(protected authService: AuthenticationService, protected service: DiscountListService,
+              protected infoService: InformationService, protected route: Router, protected router: ActivatedRoute,
+              protected excelService: ExcelService, protected db: AngularFirestore, protected ppService: ProductDiscountService,
+              public modalService: NgbModal) {
   }
 
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
-    this.selectedProductPrice = null;
+    this.selectedProductDiscount = null;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -92,7 +92,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        const item = data.returnData as PriceListMainModel;
+        const item = data.returnData as DiscountListMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
         }
@@ -119,10 +119,10 @@ export class PriceListComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as PriceListMainModel;
+    this.selectedRecord = record as DiscountListMainModel;
     this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
     this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
-    this.isNewPricePanelOpened = false;
+    this.isNewDiscountPanelOpened = false;
 
     this.productsOnList = undefined;
     this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
@@ -130,7 +130,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
         this.productsOnList = [];
       }
       list.forEach((data: any) => {
-        const item = data.returnData as ProductPriceMainModel;
+        const item = data.returnData as ProductDiscountMainModel;
         if (item.actionType === 'added') {
           this.productsOnList.push(item);
         }
@@ -164,7 +164,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnReturnList_Click(): Promise<void> {
     try {
       await this.finishProcess(null, null, true);
-      await this.route.navigate(['price-list', {}]);
+      await this.route.navigate(['discount-list', {}]);
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -278,7 +278,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'price-list');
+        this.excelService.exportToExcel(this.mainList, 'discount-list');
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }
@@ -290,10 +290,10 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnSelectProduct_Click(): Promise<void> {
     try {
       const modalRef = this.modalService.open(ProductSelectComponent);
-      modalRef.componentInstance.product = this.selectedProductPrice.product;
+      modalRef.componentInstance.product = this.selectedProductDiscount.product;
       modalRef.result.then((result: any) => {
         if (result) {
-          this.selectedProductPrice.product = result;
+          this.selectedProductDiscount.product = result;
         }
       });
     } catch (error) {
@@ -303,8 +303,8 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   async btnNewProduct_Click(): Promise<void> {
     try {
-      this.isNewPricePanelOpened = true;
-      this.selectedProductPrice = this.ppService.clearMainModel();
+      this.isNewDiscountPanelOpened = true;
+      this.selectedProductDiscount = this.ppService.clearMainModel();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -314,23 +314,23 @@ export class PriceListComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
 
-      Promise.all([this.ppService.checkForSave(this.selectedProductPrice)])
+      Promise.all([this.ppService.checkForSave(this.selectedProductDiscount)])
         .then(async (values: any) => {
-          this.selectedProductPrice.data.priceListPrimaryKey = this.selectedRecord.data.primaryKey;
-          this.selectedProductPrice.data.productPrimaryKey = this.selectedProductPrice.product.data.primaryKey;
-          if (this.selectedProductPrice.data.primaryKey === null) {
+          this.selectedProductDiscount.data.discountListPrimaryKey = this.selectedRecord.data.primaryKey;
+          this.selectedProductDiscount.data.productPrimaryKey = this.selectedProductDiscount.product.data.primaryKey;
+          if (this.selectedProductDiscount.data.primaryKey === null) {
 
             let isAvailable = false;
             await this.productsOnList.forEach(item => {
-              if (item.product.data.primaryKey === this.selectedProductPrice.data.productPrimaryKey) {
+              if (item.product.data.primaryKey === this.selectedProductDiscount.data.productPrimaryKey) {
                 this.finishProcess('Ürün listede mevcut olduğundan yeniden eklenemez.', null, false);
                 isAvailable = true;
               }
             });
 
             if (!isAvailable) {
-              this.selectedProductPrice.data.primaryKey = this.db.createId();
-              await this.ppService.setItem(this.selectedProductPrice, this.selectedProductPrice.data.primaryKey)
+              this.selectedProductDiscount.data.primaryKey = this.db.createId();
+              await this.ppService.setItem(this.selectedProductDiscount, this.selectedProductDiscount.data.primaryKey)
                 .then(() => {
                   this.clearSelectedProductRecord();
                   this.finishProcess(null, 'Ürün başarıyla eklendi.', false);
@@ -340,7 +340,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
                 });
             }
           } else {
-            await this.ppService.updateItem(this.selectedProductPrice)
+            await this.ppService.updateItem(this.selectedProductDiscount)
               .then(() => {
                 this.clearSelectedProductRecord();
                 this.finishProcess(null, 'Ürün başarıyla güncellendi.', false);
@@ -361,9 +361,9 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnRemoveProduct_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      Promise.all([this.ppService.checkForRemove(this.selectedProductPrice)])
+      Promise.all([this.ppService.checkForRemove(this.selectedProductDiscount)])
         .then(async (values: any) => {
-          await this.ppService.removeItem(this.selectedProductPrice)
+          await this.ppService.removeItem(this.selectedProductDiscount)
             .then(() => {
               this.clearSelectedProductRecord();
               this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
@@ -389,36 +389,24 @@ export class PriceListComponent implements OnInit, OnDestroy {
   }
 
   showSelectedProduct(record: any): void {
-    this.selectedProductPrice = record as ProductPriceMainModel;
-    this.isNewPricePanelOpened = true;
+    this.selectedProductDiscount = record as ProductDiscountMainModel;
+    this.isNewDiscountPanelOpened = true;
   }
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
     this.recordBeginDate = getTodayForInput();
     this.recordFinishDate = getTodayForInput();
-    this.isNewPricePanelOpened = false;
+    this.isNewDiscountPanelOpened = false;
     this.productsOnList = [];
   }
 
   clearSelectedProductRecord(): void {
-    this.isNewPricePanelOpened = false;
-    this.selectedProductPrice = undefined;
+    this.isNewDiscountPanelOpened = false;
+    this.selectedProductDiscount = undefined;
   }
 
   clearMainFiler(): void {
 
-  }
-
-  format_amount($event): void {
-    this.selectedProductPrice.data.productPrice = getFloat(moneyFormat($event.target.value));
-    this.selectedProductPrice.priceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-  }
-
-  focus_amount(): void {
-    if (this.selectedProductPrice.data.productPrice === 0) {
-      this.selectedProductPrice.data.productPrice = null;
-      this.selectedProductPrice.priceFormatted = null;
-    }
   }
 }

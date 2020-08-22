@@ -36,13 +36,15 @@ import { HttpClientModule } from '@angular/common/http';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 import { ProductSelectComponent } from './partials/product-select/product-select.component';
 import {ProductFilterPipe} from './filters/product-filter.pipe';
+import {ProductSubFilterPipe} from './filters/product-sub-filter.pipe';
+import {ListFilterPipe} from './filters/list-filter.pipe';
 
 @NgModule({
   declarations: [
         AppComponent, routingComponents,
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent
+        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,

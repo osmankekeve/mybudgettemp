@@ -3,8 +3,8 @@
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
-        <h4 class="card-title float-left mr-2">Fiyat Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fiyat Listesi"
+        <h4 class="card-title float-left mr-2">İskonto Listesi</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni İskonto Listesi"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
@@ -62,7 +62,7 @@
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/cash-desks.png" class="float-left mr-2" width="30px">
-        <h4 class="card-title float-left mr-2">Fiyat Listesi Detayı</h4>
+        <h4 class="card-title float-left mr-2">İskonto Listesi Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
       </div>
@@ -176,7 +176,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6" *ngIf="!isNewPricePanelOpened">
+      <div class="col-sm-6" *ngIf="!isNewDiscountPanelOpened">
         <div class="card">
           <div class="card-header bg-gray-gradient">
             <div class="row">
@@ -204,8 +204,9 @@
                 <div class="list-group-item bg-danger text-light main-list-item">
                   <div class="row">
                     <div class="col-sm-3">Kod</div>
-                    <div class="col-sm-6">Adı</div>
-                    <div class="col-sm-3"><span class="float-right">Fiyat</span></div>
+                    <div class="col-sm-5">Adı</div>
+                    <div class="col-sm-2"><span class="float-right">İskonto 1</span></div>
+                    <div class="col-sm-2"><span class="float-right">İskonto 2</span></div>
                   </div>
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
@@ -216,8 +217,9 @@
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                       <span class="text-red font-weight-600">{{item.product.data.productCode}}</span>
                     </div>
-                    <div class="col-sm-6">{{item.product.data.productName}}</div>
-                    <div class="col-sm-3"><span class="float-right">{{item.data.productPrice | currency:'₺'}}</span></div>
+                    <div class="col-sm-5">{{item.product.data.productName}}</div>
+                    <div class="col-sm-2"><span class="float-right">%{{item.data.discount1}}</span></div>
+                    <div class="col-sm-2"><span class="float-right">%{{item.data.discount2}}</span></div>
                   </div>
                 </div>
               </div>
@@ -233,7 +235,7 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6" *ngIf="isNewPricePanelOpened">
+      <div class="col-sm-6" *ngIf="isNewDiscountPanelOpened">
         <div class="card">
           <div class="card-header bg-gray-gradient">
             <h5 class="float-left mr-2">Yeni Ürün Ekle</h5>
@@ -249,7 +251,7 @@
                 <div class="col-sm-9">
                   <div class="input-group">
                     <input class="form-control form-control-sm" name="productName" id="productName"
-                           [(ngModel)]="selectedProductPrice.product.data.productName" disabled>
+                           [(ngModel)]="selectedProductDiscount.product.data.productName" disabled>
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
                         class="fa fa-arrow-circle-right"></i></button>
@@ -257,13 +259,18 @@
                   </div>
                 </div>
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="productPrice">Ürün Fiyatı</label>
+                  <label class="col-form-label float-left" for="discount1">İskonto 1</label>
                 </div>
                 <div class="col-sm-9">
-                  <input class="form-control form-control-sm w-100" id="productPrice" name="productPrice" type="text"
-                         (focus)="focus_amount()"
-                         (blur)="format_amount($event)"
-                         [(ngModel)]="selectedProductPrice.priceFormatted">
+                  <input class="form-control form-control-sm w-100" id="discount1" name="discount1" type="text"
+                         [(ngModel)]="selectedProductDiscount.data.discount1">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="discount2">İskonto 2</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="discount2" name="discount2" type="text"
+                         [(ngModel)]="selectedProductDiscount.data.discount2">
                 </div>
               </div>
             </form>
@@ -283,7 +290,7 @@
                 </button>
               </div>
             </div>
-            <div class="col-sm-3 float-left" *ngIf="selectedProductPrice.data.primaryKey!=undefined">
+            <div class="col-sm-3 float-left" *ngIf="selectedProductDiscount.data.primaryKey!=undefined">
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text danger-icon-side">
