@@ -1,25 +1,17 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
-import {CollectionModel} from '../models/collection-model';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getPaymentTypes, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getProductTypes} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
-import {BuySaleCurrencyMainModel} from '../models/buy-sale-currency-main-model';
-import {NoteMainModel} from '../models/note-main-model';
-import {NoteModel} from '../models/note-model';
 
 @Injectable({
   providedIn: 'root'
@@ -81,7 +73,7 @@ export class ProductService {
         reject('Lütfen ürün tipi seçiniz.');
       } else if (record.data.defaultUnitCode === '' || record.data.defaultUnitCode === '-1') {
         reject('Lütfen ürün varsayılan birim seçiniz.');
-      } else if (record.data.taxRate <= 0) {
+      } else if (record.data.taxRate < 0) {
         reject('Lütfen vergi oranı giriniz.');
       } else {
         resolve(null);
@@ -90,7 +82,17 @@ export class ProductService {
   }
 
   checkForRemove(record: ProductMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isUsedOnPriceList(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Ürün fiyat listesine bağlı olduğundan silinemez.');
+        }
+      });
+      await this.isUsedOnDiscountList(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Ürün iskonto listesine bağlı olduğundan silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -211,6 +213,50 @@ export class ProductService {
           });
           resolve(list);
         });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUsedOnPriceList = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProductPrice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('defaultUnitCode', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUsedOnDiscountList = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProductDiscount', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate').limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('defaultUnitCode', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
