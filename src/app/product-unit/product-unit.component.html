@@ -66,8 +66,8 @@
     <div class="form-row">
       <div class="col-sm-6">
         <div class="card">
-          <div class="card-header bg-secondary text-light">
-            <h6>Ürün Birim Bilgileri</h6>
+          <div class="card-header bg-gray-gradient">
+            <h5>Ürün Birim Bilgileri</h5>
           </div>
           <div class="card-body">
             <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
@@ -133,14 +133,131 @@
           </div>
         </div>
       </div>
-      <div class="col-sm-6">
-        <div class="card bg-light">
-          <div class="card-header bg-secondary text-light">
-            <h6 class="float-left">Birime Bağlı Ürünler</h6>
+      <div class="col-sm-6" *ngIf="!isNewPanelOpened">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <div class="row">
+              <div class="col-sm-6">
+                <h5 class="float-left mr-2">Ürünler</h5>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
+                        *ngIf="selectedRecord.data.primaryKey!=undefined"
+                        (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
+              </div>
+              <div class="col-sm-6 head-filter">
+                <div class="input-group input-group-round">
+                  <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+                  </div>
+                  <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="productSearchText">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body work-area-2" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
+            <div *ngIf="unitMappingList != undefined; else elseBlock3">
+              <div class="list-group" *ngIf="unitMappingList.length > 0; else elseBlock">
+                <div class="list-group-item bg-red text-light main-list-item">
+                  <div class="row">
+                    <div class="col-sm-2">Ürün Kodu</div>
+                    <div class="col-sm-6">Ürün Adı</div>
+                    <div class="col-sm-4"><span class="float-right">Değer</span></div>
+                  </div>
+                </div>
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showSelectedProduct(item)"
+                     *ngFor="let item of unitMappingList | filterProductSub: productSearchText;">
+                  <div class="row">
+                    <div class="col-sm-2 text-red font-weight-600"><i
+                      class="fa fa-arrow-circle-right mr-2"></i>{{item.product.data.productCode}}</div>
+                    <div class="col-sm-6">{{item.product.data.productName}}</div>
+                    <div class="col-sm-4"><span class="float-right">{{item.data.unitValue}}</span></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="loader"></div>
+            </ng-template>
+          </div>
+          <ng-template #elseBlock2>
+            <div class="card bg-danger text-white m-3">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+      <div class="col-sm-6" *ngIf="isNewPanelOpened">
+        <div class="card">
+          <div class="card-header bg-gray-gradient">
+            <h5 class="float-left mr-2">Yeni Ürün Ekle</h5>
+            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                    (click)="btnOpenList_Click()"><i class="fa fa-arrow-left"></i></button>
+          </div>
+          <div class="card-body work-area-2">
+            <form (ngSubmit)="btnSaveProduct_Click()" class="was-validated" #f2="ngForm">
+              <div class="form-row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left">Ürün Adı</label>
+                </div>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                    <input class="form-control form-control-sm" name="productName" id="productName"
+                           [(ngModel)]="selectedMapping.product.data.productName" disabled>
+                    <div class="input-group-append">
+                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
+                        class="fa fa-arrow-circle-right"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="unitValue">Birim Değer</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="unitValue" name="unitValue" type="number"
+                         [(ngModel)]="selectedMapping.data.unitValue">
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer">
+            <div class="col-sm-3 float-right">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text success-icon-side">
+                    <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                  </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-success form-control"
+                        [disabled]="onTransaction || !f2.valid"
+                        (click)="btnSaveProduct_Click()">Ürün Kaydet
+                </button>
+              </div>
+            </div>
+            <div class="col-sm-3 float-left" *ngIf="selectedMapping.data.primaryKey!=undefined">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-danger form-control"
+                        [disabled]="onTransaction"
+                        (click)="btnRemoveProduct_Click()">Ürün Kaldır
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>

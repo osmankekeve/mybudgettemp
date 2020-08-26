@@ -1,39 +1,23 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {CashDeskModel} from '../models/cash-desk-model';
-import {CashDeskService} from '../services/cash-desk.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
-import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
-  currencyFormat,
-  getBeginOfYearForInput,
   getEncryptionKey,
-  getFloat,
-  getTodayForInput,
-  isNullOrEmpty,
-  moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {Chart} from 'chart.js';
-import {GlobalService} from '../services/global.service';
-import {RouterModel} from '../models/router-model';
 import * as CryptoJS from 'crypto-js';
-import {ProductMainModel} from '../models/product-main-model';
-import {ProductModel} from '../models/product-model';
-import {ProductService} from '../services/product.service';
-import {ActionMainModel} from '../models/action-main-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {ActionService} from '../services/action.service';
-import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {FileMainModel} from '../models/file-main-model';
 import {ProductUnitService} from '../services/product-unit.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
+import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
+import {SettingService} from '../services/setting.service';
+import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
+import {ProductDiscountMainModel} from '../models/product-discount-main-model';
+import {ProductSelectComponent} from '../partials/product-select/product-select.component';
+import {ProductDiscountService} from '../services/product-discount.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-product-unit',
@@ -43,20 +27,26 @@ import {ProductUnitModel} from '../models/product-unit-model';
 export class ProductUnitComponent implements OnInit, OnDestroy {
   mainList: Array<ProductUnitMainModel>;
   collection: AngularFirestoreCollection<ProductUnitModel>;
+  unitMappingList: Array<ProductUnitMappingMainModel>;
   selectedRecord: ProductUnitMainModel;
+  selectedMapping: ProductUnitMappingMainModel;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
+  productSearchText: '';
+  isNewPanelOpened = false;
 
   constructor(public authService: AuthenticationService, public service: ProductUnitService, public infoService: InformationService,
-              public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore) {
+              public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
+              protected pumService: ProductUnitMappingService, public modalService: NgbModal) {
   }
 
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
+    this.selectedMapping = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -76,7 +66,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
             this.showSelectedRecord(item.returnData);
           })
           .catch(reason => {
-            this.finishProcess(reason, null);
+            this.finishProcess(reason, null, true);
           });
       } else {
         this.clearSelectedRecord();
@@ -126,11 +116,53 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ProductUnitMainModel;
+
+    this.unitMappingList = undefined;
+    this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).subscribe(list => {
+      if (this.unitMappingList === undefined) {
+        this.unitMappingList = [];
+      }
+      console.log(list);
+      list.forEach((data: any) => {
+        const item = data.returnData as ProductUnitMappingMainModel;
+        if (item.actionType === 'added') {
+          this.unitMappingList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.unitMappingList.length; i++) {
+            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
+              this.unitMappingList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.unitMappingList.length; i++) {
+            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
+              this.unitMappingList[i] = item;
+              break;
+            }
+          }
+        }
+      });
+    });
+    setTimeout(() => {
+      if (this.unitMappingList === undefined) {
+        this.unitMappingList = [];
+      }
+    }, 1000);
+  }
+
+  showSelectedProduct(record: any): void {
+    this.selectedMapping = record as ProductUnitMappingMainModel;
+    this.isNewPanelOpened = true;
   }
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      await this.finishProcess(null, null);
+      await this.finishProcess(null, null, true);
       await this.route.navigate(['product-unit', {}]);
     } catch (error) {
       await this.infoService.error(error);
@@ -157,7 +189,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null);
+                this.finishProcess(error, null, false);
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -165,15 +197,15 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null);
+                this.finishProcess(error, null, false);
               });
           }
         })
         .catch((error) => {
-          this.finishProcess(error, null);
+          this.finishProcess(error, null, true);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null, true);
     }
   }
 
@@ -184,29 +216,132 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
             })
             .catch((error) => {
-              this.finishProcess(error, null);
+              this.finishProcess(error, null, true);
             });
         })
         .catch((error) => {
-          this.finishProcess(error, null);
+          this.finishProcess(error, null, true);
         });
     } catch (error) {
-      await this.finishProcess(error, null);
+      await this.finishProcess(error, null, false);
     }
   }
 
-  async finishProcess(error: any, info: any): Promise<void> {
+  async btnNewProduct_Click(): Promise<void> {
+    try {
+      this.isNewPanelOpened = true;
+      this.selectedMapping = this.pumService.clearMainModel();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSaveProduct_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+
+      Promise.all([this.pumService.checkForSave(this.selectedMapping)])
+        .then(async (values: any) => {
+          this.selectedMapping.data.unitPrimaryKey = this.selectedRecord.data.primaryKey;
+          this.selectedMapping.data.productPrimaryKey = this.selectedMapping.product.data.primaryKey;
+          if (this.selectedMapping.data.primaryKey === null) {
+
+            let isAvailable = false;
+            await this.unitMappingList.forEach(item => {
+              if (item.product.data.primaryKey === this.selectedMapping.data.productPrimaryKey) {
+                this.finishProcess('Ürün listede mevcut olduğundan yeniden eklenemez.', null, false);
+                isAvailable = true;
+              }
+            });
+
+            if (!isAvailable) {
+              this.selectedMapping.data.primaryKey = this.db.createId();
+              await this.pumService.setItem(this.selectedMapping, this.selectedMapping.data.primaryKey)
+                .then(() => {
+                  this.clearSelectedProductRecord();
+                  this.finishProcess(null, 'Ürün başarıyla eklendi.', false);
+                })
+                .catch((error) => {
+                  this.finishProcess(error, null, false);
+                });
+            }
+          } else {
+            await this.pumService.updateItem(this.selectedMapping)
+              .then(() => {
+                this.clearSelectedProductRecord();
+                this.finishProcess(null, 'Ürün başarıyla güncellendi.', false);
+              })
+              .catch((error) => {
+                this.finishProcess(error, null, false);
+              });
+          }
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, false);
+        });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveProduct_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      Promise.all([this.pumService.checkForRemove(this.selectedMapping)])
+        .then(async (values: any) => {
+          await this.pumService.removeItem(this.selectedMapping)
+            .then(() => {
+              this.clearSelectedProductRecord();
+              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+            })
+            .catch((error) => {
+              this.finishProcess(error, null, false);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, false);
+        });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSelectProduct_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ProductSelectComponent);
+      modalRef.componentInstance.product = this.selectedMapping.product;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedMapping.product = result;
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnOpenList_Click(): Promise<void> {
+    try {
+      this.clearSelectedProductRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async finishProcess(error: any, info: any, returnMainList: boolean): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
         this.infoService.success(info);
       }
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
+      if (returnMainList) {
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
@@ -252,5 +387,10 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   clearMainFiler(): void {
 
+  }
+
+  clearSelectedProductRecord(): void {
+    this.isNewPanelOpened = false;
+    this.selectedMapping = undefined;
   }
 }

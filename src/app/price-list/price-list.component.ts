@@ -50,7 +50,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
-    this.selectedProductPrice = null;
+    this.selectedProductPrice = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);

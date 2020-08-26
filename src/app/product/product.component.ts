@@ -36,6 +36,11 @@ import {ProductUnitService} from '../services/product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
 import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
 import {SettingService} from '../services/setting.service';
+import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
+import {ProfileMainModel} from '../models/profile-main-model';
+import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
+import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
+import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-product',
@@ -48,6 +53,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
   unitList: Array<ProductUnitModel>;
+  unitMappingList: Array<ProductUnitMappingMainModel>;
   selectedRecord: ProductMainModel;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
@@ -57,7 +63,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
-              protected gfuService: GlobalUploadService, protected puService: ProductUnitService, protected sService: SettingService) {
+              protected gfuService: GlobalUploadService, protected puService: ProductUnitService, protected sService: SettingService,
+              protected pumService: ProductUnitMappingService) {
   }
 
   async ngOnInit() {
@@ -142,6 +149,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ProductMainModel;
+    this.populateUnitMappings();
     this.populateFiles();
     this.populateActions();
   }
@@ -195,7 +203,7 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -211,6 +219,37 @@ export class ProductComponent implements OnInit, OnDestroy {
             .catch((error) => {
               this.finishProcess(error, null);
             });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnCreateUnitMappings_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+
+      Promise.all([this.puService.getItemsForSelect()])
+        .then(async (values: any) => {
+          if (values[0] !== null) {
+            const returnData = values[0] as Array<ProductUnitModel>;
+            for (const recordUnit of returnData) {
+              const controlData = await this.pumService.isProductHasUnitMapping(this.selectedRecord.data.primaryKey, recordUnit.primaryKey);
+              if (!controlData) {
+                const newData = this.pumService.clearMainModel();
+                newData.data.primaryKey = this.db.createId();
+                newData.data.unitPrimaryKey = recordUnit.primaryKey;
+                newData.data.unitValue = 1;
+                newData.data.productPrimaryKey = this.selectedRecord.data.primaryKey;
+                newData.product = this.selectedRecord;
+                await this.pumService.setItem(newData, newData.data.primaryKey);
+              }
+            }
+            await this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Birimler Başarıyla oluşturuldu.');
+          }
         })
         .catch((error) => {
           this.finishProcess(error, null);
@@ -276,6 +315,58 @@ export class ProductComponent implements OnInit, OnDestroy {
     } catch (error) {
       await this.finishProcess(error, null);
     }
+  }
+
+  populateUnitMappings(): void {
+    this.unitMappingList = undefined;
+    /*Promise.all([this.pumService.getProductMappingItemsAsync(this.selectedRecord.data.primaryKey)])
+      .then((values: any) => {
+        if (values[0] !== null) {
+          if (this.unitMappingList === undefined) {
+            this.unitMappingList = [];
+          }
+          const returnData = values[0] as Array<ProductUnitMappingMainModel>;
+          console.log(returnData);
+          returnData.forEach(record => {
+            this.unitMappingList.push(record);
+          });
+        }
+      });*/
+
+    this.pumService.getProductMainItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+      if (this.unitMappingList === undefined) {
+        this.unitMappingList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ProductUnitMappingMainModel;
+        if (item.actionType === 'added') {
+          this.unitMappingList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.unitMappingList.length; i++) {
+            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
+              this.unitMappingList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          // tslint:disable-next-line:prefer-for-of
+          for (let i = 0; i < this.unitMappingList.length; i++) {
+            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
+              this.unitMappingList[i] = item;
+              break;
+            }
+          }
+        }
+      });
+    });
+    setTimeout(() => {
+      if (this.unitMappingList === undefined) {
+        this.unitMappingList = [];
+      }
+    }, 1000);
   }
 
   populateFiles(): void {

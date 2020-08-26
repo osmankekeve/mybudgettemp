@@ -73,6 +73,11 @@ export class ProductUnitService {
           reject('Birim ürün kartında olduğundan silinemez.');
         }
       });
+      await this.isUnitUsedOnProductMapping(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Birim ürün birim bağlantısında kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -179,9 +184,31 @@ export class ProductUnitService {
     try {
       this.db.collection('tblProduct', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('defaultUnitCode', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUnitUsedOnProductMapping = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProductUnitMapping', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('unitPrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {

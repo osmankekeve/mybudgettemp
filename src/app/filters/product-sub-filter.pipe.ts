@@ -10,7 +10,7 @@ export class ProductSubFilterPipe implements PipeTransform {
      return value;
     }
     return value.filter(
-      item => item.product.productName.toLowerCase().indexOf(args.toLowerCase()) > -1
+      item => item.product.data.productName.toLowerCase().indexOf(args.toLowerCase()) > -1
    );
   }
 }

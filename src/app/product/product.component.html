@@ -214,6 +214,52 @@
             </div>
           </div>
         </form>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="card mt-2">
+              <div class="card-header bg-gray-gradient">
+                <h5 class="float-left mr-2">Ürün Birimleri</h5><small></small>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Birimleri Oluştur"
+                        [disabled]="onTransaction || !f.valid"
+                        (click)="btnCreateUnitMappings_Click()"><i
+                  class="fa fa-creative-commons"></i></button>
+              </div>
+              <div class="card-body" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
+                <div *ngIf="unitMappingList != undefined; else elseBlock3">
+                  <div class="list-group" *ngIf="unitMappingList.length > 0; else elseBlock">
+                    <div class="list-group-item bg-red text-light main-list-item">
+                      <div class="row">
+                        <div class="col-sm-8">Birim</div>
+                        <div class="col-sm-4"><span class="float-right">Değer</span></div>
+                      </div>
+                    </div>
+                    <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                         *ngFor="let item of unitMappingList;">
+                      <div class="row">
+                        <div class="col-sm-8 text-red"><i
+                          class="fa fa-arrow-circle-right mr-2"></i>{{item.unit.unitName}}</div>
+                        <div class="col-sm-4"><span class="float-right">{{item.data.unitValue}}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <ng-template #elseBlock>
+                    <div class="card bg-danger text-white">
+                      <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                    </div>
+                  </ng-template>
+                </div>
+                <ng-template #elseBlock3>
+                  <div class="loader"></div>
+                </ng-template>
+              </div>
+              <ng-template #elseBlock2>
+                <div class="card bg-danger text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">

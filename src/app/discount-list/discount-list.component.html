@@ -180,13 +180,13 @@
         <div class="card">
           <div class="card-header bg-gray-gradient">
             <div class="row">
-              <div class="col-sm-8">
+              <div class="col-sm-6">
                 <h5 class="float-left mr-2">Listeye Bağlı Ürünler</h5>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
                         *ngIf="selectedRecord.data.primaryKey!=undefined"
                         (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
               </div>
-              <div class="col-sm-4 head-filter">
+              <div class="col-sm-6 head-filter">
                 <div class="input-group input-group-round">
                   <div class="input-group-prepend">
                         <span class="input-group-text">
@@ -203,8 +203,8 @@
               <div class="list-group" *ngIf="productsOnList.length > 0; else elseBlock">
                 <div class="list-group-item bg-danger text-light main-list-item">
                   <div class="row">
-                    <div class="col-sm-3">Kod</div>
-                    <div class="col-sm-5">Adı</div>
+                    <div class="col-sm-2">Kod</div>
+                    <div class="col-sm-6">Adı</div>
                     <div class="col-sm-2"><span class="float-right">İskonto 1</span></div>
                     <div class="col-sm-2"><span class="float-right">İskonto 2</span></div>
                   </div>
@@ -213,11 +213,11 @@
                      (click)="showSelectedProduct(item)"
                      *ngFor="let item of productsOnList | filterProductSub: productSearchText; index as i;">
                   <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                       <span class="text-red font-weight-600">{{item.product.data.productCode}}</span>
                     </div>
-                    <div class="col-sm-5">{{item.product.data.productName}}</div>
+                    <div class="col-sm-6">{{item.product.data.productName}}</div>
                     <div class="col-sm-2"><span class="float-right">%{{item.data.discount1}}</span></div>
                     <div class="col-sm-2"><span class="float-right">%{{item.data.discount2}}</span></div>
                   </div>
