@@ -42,6 +42,7 @@ import {ProductComponent} from './product/product.component';
 import {ProductUnitComponent} from './product-unit/product-unit.component';
 import {PriceListComponent} from './price-list/price-list.component';
 import {DiscountListComponent} from './discount-list/discount-list.component';
+import {DefinitionComponent} from './definition/definition.component';
 
 
 const routes: Routes = [
@@ -90,6 +91,9 @@ const routes: Routes = [
   {path: 'product-unit', component: ProductUnitComponent, pathMatch: 'full'},
   {path: 'price-list', component: PriceListComponent, pathMatch: 'full'},
   {path: 'discount-list', component: DiscountListComponent, pathMatch: 'full'},
+  {path: 'storage', component: DefinitionComponent, pathMatch: 'full'},
+  {path: 'term', component: DefinitionComponent, pathMatch: 'full'},
+  {path: 'payment-type', component: DefinitionComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -106,7 +110,7 @@ export const routingComponents = [
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent, BuySellCurrencyComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent, ProductComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
-  ProductUnitComponent, PriceListComponent, DiscountListComponent
+  ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

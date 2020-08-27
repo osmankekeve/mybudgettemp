@@ -657,10 +657,7 @@ export class CollectionComponent implements OnInit {
                 insertDate: record.data.insertDate
               };
               this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
-                .set(Object.assign({}, trans))
-                .then(() => {
-                  console.log(record);
-                });
+                .set(Object.assign({}, trans));
             });
           }
         });

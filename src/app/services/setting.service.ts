@@ -51,7 +51,6 @@ export class SettingService {
 
   getSettingValueFromSession(): any {
     const  data = JSON.parse(sessionStorage.getItem('settings'));
-    console.log(data);
   }
 
   async setItem(record: SettingModel) {

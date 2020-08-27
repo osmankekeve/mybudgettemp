@@ -18,9 +18,6 @@ export class TestModuleComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.selectedRecord = undefined;
     this.mainList$ = this.service.getItems();
-    this.mainList$.subscribe(list => {
-      console.log(list);
-    });
   }
 
   ngOnDestroy(): void {

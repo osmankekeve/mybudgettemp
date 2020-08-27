@@ -122,7 +122,6 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
       if (this.unitMappingList === undefined) {
         this.unitMappingList = [];
       }
-      console.log(list);
       list.forEach((data: any) => {
         const item = data.returnData as ProductUnitMappingMainModel;
         if (item.actionType === 'added') {

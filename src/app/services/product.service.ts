@@ -176,7 +176,8 @@ export class ProductService {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.orderBy('productName', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid());
         return query;
       });
     this.mainList$ = this.listCollection.stateChanges().pipe(
@@ -199,7 +200,8 @@ export class ProductService {
       const list = Array<ProductMainModel>();
       await this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.orderBy('productName', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid());
         if (stockTypes !== undefined) {
           query = query.where('stockType', 'in', stockTypes);
         }

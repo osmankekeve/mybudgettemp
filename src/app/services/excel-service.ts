@@ -66,7 +66,6 @@ export class ExcelService {
     if (record === 'salesInvoice') {
       fileName = 'sales_invoice';
       list.forEach((item: any) => {
-        console.log(item);
         const data = item as SalesInvoiceMainModel;
         excelList.push({
           'Customer Name': data.customerName,

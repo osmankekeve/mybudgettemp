@@ -1,0 +1,118 @@
+<div class="card work-area" *ngIf="selectedRecord==undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-8">
+        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">{{module.header}}</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="{{module.newTitle}}"
+                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="list-group-item bg-red text-light main-list-item">
+          <div class="row">
+            <div class="col-sm-2">Key</div>
+            <div class="col-sm-8">Değer</div>
+            <div class="col-sm-2">Aktif mi?</div>
+          </div>
+        </div>
+        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+             (click)="showSelectedRecord(item)"
+             *ngFor="let item of mainList | filterNote: searchText; index as i;">
+          <div class="row">
+            <div class="col-sm-2">
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-2">{{item.data.key}}</span>
+            </div>
+            <div class="col-sm-8">{{item.data.custom1}}</div>
+            <div class="col-sm-2">{{item.isActiveTr}}</div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
+  </div>
+</div>
+<div class="card work-area" *ngIf="selectedRecord!=undefined">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
+        <h4 class="card-title float-left mr-2">{{module.detailHeader}}</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <form (ngSubmit)="btnSave_Click()" class="was-validated">
+      <div class="row form-inline">
+        <div class="col-sm-2" *ngIf="module.isShowKey">
+          <label class="col-form-label float-left" for="key">Key</label>
+        </div>
+        <div class="col-sm-10" *ngIf="module.isShowKey">
+          <input class="form-control form-control-sm w-100" id="key" name="key" type="text" required
+                 [disabled]="selectedRecord.data.primaryKey!=undefined"
+                 [(ngModel)]="selectedRecord.data.key">
+          <div class="invalid-feedback invalid-input-info">Lütfen key alanını doldurunuz.</div>
+        </div>
+        <div class="col-sm-2" *ngIf="module.isKeyShowCustom1Tr">
+          <label class="col-form-label float-left" for="custom1">{{module.isKeyShowCustom1Tr}}</label>
+        </div>
+        <div class="col-sm-10" *ngIf="module.isKeyShowCustom1Tr">
+          <input class="form-control form-control-sm w-100" id="custom1" name="custom1" type="text" required
+                 [(ngModel)]="selectedRecord.data.custom1">
+          <div class="invalid-feedback invalid-input-info">Lütfen alanını doldurunuz.</div>
+        </div>
+        <div class="col-sm-2" *ngIf="module.isKeyShowCustom2Tr">
+          <label class="col-form-label float-left" for="custom2">{{module.isKeyShowCustom2Tr}}</label>
+        </div>
+        <div class="col-sm-10" *ngIf="module.isKeyShowCustom2Tr">
+          <input class="form-control form-control-sm w-100" id="custom2" name="custom2" type="text" required
+                 [(ngModel)]="selectedRecord.data.custom2">
+          <div class="invalid-feedback invalid-input-info">Lütfen alanını doldurunuz.</div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="card-footer">
+    <div class="col-sm-2 float-right">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-success form-control"
+                [disabled]="onTransaction"
+                (click)="btnSave_Click()">Kaydet
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnRemove_Click()">Kaldır
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

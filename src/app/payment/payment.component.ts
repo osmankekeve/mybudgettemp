@@ -640,10 +640,7 @@ export class PaymentComponent implements OnInit {
                 insertDate: doc.data.insertDate,
               };
               this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
-                .set(Object.assign({}, trans))
-                .then(() => {
-                  console.log(doc);
-                });
+                .set(Object.assign({}, trans));
             });
           }
         });

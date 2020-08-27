@@ -105,9 +105,6 @@ export class MailSenderComponent implements OnInit {
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
             const mailAddress = this.selectedRecord.data.mailTo.split(';');
-            /*for (const item: string of mailAddress) {
-              console.log(item);
-            }*/
             if (this.selectedRecord.customerName.trim() === '') {this.selectedRecord.customerName = this.selectedRecord.data.mailTo;}
             const sendData = {
               receiverMailAddress: this.selectedRecord.data.mailTo,

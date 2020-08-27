@@ -672,10 +672,7 @@ export class PurchaseInvoiceComponent implements OnInit {
                 insertDate: doc.data.insertDate
               };
               this.db.collection('tblAccountTransaction').doc(trans.primaryKey)
-                .set(Object.assign({}, trans))
-                .then(() => {
-                  console.log(doc);
-                });
+                .set(Object.assign({}, trans));
             });
           }
         });
@@ -742,9 +739,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           returnData.forEach(doc => {
             doc.data.status = 'approved';
             doc.data.platform = 'web';
-            this.service.updateItem(doc).then(() => {
-              console.log(doc);
-            });
+            this.service.updateItem(doc);
           });
         }
       });

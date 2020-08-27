@@ -354,7 +354,6 @@ export class CustomerAccountComponent implements OnInit {
           returnData.forEach((data: any) => {
             const item = data as CustomerMainModel;
             if (mapData.has(item.data.primaryKey) && mapData.get(item.data.primaryKey) === defaultCurrencyCode.value) {
-              // console.log('var:' + item.data.name);
             } else {
               const insertData = this.service.clearMainModel();
               insertData.data.primaryKey = this.db.createId();

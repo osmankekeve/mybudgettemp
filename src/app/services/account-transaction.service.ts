@@ -125,11 +125,10 @@ export class AccountTransactionService {
       ref => ref.where('transactionType', '==', transactionType))
       .get()
       .subscribe(list => {
-        console.log(list.size);
         list.forEach((doc) => {
           const item = doc as AccountTransactionModel;
           item.primaryKey = doc.id;
-          this.db.collection(this.tableName).doc(doc.id).delete().then(() => console.log(doc.id));
+          this.db.collection(this.tableName).doc(doc.id).delete();
         });
       });
   }

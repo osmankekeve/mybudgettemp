@@ -542,7 +542,6 @@ export class CustomerComponent implements OnInit {
         const data = item.returnData as CustomerMainModel;
         data.data.customerType = 'supplier';
         this.service.updateItem(data);
-        console.log(data);
       });
     });
   }

@@ -104,7 +104,6 @@ export class FileUploadComponent implements OnInit {
     try {
       this.storageRef.storage.ref(this.selectedRecord.data.path)
       .getDownloadURL().then(url => {
-        console.log(url);
         const downloadLink = document.createElement('a');
         downloadLink.href = url;
         downloadLink.target = '_blank';
@@ -167,12 +166,7 @@ export class FileUploadComponent implements OnInit {
       this.currentFileUpload = new FileUpload(file);
       this.currentFileUpload.name = file.name;
 
-
-
-
-
       const data = this.storageService.uploadFile(this.currentFileUpload, this.progress);
-      console.log(data);
   }
   }
 
