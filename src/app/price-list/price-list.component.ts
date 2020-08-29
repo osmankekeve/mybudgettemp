@@ -20,7 +20,6 @@ import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductPriceService} from '../services/product-price.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
-import {ProductMainModel} from '../models/product-main-model';
 
 @Component({
   selector: 'app-price-list',

@@ -221,6 +221,18 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'unit-mapping') {
+      fileName = 'unit-mapping';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          Code: data.product.data.productCode,
+          Name: data.product.data.productName,
+          'Unit Name': data.unit.unitName,
+          Value: data.data.unitValue
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

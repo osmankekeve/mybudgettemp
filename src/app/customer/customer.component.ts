@@ -41,6 +41,9 @@ import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
 import {FileMainModel} from '../models/file-main-model';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {DeliveryAddressMainModel} from '../models/delivery-address-main-model';
+import {DeliveryAddressService} from '../services/delivery-address.service';
+import {ProductMainModel} from '../models/product-main-model';
 
 @Component({
   selector: 'app-customer',
@@ -56,6 +59,7 @@ export class CustomerComponent implements OnInit {
   newCollection: CollectionMainModel;
   newPayment: PaymentMainModel;
   newVoucher: AccountVoucherMainModel;
+  newDeliveryAddress: DeliveryAddressMainModel;
 
   accountList$: Observable<CustomerAccountModel[]>;
   purchaseInvoiceList$: Observable<PurchaseInvoiceMainModel[]>;
@@ -75,6 +79,7 @@ export class CustomerComponent implements OnInit {
   cashDeskList$: Observable<CashDeskMainModel[]>;
   executiveList$: Observable<ProfileMainModel[]>;
   transactionList: Array<AccountTransactionModel>;
+  deliveryAddressList: Array<DeliveryAddressMainModel>;
   totalValues = 0;
   BarChart: any;
   filesList: Array<FileMainModel>;
@@ -87,14 +92,16 @@ export class CustomerComponent implements OnInit {
   recordDate: any;
   onTransaction = false;
 
-  constructor(public db: AngularFirestore, public service: CustomerService, public piService: PurchaseInvoiceService,
-              public siService: SalesInvoiceService, public colService: CollectionService, public infoService: InformationService,
-              public cdService: CashDeskService, public avService: AccountVoucherService, public authService: AuthenticationService,
-              public excelService: ExcelService, public fuService: FileUploadService, public vService: VisitService,
-              public router: ActivatedRoute, public ctService: CustomerTargetService, public sService: SettingService,
-              public payService: PaymentService, public atService: AccountTransactionService, public route: Router,
-              public rService: ReportService, public proService: ProfileService, public accService: CustomerAccountService,
-              public mailService: MailService, public globService: GlobalService, public gfuService: GlobalUploadService) {
+  constructor(protected db: AngularFirestore, protected service: CustomerService, protected piService: PurchaseInvoiceService,
+              protected siService: SalesInvoiceService, protected colService: CollectionService, protected infoService: InformationService,
+              protected cdService: CashDeskService, protected avService: AccountVoucherService,
+              protected authService: AuthenticationService,
+              protected excelService: ExcelService, protected fuService: FileUploadService, protected vService: VisitService,
+              protected router: ActivatedRoute, protected ctService: CustomerTargetService, protected sService: SettingService,
+              protected payService: PaymentService, protected atService: AccountTransactionService, protected route: Router,
+              protected rService: ReportService, protected proService: ProfileService, protected accService: CustomerAccountService,
+              protected mailService: MailService, protected globService: GlobalService, protected gfuService: GlobalUploadService,
+              protected daService: DeliveryAddressService) {
   }
 
   async ngOnInit() {
@@ -282,6 +289,10 @@ export class CustomerComponent implements OnInit {
     this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.data.primaryKey);
   }
 
+  showSelectedDeliveryAddressRecord(item: any): void {
+    this.newDeliveryAddress = item as DeliveryAddressMainModel;
+  }
+
   async btnReturnList_Click(): Promise<void> {
     try {
       this.selectedCustomer = undefined;
@@ -368,7 +379,7 @@ export class CustomerComponent implements OnInit {
             this.newSalesInvoice.data.insertDate = Date.now();
             await this.siService.setItem(this.newSalesInvoice, this.newSalesInvoice.data.primaryKey)
               .then(async () => {
-                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -397,7 +408,7 @@ export class CustomerComponent implements OnInit {
             this.newPurchaseInvoice.data.insertDate = Date.now();
             await this.piService.setItem(this.newPurchaseInvoice, this.newPurchaseInvoice.data.primaryKey)
               .then(async () => {
-                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
@@ -426,7 +437,7 @@ export class CustomerComponent implements OnInit {
             this.newCollection.data.insertDate = Date.now();
             await this.colService.setItem(this.newCollection, this.newCollection.data.primaryKey)
               .then(async () => {
-                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
@@ -455,7 +466,7 @@ export class CustomerComponent implements OnInit {
             this.newPayment.data.insertDate = Date.now();
             await this.payService.setItem(this.newPayment, this.newPayment.data.primaryKey)
               .then(async () => {
-                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
@@ -484,7 +495,7 @@ export class CustomerComponent implements OnInit {
             this.newVoucher.data.insertDate = Date.now();
             await this.avService.setItem(this.newVoucher, this.newVoucher.data.primaryKey)
               .then(async () => {
-                await this.finishProcess(null, 'Kayıt başarıyla tamamlandı.');
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch(async (error) => {
                 await this.finishProcess(error, null);
@@ -496,6 +507,77 @@ export class CustomerComponent implements OnInit {
         })
         .catch(async (error) => {
           await this.finishProcess(error, null);
+        });
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnNewDeliveryAddress_Click(): Promise<void> {
+    try {
+      await this.clearDeliveryAddress();
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnSaveDeliveryAddress_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      Promise.all([this.daService.checkForSave(this.newDeliveryAddress)])
+        .then(async (values: any) => {
+          if (this.newDeliveryAddress.data.primaryKey === null) {
+            this.newDeliveryAddress.data.primaryKey = this.db.createId();
+            this.newDeliveryAddress.data.insertDate = Date.now();
+            await this.daService.setItem(this.newDeliveryAddress, this.newDeliveryAddress.data.primaryKey)
+              .then(async () => {
+                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
+              })
+              .catch(async (error) => {
+                await this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearDeliveryAddress();
+              });
+          } else {
+            await this.daService.updateItem(this.newDeliveryAddress)
+              .then(() => {
+                this.finishSubProcess(null, 'Hatırlatma başarıyla güncellendi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              })
+              .finally(() => {
+                this.clearDeliveryAddress();
+              });
+          }
+        })
+        .catch(async (error) => {
+          await this.finishProcess(error, null);
+        });
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnRemoveDeliveryAddress_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      Promise.all([this.daService.checkForRemove(this.newDeliveryAddress)])
+        .then(async (values: any) => {
+          await this.daService.removeItem(this.newDeliveryAddress)
+            .then(async () => {
+              await this.finishSubProcess(null, 'Kayıt başarıyla Kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            })
+            .finally(() => {
+              this.clearDeliveryAddress();
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
         });
     } catch (error) {
       await this.finishProcess(error, null);
@@ -662,8 +744,41 @@ export class CustomerComponent implements OnInit {
           }
         }, 1000);
       }
+      if (this.openedPanel === 'delivery-address') {
+        this.deliveryAddressList = undefined;
+        this.daService.getMainItemsByCustomerPrimaryKey(this.selectedCustomer.data.primaryKey).subscribe(list => {
+          if (this.deliveryAddressList === undefined) {
+            this.deliveryAddressList = [];
+          }
+          list.forEach((data: any) => {
+            const item = data.returnData as DeliveryAddressMainModel;
+            if (item.actionType === 'added') {
+              this.deliveryAddressList.push(item);
+            }
+            if (item.actionType === 'removed') {
+              // tslint:disable-next-line:prefer-for-of
+              for (let i = 0; i < this.deliveryAddressList.length; i++) {
+                if (item.data.primaryKey === this.deliveryAddressList[i].data.primaryKey) {
+                  this.deliveryAddressList.splice(i, 1);
+                  break;
+                }
+              }
+            }
+            if (item.actionType === 'modified') {
+              // tslint:disable-next-line:prefer-for-of
+              for (let i = 0; i < this.deliveryAddressList.length; i++) {
+                if (item.data.primaryKey === this.deliveryAddressList[i].data.primaryKey) {
+                  this.deliveryAddressList[i] = item;
+                  break;
+                }
+              }
+            }
+          });
+        });
+        await this.clearDeliveryAddress();
+      }
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -744,6 +859,12 @@ export class CustomerComponent implements OnInit {
     }
   }
 
+  async clearDeliveryAddress(): Promise<void> {
+    this.onTransaction = false;
+    this.newDeliveryAddress = this.daService.clearMainModel();
+    this.newDeliveryAddress.data.customerPrimaryKey = this.selectedCustomer.data.primaryKey;
+  }
+
   async showTransactionRecord(item: any): Promise<void> {
     const r = new RouterModel();
     r.nextModule = item.transactionType;
@@ -770,6 +891,20 @@ export class CustomerComponent implements OnInit {
       this.generateCharts();
       this.clearSelectedCustomer();
       this.selectedCustomer = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.generateCharts();
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }

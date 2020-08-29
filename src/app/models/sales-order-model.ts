@@ -1,4 +1,4 @@
-export class OrderModel {
+export class SalesOrderModel {
   primaryKey?: string;
   userPrimaryKey: string;
   employeePrimaryKey: string;
@@ -9,12 +9,15 @@ export class OrderModel {
   storagePrimaryKey: string;
   termPrimaryKey: string;
   paymentTypePrimaryKey: string;
-  orderStatus: string; // waiting, approve, reject
-  orderType: string; // sales, service
-  portal: string; // mobile, web
-  orderDate: number;
+  status: string; // waiting, approve, reject
+  type: string; // sales, service
+  platform: string; // mobile, web
   description?: string;
-  insertDate?: number;
   approverPrimaryKey: string;
   approveDate?: number;
+  recordDate?: number;
+  insertDate?: number;
+  totalPrice?: number;
+  totalPriceWithTax?: number;
+  generalDiscount?: number;
 }

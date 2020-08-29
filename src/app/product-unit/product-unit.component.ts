@@ -370,8 +370,8 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   async btnExportToExcel_Click(): Promise<void> {
     try {
-      if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'product-unit');
+      if (this.unitMappingList.length > 0) {
+        this.excelService.exportToExcel(this.unitMappingList, 'product-unit');
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }

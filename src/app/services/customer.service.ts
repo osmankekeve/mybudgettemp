@@ -11,13 +11,15 @@ import { AuthenticationService } from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
-import {getCustomerTypes, getPaymentTypes, getTerms} from '../core/correct-library';
+import {currencyFormat, getCustomerTypes, getPaymentTypes, getProductTypes, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
 import 'rxjs-compat/add/observable/of';
 import 'rxjs-compat/add/operator/combineLatest';
 import 'rxjs-compat/add/observable/combineLatest';
 import 'rxjs-compat/add/observable/from';
 import 'rxjs-compat/add/operator/merge';
+import {ProductModel} from '../models/product-model';
+import {ProductMainModel} from '../models/product-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -219,6 +221,17 @@ export class CustomerService {
     returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
 
+    return returnData;
+  }
+
+  convertMainModel(model: CustomerModel): CustomerMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.employee = this.employeeMap.get(model.employeePrimaryKey);
+    returnData.executive = this.employeeMap.get(model.executivePrimary);
+    returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
+    returnData.termTr = getTerms().get(returnData.data.termKey);
+    returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
     return returnData;
   }
 
@@ -490,6 +503,33 @@ export class CustomerService {
             data.primaryKey = doc.id;
 
             list.push(data);
+          });
+          resolve(list);
+        });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getCustomersMain = async (customerType: Array<string>):
+    Promise<Array<CustomerMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<CustomerMainModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('name', 'asc')
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerType', 'in', customerType);
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as CustomerModel;
+            data.primaryKey = doc.id;
+
+            list.push(this.convertMainModel(data));
           });
           resolve(list);
         });

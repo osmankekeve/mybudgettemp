@@ -88,7 +88,6 @@ export class NoteComponent implements OnInit {
       this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-          this.onTransaction = true;
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = '';
             await this.service.addItem(this.selectedRecord)

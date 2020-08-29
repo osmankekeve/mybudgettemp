@@ -14,7 +14,6 @@ import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library'
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 
 @Injectable({
   providedIn: 'root'

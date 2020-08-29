@@ -38,13 +38,15 @@ import { ProductSelectComponent } from './partials/product-select/product-select
 import {ProductFilterPipe} from './filters/product-filter.pipe';
 import {ProductSubFilterPipe} from './filters/product-sub-filter.pipe';
 import {ListFilterPipe} from './filters/list-filter.pipe';
+import {CustomerSelectComponent} from './partials/customer-select/customer-select.component';
 
 @NgModule({
   declarations: [
         AppComponent, routingComponents,
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe
+        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
+        CustomerSelectComponent
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -58,6 +60,6 @@ import {ListFilterPipe} from './filters/list-filter.pipe';
     InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent ]
 })
 export class AppModule { }

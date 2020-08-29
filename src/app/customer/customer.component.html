@@ -115,45 +115,6 @@
     <div class="card-body" *ngIf="selectedCustomer.data.primaryKey!=undefined">
       <div class="row">
         <div class="col-sm-6">
-          <div class="row mb-2">
-            <div class="col-sm-12">
-              <div class="list-group">
-                <div class="list-group-item fs-14">
-                  <div class="row">
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri Adı</div>
-                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.name}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri Tipi</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.customerTypeTr}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Yetkili Kişi</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.owner}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">E-Mail</div>
-                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.email}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Telefon</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone1}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Fax</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone2}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Dairesi</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxOffice}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Numarası</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxNumber}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Ödeme Tipi</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.paymentTypeTr}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vade</div>
-                    <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.termTr}}</div>
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Temsilci</div>
-                    <div class="col-sm-3 text-secondary mb-1" *ngIf="selectedCustomer.executive==undefined">Seçilmedi
-                    </div>
-                    <div class="col-sm-3 text-secondary mb-1"
-                         *ngIf="selectedCustomer.executive!=undefined">{{selectedCustomer.executive.longName}}</div>
-                  </div>
-                  <div class="row">
-                    <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Adres</div>
-                    <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.address}}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('edit')">
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="row">
@@ -232,9 +193,61 @@
               </div>
             </div>
           </div>
+          <div class="cursor-pointer mb-1" (click)="btnOpenSubPanel_Click('delivery-address')">
+            <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+              <div class="row">
+                <div class="col-sm-2">
+                  <img src="../../assets/images/delivery-address.png" width="50px">
+                </div>
+                <div class="col-sm-10">
+                  <div>Sevk Adresleri</div>
+                  <small class="text-secondary">Müşteriye Ait Sevk Adreslerini Listeler</small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="col-sm-6">
           <div id="panel-navigator">
+            <div class="row mb-2">
+              <div class="col-sm-12">
+                <div class="list-group">
+                  <div class="list-group-item fs-14">
+                    <div class="row">
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri Adı</div>
+                      <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.name}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri Tipi</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.customerTypeTr}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Yetkili Kişi</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.owner}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">E-Mail</div>
+                      <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.email}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Telefon</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone1}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Fax</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.phone2}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Dairesi</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxOffice}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vergi Numarası</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.data.taxNumber}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Ödeme Tipi</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.paymentTypeTr}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Vade</div>
+                      <div class="col-sm-3 text-secondary mb-1">{{selectedCustomer.termTr}}</div>
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Temsilci</div>
+                      <div class="col-sm-3 text-secondary mb-1" *ngIf="selectedCustomer.executive==undefined">Seçilmedi
+                      </div>
+                      <div class="col-sm-3 text-secondary mb-1"
+                           *ngIf="selectedCustomer.executive!=undefined">{{selectedCustomer.executive.longName}}</div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Adres</div>
+                      <div class="col-sm-9 text-secondary mb-1">{{selectedCustomer.data.address}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-sm-6">
                 <div class="card card-stats">
@@ -1522,6 +1535,106 @@
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
+    </div>
+  </div>
+  <div *ngIf="openedPanel=='delivery-address'">
+    <div class="card-body">
+      <div class="form-row">
+        <div class="col-sm-7">
+          <div class="card">
+            <div class="card-header bg-gray-gradient">
+              <h6 class="card-title float-left mr-2">Yeni Sevk Adresi</h6>
+              <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Address"
+                      (click)="btnNewDeliveryAddress_Click()"><i class="fa fa-plus"></i></button>
+            </div>
+            <div class="card-body">
+              <form (ngSubmit)="btnSaveDeliveryAddress_Click()" class="was-validated" #v="ngForm">
+                <div class="form-row">
+                  <div class="col-sm-2">
+                    <label class="col-form-label float-left" for="addressDel">Adres Adı</label>
+                  </div>
+                  <div class="col-sm-10">
+                    <input class="form-control form-control-sm w-100" id="addressName" name="addressName" type="text"
+                           [(ngModel)]="newDeliveryAddress.data.addressName" required>
+                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                  </div>
+                  <div class="col-sm-2">
+                    <label class="col-form-label float-left" for="addressDel">Adres</label>
+                  </div>
+                  <div class="col-sm-10">
+                    <textarea class="form-control form-control-sm w-100" id="addressDel" name="addressDel" type="text" required
+                              cols="40" rows="5" [(ngModel)]="newDeliveryAddress.data.address"></textarea>
+                    <div class="invalid-feedback">Lütfen alanı doldurunuz.</div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="card-footer">
+              <div class="col-sm-4 float-left">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text success-icon-side">
+                      <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                      <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                    </span>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-success form-control"
+                          [disabled]="onTransaction"
+                          (click)="btnSaveDeliveryAddress_Click()">Kaydet
+                  </button>
+                </div>
+              </div>
+              <div class="col-sm-4 float-right" *ngIf="newDeliveryAddress.data.primaryKey!=undefined">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-danger form-control"
+                          [disabled]="onTransaction"
+                          (click)="btnRemoveDeliveryAddress_Click()">Kaldır
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-5">
+          <div class="card">
+            <div class="card-header bg-gray-gradient">
+              <h6 class="card-title float-left mr-2">Adresler</h6>
+            </div>
+            <div class="card-body work-area-2">
+              <div *ngIf="deliveryAddressList != undefined; else elseBlock2">
+                <div class="list-group" *ngIf="deliveryAddressList.length > 0; else elseBlock">
+                  <div class="list-group-item bg-danger text-light main-list-item">
+                    <div class="row">
+                      <div class="col-sm-12">Adres</div>
+                    </div>
+                  </div>
+                  <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                       (click)="showSelectedDeliveryAddressRecord(item)"
+                       *ngFor="let item of deliveryAddressList">
+                    <div class="row">
+                      <span class="text-red">{{item.data.addressName}} :</span>{{item.data.address}}
+                    </div>
+                  </div>
+                </div>
+                <ng-template #elseBlock>
+                  <div class="card bg-danger text-white">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
+                </ng-template>
+              </div>
+              <ng-template #elseBlock2>
+                <div class="loader"></div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

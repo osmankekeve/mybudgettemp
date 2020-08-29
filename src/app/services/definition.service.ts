@@ -9,6 +9,7 @@ import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
 import {DefinitionModel} from '../models/definition-model';
 import {DefinitionMainModel} from '../models/definition-main-model';
+import {DiscountListModel} from '../models/discount-list-model';
 
 @Injectable({
   providedIn: 'root'
@@ -136,4 +137,30 @@ export class DefinitionService {
     );
     return this.mainList$;
   }
+
+  getItemsForFill = async (typeKey: string):
+    Promise<Array<DefinitionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<DefinitionModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('typeKey', '==', typeKey);
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as DefinitionModel;
+            data.primaryKey = doc.id;
+
+            list.push(data);
+          });
+          resolve(list);
+        });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

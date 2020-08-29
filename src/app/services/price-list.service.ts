@@ -5,23 +5,13 @@ import {map, flatMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
-import {ProfileService} from './profile.service';
 import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {CustomerModel} from '../models/customer-model';
-import {ProductPriceModel} from '../models/product-price-model';
-import {ProductPriceMainModel} from '../models/product-price-main-model';
-import {ProductModel} from '../models/product-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
-import {combineLatest} from 'rxjs';
 import {PriceListModel} from '../models/price-list-model';
 import {PriceListMainModel} from '../models/price-list-main-model';
 import {ProductPriceService} from './product-price.service';
+import {CustomerMainModel} from '../models/customer-main-model';
+import {CustomerModel} from '../models/customer-model';
 
 @Injectable({
   providedIn: 'root'
@@ -165,4 +155,31 @@ export class PriceListService {
     );
     return this.mainList$;
   }
+
+  getPriceLists = async (isActive: Array<boolean>, type: string):
+    Promise<Array<PriceListModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<PriceListModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('isActive', 'in', isActive)
+          .where('type', '==', type);
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as PriceListModel;
+            data.primaryKey = doc.id;
+
+            list.push(data);
+          });
+          resolve(list);
+        });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }
