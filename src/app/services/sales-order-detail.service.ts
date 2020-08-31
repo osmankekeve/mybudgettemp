@@ -14,7 +14,7 @@ import {ProductMainModel} from '../models/product-main-model';
 import {ProductModel} from '../models/product-model';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {CustomerModel} from '../models/customer-model';
-import {getPaymentTypes, getTerms} from '../core/correct-library';
+import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -47,9 +47,9 @@ export class SalesOrderDetailService {
 
   checkForSave(record: SalesOrderDetailMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (record.data.productPrimaryKey === '' || record.data.productPrimaryKey === '-1') {
+      if (record.data.productPrimaryKey === '-1') {
         reject('Lütfen ürün seçiniz.');
-      } else if (record.data.unitPrimaryKey === '' || record.data.unitPrimaryKey === '-1') {
+      } else if (record.data.unitPrimaryKey === '-1') {
         reject('Lütfen birim seçiniz.');
       } else if (record.data.price < 0) {
         reject('Fiyat sıfırdan büyük olmalıdır.');
@@ -102,6 +102,10 @@ export class SalesOrderDetailService {
     returnData.data = this.clearSubModel();
     returnData.product = this.pService.clearMainModel();
     returnData.actionType = 'added';
+    returnData.processType = 'insert';
+    returnData.priceFormatted = currencyFormat(returnData.data.price);
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
   }
 

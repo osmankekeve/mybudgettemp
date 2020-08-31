@@ -7,6 +7,13 @@ import {getBool} from '../core/correct-library';
 import {ProductUnitModel} from '../models/product-unit-model';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {ProductUnitService} from '../services/product-unit.service';
+import {DefinitionModel} from '../models/definition-model';
+import {DiscountListService} from '../services/discount-list.service';
+import {DefinitionService} from '../services/definition.service';
+import {PriceListModel} from '../models/price-list-model';
+import {DiscountListModel} from '../models/discount-list-model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {PriceListService} from '../services/price-list.service';
 
 @Component({
   selector: 'app-setting',
@@ -15,6 +22,15 @@ import {ProductUnitService} from '../services/product-unit.service';
 })
 export class SettingComponent implements OnInit {
   unitList: Array<ProductUnitModel>;
+  storageList: Array<DefinitionModel>;
+  priceLists: Array<PriceListModel>;
+  discountLists: Array<DiscountListModel>;
+  general = {
+    defaultCurrencyCode: 'lira',
+    defaultStoragePrimaryKey: '-1',
+    defaultPriceListPrimaryKey: '-1',
+    defaultDiscountListPrimaryKey: '-1'
+  };
   purchaseInvoice = {
     prefix: '',
     number: '',
@@ -63,9 +79,6 @@ export class SettingComponent implements OnInit {
     chart1Visibility: false,
     chart2Visibility: false
   };
-  general = {
-    defaultCurrencyCode: 'lira'
-  };
   customer = {
     prefix: '',
     number: '',
@@ -81,11 +94,15 @@ export class SettingComponent implements OnInit {
   };
   openedPanel = 'general';
 
-  constructor(public authService: AuthenticationService, public service: SettingService, public infoService: InformationService,
-              public db: AngularFirestore, protected puService: ProductUnitService) { }
+  constructor(protected authService: AuthenticationService, protected service: SettingService, protected infoService: InformationService,
+              protected db: AngularFirestore, protected puService: ProductUnitService, protected defService: DefinitionService,
+              protected plService: PriceListService, protected dService: DiscountListService) { }
 
   async ngOnInit() {
     await this.populateUnits();
+    await this.populateStorages();
+    await this.populatePriceList();
+    await this.populateDiscountList();
     this.service.getAllItems().subscribe(list => {
       list.forEach((item: any) => {
         if (item.key === 'purchaseInvoicePrefix') {
@@ -196,9 +213,6 @@ export class SettingComponent implements OnInit {
         if (item.key === 'cashDeskChart2Visibility') {
           this.cashDeskVoucher.chart2Visibility = item.valueBool;
         }
-        if (item.key === 'defaultCurrencyCode') {
-          this.general.defaultCurrencyCode = item.value;
-        }
         if (item.key === 'customerPrefix') {
           this.customer.prefix = item.value;
         }
@@ -225,6 +239,18 @@ export class SettingComponent implements OnInit {
         }
         if (item.key === 'defaultUnitCode') {
           this.product.defaultUnitCode = item.value;
+        }
+        if (item.key === 'defaultCurrencyCode') {
+          this.general.defaultCurrencyCode = item.value;
+        }
+        if (item.key === 'defaultStoragePrimaryKey') {
+          this.general.defaultStoragePrimaryKey = item.value;
+        }
+        if (item.key === 'defaultPriceListPrimaryKey') {
+          this.general.defaultPriceListPrimaryKey = item.value;
+        }
+        if (item.key === 'defaultDiscountListPrimaryKey') {
+          this.general.defaultDiscountListPrimaryKey = item.value;
         }
       });
     });
@@ -372,11 +398,63 @@ export class SettingComponent implements OnInit {
     await this.service.setItem(data).catch(err => this.infoService.error(err));
   }
 
+  async onChangeDefaultStorage(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultStoragePrimaryKey';
+    data.value = value;
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
+  async onChangeDefaultPriceList(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultPriceListPrimaryKey';
+    data.value = value;
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
+  async onChangeDefaultDiscountList(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultDiscountListPrimaryKey';
+    data.value = value;
+    await this.service.setItem(data).catch(err => this.infoService.error(err));
+  }
+
   async populateUnits(): Promise<void> {
     this.unitList = [];
     const units = await this.puService.getItemsForSelect();
     units.forEach(item => {
       this.unitList.push(item);
+    });
+  }
+
+  async populateStorages(): Promise<void> {
+    // promise select func.
+    this.storageList = [];
+    const data = await this.defService.getItemsForFill('storage');
+    data.forEach(item => {
+      this.storageList.push(item);
+    });
+  }
+
+  async populatePriceList(): Promise<void> {
+    // promise select func.
+    const list = Array<boolean>();
+    list.push(true);
+    this.priceLists = [];
+    const data = await this.plService.getPriceLists(list, 'sales');
+    data.forEach(item => {
+      this.priceLists.push(item);
+    });
+  }
+
+  async populateDiscountList(): Promise<void> {
+    // promise select func.
+    const list = Array<boolean>();
+    list.push(true);
+    this.discountLists = [];
+    const data = await this.dService.getDiscountLists(list, 'sales');
+    data.forEach(item => {
+      this.discountLists.push(item);
     });
   }
 

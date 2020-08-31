@@ -14,6 +14,7 @@ import {InformationService} from '../../services/information.service';
 export class ProductSelectComponent implements OnInit {
 
   @Input() public product: ProductMainModel;
+  @Input() public productTypes: Array<string>;
   @Output() passEntry: EventEmitter<any> = new EventEmitter();
   productList: Array<ProductMainModel>;
   searchText: '';
@@ -25,9 +26,11 @@ export class ProductSelectComponent implements OnInit {
     if (this.product === null) {
       this.product = this.pService.clearMainModel();
     }
-    const list = Array<string>();
-    list.push('normal');
-    Promise.all([this.pService.getProductsForSelection(list)]).then((values: any) => {
+    if (this.productTypes == null) {
+      this.productTypes = [];
+      this.productTypes.push('normal');
+    }
+    Promise.all([this.pService.getProductsForSelection(this.productTypes)]).then((values: any) => {
       this.productList = [];
       if (values[0] !== undefined || values[0] !== null) {
         const returnData = values[0] as Array<ProductMainModel>;

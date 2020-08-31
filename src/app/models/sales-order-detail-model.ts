@@ -1,3 +1,5 @@
+import {currencyFormat} from '../core/correct-library';
+
 export class SalesOrderDetailModel {
   primaryKey?: string;
   orderPrimaryKey: string;
@@ -11,8 +13,8 @@ export class SalesOrderDetailModel {
   quantity?: number;
   taxRate?: number;
   insertDate?: number;
-  totalPrice?: number;
-  totalPriceWithTax?: number;
+  totalPrice?: number; // iskonto1 ve iskont2 dusmus hali.
+  totalPriceWithTax?: number; // totalPrice + kdv
   campaignPrimaryKey: string;
   unitPrimaryKey: string;
   unitValue: number;

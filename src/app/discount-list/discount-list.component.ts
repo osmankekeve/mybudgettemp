@@ -313,11 +313,10 @@ export class DiscountListComponent implements OnInit, OnDestroy {
   async btnSaveProduct_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-
+      this.selectedProductDiscount.data.discountListPrimaryKey = this.selectedRecord.data.primaryKey;
+      this.selectedProductDiscount.data.productPrimaryKey = this.selectedProductDiscount.product.data.primaryKey;
       Promise.all([this.ppService.checkForSave(this.selectedProductDiscount)])
         .then(async (values: any) => {
-          this.selectedProductDiscount.data.discountListPrimaryKey = this.selectedRecord.data.primaryKey;
-          this.selectedProductDiscount.data.productPrimaryKey = this.selectedProductDiscount.product.data.primaryKey;
           if (this.selectedProductDiscount.data.primaryKey === null) {
 
             let isAvailable = false;

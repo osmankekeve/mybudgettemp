@@ -16,10 +16,14 @@ import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
+import {currencyFormat, getProductTypes, getStatus} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductModel} from '../models/product-model';
 import {ProductService} from './product.service';
+import {DeliveryAddressModel} from '../models/delivery-address-model';
+import {ProductMainModel} from '../models/product-main-model';
+import {SalesOrderMainModel} from '../models/sales-order-main-model';
+import {ProductUnitService} from './product-unit.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +35,8 @@ export class ProductUnitMappingService {
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService, protected actService: ActionService, protected proService: ProductService) {
+              protected atService: AccountTransactionService, protected actService: ActionService, protected proService: ProductService,
+              protected puService: ProductUnitService) {
 
   }
 
@@ -90,6 +95,7 @@ export class ProductUnitMappingService {
     returnData.productPrimaryKey = '-1';
     returnData.unitPrimaryKey = '-1';
     returnData.unitValue = 1;
+    returnData.isActive = true;
     returnData.insertDate = Date.now();
 
     return returnData;
@@ -99,14 +105,25 @@ export class ProductUnitMappingService {
     const returnData = new ProductUnitMappingMainModel();
     returnData.data = this.clearSubModel();
     returnData.product = this.proService.clearMainModel();
+    returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
     return returnData;
   }
 
   checkFields(model: ProductUnitMappingModel): ProductUnitMappingModel {
     const cleanModel = this.clearSubModel();
+    if (model.isActive === undefined) {
+      model.isActive = cleanModel.isActive;
+    }
 
     return model;
+  }
+
+  convertMainModel(model: ProductUnitMappingModel): ProductUnitMappingMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {

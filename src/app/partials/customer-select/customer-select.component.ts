@@ -1,9 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ProductModel} from '../../models/product-model';
-import {ProductService} from '../../services/product.service';
-import {ProductMainModel} from '../../models/product-main-model';
-import {PriceListService} from '../../services/price-list.service';
 import {InformationService} from '../../services/information.service';
 import {CustomerMainModel} from '../../models/customer-main-model';
 import {CustomerService} from '../../services/customer.service';

@@ -34,6 +34,7 @@ export class AlertComponent implements OnDestroy, OnInit {
           // @ts-ignore
           $('#myModal').modal();
           this.message = message;
+          this.jsonData = null;
         }
       });
     this.subscription = this.alertService.getJsonData()
@@ -42,6 +43,7 @@ export class AlertComponent implements OnDestroy, OnInit {
           // @ts-ignore
           $('#myModal').modal();
           this.jsonData = jsonData;
+          this.message = null;
         }
       });
   }

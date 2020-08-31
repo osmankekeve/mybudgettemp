@@ -19,6 +19,7 @@ import {ActionService} from './action.service';
 import {SalesOrderModel} from '../models/sales-order-model';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {SalesOrderDetailService} from './sales-order-detail.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,12 +32,18 @@ export class SalesOrderService {
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected accService: CustomerAccountService, protected atService: AccountTransactionService,
-              protected actService: ActionService) {
+              protected actService: ActionService, protected sodService: SalesOrderDetailService) {
   }
 
   async addItem(record: SalesOrderMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data))
       .then(async result => {
+
+        for (const item of record.orderDetailList) {
+          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
+          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+        }
+
         await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
@@ -68,6 +75,13 @@ export class SalesOrderService {
   async setItem(record: SalesOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
+        console.log('Order After Set value: ' + value);
+
+        for (const item of record.orderDetailList) {
+          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
+          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+        }
+
         await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
@@ -96,6 +110,8 @@ export class SalesOrderService {
         reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
       } else if (isNullOrEmpty(record.data.recordDate)) {
         reject('Lütfen kayıt tarihi seçiniz.');
+      } else if (record.orderDetailList.length === 0) {
+        reject('Boş sipariş kaydedilemez.');
       } else {
         resolve(null);
       }
@@ -149,6 +165,12 @@ export class SalesOrderService {
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
+    returnData.totalPriceWithoutDiscount = 0;
+    returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.totalPriceWithoutDiscount);
+    returnData.generalDiscountAmount = 0;
+    returnData.generalDiscountAmountFormatted = currencyFormat(returnData.totalPriceWithoutDiscount);
+    returnData.detailDiscountAmount = 0;
+    returnData.detailDiscountAmountFormatted = currencyFormat(returnData.detailDiscountAmount);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     returnData.orderDetailList = Array<SalesOrderDetailMainModel>();

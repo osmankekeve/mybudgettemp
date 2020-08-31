@@ -5,5 +5,6 @@ export class ProductUnitMappingModel {
   productPrimaryKey: string;
   unitPrimaryKey: string;
   unitValue: number;
+  isActive: boolean;
   insertDate?: number;
 }

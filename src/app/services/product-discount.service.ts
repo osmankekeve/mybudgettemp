@@ -5,24 +5,13 @@ import {map, flatMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
-import {ProfileService} from './profile.service';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {CustomerModel} from '../models/customer-model';
-import {ProductPriceModel} from '../models/product-price-model';
-import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductModel} from '../models/product-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductDiscountModel} from '../models/product-discount-model';
+import {ProductPriceModel} from '../models/product-price-model';
 
 @Injectable({
   providedIn: 'root'
@@ -91,6 +80,8 @@ export class ProductDiscountService {
     const returnData = new ProductDiscountModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
+    returnData.discountListPrimaryKey = '-1';
+    returnData.productPrimaryKey = '-1';
     returnData.discount1 = 0;
     returnData.discount2 = 0;
     returnData.insertDate = Date.now();
@@ -204,6 +195,35 @@ export class ProductDiscountService {
             }));
         });
         resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getProductDiscount = async (discountListPrimaryKey: string, productPrimaryKey: string):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<ProductDiscountModel> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('discountListPrimaryKey', '==', discountListPrimaryKey)
+          .where('productPrimaryKey', '==', productPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          snapshot.forEach(doc => {
+            const data = doc.data() as ProductDiscountModel;
+            data.primaryKey = doc.id;
+            resolve(data);
+          });
+        } else {
+          resolve(null);
+        }
       });
 
     } catch (error) {

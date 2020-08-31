@@ -117,6 +117,39 @@
                       <option value="euro">Avro</option>
                     </select>
                   </div>
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Depo</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultStorage($event.target.value)"
+                            [(ngModel)]="general.defaultStoragePrimaryKey">
+                      <option value="-1">Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Fiyat Listesi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultPriceList($event.target.value)"
+                            [(ngModel)]="general.defaultPriceListPrimaryKey">
+                      <option value="-1">Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of priceLists">{{item.listName}}</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan İskonto Listesi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultDiscountList($event.target.value)"
+                            [(ngModel)]="general.defaultDiscountListPrimaryKey">
+                      <option value="-1">Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of discountLists">{{item.listName}}</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>

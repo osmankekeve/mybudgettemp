@@ -5,22 +5,18 @@ import {map, flatMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
-import {ProfileService} from './profile.service';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {CustomerModel} from '../models/customer-model';
 import {ProductPriceModel} from '../models/product-price-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductModel} from '../models/product-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
+import {currencyFormat, getEducation, getGenders, getProductTypes, getStatus, getUserTypes} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
+import {ProductDiscountModel} from '../models/product-discount-model';
+import {ProfileModel} from '../models/profile-model';
+import {ProductMainModel} from '../models/product-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -90,6 +86,8 @@ export class ProductPriceService {
     const returnData = new ProductPriceModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
+    returnData.priceListPrimaryKey = '-1';
+    returnData.productPrimaryKey = '-1';
     returnData.productPrice = 0;
     returnData.insertDate = Date.now();
 
@@ -109,6 +107,13 @@ export class ProductPriceService {
     const cleanModel = this.clearSubModel();
 
     return model;
+  }
+
+  convertMainModel(model: ProductPriceModel): ProductPriceMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
+    return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
@@ -207,6 +212,35 @@ export class ProductPriceService {
             }));
         });
         resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getProductPrice = async (priceListPrimaryKey: string, productPrimaryKey: string):
+    // tslint:disable-next-line:cyclomatic-complexity
+    Promise<ProductPriceMainModel> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('priceListPrimaryKey', '==', priceListPrimaryKey)
+          .where('productPrimaryKey', '==', productPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          snapshot.forEach(doc => {
+            const data = doc.data() as ProductPriceModel;
+            data.primaryKey = doc.id;
+            resolve(this.convertMainModel(data));
+          });
+        } else {
+          resolve(null);
+        }
       });
 
     } catch (error) {

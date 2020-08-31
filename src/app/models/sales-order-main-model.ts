@@ -9,6 +9,12 @@ export class SalesOrderMainModel {
   orderTypeTr?: string;
   statusTr?: string;
   actionType?: string;
+  detailDiscountAmount?: number;
+  detailDiscountAmountFormatted?: string;
+  generalDiscountAmount?: number;
+  generalDiscountAmountFormatted?: string;
+  totalPriceWithoutDiscount?: number;
+  totalPriceWithoutDiscountFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
   orderDetailList: Array<SalesOrderDetailMainModel>;
