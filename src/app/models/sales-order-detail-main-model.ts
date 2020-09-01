@@ -9,7 +9,6 @@ export class SalesOrderDetailMainModel {
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
   actionType?: string;
-  processType?: string;
 }
 
 export const setOrderDetailCalculation = (record: SalesOrderDetailMainModel): void => {

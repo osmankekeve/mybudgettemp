@@ -20,41 +20,45 @@ export class SalesOrderModel {
   approveDate?: number;
   recordDate?: number;
   insertDate?: number;
+  totalPriceWithoutDiscount?: number;
   totalPrice?: number;
-  totalPriceWithTax?: number;
+  totalDetailDiscount?: number;
   generalDiscount?: number;
+  totalPriceWithTax?: number;
 }
 
 export const setOrderCalculation = (record: SalesOrderMainModel): void => {
   let a = 0;
   let b = 0;
   let c = 0;
-  for (const item of record.orderDetailList) {
+  if (record.orderDetailList != null) {
+    for (const item of record.orderDetailList) {
+      // iskontosuz detay toplam fiyati
+      a += item.data.price * item.data.quantity;
+      // iskontolu detay toplam fiyati
+      b += item.data.totalPrice;
+      c += item.data.totalPriceWithTax;
+
+    }
     // iskontosuz detay toplam fiyati
-    a += item.data.price * item.data.quantity;
+    record.data.totalPriceWithoutDiscount = a;
     // iskontolu detay toplam fiyati
-    b += item.data.totalPrice;
-    c += item.data.totalPriceWithTax;
+    record.data.totalPrice = b;
+    // iskontolu detay toplam fiyati formatli
+    record.totalPriceFormatted = currencyFormat(record.data.totalPrice);
+    record.data.totalPriceWithTax = c;
+    // iskontosuz detay toplam fiyati formatli
+    record.totalPriceWithoutDiscountFormatted = currencyFormat(record.data.totalPriceWithoutDiscount);
 
+    // detaya uygulanan toplan iskonto
+    record.data.totalDetailDiscount = record.data.totalPriceWithoutDiscount - record.data.totalPrice;
+    record.totalDetailDiscountFormatted = currencyFormat(record.data.totalDetailDiscount);
+
+    // genel iskonto
+    record.data.generalDiscount = (record.data.totalPrice * record.data.generalDiscount) / 100;
+    record.generalDiscountFormatted = currencyFormat(record.data.generalDiscount);
+    // tum iskontolar uygulanmis kdv dahil toplam tutar
+    record.data.totalPriceWithTax = record.data.totalPriceWithTax - record.data.generalDiscount;
+    record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
   }
-  // iskontosuz detay toplam fiyati
-  record.totalPriceWithoutDiscount = a;
-  // iskontolu detay toplam fiyati
-  record.data.totalPrice = b;
-  // iskontolu detay toplam fiyati formatli
-  record.totalPriceFormatted = currencyFormat(record.data.totalPrice);
-  record.data.totalPriceWithTax = c;
-  // iskontosuz detay toplam fiyati formatli
-  record.totalPriceWithoutDiscountFormatted = currencyFormat(record.totalPriceWithoutDiscount);
-
-  // detaya uygulanan toplan iskonto
-  record.detailDiscountAmount = record.totalPriceWithoutDiscount - record.data.totalPrice;
-  record.detailDiscountAmountFormatted = currencyFormat(record.detailDiscountAmount);
-
-  // genel iskonto
-  record.generalDiscountAmount = (record.data.totalPrice * record.data.generalDiscount) / 100;
-  record.generalDiscountAmountFormatted = currencyFormat(record.generalDiscountAmount);
-  // tum iskontolar uygulanmis kdv dahil toplam tutar
-  record.data.totalPriceWithTax = record.data.totalPriceWithTax - record.generalDiscountAmount;
-  record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
 };

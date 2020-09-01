@@ -8,7 +8,7 @@ import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {ActionService} from './action.service';
 import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {ProductService} from './product.service';
 import {ProductMainModel} from '../models/product-main-model';
 import {ProductModel} from '../models/product-model';
@@ -102,7 +102,6 @@ export class SalesOrderDetailService {
     returnData.data = this.clearSubModel();
     returnData.product = this.pService.clearMainModel();
     returnData.actionType = 'added';
-    returnData.processType = 'insert';
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -163,18 +162,20 @@ export class SalesOrderDetailService {
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
-          .where('userPrimaryKey', '==', this.authService.getUid())
           .where('orderPrimaryKey', '==', orderPrimaryKey);
         return query;
       })
         .get().subscribe(snapshot => {
-        snapshot.forEach(doc => {
+        snapshot.forEach(async doc => {
           const data = doc.data() as SalesOrderDetailModel;
           data.primaryKey = doc.id;
 
           const returnData = new SalesOrderDetailMainModel();
           returnData.data = this.checkFields(data);
 
+          const p = await this.pService.getItem(data.productPrimaryKey);
+          returnData.product = p.returnData;
+          setOrderDetailCalculation(returnData);
           list.push(returnData);
         });
         resolve(list);

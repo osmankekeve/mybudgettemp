@@ -163,7 +163,7 @@ export class ProductService {
           returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
           returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
           returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
-          return Object.assign({returnData});
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }

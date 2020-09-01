@@ -12,7 +12,6 @@ import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
 import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
 
 @Injectable({

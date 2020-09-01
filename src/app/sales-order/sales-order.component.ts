@@ -41,7 +41,6 @@ export class SalesOrderComponent implements OnInit {
   mainList: Array<SalesOrderMainModel>;
   // orderDetailList: Array<SalesOrderDetailMainModel>;
   selectedRecord: SalesOrderMainModel;
-  selectedCustomer: CustomerMainModel;
   selectedDetail: SalesOrderDetailMainModel;
   searchText: '';
   productSearchText: '';
@@ -70,7 +69,6 @@ export class SalesOrderComponent implements OnInit {
   ngOnInit() {
     this.selectedRecord = undefined;
     this.selectedDetail = undefined;
-    this.selectedCustomer = undefined;
     this.populateList();
   }
 
@@ -103,7 +101,6 @@ export class SalesOrderComponent implements OnInit {
       }
       list.forEach((data: any) => {
         const item = data.returnData as SalesOrderMainModel;
-        setOrderCalculation(item);
         if (item.actionType === 'added') {
           this.mainList.push(item);
         }
@@ -133,9 +130,12 @@ export class SalesOrderComponent implements OnInit {
   }
 
   populateOrderDetailList(): void {
-    this.selectedRecord.orderDetailList = undefined;
+    this.selectedRecord.orderDetailList = [];
     Promise.all([this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)])
       .then((values: any) => {
+        console.log(values[0]);
+        this.selectedRecord.orderDetailList = [];
+
         if (values[0] !== null) {
           const returnData = values[0] as Array<SalesOrderDetailMainModel>;
 
@@ -210,7 +210,7 @@ export class SalesOrderComponent implements OnInit {
   populateTermList(): void {
     Promise.all([this.defService.getItemsForFill('term')]).then((values: any) => {
       this.termList = [];
-      if (values[0] !== undefined || values[0] !== null) {
+      if (values[0] !== null) {
         const returnData = values[0] as Array<DefinitionModel>;
         returnData.forEach(value => {
           this.termList.push(value);
@@ -222,7 +222,7 @@ export class SalesOrderComponent implements OnInit {
   populatePaymentTypeList(): void {
     Promise.all([this.defService.getItemsForFill('payment-type')]).then((values: any) => {
       this.paymentList = [];
-      if (values[0] !== undefined || values[0] !== null) {
+      if (values[0] !== null) {
         const returnData = values[0] as Array<DefinitionModel>;
         returnData.forEach(value => {
           this.paymentList.push(value);
@@ -234,12 +234,14 @@ export class SalesOrderComponent implements OnInit {
   populateDeliveryAddressList(): void {
     this.deliveryAddressList = [];
     Promise.all([this.daService.getItemsForFill(this.selectedRecord.customer.data.primaryKey)]).then((values: any) => {
-      if (values[0] !== undefined || values[0] !== null) {
+      if (values[0] !== null) {
         const returnData = values[0] as Array<DeliveryAddressModel>;
         returnData.forEach(value => {
-
           this.deliveryAddressList.push(value);
         });
+        if (this.deliveryAddressList.length > 0) {
+          this.selectedRecord.data.deliveryAddressPrimaryKey = this.deliveryAddressList[0].primaryKey;
+        }
       }
     });
   }
@@ -285,9 +287,21 @@ export class SalesOrderComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as SalesOrderMainModel;
-    this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
-    this.populateOrderDetailList();
+    this.service.getItem(record.data.primaryKey).then(async value => {
+      this.selectedRecord = value.returnData as SalesOrderMainModel;
+      this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.populateDeliveryAddressList();
+      this.populatePriceList();
+      this.populateDiscountList();
+      this.populateStorageList();
+      this.populateTermList();
+      this.populatePaymentTypeList();
+
+      await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
+        .then((list) => {
+          this.selectedRecord.orderDetailList = list;
+        });
+    });
   }
 
   async btnShowJsonData_Click(): Promise<void> {
@@ -330,9 +344,12 @@ export class SalesOrderComponent implements OnInit {
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
-          setOrderCalculation(this.selectedRecord);
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
+            for (const item of this.selectedRecord.orderDetailList) {
+              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
+            }
+            setOrderCalculation(this.selectedRecord);
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
@@ -344,6 +361,10 @@ export class SalesOrderComponent implements OnInit {
                 this.finishFinally();
               });
           } else {
+            for (const item of this.selectedRecord.orderDetailList) {
+              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
+            }
+            setOrderCalculation(this.selectedRecord);
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
@@ -398,8 +419,8 @@ export class SalesOrderComponent implements OnInit {
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
         if (result) {
-          this.selectedCustomer = result;
           this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
           this.populateDeliveryAddressList();
         }
       });
@@ -407,8 +428,6 @@ export class SalesOrderComponent implements OnInit {
       await this.infoService.error(error);
     }
   }
-
-
 
 
 
@@ -512,6 +531,7 @@ export class SalesOrderComponent implements OnInit {
       this.selectedDetail.priceFormatted = null;
     }
   }
+
 
 
 

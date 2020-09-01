@@ -24,16 +24,24 @@
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-indigo text-light main-list-item">
+        <div class="list-group-item bg-red text-light main-list-item">
           <div class="row">
-            <div class="col-sm-12">Müşteri</div>
+            <div class="col-sm-5">Müşteri</div>
+            <div class="col-sm-1">Durum</div>
+            <div class="col-sm-2"><span class="float-right">Toplam Tutar</span></div>
+            <div class="col-sm-2"><span class="float-right">Toplam Tutar (+KDV)</span></div>
+            <div class="col-sm-2"><span class="float-right">Kayıt Tarihi</span></div>
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-12"><i class="fa fa-arrow-circle-right mr-2 text-indigo"></i>{{item.customer.name}}</div>
+            <div class="col-sm-5"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-1">{{item.statusTr}}</div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
           </div>
         </div>
       </div>
@@ -70,10 +78,12 @@
         <div class="col-sm-9">
           <div class="input-group">
             <input class="form-control form-control-sm" name="customerName" id="customerName"
-                   [(ngModel)]="selectedRecord.customer.data.name" disabled>
+                   [(ngModel)]="selectedRecord.customer?.data.name" disabled>
             <div class="input-group-append">
-              <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectCustomer_Click()" type="button"><i
-                class="fa fa-arrow-circle-right"></i></button>
+              <button class="btn btn-sm btn-outline-secondary" type="button"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      (click)="btnSelectCustomer_Click()">
+                <i class="fa fa-arrow-circle-right"></i></button>
             </div>
           </div>
         </div>
@@ -82,7 +92,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="type" name="type" required
-                  [disabled]="selectedRecord.data.primaryKey!=undefined"
+                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                   [(ngModel)]="selectedRecord.data.type">
             <option value="sales">Satış Siparişi</option>
             <option value="service">Hizmet Siparişi</option>
@@ -107,6 +117,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="priceListPrimaryKey" name="priceListPrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                   [(ngModel)]="selectedRecord.data.priceListPrimaryKey">
             <option value={{item.primaryKey}} *ngFor="let item of priceLists">{{item.listName}}</option>
           </select>
@@ -117,6 +128,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="discountListPrimaryKey" name="discountListPrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                   [(ngModel)]="selectedRecord.data.discountListPrimaryKey">
             <option value={{item.primaryKey}} *ngFor="let item of discountLists">{{item.listName}}</option>
           </select>
@@ -127,6 +139,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                   [(ngModel)]="selectedRecord.data.storagePrimaryKey">
             <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
           </select>
@@ -204,11 +217,11 @@
           </div>
         </div>
       </div>
-      <div class="card-body work-area-2">
+      <div class="card-body">
         <div class="row">
           <div class="col-sm-9">
             <div *ngIf="selectedRecord.orderDetailList != undefined; else elseBlock3">
-              <div class="list-group" *ngIf="selectedRecord.orderDetailList.length > 0; else elseBlock">
+              <div class="list-group" *ngIf="selectedRecord.orderDetailList?.length > 0; else elseBlock">
                 <div class="list-group-item bg-red text-light main-list-item">
                   <div class="row">
                     <div class="col-sm-4">Ürün Adı</div>
@@ -221,7 +234,8 @@
                     <div class="col-sm-2"><span class="float-right text-center">Toplam Tutar (+KDV)</span></div>
                   </div>
                 </div>
-                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                <div class="work-area-8">
+                  <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      *ngFor="let item of selectedRecord.orderDetailList | filterProductSub: productSearchText;">
                   <div class="row">
                     <div class="col-sm-4">
@@ -252,6 +266,7 @@
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
               <ng-template #elseBlock>
                 <div class="card bg-danger text-white">
@@ -276,7 +291,7 @@
                   <small class="col-form-label float-left">Detay İskonto</small>
                 </div>
                 <div class="col-sm-6">
-                  <small class="col-form-label float-right">{{selectedRecord.detailDiscountAmountFormatted}}</small>
+                  <small class="col-form-label float-right">{{selectedRecord.totalDetailDiscountFormatted}}</small>
                 </div>
                 <div class="col-sm-6">
                   <small class="col-form-label float-left">İskonto Dahil Fiyat</small>
@@ -288,7 +303,7 @@
                   <small class="col-form-label float-left">Genel İskonto</small>
                 </div>
                 <div class="col-sm-6">
-                  <small class="col-form-label float-right">{{selectedRecord.generalDiscountAmountFormatted}}</small>
+                  <small class="col-form-label float-right">{{selectedRecord.generalDiscountFormatted}}</small>
                 </div>
                 <div class="col-sm-6">
                   <small class="col-form-label float-left">Genel Toplam</small>
@@ -401,7 +416,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction || !f.valid"
                 (click)="btnSave_Click()">Kaydet
         </button>
@@ -415,7 +430,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnRemove_Click()">Kaldır
         </button>
