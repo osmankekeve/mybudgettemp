@@ -119,7 +119,7 @@ export class ProductUnitService {
           const returnData = new ProductUnitMainModel();
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-          return Object.assign({returnData});
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }

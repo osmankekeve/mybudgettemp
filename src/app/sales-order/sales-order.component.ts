@@ -129,29 +129,6 @@ export class SalesOrderComponent implements OnInit {
     }, 1000);
   }
 
-  populateOrderDetailList(): void {
-    this.selectedRecord.orderDetailList = [];
-    Promise.all([this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)])
-      .then((values: any) => {
-        console.log(values[0]);
-        this.selectedRecord.orderDetailList = [];
-
-        if (values[0] !== null) {
-          const returnData = values[0] as Array<SalesOrderDetailMainModel>;
-
-          returnData.forEach((data: any) => {
-            const item = data as SalesOrderDetailMainModel;
-            this.selectedRecord.orderDetailList.push(item);
-          });
-        }
-      });
-    setTimeout(() => {
-      if (this.selectedRecord.orderDetailList === undefined) {
-        this.selectedRecord.orderDetailList = [];
-      }
-    }, 1000);
-  }
-
   populatePriceList(): void {
     const list = Array<boolean>();
     list.push(true);
@@ -264,7 +241,8 @@ export class SalesOrderComponent implements OnInit {
     Promise.all([
       this.puService.getItemsForSelect(),
       this.ppService.getProductPrice(this.selectedRecord.data.priceListPrimaryKey, this.selectedDetail.data.productPrimaryKey),
-      this.pdService.getProductDiscount(this.selectedRecord.data.discountListPrimaryKey, this.selectedDetail.data.productPrimaryKey)
+      this.pdService.getProductDiscount(this.selectedRecord.data.discountListPrimaryKey, this.selectedDetail.data.productPrimaryKey),
+      this.puService.getItem(this.selectedDetail.product.data.defaultUnitCode)
     ]).then((values: any) => {
       if (values[0] !== null) {
         const returnData = values[0] as Array<ProductUnitModel>;
@@ -282,6 +260,10 @@ export class SalesOrderComponent implements OnInit {
         const discountData = values[2] as ProductDiscountModel;
         this.selectedDetail.data.discount1 = discountData.discount1;
         this.selectedDetail.data.discount2 = discountData.discount2;
+      }
+      if (values[3] !== null) {
+        this.selectedDetail.unit = values[3].returnData.data as ProductUnitModel;
+        this.selectedDetail.data.unitPrimaryKey = this.selectedDetail.unit.primaryKey;
       }
     });
   }
@@ -356,9 +338,6 @@ export class SalesOrderComponent implements OnInit {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             for (const item of this.selectedRecord.orderDetailList) {
@@ -371,9 +350,6 @@ export class SalesOrderComponent implements OnInit {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -392,7 +368,7 @@ export class SalesOrderComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Hatırlatma başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Teklif başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -424,6 +400,17 @@ export class SalesOrderComponent implements OnInit {
           this.populateDeliveryAddressList();
         }
       });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async txtGeneralDiscount_TextChange(): Promise<void> {
+    try {
+      if (this.selectedRecord.data.generalDiscount == null) {
+        this.selectedRecord.data.generalDiscount = 0;
+      }
+      setOrderCalculation(this.selectedRecord);
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -513,6 +500,12 @@ export class SalesOrderComponent implements OnInit {
     } catch (error) {
       await this.infoService.error(error);
     }
+  }
+
+  async onChangeUnit(value: any): Promise<void> {
+    await this.puService.getItem(value).then(item => {
+      this.selectedDetail.unit = item.returnData.data;
+    });
   }
 
   clearSelectedProductRecord(): void {

@@ -1,0 +1,33 @@
+﻿<div class="modal-header">
+  <h5 class="modal-title"><span class="font-weight-600">Excel Yükleme Ekranı</span></h5>
+  <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
+</div>
+<!-- Modal body -->
+<div class="modal-body">
+  <div class="custom-file">
+    <input type="file" class="custom-file-input" id="customFile" multiple="false"
+           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+           (change)="fileExcelUpload($event)">
+    <label class="custom-file-label" for="customFile">{{fileName}}</label>
+  </div>
+  <div class="p-2" *ngIf="listExcelData.length > 0">
+
+    <div class="table-responsive table-responsive-sm work-area-2">
+      <table class="table table-sm table-striped table-bordered">
+        <thead>
+        <th style="font-size: 12px" *ngFor = "let key of listExcelDataKeys">{{key}}</th>
+        </thead>
+        <tbody>
+        <tr style="font-size: 12px" *ngFor = "let item of listExcelData">
+          <td *ngFor = "let key of listExcelDataKeys">{{item[key]}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- Modal footer -->
+<div class="modal-footer">
+  <button type="submit" class="btn btn-sm btn-success" (click)="btnImport_Click()">Yükle</button>
+</div>
+

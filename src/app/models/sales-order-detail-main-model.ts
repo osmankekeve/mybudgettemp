@@ -1,10 +1,12 @@
 import {SalesOrderDetailModel} from './sales-order-detail-model';
 import {ProductMainModel} from './product-main-model';
 import {currencyFormat} from '../core/correct-library';
+import {ProductUnitModel} from './product-unit-model';
 
 export class SalesOrderDetailMainModel {
   data: SalesOrderDetailModel;
   product: ProductMainModel;
+  unit: ProductUnitModel;
   priceFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;

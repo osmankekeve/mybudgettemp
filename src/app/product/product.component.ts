@@ -1,9 +1,5 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
-import {CashDeskModel} from '../models/cash-desk-model';
-import {CashDeskService} from '../services/cash-desk.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
-import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
@@ -17,30 +13,25 @@ import {
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {Chart} from 'chart.js';
 import {GlobalService} from '../services/global.service';
-import {RouterModel} from '../models/router-model';
 import * as CryptoJS from 'crypto-js';
 import {ProductMainModel} from '../models/product-main-model';
 import {ProductModel} from '../models/product-model';
 import {ProductService} from '../services/product.service';
 import {ActionMainModel} from '../models/action-main-model';
-import {CustomerAccountService} from '../services/customer-account.service';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {FileMainModel} from '../models/file-main-model';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitService} from '../services/product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
 import {SettingService} from '../services/setting.service';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
-import {ProfileMainModel} from '../models/profile-main-model';
-import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
+import * as XLSX from 'xlsx';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 
 @Component({
   selector: 'app-product',
@@ -64,7 +55,7 @@ export class ProductComponent implements OnInit, OnDestroy {
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
               protected gfuService: GlobalUploadService, protected puService: ProductUnitService, protected sService: SettingService,
-              protected pumService: ProductUnitMappingService) {
+              protected pumService: ProductUnitMappingService, protected modalService: NgbModal) {
   }
 
   async ngOnInit() {
@@ -314,6 +305,19 @@ export class ProductComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       await this.finishProcess(error, null);
+    }
+  }
+
+  async btnExcelImport_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log(result);
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 

@@ -6,6 +6,7 @@ import {map, flatMap} from 'rxjs/operators';
 import {ActionModel} from '../models/action-model';
 import {ProfileModel} from '../models/profile-model';
 import {ActionMainModel} from '../models/action-main-model';
+import {DeliveryAddressModel} from '../models/delivery-address-model';
 
 @Injectable({
   providedIn: 'root'
@@ -61,6 +62,15 @@ export class ActionService {
     this.db.collection('tblCustomer').doc(primaryKey)
       .collection('actions')
       .add(Object.assign({}, data));
+  }
+
+  removeActions(tableName: string, primaryKey: string) {
+    this.db.collection(tableName).doc(primaryKey)
+      .collection('actions').get().subscribe(snapshot => {
+      snapshot.forEach(doc => {
+        doc.ref.delete();
+      });
+    });
   }
 
   newModel(): ActionModel {

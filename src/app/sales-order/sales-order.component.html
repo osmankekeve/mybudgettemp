@@ -26,22 +26,22 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-red text-light main-list-item">
           <div class="row">
-            <div class="col-sm-5">Müşteri</div>
-            <div class="col-sm-1">Durum</div>
-            <div class="col-sm-2"><span class="float-right">Toplam Tutar</span></div>
-            <div class="col-sm-2"><span class="float-right">Toplam Tutar (+KDV)</span></div>
-            <div class="col-sm-2"><span class="float-right">Kayıt Tarihi</span></div>
+            <div class="col-sm-7">Müşteri</div>
+            <div class="col-sm-2">Durum</div>
+            <div class="col-sm-1"><span class="float-right">Toplam Tutar</span></div>
+            <div class="col-sm-1"><span class="float-right text-center">Toplam Tutar (+KDV)</span></div>
+            <div class="col-sm-1"><span class="float-right">Kayıt Tarihi</span></div>
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-5"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
-            <div class="col-sm-1">{{item.statusTr}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
+            <div class="col-sm-7"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-2">{{item.statusTr}}</div>
+            <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
+            <div class="col-sm-1"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
+            <div class="col-sm-1"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
           </div>
         </div>
       </div>
@@ -180,7 +180,8 @@
         </div>
         <div class="col-sm-3">
           <input class="form-control form-control-sm w-100" id="generalDiscount" name="generalDiscount" type="number"
-                 [(ngModel)]="selectedRecord.data.generalDiscount">
+                 (change)="txtGeneralDiscount_TextChange()"
+                 [(ngModel)]="selectedRecord.data.generalDiscountValue">
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left">Durum</label>
@@ -256,7 +257,7 @@
                       <span class="float-right">%{{item.data.taxRate}}</span>
                     </div>
                     <div class="col-sm-1">
-                      <span class="float-right">{{item.data.quantity}} Birim</span>
+                      <span class="float-right">{{item.data.quantity}} {{item.unit.unitName}}</span>
                     </div>
                     <div class="col-sm-1">
                       <span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span>
@@ -397,6 +398,7 @@
           </div>
           <div class="col-sm-2">
             <select class="form-control form-control-sm w-100" id="unitPrimaryKey" name="unitPrimaryKey"
+                    (change)="onChangeUnit($event.target.value)"
                     [(ngModel)]="selectedDetail.data.unitPrimaryKey">
               <option value="-1">Seçilmedi</option>
               <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>

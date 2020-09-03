@@ -23,6 +23,7 @@ export class SalesOrderModel {
   totalPriceWithoutDiscount?: number;
   totalPrice?: number;
   totalDetailDiscount?: number;
+  generalDiscountValue?: number;
   generalDiscount?: number;
   totalPriceWithTax?: number;
 }
@@ -55,7 +56,7 @@ export const setOrderCalculation = (record: SalesOrderMainModel): void => {
     record.totalDetailDiscountFormatted = currencyFormat(record.data.totalDetailDiscount);
 
     // genel iskonto
-    record.data.generalDiscount = (record.data.totalPrice * record.data.generalDiscount) / 100;
+    record.data.generalDiscount = (record.data.totalPrice * record.data.generalDiscountValue) / 100;
     record.generalDiscountFormatted = currencyFormat(record.data.generalDiscount);
     // tum iskontolar uygulanmis kdv dahil toplam tutar
     record.data.totalPriceWithTax = record.data.totalPriceWithTax - record.data.generalDiscount;

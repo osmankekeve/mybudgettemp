@@ -18,9 +18,10 @@ import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
 import {SalesOrderModel, setOrderCalculation} from '../models/sales-order-model';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {SalesOrderDetailService} from './sales-order-detail.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
+import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,8 +53,12 @@ export class SalesOrderService {
 
   async removeItem(record: SalesOrderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
-      .then(async result => {
-        await this.logService.addTransactionLog(record, 'delete', 'salesInvoice');
+      .then(async () => {
+        for (const item of record.orderDetailList) {
+          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
+        }
+        this.actService.removeActions(this.tableName, record.data.primaryKey);
+        await this.logService.addTransactionLog(record, 'delete', 'salesOrder');
       });
   }
 
@@ -75,8 +80,7 @@ export class SalesOrderService {
 
   async setItem(record: SalesOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
-      .then(async value => {
-        console.log('Order After Set value: ' + value);
+      .then(async () => {
 
         for (const item of record.orderDetailList) {
           await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
@@ -155,6 +159,7 @@ export class SalesOrderService {
     returnData.totalPriceWithoutDiscount = 0;
     returnData.totalDetailDiscount = 0;
     returnData.totalPrice = 0;
+    returnData.generalDiscountValue = 0;
     returnData.generalDiscount = 0;
     returnData.totalPriceWithTax = 0;
 

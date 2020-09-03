@@ -15,6 +15,9 @@ import {ProductModel} from '../models/product-model';
 import {CustomerMainModel} from '../models/customer-main-model';
 import {CustomerModel} from '../models/customer-model';
 import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
+import {ProductUnitService} from './product-unit.service';
+import {ProductUnitMainModel} from '../models/product-unit-main-model';
+import {ProductUnitModel} from '../models/product-unit-model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +29,7 @@ export class SalesOrderDetailService {
 
   constructor(protected authService: AuthenticationService, protected pService: ProductService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected actService: ActionService) {
+              protected actService: ActionService, protected puService: ProductUnitService) {
   }
 
   async addItem(record: SalesOrderDetailMainModel) {
@@ -101,6 +104,7 @@ export class SalesOrderDetailService {
     const returnData = new SalesOrderDetailMainModel();
     returnData.data = this.clearSubModel();
     returnData.product = this.pService.clearMainModel();
+    returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -118,10 +122,16 @@ export class SalesOrderDetailService {
           const returnData = new SalesOrderDetailMainModel();
           returnData.data = this.checkFields(data);
 
-          Promise.all([this.pService.getItem(returnData.data.productPrimaryKey)])
+          Promise.all([
+            this.pService.getItem(returnData.data.productPrimaryKey),
+            this.puService.getItem(returnData.data.unitPrimaryKey)
+          ])
             .then((values: any) => {
-              if (values[0] !== undefined || values[0] !== null) {
-                returnData.product = values[0] as ProductMainModel;
+              if (values[0] !== null) {
+                returnData.product = values[0].returnData as ProductMainModel;
+              }
+              if (values[1] !== null) {
+                returnData.unit = values[1].returnData.data as ProductUnitModel;
               }
             });
 
@@ -131,28 +141,6 @@ export class SalesOrderDetailService {
         }
       });
     });
-  }
-
-  getMainItems(): Observable<SalesOrderDetailMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as SalesOrderDetailModel;
-        data.primaryKey = change.payload.doc.id;
-
-        const returnData = new SalesOrderDetailMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
-
-        return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
-          .pipe(map((product: ProductModel) => {
-            returnData.product = product !== undefined ? this.pService.convertMainModel(product) : undefined;
-            return Object.assign({returnData});
-          }));
-      });
-    }), flatMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
   }
 
   getMainItemsWithOrderPrimaryKey = async (orderPrimaryKey: string):
@@ -175,6 +163,10 @@ export class SalesOrderDetailService {
 
           const p = await this.pService.getItem(data.productPrimaryKey);
           returnData.product = p.returnData;
+
+          const pu = await this.puService.getItem(data.unitPrimaryKey);
+          returnData.unit = pu.returnData.data;
+
           setOrderDetailCalculation(returnData);
           list.push(returnData);
         });
