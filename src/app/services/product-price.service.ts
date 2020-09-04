@@ -193,7 +193,7 @@ export class ProductPriceService {
       const list = Array<ProductPriceMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('priceListPrimaryKey', '==', priceListPrimaryKey);
         return query;

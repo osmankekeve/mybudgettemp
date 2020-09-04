@@ -161,7 +161,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-    }, 5000);
+    }, 3000);
   }
 
   generateCharts(): void {

@@ -321,6 +321,14 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   populateUnitMappings(): void {
     this.unitMappingList = undefined;
     /*Promise.all([this.pumService.getProductMappingItemsAsync(this.selectedRecord.data.primaryKey)])

@@ -466,3 +466,9 @@ progress::-webkit-progress-value {
   width: 100%;
 }
 
+.secondary-icon-side {
+  color: #fff !important;
+  background-color: #5a6268 !important;
+  border-color: #545b62 !important;
+}
+

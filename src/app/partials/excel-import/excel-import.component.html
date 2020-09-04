@@ -1,8 +1,9 @@
 ﻿<div class="modal-header">
-  <h5 class="modal-title"><span class="font-weight-600">Excel Yükleme Ekranı</span></h5>
+  <h5 class="modal-title"><span class="font-weight-600">Excel Yükleme Ekranı - {{headerTitle}}</span></h5>
   <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
 </div>
 <!-- Modal body -->
+
 <div class="modal-body">
   <div class="custom-file">
     <input type="file" class="custom-file-input" id="customFile" multiple="false"
@@ -10,24 +11,99 @@
            (change)="fileExcelUpload($event)">
     <label class="custom-file-label" for="customFile">{{fileName}}</label>
   </div>
-  <div class="p-2" *ngIf="listExcelData.length > 0">
-
+  <div class="row mt-1 mb-1" *ngIf="onTransaction">
+    <div class="col-sm-3"></div>
+    <div class="col-sm-1"><div class="loader"></div></div>
+    <div class="col-sm-4" style="margin: 15px">Lütfen Bekleyiniz.. {{listExcelData.length-1}}/{{transactionProcessCount}}</div>
+    <div class="col-sm-3"></div>
+  </div>
+  <div class="pt-2" *ngIf="showImportResult">
+    <div class="card bg-success text-white">
+      <div class="card-body">
+        <div class="text-center">Yükleme işlemi {{listExcelData.length-1}}/{{transactionProcessCount}} oranında gerçekleşti.</div>
+        <div class="text-center" *ngIf="listErrorInfo.length > 0">
+          Hatalı kayıtları indirerek yükleme işlemini tekrarlayınız.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pt-2" *ngIf="listExcelData.length > 0 && listErrorInfo.length == 0">
     <div class="table-responsive table-responsive-sm work-area-2">
       <table class="table table-sm table-striped table-bordered">
-        <thead>
-        <th style="font-size: 12px" *ngFor = "let key of listExcelDataKeys">{{key}}</th>
-        </thead>
         <tbody>
-        <tr style="font-size: 12px" *ngFor = "let item of listExcelData">
+        <tr style="font-size: 12px" [ngClass]="{'text-red font-weight-600': i==0}" *ngFor = "let item of listExcelData; index as i;">
           <td *ngFor = "let key of listExcelDataKeys">{{item[key]}}</td>
         </tr>
         </tbody>
       </table>
     </div>
   </div>
+  <div class="pt-2" *ngIf="listExcelData.length == 0">
+    <div class="list-group-item bg-danger text-light main-list-item">
+      <div class="row">
+        <div class="col-sm-12">Açıklamalar</div>
+      </div>
+    </div>
+    <div class="list-group-item list-group-item-action main-list-item work-area-2" *ngFor="let item of listInfo">
+      <div class="row">
+        <div class="col-sm-12">{{item.key}}</div>
+      </div>
+    </div>
+  </div>
+  <div class="pt-2" *ngIf="listErrorInfo.length > 0">
+    <div class="list-group-item bg-danger text-light main-list-item">
+      <div class="row">
+        <div class="col-sm-2">Kod</div>
+        <div class="col-sm-3">Adı</div>
+        <div class="col-sm-7">Açıklamalar</div>
+      </div>
+    </div>
+    <div class="list-group-item list-group-item-action main-list-item work-area-2" *ngFor="let item of listErrorInfo">
+      <div class="row">
+        <div class="col-sm-2">{{item.code}}</div>
+        <div class="col-sm-3">{{item.name}}</div>
+        <div class="col-sm-7">{{item.info}}</div>
+      </div>
+    </div>
+  </div>
 </div>
 <!-- Modal footer -->
 <div class="modal-footer">
-  <button type="submit" class="btn btn-sm btn-success" (click)="btnImport_Click()">Yükle</button>
+  <div class="col-sm-4 float-left" *ngIf="listErrorInfo.length > 0">
+    <div class="input-group">
+      <div class="input-group-prepend">
+          <span class="input-group-text secondary-icon-side">
+            <i class="fa fa-download"></i>
+          </span>
+      </div>
+      <button type="button" class="btn btn-sm btn-secondary form-control"
+              (click)="btnDownloadFaultyRecords_Click()">Hatalı Kayıtları İndir
+      </button>
+    </div>
+  </div>
+  <div class="col-sm-2-5 float-right">
+    <div class="input-group">
+      <div class="input-group-prepend">
+          <span class="input-group-text secondary-icon-side">
+            <i class="fa fa-download"></i>
+          </span>
+      </div>
+      <button type="button" class="btn btn-sm btn-secondary form-control"
+              (click)="btnDownloadTemplate_Click()">Taslak İndir
+      </button>
+    </div>
+  </div>
+  <div class="col-sm-2-5 float-right" *ngIf="listExcelData.length > 0">
+    <div class="input-group">
+      <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-upload"></i>
+          </span>
+      </div>
+      <button type="button" class="btn btn-sm btn-success form-control"
+              (click)="btnImport_Click()">Yükle
+      </button>
+    </div>
+  </div>
 </div>
 

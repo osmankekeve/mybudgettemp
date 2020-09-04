@@ -12,8 +12,8 @@ import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class AccountVoucherService {
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public atService: AccountTransactionService) {
+              public atService: AccountTransactionService, protected actService: ActionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -57,6 +57,7 @@ export class AccountVoucherService {
   async removeItem(record: AccountVoucherMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
+        this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'accountVoucher');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);

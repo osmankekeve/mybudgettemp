@@ -13,6 +13,7 @@ import {ProfileService} from './profile.service';
 import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,7 @@ export class PaymentService {
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public atService: AccountTransactionService) {
+              public atService: AccountTransactionService, protected actService: ActionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -56,6 +57,7 @@ export class PaymentService {
   async removeItem(record: PaymentMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
+        this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'payment');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);

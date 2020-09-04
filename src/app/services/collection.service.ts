@@ -59,6 +59,7 @@ export class CollectionService {
   async removeItem(record: CollectionMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
+        this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'collection');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);

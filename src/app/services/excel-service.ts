@@ -26,7 +26,7 @@ export class ExcelService {
     this.saveAsExcelFile(excelBuffer, excelFileName);
   }
 
-  private saveAsExcelFile(buffer: any, fileName: string): void {
+  public saveAsExcelFile(buffer: any, fileName: string): void {
     // this.setStyles(fileName);
     const data: Blob = new Blob([buffer], {type: ExcelConfig.EXCEL_TYPE});
     FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ExcelConfig.EXCEL_TYPE);

@@ -12,10 +12,8 @@ import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {CashDeskService} from './cash-desk.service';
 import {currencyFormat, getCashDeskVoucherType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {ProfileService} from './profile.service';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {AccountVoucherModel} from '../models/account-voucher-model';
-import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
+import {ActionService} from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +28,7 @@ export class CashDeskVoucherService {
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public eService: ProfileService,
               public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore,
-              public atService: AccountTransactionService) {
+              public atService: AccountTransactionService, protected actService: ActionService) {
     this.cdService.getItems().subscribe(list => {
       this.cashDeskMap.clear();
       list.forEach((data: any) => {
@@ -61,6 +59,7 @@ export class CashDeskVoucherService {
   async removeItem(record: CashDeskVoucherMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async result => {
+        this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'cashdeskVoucher');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);

@@ -227,6 +227,10 @@ export const getProductTypes = () => {
   return new Map([['normal', 'Normal Ürün'], ['promotion', 'Promosyon Ürün'], ['service', 'Hizmet Ürün']]);
 };
 
+export const getProductTypesForImport = () => {
+  return new Map([['Normal Ürün', 'normal'], ['Promosyon Ürün', 'promotion'], ['Hizmet Ürün', 'service']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };
