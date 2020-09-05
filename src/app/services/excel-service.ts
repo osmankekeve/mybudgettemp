@@ -233,6 +233,26 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'product') {
+      fileName = 'product';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Stock Type': data.stockTypeTr,
+          Code: data.data.productCode,
+          'Base Code': data.data.productBaseCode,
+          Name: data.data.productName,
+          'Tax Rate': '%' + data.data.taxRate.toString(),
+          'Sct Amount': data.sctAmountFormatted.toString(),
+          'Active Status': data.isActiveTr,
+          'Is Web Product': data.isWebProductTr,
+          'Barcode 1': data.data.barcode1,
+          'Barcode 2': data.data.barcode2,
+          'Height': data.data.height,
+          'Weight': data.data.weight
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

@@ -99,7 +99,6 @@ export class AppComponent implements OnInit {
       this.employeeDetail = undefined;
     } else {
       this.isEmployeeLoggedIn();
-      this.populateNotificationList();
       this.populateReminderList();
       this.populateActivityList();
     }
@@ -111,6 +110,7 @@ export class AppComponent implements OnInit {
     if (!this.employeeDetail) {
       this.employeeDetail = undefined;
     } else {
+      this.populateNotificationList();
       this.populateEmployeeReminderList();
       if (this.employeeDetail.data.type === 'manager' || this.employeeDetail.data.type === 'admin') {
         this.populateWaitingWorks();

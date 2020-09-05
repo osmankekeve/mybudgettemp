@@ -8,6 +8,10 @@
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Aktar"
                 (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
+                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -22,6 +26,43 @@
     </div>
   </div>
   <div class="card-body">
+    <div class="card mb-2" *ngIf="isMainFilterOpened">
+      <div class="card-header">Filtreler</div>
+      <div class="card-body bg-light">
+        <div class="row">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Aktif Durumu</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filter.isActive">
+              <option [ngValue]="true">Aktif</option>
+              <option [ngValue]="false">Pasif</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Ürün Tipi</label>
+          </div>
+          <div class="col-sm-3">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filter.stockType">
+              <option value="-1">Hepsi</option>
+              <option value="normal">Normal Ürün</option>
+              <option value="promotion">Promosyon Ürün</option>
+              <option value="service">Hizmet Ürün</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col-sm-2">
+            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">

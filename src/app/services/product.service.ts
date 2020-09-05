@@ -201,13 +201,18 @@ export class ProductService {
     });
   }
 
-  getMainItems(): Observable<ProductMainModel[]> {
+  getMainItems(isActive: boolean, stockType: string): Observable<ProductMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('productName', 'asc')
-          .where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        if (isActive !== null) {
+          query = query.where('isActive', '==', isActive);
+        }
+        if (stockType !== '-1') {
+          query = query.where('stockType', '==', stockType);
+        }
         return query;
       });
     this.mainList$ = this.listCollection.stateChanges().pipe(

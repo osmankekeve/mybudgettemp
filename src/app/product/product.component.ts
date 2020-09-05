@@ -50,6 +50,10 @@ export class ProductComponent implements OnInit, OnDestroy {
   isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
+  filter = {
+    stockType: '-1',
+    isActive: true,
+  }
 
   constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
@@ -99,7 +103,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItems(this.filter.isActive, this.filter.stockType).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -280,7 +284,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   async btnMainFilter_Click(): Promise<void> {
     try {
-      this.infoService.error('yazıllmadı');
+      this.populateList();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -289,6 +293,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
+        console.log(this.mainList);
         this.excelService.exportToExcel(this.mainList, 'product');
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
@@ -429,7 +434,10 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   clearMainFiler(): void {
-
+    this.filter = {
+      stockType: '-1',
+      isActive: true,
+    }
   }
 
   format_amount($event): void {

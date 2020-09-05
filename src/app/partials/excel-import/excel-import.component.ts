@@ -5,12 +5,9 @@ import {InformationService} from '../../services/information.service';
 import * as XLSX from 'xlsx';
 import {Router} from '@angular/router';
 import {ExcelService} from '../../services/excel-service';
-import {ProductMainModel} from '../../models/product-main-model';
 import {ProductUnitService} from '../../services/product-unit.service';
-import {ProductUnitModel} from '../../models/product-unit-model';
-import {AuthenticationService} from '../../services/authentication.service';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {getFloat, getProductTypes, getProductTypesForImport} from '../../core/correct-library';
+import {getFloat, getProductTypesForImport} from '../../core/correct-library';
 
 @Component({
   selector: 'app-excel-import',
