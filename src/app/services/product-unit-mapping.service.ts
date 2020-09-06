@@ -81,8 +81,8 @@ export class ProductUnitMappingService {
 
   checkForRemove(record: ProductUnitMappingMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
-      reject('Ürün birim silinemez.');
-      // resolve(null);
+      // reject('Ürün birim silinemez.');
+      resolve(null);
     });
   }
 
@@ -199,8 +199,7 @@ export class ProductUnitMappingService {
         const data = change.payload.doc.data() as ProductUnitMappingModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new ProductUnitMappingMainModel();
-        returnData.data = this.checkFields(data);
+        const returnData = this.convertMainModel(data);
         returnData.actionType = change.type;
 
         return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
@@ -236,6 +235,34 @@ export class ProductUnitMappingService {
               returnData.unit = unit;
               list.push(returnData);
             }));
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getUnitProductsAsync = async (unitPrimaryKey: string):
+    Promise<Array<ProductUnitMappingMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductUnitMappingMainModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('unitPrimaryKey', '==', unitPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as ProductUnitMappingModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new ProductUnitMappingMainModel();
+          returnData.data = this.checkFields(data);
+          list.push(returnData);
         });
         resolve(list);
       });

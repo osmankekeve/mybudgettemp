@@ -21,9 +21,8 @@ export class ProductUnitService {
   mainList$: Observable<ProductUnitMainModel[]>;
   tableName = 'tblProductUnit';
 
-  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
-              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService, protected actService: ActionService) {
+  constructor(protected authService: AuthenticationService, protected actService: ActionService,
+              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore) {
 
   }
 

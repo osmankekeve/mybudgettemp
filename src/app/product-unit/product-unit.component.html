@@ -142,6 +142,15 @@
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
                         *ngIf="selectedRecord.data.primaryKey!=undefined"
                         (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Aktar"
+                        *ngIf="selectedRecord.data.primaryKey != null"
+                        (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                        *ngIf="unitMappingList?.length > 0"
+                        (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Eşleşmeyi Kaldır"
+                        *ngIf="unitMappingList?.length > 0"
+                        (click)="btnRemoveAllProducts_Click()"><i class="fa fa-remove"></i></button>
               </div>
               <div class="col-sm-6 head-filter">
                 <div class="input-group input-group-round">

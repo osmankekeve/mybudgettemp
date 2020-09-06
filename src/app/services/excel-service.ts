@@ -253,6 +253,19 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'product-unit') {
+      fileName = 'product_unit';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Stock Type': data.product.stockTypeTr,
+          Code: data.product.data.productCode,
+          Name: data.product.data.productName,
+          'Active Status': data.product.isActiveTr,
+          Value: data.data.unitValue
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

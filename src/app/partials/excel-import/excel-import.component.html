@@ -14,13 +14,13 @@
   <div class="row mt-1 mb-1" *ngIf="onTransaction">
     <div class="col-sm-3"></div>
     <div class="col-sm-1"><div class="loader"></div></div>
-    <div class="col-sm-4" style="margin: 15px">Lütfen Bekleyiniz.. {{listExcelData.length-1}}/{{transactionProcessCount}}</div>
+    <div class="col-sm-4" style="margin: 15px">Lütfen Bekleyiniz.. {{excelRowCount}}/{{transactionProcessCount}}</div>
     <div class="col-sm-3"></div>
   </div>
   <div class="pt-2" *ngIf="showImportResult">
     <div class="card bg-success text-white">
       <div class="card-body">
-        <div class="text-center">Yükleme işlemi {{listExcelData.length-1}}/{{transactionProcessCount}} oranında gerçekleşti.</div>
+        <div class="text-center">Yükleme işlemi {{excelRowCount}}/{{transactionProcessCount}} oranında gerçekleşti.</div>
         <div class="text-center" *ngIf="listErrorInfo.length > 0">
           Hatalı kayıtları indirerek yükleme işlemini tekrarlayınız.
         </div>

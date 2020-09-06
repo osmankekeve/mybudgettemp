@@ -290,19 +290,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnExportToExcel_Click(): Promise<void> {
-    try {
-      if (this.mainList.length > 0) {
-        console.log(this.mainList);
-        this.excelService.exportToExcel(this.mainList, 'product');
-      } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
-      }
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
       await this.fuService.removeItem(item).then(() => {
@@ -310,6 +297,18 @@ export class ProductComponent implements OnInit, OnDestroy {
       });
     } catch (error) {
       await this.finishProcess(error, null);
+    }
+  }
+
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'product');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 

@@ -12,12 +12,10 @@ import {ProductUnitService} from '../services/product-unit.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
 import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import {SettingService} from '../services/setting.service';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
-import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
-import {ProductDiscountService} from '../services/product-discount.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 
 @Component({
   selector: 'app-product-unit',
@@ -31,7 +29,6 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
   selectedRecord: ProductUnitMainModel;
   selectedMapping: ProductUnitMappingMainModel;
   encryptSecretKey: string = getEncryptionKey();
-  isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
   productSearchText: '';
@@ -43,7 +40,6 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
     this.selectedMapping = undefined;
@@ -180,7 +176,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
@@ -212,7 +208,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
@@ -243,7 +239,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
       this.onTransaction = true;
 
       Promise.all([this.pumService.checkForSave(this.selectedMapping)])
-        .then(async (values: any) => {
+        .then(async () => {
           this.selectedMapping.data.unitPrimaryKey = this.selectedRecord.data.primaryKey;
           this.selectedMapping.data.productPrimaryKey = this.selectedMapping.product.data.primaryKey;
           if (this.selectedMapping.data.primaryKey === null) {
@@ -290,11 +286,11 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       Promise.all([this.pumService.checkForRemove(this.selectedMapping)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.pumService.removeItem(this.selectedMapping)
             .then(() => {
               this.clearSelectedProductRecord();
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+              this.finishProcess(null, 'Ürün eşleşmesi başarıyla kaldırıldı.', false);
             })
             .catch((error) => {
               this.finishProcess(error, null, false);
@@ -330,6 +326,46 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnExcelImport_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
+      modalRef.componentInstance.inputData = this.selectedRecord.data.primaryKey;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log(result);
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.unitMappingList.length > 0) {
+        console.log(this.unitMappingList);
+        this.excelService.exportToExcel(this.unitMappingList, 'product-unit');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveAllProducts_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.unitMappingList.forEach(item => {
+        this.db.firestore.collection('tblProductUnitMapping').doc(item.data.primaryKey).delete();
+      });
+      await this.finishProcess(null, 'Ürün birim eşleşmesi başarıyla kaldırıldı.', false);
+
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async finishProcess(error: any, info: any, returnMainList: boolean): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
@@ -347,49 +383,13 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  async btnShowMainFiler_Click(): Promise<void> {
-    try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
-      }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      this.infoService.error('yazıllmadı');
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
-  async btnExportToExcel_Click(): Promise<void> {
-    try {
-      if (this.unitMappingList.length > 0) {
-        this.excelService.exportToExcel(this.unitMappingList, 'product-unit');
-      } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
-      }
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-
   }
 
   clearSelectedProductRecord(): void {
     this.isNewPanelOpened = false;
     this.selectedMapping = undefined;
   }
+
 }
