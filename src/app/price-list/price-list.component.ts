@@ -20,6 +20,7 @@ import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductPriceService} from '../services/product-price.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 
 @Component({
   selector: 'app-price-list',
@@ -274,18 +275,6 @@ export class PriceListComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnExportToExcel_Click(): Promise<void> {
-    try {
-      if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'price-list');
-      } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
-      }
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
   async btnSelectProduct_Click(): Promise<void> {
     try {
       const modalRef = this.modalService.open(ProductSelectComponent);
@@ -381,6 +370,45 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnOpenList_Click(): Promise<void> {
     try {
       this.clearSelectedProductRecord();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'price-list');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExcelImport_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
+      modalRef.componentInstance.inputData = this.selectedRecord.data.primaryKey;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log(result);
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveAllProducts_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.productsOnList.forEach(item => {
+        this.db.firestore.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
+      });
+      await this.finishProcess(null, 'Ürün fiyatları başarıyla kaldırıldı.', false);
+
     } catch (error) {
       await this.infoService.error(error);
     }

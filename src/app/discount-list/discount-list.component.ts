@@ -20,6 +20,7 @@ import {DiscountListMainModel} from '../models/discount-list-main-model';
 import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductDiscountService} from '../services/product-discount.service';
 import {DiscountListService} from '../services/discount-list.service';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 
 @Component({
   selector: 'app-discount-list',
@@ -275,18 +276,6 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnExportToExcel_Click(): Promise<void> {
-    try {
-      if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'discount-list');
-      } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
-      }
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
   async btnSelectProduct_Click(): Promise<void> {
     try {
       const modalRef = this.modalService.open(ProductSelectComponent);
@@ -374,6 +363,45 @@ export class DiscountListComponent implements OnInit, OnDestroy {
         .catch((error) => {
           this.finishProcess(error, null, false);
         });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'discount-list');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExcelImport_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
+      modalRef.componentInstance.inputData = this.selectedRecord.data.primaryKey;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log(result);
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveAllProducts_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.productsOnList.forEach(item => {
+        this.db.firestore.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
+      });
+      await this.finishProcess(null, 'Ürün iskontoları başarıyla kaldırıldı.', false);
+
     } catch (error) {
       await this.infoService.error(error);
     }

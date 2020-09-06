@@ -9,6 +9,8 @@ import {ProductUnitService} from '../../services/product-unit.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {getFloat, getProductTypesForImport} from '../../core/correct-library';
 import {ProductUnitMappingService} from '../../services/product-unit-mapping.service';
+import {ProductPriceService} from '../../services/product-price.service';
+import {ProductDiscountService} from '../../services/product-discount.service';
 
 @Component({
   selector: 'app-excel-import',
@@ -36,10 +38,13 @@ export class ExcelImportComponent implements OnInit {
   customerMap = new Map();
   stockTypeMap = new Map();
   unitMappingMap = new Map();
+  priceMap = new Map();
+  discountMap = new Map();
 
   constructor(public activeModal: NgbActiveModal, protected pService: ProductService, protected infoService: InformationService,
               protected route: Router, protected excelService: ExcelService, protected puService: ProductUnitService,
-              protected db: AngularFirestore, protected pumService: ProductUnitMappingService) {
+              protected db: AngularFirestore, protected pumService: ProductUnitMappingService, protected ppService: ProductPriceService,
+              protected pdService: ProductDiscountService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -99,6 +104,41 @@ export class ExcelImportComponent implements OnInit {
           this.productMap.set(item.data.productCode, item.data);
         });
       }
+      if (this.module === 'price-list') {
+        this.headerTitle = 'Ürün Fiyat Aktarımı';
+        this.listInfo = [
+          { key: 'Ürün kodlarının sistemde olduğundan emin olunuz.'},
+          { key: 'Fiyat değeri alanını sayı olarak giriniz, aksi taktirde 0 olarak işlem görür.'},
+          { key: 'Ürün listede yok ise yeni kayıt, mevcut ise güncelleme işlemi yapılacaktır.'}
+        ];
+        this.templateItems = {
+          'Urun Kodu': '',
+          'Ürün Fiyatı': ''
+        };
+
+        const a = await this.pService.getProductsForSelection(null);
+        a.forEach(item => {
+          this.productMap.set(item.data.productCode, item.data);
+        });
+      }
+      if (this.module === 'discount-list') {
+        this.headerTitle = 'Ürün İskonto Aktarımı';
+        this.listInfo = [
+          { key: 'Ürün kodlarının sistemde olduğundan emin olunuz.'},
+          { key: 'İskonto 1 ve İskonto 2 alanını sayı olarak giriniz, aksi taktirde 0 olarak işlem görür.'},
+          { key: 'Ürün listede yok ise yeni kayıt, mevcut ise güncelleme işlemi yapılacaktır.'}
+        ];
+        this.templateItems = {
+          'Urun Kodu': '',
+          'İskonto 1': '',
+          'İskonto 2': ''
+        };
+
+        const a = await this.pService.getProductsForSelection(null);
+        a.forEach(item => {
+          this.productMap.set(item.data.productCode, item.data);
+        });
+      }
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -122,6 +162,18 @@ export class ExcelImportComponent implements OnInit {
         const b = await this.pumService.getUnitProductsAsync(this.inputData);
         b.forEach((item: any) => {
           this.unitMappingMap.set(item.data.productPrimaryKey, item);
+        });
+      }
+      if (this.module === 'price-list') {
+        const b = await this.ppService.getProductsForListDetail(this.inputData);
+        b.forEach((item: any) => {
+          this.priceMap.set(item.data.productPrimaryKey, item);
+        });
+      }
+      if (this.module === 'discount-list') {
+        const b = await this.pdService.getProductsForListDetail(this.inputData);
+        b.forEach((item: any) => {
+          this.discountMap.set(item.data.productPrimaryKey, item);
         });
       }
 
@@ -247,11 +299,12 @@ export class ExcelImportComponent implements OnInit {
         if (this.module === 'product-unit') {
           for (let i = 1; i < this.listExcelData.length; i++) {
             const item = this.listExcelData[i];
-            const productCode = this.checkExcelCell(item[0]).trimLeft().trimRight();
+            const productCode = this.checkExcelCell(item[0]).toString().trimLeft().trimRight();
 
             if (!this.productMap.has(productCode)) {
               errorList.push({
-                code: this.checkExcelCell(item[0]),
+                code: productCode,
+                name: '-',
                 info: 'Ürün kodu sistemde mevcut değil.'
               });
             } else {
@@ -277,6 +330,72 @@ export class ExcelImportComponent implements OnInit {
                   importRow.unitValue = Math.abs(getFloat(this.checkExcelCell(item[1])));
                 }
                 await this.db.collection(this.pumService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
+              }
+            }
+          }
+
+          this.listErrorInfo = errorList;
+        }
+        if (this.module === 'price-list') {
+          for (let i = 1; i < this.listExcelData.length; i++) {
+            const item = this.listExcelData[i];
+            const productCode = this.checkExcelCell(item[0]).toString().trimLeft().trimRight();
+
+            if (!this.productMap.has(productCode)) {
+              errorList.push({
+                code: productCode,
+                name: '-',
+                info: 'Ürün kodu sistemde mevcut değil.'
+              });
+            } else {
+              const productPrimaryKey = this.productMap.get(productCode).primaryKey;
+              this.transactionProcessCount ++;
+
+              if (this.priceMap.has(productPrimaryKey)) {
+                const importRow = this.priceMap.get(productPrimaryKey).data;
+                importRow.productPrice = Math.abs(getFloat(this.checkExcelCell(item[1])));
+                await this.db.collection(this.ppService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));
+              } else {
+                const importRow = this.ppService.clearSubModel();
+                importRow.primaryKey = this.db.createId();
+                importRow.productPrimaryKey = productPrimaryKey;
+                importRow.priceListPrimaryKey = this.inputData;
+                importRow.productPrice = Math.abs(getFloat(this.checkExcelCell(item[1])));
+                await this.db.collection(this.ppService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
+              }
+            }
+          }
+
+          this.listErrorInfo = errorList;
+        }
+        if (this.module === 'discount-list') {
+          for (let i = 1; i < this.listExcelData.length; i++) {
+            const item = this.listExcelData[i];
+            const productCode = this.checkExcelCell(item[0]).toString().trimLeft().trimRight();
+
+            if (!this.productMap.has(productCode)) {
+              errorList.push({
+                code: productCode,
+                name: '-',
+                info: 'Ürün kodu sistemde mevcut değil.'
+              });
+            } else {
+              const productPrimaryKey = this.productMap.get(productCode).primaryKey;
+              this.transactionProcessCount ++;
+
+              if (this.discountMap.has(productPrimaryKey)) {
+                const importRow = this.discountMap.get(productPrimaryKey).data;
+                importRow.discount1 = Math.abs(getFloat(this.checkExcelCell(item[1])));
+                importRow.discount2 = Math.abs(getFloat(this.checkExcelCell(item[2])));
+                await this.db.collection(this.pdService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));
+              } else {
+                const importRow = this.pdService.clearSubModel();
+                importRow.primaryKey = this.db.createId();
+                importRow.productPrimaryKey = productPrimaryKey;
+                importRow.discountListPrimaryKey = this.inputData;
+                importRow.discount1 = Math.abs(getFloat(this.checkExcelCell(item[1])));
+                importRow.discount2 = Math.abs(getFloat(this.checkExcelCell(item[2])));
+                await this.db.collection(this.pdService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
               }
             }
           }

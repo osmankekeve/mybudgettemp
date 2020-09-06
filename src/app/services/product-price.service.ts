@@ -193,8 +193,7 @@ export class ProductPriceService {
       const list = Array<ProductPriceMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
           .where('priceListPrimaryKey', '==', priceListPrimaryKey);
         return query;
       }).get().subscribe(snapshot => {
@@ -205,11 +204,7 @@ export class ProductPriceService {
           returnData.data = this.checkFields(data);
           returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
 
-          return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
-            .pipe(map((product: ProductModel) => {
-              returnData.product = this.pService.convertMainModel(product);
-              list.push(returnData);
-            }));
+          list.push(returnData);
         });
         resolve(list);
       });

@@ -11,7 +11,9 @@ import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
 import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductDiscountModel} from '../models/product-discount-model';
+import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductPriceModel} from '../models/product-price-model';
+import {currencyFormat} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -177,8 +179,7 @@ export class ProductDiscountService {
       const list = Array<ProductDiscountMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
           .where('discountListPrimaryKey', '==', discountListPrimaryKey);
         return query;
       }).get().subscribe(snapshot => {
@@ -188,11 +189,7 @@ export class ProductDiscountService {
           const returnData = new ProductDiscountMainModel();
           returnData.data = this.checkFields(data);
 
-          return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
-            .pipe(map((product: ProductModel) => {
-              returnData.product = this.pService.convertMainModel(product);
-              list.push(returnData);
-            }));
+          list.push(returnData);
         });
         resolve(list);
       });

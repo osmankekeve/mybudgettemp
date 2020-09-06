@@ -108,27 +108,6 @@ export class DiscountListService {
     });
   }
 
-  getItemWithDetail(primaryKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
-        if (doc.exists) {
-          const data = doc.data() as DiscountListModel;
-          data.primaryKey = doc.id;
-
-          const returnData = new DiscountListMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-          returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
-
-          [returnData.productList] = await Promise.all([this.ppService.getProductsForListDetail(returnData.data.primaryKey)]);
-          return Object.assign({returnData});
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
-
   getMainItems(): Observable<DiscountListMainModel[]> {
     // left join siz
     this.listCollection = this.db.collection(this.tableName,
