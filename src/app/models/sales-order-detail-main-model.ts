@@ -21,4 +21,5 @@ export const setOrderDetailCalculation = (record: SalesOrderDetailMainModel): vo
   record.data.totalPriceWithTax = record.data.totalPrice + (record.data.totalPrice * record.data.taxRate) / 100;
   record.totalPriceFormatted = currencyFormat(record.data.totalPrice);
   record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
+  record.priceFormatted = currencyFormat(record.data.price);
 };

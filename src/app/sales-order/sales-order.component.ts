@@ -11,7 +11,15 @@ import {setOrderDetailCalculation} from '../models/sales-order-detail-main-model
 import {CustomerMainModel} from '../models/customer-main-model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
-import {currencyFormat, getDateForInput, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat} from '../core/correct-library';
+import {
+  currencyFormat,
+  getConvertedUnitValue,
+  getDateForInput,
+  getFloat,
+  getInputDataForInsert,
+  getTodayForInput,
+  moneyFormat
+} from '../core/correct-library';
 import {PriceListModel} from '../models/price-list-model';
 import {DiscountListModel} from '../models/discount-list-model';
 import {PriceListService} from '../services/price-list.service';
@@ -31,6 +39,10 @@ import {ProductDiscountService} from '../services/product-discount.service';
 import {ProductDiscountModel} from '../models/product-discount-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {setOrderCalculation} from '../models/sales-order-model';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
+import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -57,13 +69,14 @@ export class SalesOrderComponent implements OnInit {
   deliveryAddressList: Array<DeliveryAddressModel>;
   unitList: Array<ProductUnitModel>;
 
-  constructor(protected authService: AuthenticationService, protected service: SalesOrderService,
+  constructor(protected authService: AuthenticationService, protected service: SalesOrderService, private toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected dService: DiscountListService, protected defService: DefinitionService,
               protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService,
-              protected pdService: ProductDiscountService, protected setService: SettingService) {
+              protected pdService: ProductDiscountService, protected setService: SettingService,
+              protected pumService: ProductUnitMappingService) {
   }
 
   ngOnInit() {
@@ -242,7 +255,8 @@ export class SalesOrderComponent implements OnInit {
       this.puService.getItemsForSelect(),
       this.ppService.getProductPrice(this.selectedRecord.data.priceListPrimaryKey, this.selectedDetail.data.productPrimaryKey),
       this.pdService.getProductDiscount(this.selectedRecord.data.discountListPrimaryKey, this.selectedDetail.data.productPrimaryKey),
-      this.puService.getItem(this.selectedDetail.product.data.defaultUnitCode)
+      this.puService.getItem(this.selectedDetail.product.data.defaultUnitCode),
+      this.pumService.getProductUnitMapping(this.selectedDetail.data.productPrimaryKey, this.selectedDetail.product.data.defaultUnitCode)
     ]).then((values: any) => {
       if (values[0] !== null) {
         const returnData = values[0] as Array<ProductUnitModel>;
@@ -253,17 +267,25 @@ export class SalesOrderComponent implements OnInit {
       }
       if (values[1] !== null) {
         const priceData = values[1] as ProductPriceMainModel;
+        this.selectedDetail.data.listPrice = priceData.data.productPrice;
+        this.selectedDetail.data.defaultPrice = priceData.data.productPrice;
         this.selectedDetail.data.price = priceData.data.productPrice;
         this.selectedDetail.priceFormatted = priceData.priceFormatted;
       }
       if (values[2] !== null) {
         const discountData = values[2] as ProductDiscountModel;
+        this.selectedDetail.data.defaultDiscount1 = discountData.discount1;
         this.selectedDetail.data.discount1 = discountData.discount1;
+        this.selectedDetail.data.defaultDiscount2 = discountData.discount2;
         this.selectedDetail.data.discount2 = discountData.discount2;
       }
       if (values[3] !== null) {
         this.selectedDetail.unit = values[3].returnData.data as ProductUnitModel;
         this.selectedDetail.data.unitPrimaryKey = this.selectedDetail.unit.primaryKey;
+      }
+      if (values[4] !== null) {
+        const mappingData = values[4] as ProductUnitMappingModel;
+        this.selectedDetail.data.unitValue = mappingData.unitValue;
       }
     });
   }
@@ -390,7 +412,7 @@ export class SalesOrderComponent implements OnInit {
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
-      const modalRef = this.modalService.open(CustomerSelectComponent);
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
       modalRef.componentInstance.customer = this.selectedRecord.customer;
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
@@ -428,7 +450,7 @@ export class SalesOrderComponent implements OnInit {
         const list = Array<string>();
         list.push(this.productType);
 
-        const modalRef = this.modalService.open(ProductSelectComponent);
+        const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
         modalRef.componentInstance.product = this.selectedDetail.product;
         modalRef.componentInstance.productTypes = list;
         modalRef.result.then((result: any) => {
@@ -437,7 +459,6 @@ export class SalesOrderComponent implements OnInit {
             this.selectedDetail.data.taxRate = this.selectedDetail.product.data.taxRate;
             this.selectedDetail.data.productPrimaryKey = this.selectedDetail.product.data.primaryKey;
             this.populateProductAfterSelectData();
-            this.selectedDetail.data.unitPrimaryKey = this.selectedDetail.product.data.defaultUnitCode;
           }
         });
       }
@@ -474,7 +495,7 @@ export class SalesOrderComponent implements OnInit {
               }
             }
           }
-          await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı');
+          await this.finishSubProcess(null, 'Ürün başarıyla eklendi');
         })
         .catch((error) => {
           this.finishProcess(error, null);
@@ -503,8 +524,14 @@ export class SalesOrderComponent implements OnInit {
   }
 
   async onChangeUnit(value: any): Promise<void> {
-    await this.puService.getItem(value).then(item => {
+    await this.puService.getItem(value).then(async item => {
       this.selectedDetail.unit = item.returnData.data;
+      const a = await this.pumService.getProductUnitMapping(this.selectedDetail.data.productPrimaryKey, this.selectedDetail.unit.primaryKey);
+      this.selectedDetail.data.unitPrimaryKey = this.selectedDetail.unit.primaryKey;
+      this.selectedDetail.data.unitValue = a.unitValue;
+      this.selectedDetail.data.price = this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue;
+      this.selectedDetail.data.defaultPrice = this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue;
+      setOrderDetailCalculation(this.selectedDetail);
     });
   }
 
@@ -568,7 +595,7 @@ export class SalesOrderComponent implements OnInit {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info, true);
         this.clearSelectedProductRecord();
       }
     } else {

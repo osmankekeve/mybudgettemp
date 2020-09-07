@@ -1,3 +1,4 @@
+
 <div *ngIf="userDetails && employeeDetail" class="mb-5  d-inline-block">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
     <div class="container-fluid">
@@ -205,6 +206,7 @@
 </div>
 <div class="container-fluid mt-5">
   <app-alert></app-alert>
+  <app-toasts></app-toasts>
 </div>
 <div class="container-fluid d-inline-block" *ngIf="userDetails && employeeDetail">
   <div class="row">
@@ -308,4 +310,5 @@
     <div class="w-100 text-center text-white">KEKEVE Web & Mobile Developing © Copyright 2020</div>
   </div>
 </div>
-<div class="main-process-panel" hidden>İşlem ekranı</div>
+
+<app-toasts aria-live="polite" aria-atomic="true"></app-toasts>

@@ -82,6 +82,7 @@ export class SalesOrderDetailService {
     returnData.primaryKey = null;
     returnData.orderPrimaryKey = '-1';
     returnData.productPrimaryKey = '-1';
+    returnData.listPrice = 0;
     returnData.price = 0;
     returnData.defaultPrice = 0;
     returnData.discount1 = 0;

@@ -40,6 +40,8 @@ import {ProductSubFilterPipe} from './filters/product-sub-filter.pipe';
 import {ListFilterPipe} from './filters/list-filter.pipe';
 import {CustomerSelectComponent} from './partials/customer-select/customer-select.component';
 import {ExcelImportComponent} from './partials/excel-import/excel-import.component';
+import {ToastsComponent} from './partials/toasts/toasts.component';
+import {ToastService} from './services/toast.service';
 
 @NgModule({
   declarations: [
@@ -47,7 +49,7 @@ import {ExcelImportComponent} from './partials/excel-import/excel-import.compone
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
         UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
-        CustomerSelectComponent, ExcelImportComponent
+        CustomerSelectComponent, ExcelImportComponent, ToastsComponent
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -58,7 +60,8 @@ import {ExcelImportComponent} from './partials/excel-import/excel-import.compone
     })
   ],
   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy},
-    InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule
+    InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule,
+    ToastService
   ],
   bootstrap: [AppComponent],
   entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent ]

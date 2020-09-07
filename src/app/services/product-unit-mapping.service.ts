@@ -24,6 +24,7 @@ import {DeliveryAddressModel} from '../models/delivery-address-model';
 import {ProductMainModel} from '../models/product-main-model';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {ProductUnitService} from './product-unit.service';
+import {ProductDiscountModel} from '../models/product-discount-model';
 
 @Injectable({
   providedIn: 'root'
@@ -267,6 +268,33 @@ export class ProductUnitMappingService {
         resolve(list);
       });
 
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getProductUnitMapping = async (productPrimaryKey: string, unitPrimaryKey):
+    Promise<ProductUnitMappingModel> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('productPrimaryKey', '==', productPrimaryKey)
+          .where('unitPrimaryKey', '==', unitPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          snapshot.forEach(doc => {
+            const data = doc.data() as ProductUnitMappingModel;
+            data.primaryKey = doc.id;
+            resolve(data);
+          });
+        } else {
+          resolve(null);
+        }
+      });
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});

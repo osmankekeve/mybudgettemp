@@ -4,8 +4,9 @@ export class SalesOrderDetailModel {
   primaryKey?: string;
   orderPrimaryKey: string;
   productPrimaryKey: string;
-  price?: number;
-  defaultPrice?: number;
+  listPrice?: number; // price on list
+  price?: number; // price of employee typed
+  defaultPrice?: number; // converted price of list price
   discount1?: number;
   defaultDiscount1?: number;
   discount2?: number;

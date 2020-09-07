@@ -303,5 +303,24 @@ export const moneyFormat = (data: any) => {
   return data.replace('₺', '').replace('.', '').replace(',', '.');
 };
 
+export const getConvertedUnitValue = (productValue: number, productDefaultUnitCode: string, productCurrentUnitCode: string,
+                                      productCurrentUnitValue: number, productTargetUnitCode: string, productTargetUnitValue: number) => {
+  if (productCurrentUnitCode === productTargetUnitCode) {
+    return productValue;
+  } else {
+    let defaultValue = 0;
+    if (productDefaultUnitCode === productCurrentUnitCode) {
+      defaultValue = productValue;
+    } else {
+      defaultValue = productValue/productCurrentUnitValue;
+    }
+    if (productDefaultUnitCode === productTargetUnitCode) {
+      return defaultValue.toFixed(2);
+    } else {
+      return (defaultValue / productTargetUnitValue).toFixed(2);
+    }
+  }
+};
+
 
 
