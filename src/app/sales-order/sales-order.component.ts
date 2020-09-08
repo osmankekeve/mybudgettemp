@@ -41,6 +41,7 @@ import {setOrderCalculation} from '../models/sales-order-model';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ToastService} from '../services/toast.service';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -289,6 +290,7 @@ export class SalesOrderComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
+    this.clearSelectedProductRecord();
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
@@ -381,6 +383,37 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      if (this.selectedRecord.data.status === 'waitingForApprove') {
+        this.selectedRecord.data.status = 'approved';
+        this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+        Promise.all([this.service.checkForSave(this.selectedRecord)])
+          .then(async (values: any) => {
+            for (const item of this.selectedRecord.orderDetailList) {
+              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
+            }
+            setOrderCalculation(this.selectedRecord);
+            await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              });
+          })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          });
+      } else {
+        this.finishProcess('Sipariş durumu onaylamak için uygun değildir. Sipariş Durumu: ' + this.selectedRecord.statusTr, null);
+      }
+    } catch (error) {
+      this.finishProcess(error, null);
+    }
+  }
+
   async btnRemove_Click(): Promise<void> {
     try {
       this.onTransaction = true;
@@ -433,6 +466,14 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async txtGeneralDiscount_TextChange(): Promise<void> {
     try {
       if (this.selectedRecord.data.generalDiscount == null) {
@@ -472,8 +513,12 @@ export class SalesOrderComponent implements OnInit {
 
 
   showOrderDetail(record: any): void {
-    this.selectedDetail = record as SalesOrderDetailMainModel;
-    this.isNewPanelOpened = true;
+    if (this.selectedRecord.data.status === 'waitingForApprove') {
+      this.selectedDetail = record as SalesOrderDetailMainModel;
+      this.isNewPanelOpened = true;
+    } else {
+      this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);
+    }
   }
 
   async btnSelectProduct_Click(): Promise<void> {
@@ -531,7 +576,7 @@ export class SalesOrderComponent implements OnInit {
               }
             }
           }
-          await this.finishSubProcess(null, 'Ürün başarıyla eklendi');
+          await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
         })
         .catch((error) => {
           this.finishProcess(error, null);

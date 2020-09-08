@@ -1,0 +1,35 @@
+﻿<div class="modal-header">
+  <h5 class="modal-title"><span class="font-weight-600">Modül Bilgilendirme Ekranı-{{headerTitle}}</span></h5>
+  <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
+</div>
+<!-- Modal body -->
+<div class="modal-body">
+  <div class="work-area-2" *ngIf="mainList != undefined; else elseBlock2">
+    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+      <div class="list-group-item bg-danger text-light main-list-item">
+        <div class="row">
+          <div class="col-sm-12">Açıklamalar</div>
+        </div>
+      </div>
+      <div class="list-group-item list-group-item-action main-list-item"
+           *ngFor="let item of mainList">
+        <div class="row">
+          <label class="col-sm-12 mb-0">
+            <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+            <span>{{item.key}}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <ng-template #elseBlock>
+      <div class="card bg-danger text-white">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
+  </div>
+  <ng-template #elseBlock2>
+    <div class="loader"></div>
+  </ng-template>
+</div>
+
+

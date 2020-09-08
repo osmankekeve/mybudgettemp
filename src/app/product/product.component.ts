@@ -32,6 +32,8 @@ import * as XLSX from 'xlsx';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import {ProductSelectComponent} from '../partials/product-select/product-select.component';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-product',
@@ -147,6 +149,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.populateUnitMappings();
     this.populateFiles();
     this.populateActions();
+    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -328,6 +331,14 @@ export class ProductComponent implements OnInit, OnDestroy {
   async btnShowJsonData_Click(): Promise<void> {
     try {
       await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
     } catch (error) {
       await this.infoService.error(error);
     }

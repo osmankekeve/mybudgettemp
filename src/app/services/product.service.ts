@@ -64,28 +64,6 @@ export class ProductService {
       });
   }
 
-  removeProductUnitMappings = async (productPrimaryKey: string):
-    Promise<void> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      this.db.collection('tblProductUnitMapping', ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid())
-          .where('productPrimaryKey', '==', productPrimaryKey);
-        return query;
-      })
-        .get().subscribe(snapshot => {
-        snapshot.forEach(doc => {
-          doc.ref.delete();
-        });
-      });
-      resolve();
-
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  })
-
   checkForSave(record: ProductMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       if (record.data.productCode === '') {
@@ -317,6 +295,28 @@ export class ProductService {
           resolve(false);
         }
       });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  removeProductUnitMappings = async (productPrimaryKey: string):
+    Promise<void> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProductUnitMapping', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('productPrimaryKey', '==', productPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          doc.ref.delete();
+        });
+      });
+      resolve();
+
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});

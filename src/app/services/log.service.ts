@@ -133,7 +133,7 @@ export class LogService {
 
     } else if (systemModule === 'salesOrder') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customer.name + ' müşteriye Satış Teklifi ';
+      item.log = record.customer.data.name + ' müşteriye Satış Teklifi ';
 
     } else {
       item.log = ' bilinmeyen modül ';

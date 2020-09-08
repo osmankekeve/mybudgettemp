@@ -42,6 +42,7 @@ import {CustomerSelectComponent} from './partials/customer-select/customer-selec
 import {ExcelImportComponent} from './partials/excel-import/excel-import.component';
 import {ToastsComponent} from './partials/toasts/toasts.component';
 import {ToastService} from './services/toast.service';
+import {InfoModuleComponent} from './partials/info-module/info-module.component';
 
 @NgModule({
   declarations: [
@@ -49,7 +50,7 @@ import {ToastService} from './services/toast.service';
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
         UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
-        CustomerSelectComponent, ExcelImportComponent, ToastsComponent
+        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -64,6 +65,6 @@ import {ToastService} from './services/toast.service';
     ToastService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent ]
 })
 export class AppModule { }
