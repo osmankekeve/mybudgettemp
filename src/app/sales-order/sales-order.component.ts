@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy, AfterViewInit} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
@@ -8,7 +8,6 @@ import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {SalesOrderService} from '../services/sales-order.service';
 import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 import {setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
-import {CustomerMainModel} from '../models/customer-main-model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {
@@ -39,7 +38,6 @@ import {ProductDiscountService} from '../services/product-discount.service';
 import {ProductDiscountModel} from '../models/product-discount-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {setOrderCalculation} from '../models/sales-order-model';
-import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ToastService} from '../services/toast.service';
@@ -356,7 +354,7 @@ export class SalesOrderComponent implements OnInit {
             setOrderCalculation(this.selectedRecord);
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -368,7 +366,7 @@ export class SalesOrderComponent implements OnInit {
             setOrderCalculation(this.selectedRecord);
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
+                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla tamamlandı.');
               })
               .catch((error) => {
                 this.finishProcess(error, null);
@@ -390,7 +388,7 @@ export class SalesOrderComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Teklif başarıyla kaldırıldı.');
+              this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -427,6 +425,14 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  async btnExportToExcel_Click(): Promise<void> {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'note');
+    } else {
+      await this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
   async txtGeneralDiscount_TextChange(): Promise<void> {
     try {
       if (this.selectedRecord.data.generalDiscount == null) {
@@ -438,7 +444,37 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  clearSelectedRecord(): void {
+    this.selectedRecord = this.service.clearMainModel();
+    this.recordDate = getTodayForInput();
+  }
 
+  finishProcess(error: any, info: any): void {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  finishFinally(): void {
+    this.clearSelectedRecord();
+    this.selectedRecord = undefined;
+    this.onTransaction = false;
+  }
+
+
+
+
+  showOrderDetail(record: any): void {
+    this.selectedDetail = record as SalesOrderDetailMainModel;
+    this.isNewPanelOpened = true;
+  }
 
   async btnSelectProduct_Click(): Promise<void> {
     try {
@@ -550,44 +586,6 @@ export class SalesOrderComponent implements OnInit {
       this.selectedDetail.data.price = null;
       this.selectedDetail.priceFormatted = null;
     }
-  }
-
-
-
-
-
-
-
-  btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'note');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
-    }
-  }
-
-  clearSelectedRecord(): void {
-    this.selectedRecord = this.service.clearMainModel();
-    this.recordDate = getTodayForInput();
-  }
-
-  finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
-    this.onTransaction = false;
-  }
-
-  finishProcess(error: any, info: any): void {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   async finishSubProcess(error: any, info: any): Promise<void> {

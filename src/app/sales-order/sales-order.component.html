@@ -2,7 +2,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Satış Teklif Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Teklif"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
@@ -60,7 +60,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Satış Teklif Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -104,7 +104,7 @@
         </div>
         <div class="col-sm-3">
           <div class="input-group">
-            <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+            <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3" #d3="ngModel"
                    [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
             <div class="input-group-append">
               <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
@@ -237,6 +237,7 @@
                 </div>
                 <div class="work-area-8">
                   <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                       (click)="showOrderDetail(item)"
                      *ngFor="let item of selectedRecord.orderDetailList | filterProductSub: productSearchText;">
                   <div class="row">
                     <div class="col-sm-4">
@@ -398,7 +399,7 @@
           </div>
           <div class="col-sm-2">
             <select class="form-control form-control-sm w-100" id="unitPrimaryKey" name="unitPrimaryKey"
-                    (change)="onChangeUnit($event.target.value)"
+                    (change)="onChangeUnit($event.target['value'])"
                     [(ngModel)]="selectedDetail.data.unitPrimaryKey">
               <option value="-1">Seçilmedi</option>
               <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>
