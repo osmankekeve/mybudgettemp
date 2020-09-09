@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getFloat, getOrderType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
@@ -22,6 +22,14 @@ import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sa
 import {SalesOrderDetailService} from './sales-order-detail.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
 import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {PriceListService} from './price-list.service';
+import {DiscountListService} from './discount-list.service';
+import {DefinitionService} from './definition.service';
+import {DeliveryAddressService} from './delivery-address.service';
+import {ProductUnitService} from './product-unit.service';
+import {ProductPriceService} from './product-price.service';
+import {ProductDiscountService} from './product-discount.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,12 +37,15 @@ import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 export class SalesOrderService {
   listCollection: AngularFirestoreCollection<SalesOrderModel>;
   mainList$: Observable<SalesOrderMainModel[]>;
+  employeeMap = new Map();
   tableName = 'tblSalesOrder';
 
-  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
+  constructor(protected authService: AuthenticationService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected accService: CustomerAccountService, protected atService: AccountTransactionService,
-              protected actService: ActionService, protected sodService: SalesOrderDetailService) {
+              protected atService: AccountTransactionService,
+              protected actService: ActionService, protected sodService: SalesOrderDetailService, protected plService: PriceListService,
+              protected dService: DiscountListService,  protected daService: DeliveryAddressService, protected defService: DefinitionService) {
+
   }
 
   async addItem(record: SalesOrderMainModel) {
@@ -150,7 +161,7 @@ export class SalesOrderService {
     returnData.paymentTypePrimaryKey = '-1';
     returnData.description = '';
     returnData.type = 'sales'; // sales, service
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed
     returnData.platform = 'web'; // mobile, web
     returnData.approverPrimaryKey = '-1';
     returnData.approveDate = 0;
@@ -171,7 +182,15 @@ export class SalesOrderService {
     returnData.data = this.clearSubModel();
     returnData.customer = this.cusService.clearMainModel();
     returnData.actionType = 'added';
+    returnData.priceListName = '';
+    returnData.discountListName = '';
+    returnData.deliveryAddressName = '';
+    returnData.storageName = '';
+    returnData.termName = '';
+    returnData.paymentName = '';
+    returnData.approverName = '';
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.orderTypeTr = getOrderType().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount); // ham tutar
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount); // detayda uygulanan toplam iskonto
@@ -194,9 +213,38 @@ export class SalesOrderService {
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
           returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.orderTypeTr = getOrderType().get(returnData.data.type);
+          returnData.priceListName = '';
+          returnData.discountListName = '';
+          returnData.deliveryAddressName = '';
+          returnData.storageName = '';
+          returnData.termName = '';
+          returnData.paymentName = '';
 
           const d1 = await this.cusService.getItem(returnData.data.customerPrimaryKey);
           returnData.customer = this.cusService.convertMainModel(d1.data);
+
+          /*const d2 = await this.plService.getItem(returnData.data.priceListPrimaryKey);
+          returnData.priceListName = d2.returnData.data.listName;
+
+          const d3 = await this.dService.getItem(returnData.data.discountListPrimaryKey);
+          returnData.discountListName = d3.returnData.data.listName;
+
+          const d4 = await this.defService.getItem(returnData.data.storagePrimaryKey);
+          returnData.storageName = d4.returnData.data.custom1;
+
+          const d5 = await this.defService.getItem(returnData.data.termPrimaryKey);
+          returnData.termName = d5.returnData.data.custom1;
+
+          const d6 = await this.defService.getItem(returnData.data.paymentTypePrimaryKey);
+          returnData.paymentName = d6.returnData.data.custom1;*/
+
+          const d7 = await this.daService.getItem(returnData.data.deliveryAddressPrimaryKey);
+          returnData.deliveryAddressName = d7.returnData.data.addressName;
+
+          const d8 = await this.eService.getItem(returnData.data.approverPrimaryKey, false);
+          returnData.approverName = d8 != null ? d8.returnData.data.longName : '';
+
           returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
           returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
           returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -223,6 +271,7 @@ export class SalesOrderService {
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.orderTypeTr = getOrderType().get(returnData.data.type);
         returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
         returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -239,19 +288,21 @@ export class SalesOrderService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date): Observable<SalesOrderMainModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<SalesOrderMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('status', 'in', status));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as SalesOrderModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new SalesOrderMainModel();
+        const returnData = this.clearMainModel();
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.orderTypeTr = getOrderType().get(returnData.data.type);
         returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
         returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
         returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);

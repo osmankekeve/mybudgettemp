@@ -106,7 +106,7 @@ export class DefinitionService {
           data.primaryKey = doc.id;
 
           const returnData = this.convertMainModel(data);
-          return Object.assign({returnData});
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }

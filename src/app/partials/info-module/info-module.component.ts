@@ -39,5 +39,14 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Teklif silinirse, detayı ile birlikte tüm bilgileri kaldırılır.'},
       ];
     }
+    if (module === 'sales-order') {
+      this.headerTitle = 'Satış Siparişi';
+      this.mainList = [
+        { key: 'Teklif onaylandıktan sonra sipariş süreci başlar, sonraki adım faturalamadır.'},
+        { key: 'Siparişte değişiklik yapılmak isteniyorsa, \' Teklife Geri Gönder\' tuşu ile onay belkiyor durumuna çevrilebilir.'},
+        { key: 'Faturası kesilen sipariş, Teklife geri gönderilemez.'},
+        { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
+      ];
+    }
   }
 }

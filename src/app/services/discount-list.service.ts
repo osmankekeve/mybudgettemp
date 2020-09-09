@@ -100,7 +100,7 @@ export class DiscountListService {
           returnData.data = this.checkFields(data);
           returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
           returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
-          return Object.assign({returnData});
+          resolve(Object.assign({returnData}));
         } else {
           resolve(null);
         }

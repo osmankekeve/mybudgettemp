@@ -7,11 +7,7 @@ import { AuthenticationService } from './authentication.service';
 import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
-import {CollectionModel} from '../models/collection-model';
 import {getEducation, getGenders, getStatus, getUserTypes} from '../core/correct-library';
-import {CashDeskModel} from '../models/cash-desk-model';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'

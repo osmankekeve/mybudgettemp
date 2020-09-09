@@ -176,6 +176,20 @@ body {
   margin: 2px auto;
 }
 
+.loader-small {
+  border: 3px solid #f3f3f3;
+  border-top-color: rgb(243, 243, 243);
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-radius: 50%;
+  border-top: 3px solid #3498db;
+  width: 25px;
+  height: 25px;
+  -webkit-animation: spin 0.6s linear infinite;
+  animation: spin 0.6s linear infinite;
+  margin: 2px auto;
+}
+
 /* Safari */
 @-webkit-keyframes spin {
   0% {
@@ -267,6 +281,12 @@ body {
   scrollbar-width: thin;
 }
 
+.work-area-9 {
+  max-height: calc(100vh - 605px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .bg-body {
   background-color: #eee !important;
 }
@@ -343,6 +363,10 @@ body {
 
 .fs-14 {
   font-size: 14px !important;
+}
+
+.fs-13 {
+  font-size: 13px !important;
 }
 
 .col-sm-2-5 {

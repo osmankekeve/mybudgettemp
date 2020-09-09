@@ -12,7 +12,7 @@ export class SalesOrderModel {
   storagePrimaryKey: string;
   termPrimaryKey: string;
   paymentTypePrimaryKey: string;
-  status: string; // waiting, approve, reject
+  status: string; // waitingForApprove, approved, rejected
   type: string; // sales, service
   platform: string; // mobile, web
   description?: string;
