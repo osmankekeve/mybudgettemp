@@ -149,6 +149,10 @@ export class LogService {
       item.log += 'onaylandı.';
     } else if (action === 'rejected') {
       item.log += 'geri çevrildi.';
+    } else if (action === 'closed') {
+      item.log += 'kapatıldı.';
+    } else if (action === 'done') {
+      item.log += 'işlemler bitirildi.';
     } else {
       //
     }

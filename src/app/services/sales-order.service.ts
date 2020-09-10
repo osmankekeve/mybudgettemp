@@ -4,32 +4,20 @@ import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {SettingService} from './setting.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
 import {currencyFormat, getFloat, getOrderType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {SalesOrderModel, setOrderCalculation} from '../models/sales-order-model';
+import {SalesOrderModel} from '../models/sales-order-model';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {SalesOrderDetailService} from './sales-order-detail.service';
-import {BuySaleMainModel} from '../models/buy-sale-main-model';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {PriceListService} from './price-list.service';
 import {DiscountListService} from './discount-list.service';
 import {DefinitionService} from './definition.service';
 import {DeliveryAddressService} from './delivery-address.service';
-import {ProductUnitService} from './product-unit.service';
-import {ProductPriceService} from './product-price.service';
-import {ProductDiscountService} from './product-discount.service';
 
 @Injectable({
   providedIn: 'root'
@@ -80,8 +68,14 @@ export class SalesOrderService {
           await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
-          await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
+          await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        } else if (record.data.status === 'closed') {
+          await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
+        } else if (record.data.status === 'done') {
+          await this.logService.addTransactionLog(record, 'done', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
         } else {
           await this.logService.addTransactionLog(record, 'update', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
@@ -161,7 +155,7 @@ export class SalesOrderService {
     returnData.paymentTypePrimaryKey = '-1';
     returnData.description = '';
     returnData.type = 'sales'; // sales, service
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done
     returnData.platform = 'web'; // mobile, web
     returnData.approverPrimaryKey = '-1';
     returnData.approveDate = 0;

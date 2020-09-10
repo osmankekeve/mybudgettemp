@@ -72,7 +72,7 @@ export class SalesOrderDetailService {
 
   checkFields(model: SalesOrderDetailModel): SalesOrderDetailModel {
     const cleanModel = this.clearSubModel();
-
+    if (model.invoicedQuantity == null) { model.invoicedQuantity = cleanModel.invoicedQuantity}
     return model;
   }
 
@@ -90,6 +90,7 @@ export class SalesOrderDetailService {
     returnData.discount2 = 0;
     returnData.defaultDiscount2 = 0;
     returnData.quantity = 0;
+    returnData.invoicedQuantity = 0;
     returnData.taxRate = 0;
     returnData.insertDate = 0;
     returnData.totalPrice = 0;

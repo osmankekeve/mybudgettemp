@@ -11,6 +11,7 @@ export class SalesOrderDetailMainModel {
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
   actionType?: string;
+  remainingQuantity?: number;
 }
 
 export const setOrderDetailCalculation = (record: SalesOrderDetailMainModel): void => {
@@ -22,4 +23,5 @@ export const setOrderDetailCalculation = (record: SalesOrderDetailMainModel): vo
   record.totalPriceFormatted = currencyFormat(record.data.totalPrice);
   record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
   record.priceFormatted = currencyFormat(record.data.price);
+  record.remainingQuantity = record.data.quantity - record.data.invoicedQuantity;
 };

@@ -12,6 +12,7 @@ export class SalesOrderDetailModel {
   discount2?: number;
   defaultDiscount2?: number;
   quantity?: number;
+  invoicedQuantity?: number;
   taxRate?: number;
   insertDate?: number;
   totalPrice?: number; // iskonto1 ve iskont2 dusmus hali.

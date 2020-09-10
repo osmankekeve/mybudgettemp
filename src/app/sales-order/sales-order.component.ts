@@ -22,6 +22,7 @@ import {DefinitionModel} from '../models/definition-model';
 import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {setOrderCalculation} from '../models/sales-order-model';
+import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 
 @Component({
   selector: 'app-sales-order',
@@ -199,7 +200,7 @@ export class SalesOrderComponent implements OnInit {
       this.selectedRecord.termName = this.termListMap.get(this.selectedRecord.data.termPrimaryKey);
       this.selectedRecord.paymentName = this.paymentListMap.get(this.selectedRecord.data.paymentTypePrimaryKey);
 
-      await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
+      this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
         .then((list) => {
           this.selectedRecord.orderDetailList = list;
         });
@@ -277,15 +278,12 @@ export class SalesOrderComponent implements OnInit {
     try {
       this.onTransaction = true;
       if (this.selectedRecord.data.status === 'approved') {
-        this.selectedRecord.data.status = 'rejected';
-        this.selectedRecord.data.approverPrimaryKey = this.authService.getEid();
-        this.selectedRecord.data.approveDate = -1;
-        this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+        this.selectedRecord.data.status = 'closed';
         Promise.all([this.service.checkForSave(this.selectedRecord)])
           .then(async (values: any) => {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.finishProcess(null, 'Sipariş teklif aşamasına geri çevrildi');
+                this.finishProcess(null, 'Sipariş kapatıldı');
                 this.populateList();
               })
               .catch((error) => {
@@ -296,7 +294,7 @@ export class SalesOrderComponent implements OnInit {
             this.finishProcess(error, null);
           });
       } else {
-        this.finishProcess('Sipariş durumu onaylamak için uygun değildir. Sipariş Durumu: ' + this.selectedRecord.statusTr, null);
+        this.finishProcess('Sipariş durumu kapatmak için uygun değildir. Sipariş Durumu: ' + this.selectedRecord.statusTr, null);
       }
     } catch (error) {
       await this.infoService.error(error);
