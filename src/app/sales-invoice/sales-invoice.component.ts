@@ -31,6 +31,12 @@ import {ActionMainModel} from '../models/action-main-model';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import {OrderSelectComponent} from '../partials/order-select/order-select.component';
+import {SalesOrderService} from '../services/sales-order.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -65,13 +71,15 @@ export class SalesInvoiceComponent implements OnInit {
   onTransaction = false;
   chart1Visibility = null;
   chart2Visibility = null;
+  orderInfoText = 'Sipariş Seçilmedi';
+
 
   constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
               public service: SalesInvoiceService, public cService: CustomerService, public excelService: ExcelService,
               public infoService: InformationService, public atService: AccountTransactionService,
               public sService: SettingService, public accService: CustomerAccountService, public db: AngularFirestore,
               public globService: GlobalService, protected actService: ActionService, public fuService: FileUploadService,
-              protected gfuService: GlobalUploadService) {
+              protected gfuService: GlobalUploadService, protected modalService: NgbModal, private toastService: ToastService) {
   }
 
   async ngOnInit() {
@@ -201,13 +209,13 @@ export class SalesInvoiceComponent implements OnInit {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<SalesInvoiceMainModel>;
           this.transactionList.forEach(item => {
-            if (creatingData.has(item.customer.name)) {
-              let amount = creatingData.get(item.customer.name);
+            if (creatingData.has(item.customer.data.name)) {
+              let amount = creatingData.get(item.customer.data.name);
               amount += item.data.totalPriceWithTax;
-              creatingData.delete(item.customer.name);
-              creatingData.set(item.customer.name, amount);
+              creatingData.delete(item.customer.data.name);
+              creatingData.set(item.customer.data.name, amount);
             } else {
-              creatingData.set(item.customer.name, item.data.totalPriceWithTax);
+              creatingData.set(item.customer.data.name, item.data.totalPriceWithTax);
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.totalPriceWithTax;
@@ -591,6 +599,60 @@ export class SalesInvoiceComponent implements OnInit {
     }
   }
 
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+        }
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSelectOrder_Click(): Promise<void> {
+    try {
+      if (this.selectedRecord.data.customerCode === '') {
+        this.toastService.success('Lütfen müşteri seçiniz', true);
+      } else {
+        const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
+        modalRef.componentInstance.customerPrimaryKey = this.selectedRecord.data.customerCode;
+        modalRef.result.then((result: any) => {
+          if (result) {
+            console.log(result);
+          }
+        });
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'salesInvoice');
@@ -608,13 +670,6 @@ export class SalesInvoiceComponent implements OnInit {
     } catch (error) {
       this.infoService.error(error);
     }
-  }
-
-  async onChangeCustomer(value: any): Promise<void> {
-    await this.cService.getItem(value).then(item => {
-      this.selectedRecord.customer = item.data;
-      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
-    });
   }
 
   async btnCreateAccounts_Click(): Promise<void> {

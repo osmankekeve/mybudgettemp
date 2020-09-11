@@ -7,7 +7,16 @@ import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, getOrderType, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {
+  currencyFormat,
+  getCustomerTypes,
+  getFloat,
+  getOrderType,
+  getPaymentTypes,
+  getStatus,
+  getTerms,
+  isNullOrEmpty
+} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -18,6 +27,7 @@ import {PriceListService} from './price-list.service';
 import {DiscountListService} from './discount-list.service';
 import {DefinitionService} from './definition.service';
 import {DeliveryAddressService} from './delivery-address.service';
+import {CustomerMainModel} from '../models/customer-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -116,6 +126,8 @@ export class SalesOrderService {
         reject('Lütfen sevkiyat adresi seçiniz.');
       } else if (record.data.totalPrice <= 0) {
         reject('Tutar sıfırdan büyük olmalıdır.');
+      } else if (record.data.receiptNo === '') {
+        reject('Lütfen fiş numarası giriniz.');
       } else if (record.data.totalPrice <= 0) {
         reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
       } else if (isNullOrEmpty(record.data.recordDate)) {
@@ -136,7 +148,9 @@ export class SalesOrderService {
 
   checkFields(model: SalesOrderModel): SalesOrderModel {
     const cleanModel = this.clearSubModel();
-
+    if (model.receiptNo === undefined) {
+      model.receiptNo = model.primaryKey; //boyle olsun
+    }
     return model;
   }
 
@@ -153,6 +167,7 @@ export class SalesOrderService {
     returnData.storagePrimaryKey = '-1';
     returnData.termPrimaryKey = '-1';
     returnData.paymentTypePrimaryKey = '-1';
+    returnData.receiptNo = '';
     returnData.description = '';
     returnData.type = 'sales'; // sales, service
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done
@@ -195,6 +210,19 @@ export class SalesOrderService {
     return returnData;
   }
 
+  convertMainModel(model: SalesOrderModel): SalesOrderMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.orderTypeTr = getOrderType().get(returnData.data.type);
+    returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
+    returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+    returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    return returnData;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
@@ -204,8 +232,6 @@ export class SalesOrderService {
 
           const returnData = new SalesOrderMainModel();
           returnData.data = this.checkFields(data);
-          returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-          returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
           returnData.statusTr = getStatus().get(returnData.data.status);
           returnData.orderTypeTr = getOrderType().get(returnData.data.type);
           returnData.priceListName = '';
@@ -312,4 +338,30 @@ export class SalesOrderService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getOrdersMain = async (customerPrimaryKey: string):
+    Promise<Array<SalesOrderMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<SalesOrderMainModel>();
+      await this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('customerPrimaryKey', '==', customerPrimaryKey);
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          snapshot.forEach(async doc => {
+            const data = doc.data() as SalesOrderModel;
+            data.primaryKey = doc.id;
+            list.push(this.convertMainModel(data));
+          });
+          resolve(list);
+        });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }

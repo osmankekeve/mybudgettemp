@@ -67,7 +67,8 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-red text-light main-list-item">
           <div class="row">
-            <div class="col-sm-7">Müşteri</div>
+            <div class="col-sm-5">Müşteri</div>
+            <div class="col-sm-2">Sipariş No</div>
             <div class="col-sm-1">Sipariş Tipi</div>
             <div class="col-sm-1">Durum</div>
             <div class="col-sm-1"><span class="float-right">Toplam Tutar</span></div>
@@ -79,7 +80,8 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-7"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-5"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-2">{{item.data.receiptNo}}</div>
             <div class="col-sm-1">{{item.orderTypeTr}}</div>
             <div class="col-sm-1">{{item.statusTr}}</div>
             <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
@@ -128,6 +130,15 @@
           </div>
           <div class="card-body">
             <div class="row form-inline">
+              <div class="col-sm-3">
+                <label class="col-form-label float-left font-weight-600">Fiş No</label>
+              </div>
+              <div class="col-sm-9">
+                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+                  {{selectedRecord.data.receiptNo}}
+                </label>
+                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+              </div>
               <div class="col-sm-3">
                 <label class="col-form-label float-left font-weight-600">Müşteri Adı</label>
               </div>

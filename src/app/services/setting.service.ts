@@ -83,13 +83,17 @@ export class SettingService {
       const purchaseInvoiceLength = this.getItem('purchaseInvoiceLength');
       Promise.all([purchaseInvoicePrefix, purchaseInvoiceNumber, purchaseInvoiceSuffix, purchaseInvoiceLength])
         .then((values: any) => {
-          const prefix = values[0].data as SettingModel;
-          const numb = values[1].data as SettingModel;
-          const suffix = values[2].data as SettingModel;
-          const length = values[3].data as SettingModel;
-          if (numb.value !== '') {
-            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
-            resolve(returnData);
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+            const prefix = values[0].data as SettingModel;
+            const numb = values[1].data as SettingModel;
+            const suffix = values[2].data as SettingModel;
+            const length = values[3].data as SettingModel;
+            if (numb.value !== '') {
+              const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+              resolve(returnData);
+            } else {
+              resolve(null);
+            }
           } else {
             resolve(null);
           }
@@ -115,6 +119,10 @@ export class SettingService {
           } else {
             resolve(null);
           }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+          } else {
+            resolve(null);
+          }
         });
     });
   }
@@ -127,13 +135,17 @@ export class SettingService {
       const salesInvoiceLength = this.getItem('salesInvoiceLength');
       Promise.all([salesInvoicePrefix, salesInvoiceNumber, salesInvoiceSuffix, salesInvoiceLength])
         .then((values: any) => {
-          const prefix = values[0].data as SettingModel;
-          const numb = values[1].data as SettingModel;
-          const suffix = values[2].data as SettingModel;
-          const length = values[3].data as SettingModel;
-          if (numb.value !== '') {
-            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
-            resolve(returnData);
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+            const prefix = values[0].data as SettingModel;
+            const numb = values[1].data as SettingModel;
+            const suffix = values[2].data as SettingModel;
+            const length = values[3].data as SettingModel;
+            if (numb.value !== '') {
+              const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+              resolve(returnData);
+            } else {
+              resolve(null);
+            }
           } else {
             resolve(null);
           }
@@ -159,6 +171,10 @@ export class SettingService {
           } else {
             resolve(null);
           }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+          } else {
+            resolve(null);
+          }
         });
     });
   }
@@ -178,6 +194,10 @@ export class SettingService {
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
             resolve(returnData);
+          } else {
+            resolve(null);
+          }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
           } else {
             resolve(null);
           }
@@ -203,6 +223,10 @@ export class SettingService {
           } else {
             resolve(null);
           }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+          } else {
+            resolve(null);
+          }
         });
     });
   }
@@ -225,6 +249,10 @@ export class SettingService {
           } else {
             resolve(null);
           }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+          } else {
+            resolve(null);
+          }
         });
     });
   }
@@ -244,6 +272,36 @@ export class SettingService {
           if (numb.value !== '') {
             const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
             resolve(returnData);
+          } else {
+            resolve(null);
+          }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
+  async getOrderCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const orderPrefix = this.getItem('orderPrefix');
+      const orderNumber = this.getItem('orderNumber');
+      const orderSuffix = this.getItem('orderSuffix');
+      const orderLength = this.getItem('orderLength');
+      Promise.all([orderPrefix, orderNumber, orderSuffix, orderLength])
+        .then((values: any) => {
+          const prefix = values[0].data as SettingModel;
+          const numb = values[1].data as SettingModel;
+          const suffix = values[2].data as SettingModel;
+          const length = values[3].data as SettingModel;
+          if (numb.value !== '') {
+            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+            resolve(returnData);
+          } else {
+            resolve(null);
+          }
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
           } else {
             resolve(null);
           }

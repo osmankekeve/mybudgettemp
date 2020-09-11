@@ -227,6 +227,11 @@ export class CustomerAccountComponent implements OnInit {
           }
         });
       });
+    setTimeout(() => {
+      if (this.transactionList === undefined) {
+        this.transactionList = [];
+      }
+    }, 3000);
   }
 
   showSelectedRecord(record: any): void {

@@ -43,6 +43,8 @@ import {ExcelImportComponent} from './partials/excel-import/excel-import.compone
 import {ToastsComponent} from './partials/toasts/toasts.component';
 import {ToastService} from './services/toast.service';
 import {InfoModuleComponent} from './partials/info-module/info-module.component';
+import {OrderSelectComponent} from './partials/order-select/order-select.component';
+import {OrderFilterPipe} from './filters/order-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -50,7 +52,7 @@ import {InfoModuleComponent} from './partials/info-module/info-module.component'
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
         UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
-        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent
+        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent, OrderSelectComponent, OrderFilterPipe
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -65,6 +67,6 @@ import {InfoModuleComponent} from './partials/info-module/info-module.component'
     ToastService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent ]
 })
 export class AppModule { }

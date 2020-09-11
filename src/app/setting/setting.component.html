@@ -150,6 +150,39 @@
                       <option value={{item.primaryKey}} *ngFor="let item of discountLists">{{item.listName}}</option>
                     </select>
                   </div>
+                  <div class="col-sm-12">
+                    <div class="card mt-1">
+                      <div class="card-header">
+                        Sipariş Otomatik Kodu
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-sm-3">Ön Eki</div>
+                          <div class="col-sm-3">Sıra</div>
+                          <div class="col-sm-3">Son Eki</div>
+                          <div class="col-sm-3">Uzunluk</div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="order.prefix">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="order.number">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="order.suffix">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="order.length">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-footer">
+                        <button type="button" class="btn btn-sm btn-success"
+                                (click)="btnSaveOrderAutoCode_Click()">Kaydet</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

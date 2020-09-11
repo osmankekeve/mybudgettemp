@@ -138,7 +138,7 @@ export class CollectionService {
       } else if (record.data.type === '' || record.data.type === '-1') {
         reject('Lütfen tahsilat tipi seçiniz.');
       } else if (record.data.receiptNo === '') {
-        reject('Lütfen fiş numarası seçiniz.');
+        reject('Lütfen fiş numarası giriniz.');
       } else if (record.data.cashDeskPrimaryKey === '' || record.data.cashDeskPrimaryKey === '-1') {
         reject('Lütfen kasa seçiniz.');
       } else if (record.data.amount <= 0) {

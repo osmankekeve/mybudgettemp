@@ -71,7 +71,7 @@ export class SalesOfferComponent implements OnInit {
   constructor(protected authService: AuthenticationService, protected service: SalesOrderService, private toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
-              protected dService: DiscountListService, protected defService: DefinitionService,
+              protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
               protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService,
               protected pdService: ProductDiscountService, protected setService: SettingService,
@@ -332,6 +332,10 @@ export class SalesOfferComponent implements OnInit {
   async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
+      const receiptNoData = await this.sService.getOrderCode();
+      if (receiptNoData !== null) {
+        this.selectedRecord.data.receiptNo = receiptNoData;
+      }
       this.populatePriceList();
       this.populateDiscountList();
       this.populateStorageList();

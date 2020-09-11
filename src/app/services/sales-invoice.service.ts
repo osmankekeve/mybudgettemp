@@ -10,12 +10,14 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getFloat, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
+import {ProductModel} from '../models/product-model';
+import {ProductMainModel} from '../models/product-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -208,7 +210,7 @@ export class SalesInvoiceService {
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
-    returnData.customerCode = '-1';
+    returnData.customerCode = '';
     returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.type = '-1';
@@ -228,6 +230,7 @@ export class SalesInvoiceService {
   clearMainModel(): SalesInvoiceMainModel {
     const returnData = new SalesInvoiceMainModel();
     returnData.data = this.clearSubModel();
+    returnData.customer = this.cusService.clearMainModel();
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
@@ -235,6 +238,18 @@ export class SalesInvoiceService {
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    return returnData;
+  }
+
+  convertMainModel(model: SalesInvoiceModel): SalesInvoiceMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+    returnData.statusTr = getStatus().get(returnData.data.status);
     return returnData;
   }
 
@@ -256,8 +271,9 @@ export class SalesInvoiceService {
 
           Promise.all([this.cusService.getItem(returnData.data.customerCode)])
             .then((values: any) => {
-              if (values[0] !== undefined || values[0] !== null) {
-                returnData.customer = values[0] as CustomerModel;
+              if (values[0] !== null) {
+                const a = values[0] as CustomerModel;
+                returnData.customer = this.cusService.convertMainModel(a);
               }
             });
 
@@ -314,8 +330,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = this.cusService.convertMainModel(customer);
             return Object.assign({returnData});
           }));
       });
@@ -344,8 +359,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = this.cusService.convertMainModel(customer);
             return Object.assign({returnData});
           }));
       });
@@ -386,8 +400,7 @@ export class SalesInvoiceService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = this.cusService.convertMainModel(customer);
             return Object.assign({returnData});
           }));
       });

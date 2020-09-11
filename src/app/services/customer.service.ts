@@ -215,7 +215,7 @@ export class CustomerService {
     const returnData = new CustomerMainModel();
     returnData.data = this.clearModel();
     returnData.employee = this.employeeMap.get(returnData.data.employeePrimaryKey);
-    returnData.executive = this.employeeMap.get(returnData.data.executivePrimary);
+    returnData.executive = this.eService.clearProfileModel();
     returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
     returnData.termTr = getTerms().get(returnData.data.termKey);
     returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';

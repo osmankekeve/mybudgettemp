@@ -1,11 +1,11 @@
 import {SalesInvoiceModel} from './sales-invoice-model';
-import {CustomerModel} from './customer-model';
 import {CustomerAccountModel} from './customer-account-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class SalesInvoiceMainModel {
   data: SalesInvoiceModel;
   customerName?: string;
-  customer?: CustomerModel;
+  customer?: CustomerMainModel;
   account?: CustomerAccountModel;
   employeeName?: string;
   approverName?: string;

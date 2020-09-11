@@ -1,0 +1,56 @@
+﻿<div class="modal-header">
+  <h5 class="modal-title"><span class="font-weight-600">Sipariş Seçiniz</span></h5>
+  <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
+</div>
+<!-- Modal body -->
+<div class="modal-body">
+  <div class="row mb-2">
+    <div class="col-sm-12 head-filter">
+      <div class="input-group input-group-round">
+        <div class="input-group-prepend">
+          <span class="input-group-text">
+              <i class="fa fa-filter"></i>
+          </span>
+        </div>
+        <input type="search" class="form-control filter-list-input" placeholder="Sipariş Ara.." [(ngModel)]="searchText">
+      </div>
+    </div>
+  </div>
+  <div class="work-area-2" *ngIf="orderList != undefined; else elseBlock2">
+    <div class="list-group" *ngIf="orderList.length > 0; else elseBlock">
+      <div class="list-group-item bg-danger text-light main-list-item">
+        <div class="row">
+          <div class="col-sm-6">Sipariş No</div>
+          <div class="col-sm-3"><span class="float-right">Toplam Tutar</span></div>
+          <div class="col-sm-3"><span class="float-right">Toplam Tutar (+KDV)</span></div>
+        </div>
+      </div>
+      <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+           [ngClass]="{'bg-yellow': list.indexOf(item.data.primaryKey) > -1}"
+           (click)="markSelected(item)"
+           *ngFor="let item of orderList | filterOrder: searchText; index as i;">
+        <div class="row">
+          <div class="col-sm-6">
+            <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+            <span class="text-red font-weight-600">{{item.data.receiptNo}}</span>
+          </div>
+          <div class="col-sm-3"><span class="float-right">{{item.totalPriceFormatted}}</span></div>
+          <div class="col-sm-3"><span class="float-right">{{item.totalPriceWithTaxFormatted}}</span></div>
+        </div>
+      </div>
+    </div>
+    <ng-template #elseBlock>
+      <div class="card bg-danger text-white">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
+  </div>
+  <ng-template #elseBlock2>
+    <div class="loader"></div>
+  </ng-template>
+</div>
+<!-- Modal footer -->
+<div class="modal-footer">
+  <button type="submit" class="btn btn-sm btn-danger" (click)="btnSelect_Click()">Seç</button>
+</div>
+

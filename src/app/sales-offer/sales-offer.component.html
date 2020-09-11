@@ -26,7 +26,8 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-red text-light main-list-item">
           <div class="row">
-            <div class="col-sm-7">Müşteri</div>
+            <div class="col-sm-5">Müşteri</div>
+            <div class="col-sm-2">Sipariş No</div>
             <div class="col-sm-1">Sipariş Tipi</div>
             <div class="col-sm-1">Durum</div>
             <div class="col-sm-1"><span class="float-right">Toplam Tutar</span></div>
@@ -38,7 +39,8 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-7"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-5"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-2">{{item.data.receiptNo}}</div>
             <div class="col-sm-1">{{item.orderTypeTr}}</div>
             <div class="col-sm-1">{{item.statusTr}}</div>
             <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
@@ -139,6 +141,16 @@
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen seçim yapınız.</div>
         </div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
+        </div>
+        <div class="col-sm-3">
+          <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
+                 [disabled]="selectedRecord.data.primaryKey != null"
+                 [(ngModel)]="selectedRecord.data.receiptNo" required>
+          <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+        </div>
+        <div class="col-sm-6"></div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="storagePrimaryKey">Depo</label>
         </div>

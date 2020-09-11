@@ -3,16 +3,13 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { SettingService } from '../services/setting.service';
-import {getBool} from '../core/correct-library';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {GlobalUploadService} from '../services/global-upload.service';
 import {ProductUnitService} from '../services/product-unit.service';
 import {DefinitionModel} from '../models/definition-model';
 import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {PriceListModel} from '../models/price-list-model';
 import {DiscountListModel} from '../models/discount-list-model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {PriceListService} from '../services/price-list.service';
 
 @Component({
@@ -91,6 +88,12 @@ export class SettingComponent implements OnInit {
     suffix: '',
     length: '',
     defaultUnitCode: ''
+  };
+  order = {
+    prefix: '',
+    number: '',
+    suffix: '',
+    length: ''
   };
   openedPanel = 'general';
 
@@ -252,6 +255,18 @@ export class SettingComponent implements OnInit {
         if (item.key === 'defaultDiscountListPrimaryKey') {
           this.general.defaultDiscountListPrimaryKey = item.value;
         }
+        if (item.key === 'orderPrefix') {
+          this.order.prefix = item.value;
+        }
+        if (item.key === 'orderNumber') {
+          this.order.number = item.value;
+        }
+        if (item.key === 'orderSuffix') {
+          this.order.suffix = item.value;
+        }
+        if (item.key === 'orderLength') {
+          this.order.length = item.value;
+        }
       });
     });
   }
@@ -329,6 +344,17 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'productLength', value: this.product.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
       this.infoService.success('Ürün ayarları kaydedildi.');
+    });
+  }
+
+  async btnSaveOrderAutoCode_Click(): Promise<void> {
+    Promise.all([
+      await this.service.setItem({ key: 'orderPrefix', value: this.order.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'orderNumber', value: this.order.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'orderSuffix', value: this.order.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'orderLength', value: this.order.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.infoService.success('Sipariş ayarları kaydedildi.');
     });
   }
 
