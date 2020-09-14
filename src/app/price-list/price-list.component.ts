@@ -283,7 +283,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
         if (result) {
           this.selectedProductPrice.product = result;
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -395,7 +395,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
         if (result) {
           console.log(result);
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }

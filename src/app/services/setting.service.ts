@@ -436,4 +436,20 @@ export class SettingService {
       });
   }
 
+  async increaseOrderNumber() {
+    const orderNumber = this.getItem('orderNumber');
+    Promise.all([ orderNumber])
+      .then((values: any) => {
+        const numb = values[0].data as SettingModel;
+        if (numb.value !== '') {
+          return this.setItem({
+            key: 'orderNumber',
+            value: getString(getNumber(numb.value) + 1),
+            valueBool: false,
+            valueNumber: 0
+          });
+        }
+      });
+  }
+
 }

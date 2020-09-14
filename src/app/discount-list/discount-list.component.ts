@@ -284,7 +284,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
         if (result) {
           this.selectedProductDiscount.product = result;
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -388,7 +388,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
         if (result) {
           console.log(result);
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }

@@ -252,16 +252,10 @@ export class SalesOrderComponent implements OnInit {
         this.selectedRecord.data.approverPrimaryKey = this.authService.getEid();
         this.selectedRecord.data.approveDate = -1;
         this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
-        Promise.all([this.service.checkForSave(this.selectedRecord)])
-          .then(async (values: any) => {
-            await this.service.updateItem(this.selectedRecord)
-              .then(() => {
-                this.finishProcess(null, 'Sipariş teklif aşamasına geri çevrildi');
-                this.populateList();
-              })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              });
+        await this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.finishProcess(null, 'Sipariş teklif aşamasına geri çevrildi');
+            this.populateList();
           })
           .catch((error) => {
             this.finishProcess(error, null);

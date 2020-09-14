@@ -322,7 +322,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         if (result) {
           console.log(result);
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }

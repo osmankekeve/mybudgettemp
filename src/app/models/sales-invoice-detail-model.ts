@@ -1,8 +1,8 @@
-import {currencyFormat} from '../core/correct-library';
-
-export class SalesOrderDetailModel {
+export class SalesInvoiceDetailModel {
   primaryKey?: string;
+  invoicePrimaryKey: string;
   orderPrimaryKey: string;
+  orderDetailPrimaryKey: string;
   productPrimaryKey: string;
   listPrice?: number; // price on list
   price?: number; // price of employee typed
@@ -12,8 +12,6 @@ export class SalesOrderDetailModel {
   discount2?: number;
   defaultDiscount2?: number;
   quantity?: number;
-  invoicedQuantity?: number;
-  invoicedStatus: string;
   taxRate?: number;
   insertDate?: number;
   totalPrice?: number; // iskonto1 ve iskont2 dusmus hali.

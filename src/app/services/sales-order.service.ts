@@ -28,6 +28,7 @@ import {DiscountListService} from './discount-list.service';
 import {DefinitionService} from './definition.service';
 import {DeliveryAddressService} from './delivery-address.service';
 import {CustomerMainModel} from '../models/customer-main-model';
+import {SettingService} from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -40,24 +41,10 @@ export class SalesOrderService {
 
   constructor(protected authService: AuthenticationService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService,
+              protected atService: AccountTransactionService, protected sService: SettingService,
               protected actService: ActionService, protected sodService: SalesOrderDetailService, protected plService: PriceListService,
               protected dService: DiscountListService,  protected daService: DeliveryAddressService, protected defService: DefinitionService) {
 
-  }
-
-  async addItem(record: SalesOrderMainModel) {
-    return await this.listCollection.add(Object.assign({}, record.data))
-      .then(async result => {
-
-        for (const item of record.orderDetailList) {
-          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
-          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
-        }
-
-        await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-      });
   }
 
   async removeItem(record: SalesOrderMainModel) {
@@ -81,6 +68,11 @@ export class SalesOrderService {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else if (record.data.status === 'closed') {
+          for (const item of record.orderDetailList) {
+            item.data.invoicedQuantity = item.data.quantity;
+            item.data.invoicedStatus = 'complete';
+            await this.sodService.updateItem(item);
+          }
           await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
         } else if (record.data.status === 'done') {
@@ -102,6 +94,7 @@ export class SalesOrderService {
           await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
         }
 
+        await this.sService.increaseOrderNumber();
         await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
@@ -287,16 +280,9 @@ export class SalesOrderService {
         const data = change.payload.doc.data() as SalesOrderModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = this.clearMainModel();
+        const returnData = this.convertMainModel(data);
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.statusTr = getStatus().get(returnData.data.status);
-        returnData.orderTypeTr = getOrderType().get(returnData.data.type);
-        returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
-        returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -318,16 +304,9 @@ export class SalesOrderService {
         const data = change.payload.doc.data() as SalesOrderModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = this.clearMainModel();
+        const returnData = this.convertMainModel(data);
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
-        returnData.statusTr = getStatus().get(returnData.data.status);
-        returnData.orderTypeTr = getOrderType().get(returnData.data.type);
-        returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
-        returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -347,7 +326,8 @@ export class SalesOrderService {
         let query: CollectionReference | Query = ref;
         query = query
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('customerPrimaryKey', '==', customerPrimaryKey);
+          .where('customerPrimaryKey', '==', customerPrimaryKey)
+          .where('status', '==', 'approved');
         return query;
       }).get()
         .subscribe(snapshot => {

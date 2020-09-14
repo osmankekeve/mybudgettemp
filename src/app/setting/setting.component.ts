@@ -11,6 +11,8 @@ import {DefinitionService} from '../services/definition.service';
 import {PriceListModel} from '../models/price-list-model';
 import {DiscountListModel} from '../models/discount-list-model';
 import {PriceListService} from '../services/price-list.service';
+import {SalesOrderService} from '../services/sales-order.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-setting',
@@ -99,7 +101,7 @@ export class SettingComponent implements OnInit {
 
   constructor(protected authService: AuthenticationService, protected service: SettingService, protected infoService: InformationService,
               protected db: AngularFirestore, protected puService: ProductUnitService, protected defService: DefinitionService,
-              protected plService: PriceListService, protected dService: DiscountListService) { }
+              protected plService: PriceListService, protected dService: DiscountListService, protected toastService: ToastService) { }
 
   async ngOnInit() {
     await this.populateUnits();
@@ -272,46 +274,59 @@ export class SettingComponent implements OnInit {
   }
 
   async btnSavePurchaseInvoiceAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'purchaseInvoicePrefix', value: this.purchaseInvoice.prefix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'purchaseInvoiceNumber', value: this.purchaseInvoice.number, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'purchaseInvoiceSuffix', value: this.purchaseInvoice.suffix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'purchaseInvoiceLength', value: this.purchaseInvoice.length, valueBool: false, valueNumber: 0 });
-    this.infoService.success('Alım faturası ayarları kaydedildi.');
+    Promise.all([
+      await this.service.setItem({ key: 'purchaseInvoicePrefix', value: this.purchaseInvoice.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseInvoiceNumber', value: this.purchaseInvoice.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseInvoiceSuffix', value: this.purchaseInvoice.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseInvoiceLength', value: this.purchaseInvoice.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Alım faturası ayarları kaydedildi.', true);
+    });
 
   }
 
   async btnSavePaymentAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'paymentPrefix', value: this.payment.prefix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'paymentNumber', value: this.payment.number, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'paymentSuffix', value: this.payment.suffix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'paymentLength', value: this.payment.length, valueBool: false, valueNumber: 0 });
-    this.infoService.success('Ödeme ayarları kaydedildi.');
-
+    Promise.all([
+      await this.service.setItem({ key: 'paymentPrefix', value: this.payment.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'paymentNumber', value: this.payment.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'paymentSuffix', value: this.payment.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'paymentLength', value: this.payment.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Ödeme ayarları kaydedildi.', true);
+    });
   }
 
   async btnSaveSalesInvoiceAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'salesInvoicePrefix', value: this.salesInvoice.prefix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'salesInvoiceNumber', value: this.salesInvoice.number, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'salesInvoiceSuffix', value: this.salesInvoice.suffix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'salesInvoiceLength', value: this.salesInvoice.length, valueBool: false, valueNumber: 0 });
-    this.infoService.success('Satış faturası ayarları kaydedildi.');
-
+    Promise.all([
+      await this.service.setItem({ key: 'salesInvoicePrefix', value: this.salesInvoice.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'salesInvoiceNumber', value: this.salesInvoice.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'salesInvoiceSuffix', value: this.salesInvoice.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'salesInvoiceLength', value: this.salesInvoice.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Satış faturası ayarları kaydedildi.', true);
+    });
   }
 
   async btnSaveCollectionAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'collectionPrefix', value: this.collection.prefix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'collectionNumber', value: this.collection.number, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'collectionSuffix', value: this.collection.suffix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'collectionLength', value: this.collection.length, valueBool: false, valueNumber: 0 });
-    this.infoService.success('Tahsilat ayarları kaydedildi.');
+    Promise.all([
+      await this.service.setItem({ key: 'collectionPrefix', value: this.collection.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'collectionNumber', value: this.collection.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'collectionSuffix', value: this.collection.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'collectionLength', value: this.collection.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Tahsilat ayarları kaydedildi.', true);
+    });
   }
 
   async btnSaveAccountVoucherAutoCode_Click(): Promise<void> {
-    await this.service.setItem({ key: 'accountVoucherPrefix', value: this.accountVoucher.prefix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'accountVoucherNumber', value: this.accountVoucher.number, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'accountVoucherSuffix', value: this.accountVoucher.suffix, valueBool: false, valueNumber: 0 });
-    await this.service.setItem({ key: 'accountVoucherLength', value: this.accountVoucher.length, valueBool: false, valueNumber: 0 });
-    this.infoService.success('Cari fiş ayarları kaydedildi.');
+    Promise.all([
+      await this.service.setItem({ key: 'accountVoucherPrefix', value: this.accountVoucher.prefix, valueBool: false, valueNumber: 0 }),
+    await this.service.setItem({ key: 'accountVoucherNumber', value: this.accountVoucher.number, valueBool: false, valueNumber: 0 }),
+    await this.service.setItem({ key: 'accountVoucherSuffix', value: this.accountVoucher.suffix, valueBool: false, valueNumber: 0 }),
+    await this.service.setItem({ key: 'accountVoucherLength', value: this.accountVoucher.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Cari fiş ayarları kaydedildi.', true);
+    });
   }
 
   async btnSaveCashDeskVoucherAutoCode_Click(): Promise<void> {
@@ -321,7 +336,7 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'cashDeskVoucherSuffix', value: this.cashDeskVoucher.suffix, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'cashDeskVoucherLength', value: this.cashDeskVoucher.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
-      this.infoService.success('Kasa fiş ayarları kaydedildi.');
+      this.toastService.success('Kasa fiş ayarları kaydedildi.', true);
     });
   }
 
@@ -332,7 +347,7 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'customerSuffix', value: this.customer.suffix, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'customerLength', value: this.customer.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
-      this.infoService.success('Müşteri ayarları kaydedildi.');
+      this.toastService.success('Müşteri ayarları kaydedildi.', true);
     });
   }
 
@@ -343,7 +358,7 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'productSuffix', value: this.product.suffix, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'productLength', value: this.product.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
-      this.infoService.success('Ürün ayarları kaydedildi.');
+      this.toastService.success('Ürün ayarları kaydedildi.', true);
     });
   }
 
@@ -354,7 +369,7 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'orderSuffix', value: this.order.suffix, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'orderLength', value: this.order.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
-      this.infoService.success('Sipariş ayarları kaydedildi.');
+      this.toastService.success('Sipariş ayarları kaydedildi.', true);
     });
   }
 
@@ -381,7 +396,7 @@ export class SettingComponent implements OnInit {
     } else {
       // nothing
     }
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async cbChart2Visibility_Changed(module: string): Promise<void> {
@@ -407,42 +422,42 @@ export class SettingComponent implements OnInit {
     } else {
       // nothing
     }
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async onChangeDefaultCurrencyType(value: string): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'defaultCurrencyCode';
     data.value = value;
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async onChangeDefaultUnitCode(value: string): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'defaultUnitCode';
     data.value = value;
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async onChangeDefaultStorage(value: string): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'defaultStoragePrimaryKey';
     data.value = value;
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async onChangeDefaultPriceList(value: string): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'defaultPriceListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async onChangeDefaultDiscountList(value: string): Promise<void> {
     const data = this.service.cleanModel();
     data.key = 'defaultDiscountListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).catch(err => this.infoService.error(err));
+    await this.service.setItem(data).catch(err => this.toastService.error(err, true));
   }
 
   async populateUnits(): Promise<void> {

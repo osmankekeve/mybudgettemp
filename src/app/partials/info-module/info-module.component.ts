@@ -26,6 +26,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'İşlemler; sekmesinden son yapılan işlemleri görüntüleyebilirsiniz.'},
         { key: 'Ürün Birimleri; arayüzünde bulunan \'Birimleri Oluştur\' tuşu ile, eksik olan birimler otomatik oluşturulur.'},
         { key: 'Ürün; \'Fiyat Listesi\' nde, \'İskonto Listesi\' nde, \'Sipariş\' te kullanılırsa silinemez.'},
+        { key: 'Otomatik ürün kodu için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
     if (module === 'sales-offer') {
@@ -37,6 +38,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Teklif onaylandıktan sonra silinemez sadece iptal edilebilir.'},
         { key: 'Seçilen ürün, fiyat yada iskonto listesinde bilgisi varsa ilgili alanlarda gösterilir, dilenirse bu alanlar değiştirilebilir.'},
         { key: 'Teklif silinirse, detayı ile birlikte tüm bilgileri kaldırılır.'},
+        { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
     if (module === 'sales-order') {
@@ -46,6 +48,17 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Siparişte değişiklik yapılmak isteniyorsa, \' Teklife Geri Gönder\' tuşu ile onay belkiyor durumuna çevrilebilir.'},
         { key: 'Faturası kesilen sipariş, Teklife geri gönderilemez.'},
         { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
+      ];
+    }
+    if (module === 'sales-invoice') {
+      this.headerTitle = 'Satış Faturası';
+      this.mainList = [
+        { key: 'Onaylanmış siparişler faturalaştırılabilmektedir.'},
+        { key: 'Çoklu sipariş seçimi yapılarak, birden fazla sipariş tek faturada birleştirilebilir.'},
+        { key: 'Seçilen siparişlerin faturalaştırılmayan miktarı kadar ürün fatura edilebilir.'},
+        { key: 'İptal edilen faturalara bağlı siparişler yeniden aktif hale gelir.'},
+        { key: 'Tüm kalemleri faturalaştırılan siparişler diğer işlemlere kapatılır.'},
+        { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
   }

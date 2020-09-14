@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
+import {SalesInvoiceModel, setInvoiceCalculation} from '../models/sales-invoice-model';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
@@ -18,6 +18,12 @@ import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
 import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
+import {ToastService} from './toast.service';
+import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
+import {SalesOrderDetailService} from './sales-order-detail.service';
+import {SalesOrderService} from './sales-order.service';
+import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
+import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +41,7 @@ export class SalesInvoiceService {
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected accService: CustomerAccountService, protected atService: AccountTransactionService,
-              protected actService: ActionService) {
+              protected actService: ActionService, protected sidService: SalesInvoiceDetailService, protected soService: SalesOrderService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -59,18 +65,12 @@ export class SalesInvoiceService {
     }
   }
 
-  async addItem(record: SalesInvoiceMainModel) {
-    return await this.listCollection.add(Object.assign({}, record.data))
-      .then(async result => {
-        await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
-        await this.sService.increaseSalesInvoiceNumber();
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-      });
-  }
-
   async removeItem(record: SalesInvoiceMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
-      .then(async result => {
+      .then(async () => {
+        for (const item of record.invoiceDetailList) {
+          await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
+        }
         this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'salesInvoice');
         if (record.data.status === 'approved') {
@@ -81,7 +81,14 @@ export class SalesInvoiceService {
 
   async updateItem(record: SalesInvoiceMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
+        if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          for (const item of record.invoiceDetailList) {
+            item.data.invoicePrimaryKey = record.data.primaryKey;
+            item.invoiceStatus = record.data.status;
+            await this.sidService.setItem(item, item.data.primaryKey);
+          }
+        }
         if (record.data.status === 'approved') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = record.data.primaryKey;
@@ -110,7 +117,15 @@ export class SalesInvoiceService {
 
   async setItem(record: SalesInvoiceMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
+        if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          for (const item of record.invoiceDetailList) {
+            item.data.invoicePrimaryKey = record.data.primaryKey;
+            item.invoiceStatus = record.data.status;
+            await this.sidService.setItem(item, item.data.primaryKey);
+          }
+        }
+
         await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
         await this.sService.increaseSalesInvoiceNumber();
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
@@ -134,12 +149,31 @@ export class SalesInvoiceService {
         } else {
           // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
         }
+      }).finally(() => {
+        record.data.orderPrimaryKeyList.forEach(salesOrderPrimaryKey => {
+
+          this.db.collection('tblSalesOrderDetail', ref => {
+            let query: CollectionReference | Query = ref;
+            query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+              .where('invoicedStatus', '==', 'short');
+            return query;
+          }).get()
+            .toPromise()
+            .then((snapshot) => {
+              if (snapshot.size === 0) {
+
+              }
+            });
+
+        });
       });
   }
 
   checkForSave(record: SalesInvoiceMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
-      if (record.data.customerCode === '' || record.data.customerCode === '-1') {
+      if (record.invoiceDetailList.length === 0) {
+        reject('Boş fatura kaydedilemez.');
+      } else if (record.data.customerCode === '' || record.data.customerCode === '-1') {
         reject('Lütfen müşteri seçiniz.');
       } else if (record.data.accountPrimaryKey === '' || record.data.accountPrimaryKey === '-1') {
         reject('Lütfen hesap seçiniz.');
@@ -151,7 +185,7 @@ export class SalesInvoiceService {
         reject('Tutar sıfırdan büyük olmalıdır.');
       } else if (record.data.totalPrice <= 0) {
         reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
-      } else if (isNullOrEmpty(record.data.insertDate)) {
+      } else if (isNullOrEmpty(record.data.recordDate)) {
         reject('Lütfen kayıt tarihi seçiniz.');
       } else {
         resolve(null);
@@ -197,9 +231,15 @@ export class SalesInvoiceService {
     if (model.platform === undefined) {
       model.platform = cleanModel.platform;
     }
-    if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
-    if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
-    if (model.recordDate === undefined) { model.recordDate = model.insertDate; }
+    if (model.approveByPrimaryKey === undefined) {
+      model.approveByPrimaryKey = model.employeePrimaryKey;
+    }
+    if (model.approveDate === undefined) {
+      model.approveDate = model.insertDate;
+    }
+    if (model.recordDate === undefined) {
+      model.recordDate = model.insertDate;
+    }
 
     return model;
   }
@@ -214,8 +254,6 @@ export class SalesInvoiceService {
     returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.type = '-1';
-    returnData.totalPrice = 0;
-    returnData.totalPriceWithTax = 0;
     returnData.description = '';
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
     returnData.approveByPrimaryKey = '-1';
@@ -223,6 +261,13 @@ export class SalesInvoiceService {
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
     returnData.recordDate = Date.now();
+    returnData.totalPriceWithoutDiscount = 0;
+    returnData.totalDetailDiscount = 0;
+    returnData.totalPrice = 0;
+    returnData.generalDiscountValue = 0;
+    returnData.generalDiscount = 0;
+    returnData.totalPriceWithTax = 0;
+    returnData.orderPrimaryKeyList = [];
 
     return returnData;
   }
@@ -236,8 +281,12 @@ export class SalesInvoiceService {
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
-    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount); // ham tutar
+    returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount); // detayda uygulanan toplam iskonto
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice); // iskonto dusulmus toplam fiyat
+    returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount); // genel iskonto tutari
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax); // tum iskontolar dusulmus kdv eklenmis fiyat
+    returnData.invoiceDetailList = [];
     return returnData;
   }
 
@@ -246,36 +295,26 @@ export class SalesInvoiceService {
     returnData.data = this.checkFields(model);
     returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
+    returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
+    returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
+    returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
+    returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
     return returnData;
   }
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as SalesInvoiceModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesInvoiceMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-          returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-          returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-          returnData.statusTr = getStatus().get(returnData.data.status);
-
-          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
-            .then((values: any) => {
-              if (values[0] !== null) {
-                const a = values[0] as CustomerModel;
-                returnData.customer = this.cusService.convertMainModel(a);
-              }
-            });
+          const returnData = this.convertMainModel(data);
+          const d1 = await this.cusService.getItem(returnData.data.customerCode);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
 
           resolve(Object.assign({returnData}));
         } else {
@@ -318,15 +357,8 @@ export class SalesInvoiceService {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new SalesInvoiceMainModel();
-        returnData.data = this.checkFields(data);
+        const returnData = this.convertMainModel(data);
         returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -347,15 +379,8 @@ export class SalesInvoiceService {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new SalesInvoiceMainModel();
-        returnData.data = this.checkFields(data);
+        const returnData = this.convertMainModel(data);
         returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -373,8 +398,12 @@ export class SalesInvoiceService {
       ref => {
         let query: CollectionReference | Query = ref;
         query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
-        if (startDate !== null) { query = query.startAt(startDate.getTime()); }
-        if (endDate !== null) { query = query.endAt(endDate.getTime()); }
+        if (startDate !== null) {
+          query = query.startAt(startDate.getTime());
+        }
+        if (endDate !== null) {
+          query = query.endAt(endDate.getTime());
+        }
         if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
         }
@@ -388,15 +417,8 @@ export class SalesInvoiceService {
         const data = change.payload.doc.data() as SalesInvoiceModel;
         data.primaryKey = change.payload.doc.id;
 
-        const returnData = new SalesInvoiceMainModel();
-        returnData.data = this.checkFields(data);
+        const returnData = this.convertMainModel(data);
         returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
-        returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-        returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -430,13 +452,7 @@ export class SalesInvoiceService {
           const data = doc.data() as SalesInvoiceModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesInvoiceMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.actionType = 'added';
-          returnData.customer = this.customerMap.get(returnData.data.customerCode);
-          returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-          returnData.statusTr = getStatus().get(returnData.data.status);
+          const returnData = this.convertMainModel(data);
 
           list.push(returnData);
         });

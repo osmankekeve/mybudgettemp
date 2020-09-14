@@ -68,7 +68,7 @@ export class SalesOfferComponent implements OnInit {
   deliveryAddressList: Array<DeliveryAddressModel>;
   unitList: Array<ProductUnitModel>;
 
-  constructor(protected authService: AuthenticationService, protected service: SalesOrderService, private toastService: ToastService,
+  constructor(protected authService: AuthenticationService, protected service: SalesOrderService, protected toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
@@ -457,7 +457,7 @@ export class SalesOfferComponent implements OnInit {
           this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
           this.populateDeliveryAddressList();
         }
-      });
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -515,8 +515,6 @@ export class SalesOfferComponent implements OnInit {
   }
 
 
-
-
   showOrderDetail(record: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.selectedDetail = record as SalesOrderDetailMainModel;
@@ -546,7 +544,7 @@ export class SalesOfferComponent implements OnInit {
             this.selectedDetail.data.productPrimaryKey = this.selectedDetail.product.data.primaryKey;
             this.populateProductAfterSelectData();
           }
-        });
+        }, () => {});
       }
     } catch (error) {
       await this.infoService.error(error);

@@ -1,6 +1,7 @@
 import {SalesInvoiceModel} from './sales-invoice-model';
 import {CustomerAccountModel} from './customer-account-model';
 import {CustomerMainModel} from './customer-main-model';
+import {SalesInvoiceDetailMainModel} from './sales-invoice-detail-main-model';
 
 export class SalesInvoiceMainModel {
   data: SalesInvoiceModel;
@@ -10,8 +11,12 @@ export class SalesInvoiceMainModel {
   employeeName?: string;
   approverName?: string;
   actionType?: string;
-  totalPriceFormatted?: string;
-  totalPriceWithTaxFormatted?: string;
   statusTr?: string;
   platformTr?: string;
+  totalDetailDiscountFormatted?: string;
+  generalDiscountFormatted?: string;
+  totalPriceWithoutDiscountFormatted?: string;
+  totalPriceFormatted?: string;
+  totalPriceWithTaxFormatted?: string;
+  invoiceDetailList: Array<SalesInvoiceDetailMainModel>;
 }

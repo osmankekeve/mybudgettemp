@@ -15,7 +15,7 @@ import {SalesOrderService} from '../../services/sales-order.service';
 
 export class OrderSelectComponent implements OnInit {
 
-  @Input() public list: Array<SalesOrderMainModel>;
+  @Input() public list: Array<string>;
   @Input() public customerPrimaryKey: string;
   @Output() passEntry: EventEmitter<any> = new EventEmitter();
   orderList: Array<SalesOrderMainModel>;
@@ -45,7 +45,6 @@ export class OrderSelectComponent implements OnInit {
     } else {
       this.list.push(selectedOrder.data.primaryKey);
     }
-    console.log(this.list);
   }
 
   async btnSelect_Click() {
