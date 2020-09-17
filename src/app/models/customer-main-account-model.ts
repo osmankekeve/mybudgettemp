@@ -1,9 +1,10 @@
-import {CustomerModel} from './customer-model';
+
 import {CustomerAccountModel} from './customer-account-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class CustomerAccountMainModel {
   data?: CustomerAccountModel;
-  customer: CustomerModel;
+  customer: CustomerMainModel;
   actionType?: string;
   currencyTr?: string;
   isActiveTr?: string;

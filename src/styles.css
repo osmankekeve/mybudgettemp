@@ -293,6 +293,12 @@ body {
   scrollbar-width: thin;
 }
 
+.work-area-11 {
+  max-height: calc(100vh - 250px);
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
 .bg-body {
   background-color: #eee !important;
 }

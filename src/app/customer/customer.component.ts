@@ -44,6 +44,12 @@ import {GlobalUploadService} from '../services/global-upload.service';
 import {DeliveryAddressMainModel} from '../models/delivery-address-main-model';
 import {DeliveryAddressService} from '../services/delivery-address.service';
 import {ProductMainModel} from '../models/product-main-model';
+import {DefinitionModel} from '../models/definition-model';
+import {DiscountListService} from '../services/discount-list.service';
+import {DefinitionService} from '../services/definition.service';
+import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-customer',
@@ -86,6 +92,8 @@ export class CustomerComponent implements OnInit {
   visitList: Array<VisitMainModel>;
   targetList$: Observable<CustomerTargetMainModel[]>;
   mailList$: Observable<MailMainModel[]>;
+  termList: Array<DefinitionModel>;
+  paymentList: Array<DefinitionModel>;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
   isActive = true;
@@ -95,18 +103,20 @@ export class CustomerComponent implements OnInit {
   constructor(protected db: AngularFirestore, protected service: CustomerService, protected piService: PurchaseInvoiceService,
               protected siService: SalesInvoiceService, protected colService: CollectionService, protected infoService: InformationService,
               protected cdService: CashDeskService, protected avService: AccountVoucherService,
-              protected authService: AuthenticationService,
+              protected authService: AuthenticationService, protected modalService: NgbModal,
               protected excelService: ExcelService, protected fuService: FileUploadService, protected vService: VisitService,
               protected router: ActivatedRoute, protected ctService: CustomerTargetService, protected sService: SettingService,
               protected payService: PaymentService, protected atService: AccountTransactionService, protected route: Router,
               protected rService: ReportService, protected proService: ProfileService, protected accService: CustomerAccountService,
               protected mailService: MailService, protected globService: GlobalService, protected gfuService: GlobalUploadService,
-              protected daService: DeliveryAddressService) {
+              protected daService: DeliveryAddressService, protected defService: DefinitionService) {
   }
 
   async ngOnInit() {
     this.openedPanel = 'dashboard';
     this.populateCustomerList();
+    this.populateTermList();
+    this.populatePaymentTypeList();
     this.cashDeskList$ = this.cdService.getMainItems();
     this.executiveList$ = this.proService.getMainItems();
     this.selectedCustomer = undefined;
@@ -180,6 +190,30 @@ export class CustomerComponent implements OnInit {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  populateTermList(): void {
+    Promise.all([this.defService.getItemsForFill('term')]).then((values: any) => {
+      this.termList = [];
+      if (values[0] !== null) {
+        const returnData = values[0] as Array<DefinitionModel>;
+        returnData.forEach(value => {
+          this.termList.push(value);
+        });
+      }
+    });
+  }
+
+  populatePaymentTypeList(): void {
+    Promise.all([this.defService.getItemsForFill('payment-type')]).then((values: any) => {
+      this.paymentList = [];
+      if (values[0] !== null) {
+        const returnData = values[0] as Array<DefinitionModel>;
+        returnData.forEach(value => {
+          this.paymentList.push(value);
+        });
+      }
+    });
   }
 
   showSelectedCustomer(customer: any): void {
@@ -581,6 +615,27 @@ export class CustomerComponent implements OnInit {
         });
     } catch (error) {
       await this.finishProcess(error, null);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedCustomer, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExcelImport_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          console.log(result);
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 

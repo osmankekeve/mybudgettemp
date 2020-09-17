@@ -22,8 +22,8 @@ export class CustomerAccountService {
   customerMap = new Map();
   tableName = 'tblAccounts';
 
-  constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
-              public logService: LogService, public eService: ProfileService, public db: AngularFirestore) {
+  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected readonly cusService: CustomerService,
+              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore) {
 
     if (this.authService.isUserLoggedIn()) {
       this.cusService.getAllItems().subscribe(list => {
@@ -121,7 +121,7 @@ export class CustomerAccountService {
   clearMainModel(): CustomerAccountMainModel {
     const returnData = new CustomerAccountMainModel();
     returnData.data = this.clearSubModel();
-    returnData.customer = null;
+    returnData.customer = this.cusService.clearMainModel();
     returnData.actionType = 'added';
     returnData.isActiveTr = returnData.data.isActive ? 'Aktif' : 'Pasif';
     returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
@@ -130,7 +130,7 @@ export class CustomerAccountService {
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as CustomerAccountModel;
           data.primaryKey = doc.id;
@@ -138,8 +138,9 @@ export class CustomerAccountService {
           const returnData = new CustomerAccountMainModel();
           returnData.data = this.checkFields(data);
           returnData.data = data;
-          returnData.customer = this.customerMap.get(returnData.data.customerPrimaryKey);
           returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
+          const d1 = await this.cusService.getItem(returnData.data.customerPrimaryKey);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
 
           resolve(Object.assign({returnData}));
         } else {
@@ -161,12 +162,11 @@ export class CustomerAccountService {
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
         returnData.data = data;
-        returnData.customer = this.customerMap.get(returnData.data.customerPrimaryKey);
         returnData.currencyTr = getCurrencyTypes().get(returnData.data.currencyCode);
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map( (customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));

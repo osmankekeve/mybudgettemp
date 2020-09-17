@@ -8,6 +8,7 @@ import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {getEducation, getGenders, getStatus, getUserTypes} from '../core/correct-library';
+import {CustomerMainModel} from '../models/customer-main-model';
 
 @Injectable({
   providedIn: 'root'

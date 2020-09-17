@@ -61,5 +61,9 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
+    if (module === 'customer') {
+      this.headerTitle = 'Müşteri';
+      this.mainList = [];
+    }
   }
 }

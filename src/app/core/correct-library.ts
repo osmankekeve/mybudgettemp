@@ -235,9 +235,14 @@ export const getProductTypesForImport = () => {
   return new Map([['Normal Ürün', 'normal'], ['Promosyon Ürün', 'promotion'], ['Hizmet Ürün', 'service']]);
 };
 
+export const getCustomerTypesForImport = () => {
+  return new Map([['Müşteri', 'customer'], ['Tedarikçi', 'supplier'], ['Müşteri-Tedarikçi', 'customer-supplier']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };
+
 
 export const numberOnly = (event) =>  {
   const charCode = (event.which) ? event.which : event.keyCode;

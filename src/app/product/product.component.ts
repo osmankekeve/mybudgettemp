@@ -4,11 +4,8 @@ import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
   currencyFormat,
-  getBeginOfYearForInput,
   getEncryptionKey,
   getFloat,
-  getTodayForInput,
-  isNullOrEmpty,
   moneyFormat
 } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
@@ -28,11 +25,8 @@ import {ProductUnitModel} from '../models/product-unit-model';
 import {SettingService} from '../services/setting.service';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import * as XLSX from 'xlsx';
-import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
-import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 
 @Component({

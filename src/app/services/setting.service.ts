@@ -109,17 +109,17 @@ export class SettingService {
       const paymentLength = this.getItem('paymentLength');
       Promise.all([paymentPrefix, paymentNumber, paymentSuffix, paymentLength])
         .then((values: any) => {
-          const prefix = values[0].data as SettingModel;
-          const numb = values[1].data as SettingModel;
-          const suffix = values[2].data as SettingModel;
-          const length = values[3].data as SettingModel;
-          if (numb.value !== '') {
-            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
-            resolve(returnData);
-          } else {
-            resolve(null);
-          }
           if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+            const prefix = values[0].data as SettingModel;
+            const numb = values[1].data as SettingModel;
+            const suffix = values[2].data as SettingModel;
+            const length = values[3].data as SettingModel;
+            if (numb.value !== '') {
+              const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+              resolve(returnData);
+            } else {
+              resolve(null);
+            }
           } else {
             resolve(null);
           }
@@ -161,17 +161,17 @@ export class SettingService {
       const collectionLength = this.getItem('collectionLength');
       Promise.all([collectionPrefix, collectionNumber, collectionSuffix, collectionLength])
         .then((values: any) => {
-          const prefix = values[0].data as SettingModel;
-          const numb = values[1].data as SettingModel;
-          const suffix = values[2].data as SettingModel;
-          const length = values[3].data as SettingModel;
-          if (numb.value !== '') {
-            const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
-            resolve(returnData);
-          } else {
-            resolve(null);
-          }
           if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+            const prefix = values[0].data as SettingModel;
+            const numb = values[1].data as SettingModel;
+            const suffix = values[2].data as SettingModel;
+            const length = values[3].data as SettingModel;
+            if (numb.value !== '') {
+              const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+              resolve(returnData);
+            } else {
+              resolve(null);
+            }
           } else {
             resolve(null);
           }

@@ -20,6 +20,11 @@ import 'rxjs-compat/add/observable/from';
 import 'rxjs-compat/add/operator/merge';
 import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
+import {DiscountListService} from './discount-list.service';
+import {DefinitionService} from './definition.service';
+import {DefinitionModel} from '../models/definition-model';
+import {CustomerAccountService} from './customer-account.service';
+import {GlobalService} from './global.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +36,11 @@ export class CustomerService {
   mainList2$: Observable<CustomerMainModel[]>;
   tableName = 'tblCustomer';
   employeeMap = new Map();
+  termMap = new Map();
+  paymentMap = new Map();
 
   constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore,
-              public sService: SettingService, public logService: LogService) {
+              public sService: SettingService, public logService: LogService, protected defService: DefinitionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -42,6 +49,23 @@ export class CustomerService {
           this.employeeMap.set(item.primaryKey, item);
         });
       });
+      Promise.all([
+        this.defService.getItemsForFill('term'),
+        this.defService.getItemsForFill('payment-type')])
+        .then((values: any) => {
+          if (values[0] !== null) {
+            const returnData = values[0] as Array<DefinitionModel>;
+            returnData.forEach(value => {
+              this.termMap.set(value.primaryKey, value.custom1);
+            });
+          }
+          if (values[1] !== null) {
+            const returnData = values[1] as Array<DefinitionModel>;
+            returnData.forEach(value => {
+              this.paymentMap.set(value.primaryKey, value.custom1);
+            });
+          }
+        });
     }
   }
 
@@ -58,12 +82,6 @@ export class CustomerService {
         .where('isActive', '==', true)
         .orderBy('name', 'asc'));
     return this.listCollection.valueChanges({idField: 'primaryKey'});
-  }
-
-  async addItem(record: CustomerMainModel) {
-    await this.logService.addTransactionLog(record, 'insert', 'customer');
-    await this.sService.increaseCustomerNumber();
-    return await this.listCollection.add(Object.assign({}, record.data));
   }
 
   async setItem(record: CustomerMainModel, primaryKey: string) {
@@ -295,8 +313,8 @@ export class CustomerService {
           returnData.actionType = c.type;
           returnData.employee = this.employeeMap.get(data.employeePrimaryKey);
           returnData.executive = this.employeeMap.get(data.executivePrimary);
-          returnData.paymentTypeTr = getPaymentTypes().get(returnData.data.paymentTypeKey);
-          returnData.termTr = getTerms().get(returnData.data.termKey);
+          returnData.paymentTypeTr = this.paymentMap.get(returnData.data.paymentTypeKey);
+          returnData.termTr = this.termMap.get(returnData.data.termKey);
           returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
           return Object.assign({returnData});
         })
@@ -381,7 +399,7 @@ export class CustomerService {
     try {
       this.db.collection('tblAccounts', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
@@ -403,7 +421,7 @@ export class CustomerService {
     try {
       this.db.collection('tblSalesInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
@@ -425,7 +443,7 @@ export class CustomerService {
     try {
       this.db.collection('tblCollection', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
@@ -447,7 +465,7 @@ export class CustomerService {
     try {
       this.db.collection('tblPurchaseInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
@@ -469,7 +487,7 @@ export class CustomerService {
     try {
       this.db.collection('tblPayment', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;

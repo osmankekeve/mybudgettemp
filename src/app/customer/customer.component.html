@@ -6,6 +6,8 @@
         <h4 class="card-title float-left mr-2">Müşteri Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Müşteri"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Müşteri Aktar"
+                (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
@@ -52,6 +54,7 @@
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
             <div class="col-sm-3">Müşteri Adı</div>
+            <div class="col-sm-1">Müşteri Kodu</div>
             <div class="col-sm-2">Müşteri Tipi</div>
             <div class="col-sm-2">Yetkili</div>
             <div class="col-sm-1">Ödeme Tipi</div>
@@ -68,6 +71,7 @@
                 <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                 <span class="text-red font-weight-600">{{item.data.name}}</span>
               </div>
+              <div class="col-sm-1">{{item.data.code}}</div>
               <div class="col-sm-2">{{item.customerTypeTr}}</div>
               <div class="col-sm-2">{{item.data.owner}}</div>
               <div class="col-sm-1">{{item.paymentTypeTr}}</div>
@@ -108,6 +112,8 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
                 *ngIf="selectedCustomer.data.primaryKey!=undefined"
                 (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
       </div>
     </div>
   </div>
@@ -530,9 +536,7 @@
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" name="type" required
                             [(ngModel)]="newCollection.data.type">
-                      <option value="cash">Nakit</option>
-                      <option value="creditCard">Kredi Kartı</option>
-                      <option value="pNote">Senet</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of paymentList">{{item.custom1}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
                   </div>
@@ -820,9 +824,7 @@
                   <div class="col-sm-6">
                     <select class="form-control form-control-sm w-100" id="type" name="type" required
                             [(ngModel)]="newPayment.data.type">
-                      <option value="cash">Nakit</option>
-                      <option value="creditCard">Kredi Kartı</option>
-                      <option value="pNote">Senet</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of paymentList">{{item.custom1}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen Tip seçiniz.</div>
                   </div>
@@ -1111,6 +1113,8 @@
                   </div>
                   <div class="col-sm-9">
                     <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
+                           [disabled]="selectedCustomer.data.code != ''"
+
                            [(ngModel)]="selectedCustomer.data.code">
                   </div>
                   <div class="col-sm-3">
@@ -1211,10 +1215,7 @@
                     <select class="form-control form-control-sm w-100" id="paymentTypeKey" name="paymentTypeKey"
                             [(ngModel)]="selectedCustomer.data.paymentTypeKey">
                       <option value="-1">Seçilmedi</option>
-                      <option value="cash">Nakit</option>
-                      <option value="creditCard">Kredi Kartı</option>
-                      <option value="transfer">Havale</option>
-                      <option value="cheque">Çek</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of paymentList">{{item.custom1}}</option>
                     </select>
                   </div>
                   <div class="col-sm-3">
@@ -1224,13 +1225,7 @@
                     <select class="form-control form-control-sm w-100" id="termKey" name="termKey"
                             [(ngModel)]="selectedCustomer.data.termKey">
                       <option value="-1">Seçilmedi</option>
-                      <option value="cash">Nakit</option>
-                      <option value="15G">15 Gün</option>
-                      <option value="30G">30 Gün</option>
-                      <option value="45G">45 Gün</option>
-                      <option value="60G">60 Gün</option>
-                      <option value="90G">90 Gün</option>
-                      <option value="120G">120 Gün</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of termList">{{item.custom1}}</option>
                     </select>
                   </div>
                   <div class="col-sm-3">
@@ -1543,7 +1538,7 @@
         <div class="col-sm-7">
           <div class="card">
             <div class="card-header bg-gray-gradient">
-              <h6 class="card-title float-left mr-2">Yeni Sevk Adresi</h6>
+              <h5 class="card-title float-left mr-2">Yeni Sevk Adresi</h5>
               <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Address"
                       (click)="btnNewDeliveryAddress_Click()"><i class="fa fa-plus"></i></button>
             </div>
@@ -1618,7 +1613,7 @@
                        (click)="showSelectedDeliveryAddressRecord(item)"
                        *ngFor="let item of deliveryAddressList">
                     <div class="row">
-                      <span class="text-red">{{item.data.addressName}} :</span>{{item.data.address}}
+                      <span class="text-red mr-2">{{item.data.addressName}}:</span>{{item.data.address}}
                     </div>
                   </div>
                 </div>

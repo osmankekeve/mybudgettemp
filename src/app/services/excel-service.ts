@@ -94,6 +94,7 @@ export class ExcelService {
       fileName = 'customer';
       list.forEach((item: any) => {
         const data = {
+          'Customer Type': item.customerTypeTr,
           Code: item.data.code,
           'Customer Name': item.data.name,
           Owner: item.data.owner,
@@ -102,6 +103,9 @@ export class ExcelService {
           Mail: item.data.email,
           'Active Status': getBoolStr(item.data.isActive),
           Address: item.data.address,
+          'Sales Executive': item.executive.longName,
+          'Payment Type': item.paymentTypeTr,
+          'Term Type': item.termTr
         };
         excelList.push(data);
       });
@@ -178,7 +182,7 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = item as CustomerAccountMainModel;
         excelList.push({
-          'Customer Name': data.customer.name,
+          'Customer Name': data.customer.data.name,
           'Account No': data.data.name,
           Description: data.data.description
         });

@@ -20,6 +20,10 @@ import {AccountTransactionMainModel} from '../models/account-transaction-main-mo
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
 import * as CryptoJS from 'crypto-js';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {SalesOrderService} from '../services/sales-order.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-customer-account',
@@ -45,8 +49,8 @@ export class CustomerAccountComponent implements OnInit {
 
   constructor(public authService: AuthenticationService, public route: Router, public service: CustomerAccountService,
               public atService: AccountTransactionService, public infoService: InformationService, public excelService: ExcelService,
-              public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute,
-              public setService: SettingService, public globService: GlobalService) {
+              public db: AngularFirestore, public cService: CustomerService, public router: ActivatedRoute, protected toastService: ToastService,
+              public setService: SettingService, public globService: GlobalService, protected modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -230,6 +234,62 @@ export class CustomerAccountComponent implements OnInit {
     setTimeout(() => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
+        this.BarChart = new Chart('barChart', {
+          type: 'bar', // bar, pie, doughnut
+          data: {
+            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+            datasets: [{
+              label: '# of Votes',
+              data: [siAmount, colAmount, piAmount, payAmount, avAmount, cvAmount],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            title: {
+              text: 'Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + value.toFixed(2);
+                    }
+                  }
+                }
+              }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
+            }
+          }
+        });
       }
     }, 3000);
   }
@@ -334,6 +394,26 @@ export class CustomerAccountComponent implements OnInit {
     }
   }
 
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      list.push('supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   btnExportTransactionsToExcel_Click(): void {
     if (this.transactionList.length > 0) {
       this.excelService.exportToExcel(this.transactionList, 'customer-account-transactions');
@@ -363,7 +443,7 @@ export class CustomerAccountComponent implements OnInit {
               const insertData = this.service.clearMainModel();
               insertData.data.primaryKey = this.db.createId();
               insertData.data.customerPrimaryKey = item.data.primaryKey;
-              insertData.customer = item.data;
+              insertData.customer = item;
               insertData.data.currencyCode = defaultCurrencyCode.value;
               insertData.data.name = item.data.name + ' TL Hesabı';
               this.service.setItem(insertData).catch(err => this.infoService.error(err));
@@ -394,13 +474,13 @@ export class CustomerAccountComponent implements OnInit {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       this.generateCharts();
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.toastService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }

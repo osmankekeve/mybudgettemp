@@ -43,7 +43,10 @@
     "rxjs-compat": "^6.5.4",
     "tslib": "^1.11.1",
     "xlsx": "^0.15.5",
-    "zone.js": "~0.9.1"
+    "zone.js": "~0.9.1",
+    "@ngx-loading-bar/core": "^5.1.0",
+    "@ngx-loading-bar/http-client": "^5.1.0",
+    "@ngx-loading-bar/router": "^5.1.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^0.803.25",

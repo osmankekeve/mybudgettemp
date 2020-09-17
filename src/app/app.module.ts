@@ -5,6 +5,9 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { AngularFireStorageModule } from '@angular/fire/storage';
+import { LoadingBarModule } from '@ngx-loading-bar/core';
+import { LoadingBarHttpClientModule } from '@ngx-loading-bar/http-client';
+import { LoadingBarRouterModule } from '@ngx-loading-bar/router';
 
 import { AppRoutingModule, routingComponents } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -57,6 +60,7 @@ import {OrderFilterPipe} from './filters/order-filter.pipe';
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
+    LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'

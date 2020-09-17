@@ -17,6 +17,7 @@ import {RouterModel} from '../models/router-model';
 import {CustomerTargetService} from './customer-target.service';
 import {CustomerAccountService} from './customer-account.service';
 import {BuySaleService} from './buy-sale.service';
+import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,12 +25,12 @@ import {BuySaleService} from './buy-sale.service';
 export class GlobalService {
   encryptSecretKey: string = getEncryptionKey();
 
-  constructor(public db: AngularFirestore, public authService: AuthenticationService, public route: Router,
-              public siService: SalesInvoiceService, public cusService: CustomerService, public caService: CustomerAccountService,
-              public colService: CollectionService, public piService: PurchaseInvoiceService, public cdService: CashDeskService,
-              public avService: AccountVoucherService, public payService: PaymentService, public atService: AccountTransactionService,
-              public logService: LogService, public router: ActivatedRoute, public ctService: CustomerTargetService,
-              public byService: BuySaleService) {
+  constructor(protected db: AngularFirestore, protected authService: AuthenticationService, protected route: Router,
+              protected siService: SalesInvoiceService, protected cusService: CustomerService, protected readonly caService: CustomerAccountService,
+              protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
+              protected avService: AccountVoucherService, protected payService: PaymentService, protected atService: AccountTransactionService,
+              protected logService: LogService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
+              protected byService: BuySaleService) {
 
   }
 

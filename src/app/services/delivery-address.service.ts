@@ -25,7 +25,7 @@ export class DeliveryAddressService {
   tableName = 'tblDeliveryAddress';
 
   constructor(protected authService: AuthenticationService, protected db: AngularFirestore, protected cService: CustomerService) {
-
+    this.listCollection = this.db.collection(this.tableName);
   }
 
   async addItem(record: DeliveryAddressMainModel) {

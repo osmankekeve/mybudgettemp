@@ -175,13 +175,12 @@
           <div class="list-group">
             <div class="list-group-item bg-red text-light main-list-item">
               <div class="row">
-                <div class="col-sm-3">Müşteri Adı</div>
-                <div class="col-sm-2">Yetkili</div>
+                <div class="col-sm-6">Müşteri Adı</div>
                 <div class="col-sm-1">Fiş No</div>
-                <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-                <div class="col-sm-2"><span class="float-right">Tutar (+KDV)</span></div>
-                <div class="col-sm-2"><span class="float-right text-center">Döküman Tarihi</span></div>
-
+                <div class="col-sm-2">Durum</div>
+                <div class="col-sm-1"><span class="float-right">Tutar</span></div>
+                <div class="col-sm-1"><span class="float-right">Tutar (+KDV)</span></div>
+                <div class="col-sm-1"><span class="float-right text-center">Döküman Tarihi</span></div>
               </div>
             </div>
             <div class="work-area-6">
@@ -189,7 +188,7 @@
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
                 <div class="row">
-                  <div class="col-sm-3">
+                  <div class="col-sm-6">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                     <span class="text-red font-weight-600 mr-2">{{item.customer.data.name}}</span>
                     <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
@@ -198,23 +197,24 @@
                     <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
                     <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                   </div>
-                  <div class="col-sm-2">{{item.customer.data.owner}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
-                  <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
+                  <div class="col-sm-2">{{item.statusTr}}</div>
+                  <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
+                  <div class="col-sm-1"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-1">
                     <span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
                   </div>
                 </div>
               </div>
               <li class="list-group-item list-group-item-success main-list-item">
                 <div class="row">
-                  <div class="col-sm-6">Toplam</div>
-                  <div class="col-sm-2"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
-                  <div class="col-sm-2"><span
+                  <div class="col-sm-9">Toplam</div>
+                  <div class="col-sm-1"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
+                  <div class="col-sm-1"><span
                     class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
                   </div>
+                  <div class="col-sm-1"></div>
                 </div>
               </li>
             </div>
@@ -261,7 +261,7 @@
       </div>
     </div>
   </div>
-  <div class="card-body">
+  <div class="card-body work-area-11">
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#home">Ana Ekran</a>
@@ -711,7 +711,7 @@
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item">
+          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-1">#</div>
               <div class="col-sm-7">Dosya Adı</div>
@@ -719,7 +719,7 @@
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
           </div>
-          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="work-area-7">
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
