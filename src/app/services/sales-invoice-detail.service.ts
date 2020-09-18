@@ -51,7 +51,8 @@ export class SalesInvoiceDetailService {
             let resultQuantity = 0;
             if (orderInvoicedQuantity + newInvoiceQuantity === orderQuantity) {
               resultQuantity = orderQuantity;
-            } else {
+            }
+            else {
               resultQuantity = orderInvoicedQuantity + newInvoiceQuantity;
             }
             await doc.ref.update( { invoicedQuantity: resultQuantity, invoicedStatus: 'complete' });

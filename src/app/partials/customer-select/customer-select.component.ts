@@ -3,6 +3,11 @@ import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {InformationService} from '../../services/information.service';
 import {CustomerMainModel} from '../../models/customer-main-model';
 import {CustomerService} from '../../services/customer.service';
+import {Router} from '@angular/router';
+import {AngularFirestore, CollectionReference, Query} from '@angular/fire/firestore';
+import {ProfileService} from '../../services/profile.service';
+import {AuthenticationService} from '../../services/authentication.service';
+import {CustomerModel} from '../../models/customer-model';
 
 @Component({
   selector: 'app-customer-select',
@@ -17,23 +22,44 @@ export class CustomerSelectComponent implements OnInit {
   customerList: Array<CustomerMainModel>;
   searchText: '';
 
-  constructor(public activeModal: NgbActiveModal, protected service: CustomerService, protected infoService: InformationService) {
+  constructor(public activeModal: NgbActiveModal, protected service: CustomerService, protected infoService: InformationService,
+              protected route: Router, public db: AngularFirestore, public authService: AuthenticationService) {
   }
 
   async ngOnInit(): Promise<void> {
+    const module = this.route.url.replace('/', '');
     if (this.customer === null) {
       this.customer = this.service.clearMainModel();
     }
-
-    Promise.all([this.service.getCustomersMain(this.customerTypes)]).then((values: any) => {
-      this.customerList = [];
-      if (values[0] !== undefined || values[0] !== null) {
-        const returnData = values[0] as Array<CustomerMainModel>;
-        returnData.forEach(value => {
-          this.customerList.push(value);
+    if (module === 'sales-invoice') {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('status', '==', 'approved');
+        return query;
+      }).get()
+        .subscribe(snapshot => {
+          this.customerList = [];
+          snapshot.forEach(async doc => {
+            this.service.getItem(doc.data().customerPrimaryKey).then(result => {
+              const a = result.data as CustomerModel;
+              a.primaryKey = doc.id;
+              this.customerList.push(this.service.convertMainModel(a));
+            });
+          });
         });
-      }
-    });
+    } else {
+      Promise.all([this.service.getCustomersMain(this.customerTypes)]).then((values: any) => {
+        this.customerList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<CustomerMainModel>;
+          returnData.forEach(value => {
+            this.customerList.push(value);
+          });
+        }
+      });
+    }
   }
 
   markSelectedCustomer(selectedCustomer: CustomerMainModel) {

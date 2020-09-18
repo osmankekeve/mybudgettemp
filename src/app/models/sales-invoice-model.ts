@@ -31,6 +31,7 @@ export const setInvoiceCalculation = (record: SalesInvoiceMainModel, list: Array
   let a = 0;
   let b = 0;
   let c = 0;
+  record.data.orderPrimaryKeyList = [];
   if (list != null) {
     for (const item of list) {
       // iskontosuz detay toplam fiyati
@@ -39,6 +40,9 @@ export const setInvoiceCalculation = (record: SalesInvoiceMainModel, list: Array
       b += item.data.totalPrice;
       c += item.data.totalPriceWithTax;
 
+      if (record.data.orderPrimaryKeyList.indexOf(item.data.orderPrimaryKey) < 0) {
+        record.data.orderPrimaryKeyList.push(item.data.orderPrimaryKey);
+      }
     }
     // iskontosuz detay toplam fiyati
     record.data.totalPriceWithoutDiscount = a;

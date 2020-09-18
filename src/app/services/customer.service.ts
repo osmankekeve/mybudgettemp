@@ -25,6 +25,8 @@ import {DefinitionService} from './definition.service';
 import {DefinitionModel} from '../models/definition-model';
 import {CustomerAccountService} from './customer-account.service';
 import {GlobalService} from './global.service';
+import {SalesOrderMainModel} from '../models/sales-order-main-model';
+import {SalesOrderModel} from '../models/sales-order-model';
 
 @Injectable({
   providedIn: 'root'

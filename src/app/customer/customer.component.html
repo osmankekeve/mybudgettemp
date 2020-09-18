@@ -1613,7 +1613,9 @@
                        (click)="showSelectedDeliveryAddressRecord(item)"
                        *ngFor="let item of deliveryAddressList">
                     <div class="row">
-                      <span class="text-red mr-2">{{item.data.addressName}}:</span>{{item.data.address}}
+                      <div class="col-sm-12">
+                        <span class="text-red mr-2">{{item.data.addressName}}:</span>{{item.data.address}}
+                      </div>
                     </div>
                   </div>
                 </div>

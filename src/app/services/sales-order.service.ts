@@ -43,8 +43,8 @@ export class SalesOrderService {
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected atService: AccountTransactionService, protected sService: SettingService,
               protected actService: ActionService, protected sodService: SalesOrderDetailService, protected plService: PriceListService,
-              protected dService: DiscountListService,  protected daService: DeliveryAddressService, protected defService: DefinitionService) {
-
+              protected dService: DiscountListService, protected daService: DeliveryAddressService, protected defService: DefinitionService) {
+    this.listCollection = this.db.collection(this.tableName);
   }
 
   async removeItem(record: SalesOrderMainModel) {
@@ -60,11 +60,21 @@ export class SalesOrderService {
 
   async updateItem(record: SalesOrderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
         if (record.data.status === 'approved') {
+          await this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
+            .then((list) => {
+              list.forEach(async item => {
+                await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
+              });
+            });
+          for (const item of record.orderDetailList) {
+            await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+          }
           await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        } else if (record.data.status === 'rejected') {
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else if (record.data.status === 'closed') {
@@ -88,9 +98,13 @@ export class SalesOrderService {
   async setItem(record: SalesOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
-
+        await this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
+            });
+          });
         for (const item of record.orderDetailList) {
-          await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
           await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
         }
 
@@ -344,4 +358,28 @@ export class SalesOrderService {
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
+
+  isOrderHasProductWaitingInvoice = async (salesOrderPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesInvoiceDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+          .where('invoicedStatus', '==', 'short');
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
 }

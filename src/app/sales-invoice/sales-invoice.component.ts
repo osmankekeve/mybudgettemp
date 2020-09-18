@@ -424,6 +424,7 @@ export class SalesInvoiceComponent implements OnInit {
 
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
+      this.setOrderCountInfo();
 
       this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey)
         .then((list) => {
@@ -480,11 +481,7 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnNew_Click(): Promise<void> {
     try {
-      this.clearSelectedRecord();
-      const receiptNoData = await this.sService.getSalesInvoiceCode();
-      if (receiptNoData !== null) {
-        this.selectedRecord.data.receiptNo = receiptNoData;
-      }
+      await this.clearSelectedRecord();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -495,6 +492,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.onTransaction = true;
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
       this.selectedRecord.data.insertDate = Date.now();
+      setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           this.onTransaction = true;
@@ -552,6 +550,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.selectedRecord.data.status = 'approved';
       this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
       this.selectedRecord.data.approveDate = Date.now();
+      setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
@@ -628,6 +627,7 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnSelectCustomer_Click(): Promise<void> {
     try {
+      await this.clearSelectedRecord();
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
@@ -658,11 +658,11 @@ export class SalesInvoiceComponent implements OnInit {
           this.invoiceDetailList =[];
           this.clearSelectedDetail();
           if (result) {
-            this.orderInfoText = result.length.toString() +  ' Adet Sipariş Seçildi';
-            this.selectedRecord.data.orderPrimaryKeyList = result;
+            //this.selectedRecord.data.orderPrimaryKeyList = result;
+            this.setOrderCountInfo();
             this.db.collection('tblSalesOrderDetail', ref => {
               let query: CollectionReference | Query = ref;
-              query = query.where('orderPrimaryKey', 'in', this.selectedRecord.data.orderPrimaryKeyList)
+              query = query.where('orderPrimaryKey', 'in', result)
                 .where('invoicedStatus', '==', 'short');
               return query;
             }).get().toPromise().then((snapshot) => {
@@ -730,13 +730,28 @@ export class SalesInvoiceComponent implements OnInit {
   async onChangeType() {
     try {
       this.clearSelectedDetail();
-      this.orderInfoText = 'Sipariş Seçilmedi';
       this.invoiceDetailList = undefined;
       this.selectedRecord.invoiceDetailList = [];
       this.selectedRecord.data.orderPrimaryKeyList = [];
       setInvoiceCalculation(this.selectedRecord, []);
+      this.setOrderCountInfo();
     } catch (error) {
       await this.infoService.error(error);
+    }
+  }
+
+  setOrderCountInfo(): void {
+    if (this.selectedRecord.data.orderPrimaryKeyList.length > 0) {
+      this.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() +  ' Adet Sipariş Seçildi';
+    } else {
+      this.orderInfoText = 'Sipariş Seçilmedi';
+    }
+  }
+
+  async getReceiptNo(): Promise<void> {
+    const receiptNoData = await this.sService.getSalesInvoiceCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }
 
@@ -778,6 +793,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.invoiceDetailList.splice(this.itemIndex, 1);
       setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
       this.toastService.success('Fatura detayı başarıyla kaldırıldı', true);
+      this.setOrderCountInfo();
       this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);
@@ -876,11 +892,13 @@ export class SalesInvoiceComponent implements OnInit {
       });
   }
 
-  clearSelectedRecord(): void {
+  async clearSelectedRecord(): Promise<void> {
     this.invoiceDetailList = undefined;
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
+    this.setOrderCountInfo();
+    await this.getReceiptNo();
   }
 
   clearMainFiler(): void {

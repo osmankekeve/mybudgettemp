@@ -24,6 +24,7 @@ import {SalesOrderDetailService} from './sales-order-detail.service';
 import {SalesOrderService} from './sales-order.service';
 import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {SalesOrderMainModel} from '../models/sales-order-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,7 @@ export class SalesInvoiceService {
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
           for (const item of record.invoiceDetailList) {
+            await this.sidService.removeItem(item);
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
             await this.sidService.setItem(item, item.data.primaryKey);
@@ -105,10 +107,24 @@ export class SalesInvoiceService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        } else if (record.data.status === 'rejected') {
+          for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
+            await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
+              if (!value) {
+                // set done order
+                this.soService.getItem(orderPrimaryKey).then(item => {
+                    const order = item.returnData as SalesOrderMainModel;
+                    order.data.status = 'done';
+                    this.soService.updateItem(order);
+                  });
+              }
+            });
+          }
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        } else {
+        }
+        else {
           await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
@@ -120,6 +136,7 @@ export class SalesInvoiceService {
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
           for (const item of record.invoiceDetailList) {
+            await this.sidService.removeItem(item);
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
             await this.sidService.setItem(item, item.data.primaryKey);

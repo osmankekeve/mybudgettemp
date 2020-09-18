@@ -101,7 +101,7 @@ export class LogService {
 
     } else if (systemModule === 'customer-account') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customer.name + ' hesap ';
+      item.log = record.customer.data.name + ' hesap ';
 
     } else if (systemModule === 'customer') {
       item.parentPrimaryKey = record.data.primaryKey;
