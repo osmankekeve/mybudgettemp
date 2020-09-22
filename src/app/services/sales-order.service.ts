@@ -77,18 +77,20 @@ export class SalesOrderService {
         else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        } else if (record.data.status === 'closed') {
+        }
+        else if (record.data.status === 'closed') {
           for (const item of record.orderDetailList) {
-            item.data.invoicedQuantity = item.data.quantity;
             item.data.invoicedStatus = 'complete';
             await this.sodService.updateItem(item);
           }
           await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
-        } else if (record.data.status === 'done') {
+        }
+        else if (record.data.status === 'done') {
           await this.logService.addTransactionLog(record, 'done', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
-        } else {
+        }
+        else {
           await this.logService.addTransactionLog(record, 'update', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
@@ -177,7 +179,7 @@ export class SalesOrderService {
     returnData.receiptNo = '';
     returnData.description = '';
     returnData.type = 'sales'; // sales, service
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done, portion
     returnData.platform = 'web'; // mobile, web
     returnData.approverPrimaryKey = '-1';
     returnData.approveDate = 0;
@@ -362,11 +364,9 @@ export class SalesOrderService {
   isOrderHasProductWaitingInvoice = async (salesOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      this.db.collection('tblSalesInvoiceDetail', ref => {
+      this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
           .where('invoicedStatus', '==', 'short');
         return query;
       }).get().subscribe(snapshot => {

@@ -49,13 +49,15 @@ export class SalesInvoiceDetailService {
             const orderInvoicedQuantity = doc.data().invoicedQuantity;
             const newInvoiceQuantity = record.data.quantity;
             let resultQuantity = 0;
+            let resultStatus ='short';
             if (orderInvoicedQuantity + newInvoiceQuantity === orderQuantity) {
               resultQuantity = orderQuantity;
+              resultStatus = 'complete';
             }
             else {
               resultQuantity = orderInvoicedQuantity + newInvoiceQuantity;
             }
-            await doc.ref.update( { invoicedQuantity: resultQuantity, invoicedStatus: 'complete' });
+            await doc.ref.update( { invoicedQuantity: resultQuantity, invoicedStatus: resultStatus });
           }
         });
     });

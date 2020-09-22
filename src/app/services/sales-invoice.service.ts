@@ -84,8 +84,12 @@ export class SalesInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
+              list.forEach(async item => {
+                await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
+              });
+            });
           for (const item of record.invoiceDetailList) {
-            await this.sidService.removeItem(item);
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
             await this.sidService.setItem(item, item.data.primaryKey);
@@ -109,14 +113,11 @@ export class SalesInvoiceService {
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
             await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
-              if (!value) {
-                // set done order
-                this.soService.getItem(orderPrimaryKey).then(item => {
-                    const order = item.returnData as SalesOrderMainModel;
-                    order.data.status = 'done';
-                    this.soService.updateItem(order);
-                  });
-              }
+              this.soService.getItem(orderPrimaryKey).then(item => {
+                const order = item.returnData as SalesOrderMainModel;
+                order.data.status = value ? 'portion' : 'done';
+                this.soService.updateItem(order);
+              });
             });
           }
         }
@@ -135,8 +136,12 @@ export class SalesInvoiceService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
+            });
+          });
           for (const item of record.invoiceDetailList) {
-            await this.sidService.removeItem(item);
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
             await this.sidService.setItem(item, item.data.primaryKey);

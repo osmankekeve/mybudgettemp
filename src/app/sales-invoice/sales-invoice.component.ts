@@ -127,7 +127,7 @@ export class SalesInvoiceComponent implements OnInit {
           });
       } else {
         this.generateCharts();
-        this.clearSelectedRecord();
+        await this.clearSelectedRecord();
         this.selectedRecord = undefined;
       }
     } else {
@@ -420,8 +420,6 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.populateCustomers();
-
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
       this.setOrderCountInfo();
@@ -750,11 +748,10 @@ export class SalesInvoiceComponent implements OnInit {
 
   async getReceiptNo(): Promise<void> {
     const receiptNoData = await this.sService.getSalesInvoiceCode();
-    if (receiptNoData !== null) {
+    if (this.selectedRecord != undefined && receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }
-
 
   showDetailRecord(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {

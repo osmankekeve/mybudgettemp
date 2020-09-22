@@ -2,7 +2,7 @@
   <h5 class="modal-title">
     <span class="font-weight-600">Müşteri Seçiniz</span>
   </h5>
-  <div class="loader-small float-left" *ngIf="customerList == null || customerList?.length === 0"></div>
+  <div class="loader-small float-left" *ngIf="customerList == null"></div>
   <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
 </div>
 <!-- Modal body -->

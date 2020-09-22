@@ -38,9 +38,15 @@ export class SalesOrderComponent implements OnInit {
   isMainFilterOpened = false;
   onTransaction = false;
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterStatus: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-2',
+  };
+  totalValues = {
+    totalPrice: 0,
+    totalPriceWithTax: 0,
+  };
 
   priceListMap = new Map();
   discountListMap = new Map();
@@ -88,11 +94,24 @@ export class SalesOrderComponent implements OnInit {
   }
 
   populateList(): void {
+    this.totalValues = {
+      totalPrice: 0,
+      totalPriceWithTax: 0,
+    };
     this.mainList = undefined;
     const type = [];
-    type.push('approved');
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    if (this.filter.filterStatus === '-1') {
+      type.push('approved');
+      type.push('portion');
+      type.push('closed');
+    } else if (this.filter.filterStatus === '-2') {
+      type.push('approved');
+      type.push('portion');
+    } else {
+      type.push(this.filter.filterStatus);
+    }
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -101,11 +120,15 @@ export class SalesOrderComponent implements OnInit {
         const item = data.returnData as SalesOrderMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
+          this.totalValues.totalPrice += item.data.totalPrice;
+          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
               this.mainList.splice(i, 1);
+              this.totalValues.totalPrice -= item.data.totalPrice;
+              this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
               break;
             }
           }
@@ -113,6 +136,10 @@ export class SalesOrderComponent implements OnInit {
         if (item.actionType === 'modified') {
           for (let i = 0; i < this.mainList.length; i++) {
             if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
+              this.totalValues.totalPriceWithTax -= this.mainList[i].data.totalPriceWithTax;
+              this.totalValues.totalPrice += item.data.totalPrice;
+              this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
               this.mainList[i] = item;
               break;
             }
@@ -271,7 +298,7 @@ export class SalesOrderComponent implements OnInit {
   async btnCloseOrder_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      if (this.selectedRecord.data.status === 'approved') {
+      if (this.selectedRecord.data.status === 'approved' || this.selectedRecord.data.status === 'portion') {
         this.selectedRecord.data.status = 'closed';
         Promise.all([this.service.checkForSave(this.selectedRecord)])
           .then(async (values: any) => {
@@ -296,9 +323,9 @@ export class SalesOrderComponent implements OnInit {
   }
 
   btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
+    if (isNullOrEmpty(this.filter.filterBeginDate)) {
       this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
+    } else if (isNullOrEmpty(this.filter.filterFinishDate)) {
       this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
     } else {
       this.populateList();
@@ -316,9 +343,9 @@ export class SalesOrderComponent implements OnInit {
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterStatus = '-1';
+    this.filter.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filter.filterFinishDate = getTodayForInput();
+    this.filter.filterStatus = '-2';
   }
 
   finishProcess(error: any, info: any): void {

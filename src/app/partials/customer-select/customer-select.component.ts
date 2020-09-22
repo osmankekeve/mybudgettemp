@@ -32,23 +32,27 @@ export class CustomerSelectComponent implements OnInit {
       this.customer = this.service.clearMainModel();
     }
     if (module === 'sales-invoice') {
-      this.db.collection('tblSalesOrder', ref => {
+      const collection = this.db.collection('tblSalesOrder', ref => {
         let query: CollectionReference | Query = ref;
         query = query
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('status', '==', 'approved');
         return query;
-      }).get()
-        .subscribe(snapshot => {
+      }).get();
+      collection.toPromise().then((snapshot) => {
+        if (snapshot.size == 0) {
           this.customerList = [];
+        } else {
+          const aa = [];
           snapshot.forEach(async doc => {
             this.service.getItem(doc.data().customerPrimaryKey).then(result => {
               const a = result.data as CustomerModel;
-              a.primaryKey = doc.id;
-              this.customerList.push(this.service.convertMainModel(a));
+              aa.push(this.service.convertMainModel(a));
             });
           });
-        });
+          this.customerList = aa;
+        }
+      });
     } else {
       Promise.all([this.service.getCustomersMain(this.customerTypes)]).then((values: any) => {
         this.customerList = [];
