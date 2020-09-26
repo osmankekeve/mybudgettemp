@@ -464,92 +464,99 @@
                                (click)="showDetailRecord(item , i)" title="Kaydı Göster"
                                *ngFor="let item of invoiceDetailList | filterProductSub: productSearchText index as i;">
                             <div class="row">
-                              <div class="col-sm-12">
-                                <i class="fa fa-arrow-circle-right mr-2 text-red font-weight-600"></i>
-                                <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
-                                <span class="font-weight-600">{{item.product.data.productName}}</span>
+                              <div class="col-sm-2">
+                                <img src='{{item.product.data.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
                               </div>
-                              <div class="col-sm-4">
+                              <div class="col-sm-10">
                                 <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Fiyat</label>
+                                  <div class="col-sm-12">
+                                    <i class="fa fa-arrow-circle-right mr-2 text-red font-weight-600"></i>
+                                    <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
+                                    <span class="font-weight-600">{{item.product.data.productName}}</span>
                                   </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.data.price | currency:'₺'}}</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Fiyat</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.data.price | currency:'₺'}}</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Liste Fiyatı</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.data.defaultPrice | currency:'₺'}}</label>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Liste Fiyatı</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 1</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">%{{item.data.discount1}}</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 2</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">%{{item.data.discount2}}</label>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.data.defaultPrice | currency:'₺'}}</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.data.quantity}} {{item.unit.unitName}}</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.data.totalPrice | currency:'₺'}}</label>
+                                      </div>
+                                    </div>
                                   </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 1</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Ürün Tipi</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">%{{item.data.discount1}}</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">%{{item.data.taxRate}}</label>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 2</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">%{{item.data.discount2}}</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.data.quantity}} {{item.unit.unitName}}</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.data.totalPrice | currency:'₺'}}</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Ürün Tipi</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">%{{item.data.taxRate}}</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.totalTaxAmount | currency:'₺'}}</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">{{item.data.totalPriceWithTax | currency:'₺'}}</label>
+                                  <div class="col-sm-4">
+                                    <div class="row">
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.totalTaxAmount | currency:'₺'}}</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
+                                      </div>
+                                      <div class="col-sm-6">
+                                        <label class="col-form-label float-right pb-0">{{item.data.totalPriceWithTax | currency:'₺'}}</label>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -738,8 +745,7 @@
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
           <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
-              <div class="col-sm-1">#</div>
-              <div class="col-sm-7">Dosya Adı</div>
+              <div class="col-sm-8">Dosya</div>
               <div class="col-sm-2">Boyut</div>
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
@@ -748,11 +754,9 @@
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
-                <div class="col-sm-1">
-                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
-                       (click)="btnRemoveFile_Click(item)">
-                </div>
                 <div class="col-sm-7">
+                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer mr-2"
+                       (click)="btnRemoveFile_Click(item)">
                   <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
                     <img [src]="item.fileIcon" width="24px">
                   </a>

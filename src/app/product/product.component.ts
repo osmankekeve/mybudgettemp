@@ -301,7 +301,6 @@ export class ProductComponent implements OnInit, OnDestroy {
           this.toastService.success('Dosya başarıyla kaldırıldı.');
         }
       });
-      console.log(item);
     } catch (error) {
       await this.finishProcess(error, null);
     }
@@ -352,10 +351,9 @@ export class ProductComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       if (this.selectedFiles === undefined) {
-        await this.infoService.error('Lütfen dosya seçiniz.');
+        await this.finishSubProcess('Lütfen dosya seçiniz.', null);
         this.onTransaction = false;
       } else {
-        //await this.fuService.removeItem(this.selectedRecord.imgFile);
         const file = this.selectedFiles.item(0);
         const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
         const ref = await this.storage.ref(path);

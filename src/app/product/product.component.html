@@ -67,8 +67,7 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
-            <div class="col-sm-1">Ürün Kodu</div>
-            <div class="col-sm-4">Ürün Adı</div>
+            <div class="col-sm-5">Ürün</div>
             <div class="col-sm-1">Ürün Tipi</div>
             <div class="col-sm-1"><span class="float-right">KDV %</span></div>
             <div class="col-sm-1"><span class="float-right">Ötv Tutarı</span></div>
@@ -82,11 +81,11 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterProduct: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-1">
+            <div class="col-sm-5">
               <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600">{{item.data.productCode}}</span>
+              <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
+              <span class="font-weight-600">{{item.data.productName}}</span>
             </div>
-            <div class="col-sm-4 font-weight-600">{{item.data.productName}}</div>
             <div class="col-sm-1">{{item.stockTypeTr}}</div>
             <div class="col-sm-1"><span class="float-right">%{{item.data.taxRate}}</span></div>
             <div class="col-sm-1"><span class="float-right">{{item.sctAmountFormatted}}</span></div>
@@ -123,7 +122,7 @@
       </div>
     </div>
   </div>
-  <div class="card-body">
+  <div class="card-body work-area-11">
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" data-toggle="tab" href="#home">Ana Ekran</a>
@@ -346,11 +345,9 @@
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
-                <div class="col-sm-1">
-                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
+                <div class="col-sm-5">
+                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer mr-2"
                        (click)="btnRemoveFile_Click(item)">
-                </div>
-                <div class="col-sm-7">
                   <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
                     <img [src]="item.fileIcon" width="24px">
                   </a>

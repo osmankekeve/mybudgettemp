@@ -9,6 +9,8 @@ import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
 import {getInputDataForInsert} from '../core/correct-library';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-profile',
@@ -26,8 +28,9 @@ export class ProfileComponent implements OnInit {
   downloadURL: string;
   onTransaction = false;
 
-  constructor(public authService: AuthenticationService, private storage: AngularFireStorage, public fuService: FileUploadService,
-              public infoService: InformationService, public service: ProfileService, public db: AngularFirestore) { }
+  constructor(protected authService: AuthenticationService, protected storage: AngularFireStorage, protected fuService: FileUploadService,
+              protected infoService: InformationService, protected service: ProfileService, protected db: AngularFirestore,
+              protected toastService: ToastService) { }
 
   ngOnInit() {
     this.selectedRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
@@ -79,8 +82,7 @@ export class ProfileComponent implements OnInit {
     try {
       this.onTransaction = true;
       if (this.selectedFiles === undefined) {
-        await this.infoService.error('Lütfen dosya seçiniz.');
-        this.onTransaction = false;
+        await this.finishSubProcess('Lütfen dosya seçiniz.', null);
       } else {
         const file = this.selectedFiles.item(0);
         const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
@@ -103,8 +105,8 @@ export class ProfileComponent implements OnInit {
                 .set(Object.assign({}, fileData.data))
                 .then(() => {
                   this.service.getItem(this.selectedRecord.data.primaryKey, true)
-                    .then((item) => {
-                    this.finishProcess(null, 'Profil resmi başarıyla değiştirildi.');
+                    .then(async () => {
+                      await this.finishSubProcess(null, 'Profil resmi başarıyla değiştirildi.');
                   });
                 });
             })
@@ -155,4 +157,16 @@ export class ProfileComponent implements OnInit {
     this.onTransaction = false;
   }
 
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
 }
