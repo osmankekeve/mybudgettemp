@@ -213,7 +213,11 @@ export const getStatus = () => {
 };
 
 export const getOrderType = () => {
-  return new Map([['sales', 'Satış Sipariş'], ['purchase', 'Alış Sipariş'], ['service', 'Hizmet Sipariş']]);
+  return new Map([['sales', 'Satış Sipariş'], ['purchase', 'Alış Sipariş'], ['service', 'Hizmet Sipariş'], ['return', 'İade Sipariş']]);
+};
+
+export const getInvoiceType = () => {
+  return new Map([['sales', 'Satış Faturası'], ['service', 'Hizmet Faturası'], ['return', 'İade Faturası']]);
 };
 
 export const getBuySaleType = () => {

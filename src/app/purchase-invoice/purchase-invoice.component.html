@@ -239,7 +239,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/purchase_invoice.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/purchase_invoice.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Alım Fatura Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -379,7 +379,7 @@
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item">
+          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-1">#</div>
               <div class="col-sm-7">Dosya Adı</div>
@@ -387,7 +387,7 @@
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
           </div>
-          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="work-area-7">
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
@@ -402,8 +402,7 @@
                   {{item.data.fileName}}
                 </div>
                 <div class="col-sm-2">{{item.data.size}} Byte</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
-                </div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
               </div>
             </div>
           </div>

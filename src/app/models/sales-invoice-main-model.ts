@@ -13,10 +13,13 @@ export class SalesInvoiceMainModel {
   actionType?: string;
   statusTr?: string;
   platformTr?: string;
+  typeTr?: string;
   totalDetailDiscountFormatted?: string;
   generalDiscountFormatted?: string;
   totalPriceWithoutDiscountFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
+  totalTaxAmount?: number;
+  totalTaxAmountFormatted?: string;
   invoiceDetailList: Array<SalesInvoiceDetailMainModel>;
 }

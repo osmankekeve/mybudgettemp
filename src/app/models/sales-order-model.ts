@@ -14,7 +14,7 @@ export class SalesOrderModel {
   paymentTypePrimaryKey: string;
   receiptNo: string;
   status: string; // waitingForApprove, approved, rejected
-  type: string; // sales, service
+  type: string; // sales, service, return
   platform: string; // mobile, web
   description?: string;
   approverPrimaryKey: string;
@@ -62,5 +62,8 @@ export const setOrderCalculation = (record: SalesOrderMainModel): void => {
     // tum iskontolar uygulanmis kdv dahil toplam tutar
     record.data.totalPriceWithTax = record.data.totalPriceWithTax - record.data.generalDiscount;
     record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
+    // toplam KDV
+    record.totalTaxAmount = record.data.totalPriceWithTax - record.data.totalPrice;
+    record.totalTaxAmountFormatted = currencyFormat(record.totalTaxAmount);
   }
 };

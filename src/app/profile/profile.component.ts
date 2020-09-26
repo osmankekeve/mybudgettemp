@@ -97,6 +97,7 @@ export class ProfileComponent implements OnInit {
               fileData.data.parentPrimaryKey = this.selectedRecord.data.primaryKey;
               fileData.data.size = file.size;
               fileData.data.type = file.type;
+              fileData.data.path = path;
               fileData.data.fileName = file.name;
               await this.db.collection('tblFiles').doc(fileData.data.primaryKey)
                 .set(Object.assign({}, fileData.data))

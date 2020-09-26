@@ -10,7 +10,7 @@ export class SalesInvoiceModel {
   customerCode?: string;
   accountPrimaryKey?: string;
   receiptNo?: string;
-  type?: string; // sales,return
+  type?: string; // sales, service, return
   description?: string;
   status?: string; // waitingForApprove, approved, rejected
   approveByPrimaryKey?: string; // approved or rejected
@@ -64,6 +64,9 @@ export const setInvoiceCalculation = (record: SalesInvoiceMainModel, list: Array
     // tum iskontolar uygulanmis kdv dahil toplam tutar
     record.data.totalPriceWithTax = record.data.totalPriceWithTax - record.data.generalDiscount;
     record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
+    // toplam KDV
+    record.totalTaxAmount = record.data.totalPriceWithTax - record.data.totalPrice;
+    record.totalTaxAmountFormatted = currencyFormat(record.totalTaxAmount);
     record.invoiceDetailList = list;
   }
 };

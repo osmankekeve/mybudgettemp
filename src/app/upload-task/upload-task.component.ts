@@ -3,9 +3,10 @@ import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
-import {FileUploadConfig} from '../../file-upload.config';
-import {FileUploadService} from '../services/file-upload.service';
-import {AuthenticationService} from '../services/authentication.service';
+import { FileUploadConfig } from '../../file-upload.config';
+import { FileUploadService } from '../services/file-upload.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-upload-task',
@@ -21,6 +22,7 @@ export class UploadTaskComponent implements OnInit {
   downloadURL: string;
 
   constructor(private storage: AngularFireStorage, public db: AngularFirestore,
+              private httpClient: HttpClient,
               public authService: AuthenticationService, public service: FileUploadService) { }
 
   ngOnInit() {
@@ -28,6 +30,10 @@ export class UploadTaskComponent implements OnInit {
   }
 
   startUpload() {
+    //const endpoint = '../../assets/files';
+    //const formData: FormData = new FormData();
+    //formData.append('fileKey', this.file, this.file.name);
+    //this.httpClient.post(endpoint, formData);
 
     // The storage path
     const path = FileUploadConfig.pathOfFiles + Date.now() + this.file.name;

@@ -13,6 +13,7 @@ import {ActionService} from './action.service';
 import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
 import {ProductUnitMappingService} from './product-unit-mapping.service';
+import {FileUploadService} from './file-upload.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class ProductService {
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService, protected actService: ActionService) {
+              protected atService: AccountTransactionService, protected actService: ActionService, protected fuService: FileUploadService) {
 
   }
 
@@ -49,7 +50,7 @@ export class ProductService {
   async updateItem(record: ProductMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey)
       .update(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
         await this.logService.addTransactionLog(record, 'update', 'product');
         this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
       });
@@ -123,7 +124,7 @@ export class ProductService {
     returnData.description = '';
     returnData.barcode1 = '';
     returnData.barcode2 = '';
-    returnData.imgUrl = '';
+    returnData.imgUrl = '../../assets/images/default-product-image.png';
     returnData.isWebProduct = false;
     returnData.isActive = true;
     returnData.insertDate = Date.now();
@@ -144,7 +145,9 @@ export class ProductService {
 
   checkFields(model: ProductModel): ProductModel {
     const cleanModel = this.clearSubModel();
-
+    if (model.imgUrl === undefined || model.imgUrl === '') {
+      model.imgUrl = cleanModel.imgUrl;
+    }
     return model;
   }
 
@@ -160,7 +163,7 @@ export class ProductService {
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as ProductModel;
           data.primaryKey = doc.id;
@@ -171,6 +174,7 @@ export class ProductService {
           returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
           returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
           returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
+
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);

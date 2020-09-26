@@ -18,6 +18,7 @@ import {CustomerTargetService} from './customer-target.service';
 import {CustomerAccountService} from './customer-account.service';
 import {BuySaleService} from './buy-sale.service';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
+import {SalesOrderService} from './sales-order.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,7 @@ export class GlobalService {
               protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
               protected avService: AccountVoucherService, protected payService: PaymentService, protected atService: AccountTransactionService,
               protected logService: LogService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
-              protected byService: BuySaleService) {
+              protected byService: BuySaleService, protected soService: SalesOrderService) {
 
   }
 
@@ -40,7 +41,16 @@ export class GlobalService {
       paramItem: '',
       previousModule: item.previousModule,
       previousModulePrimaryKey: item.previousModulePrimaryKey,
+      action: item.action,
     };
+    if (item.nextModule === 'sales-invoice') {
+      // siparisten fatura
+      data = await this.soService.getItem(item.nextModulePrimaryKey);
+      if (data) {
+        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+        await this.route.navigate(['sales-invoice', routeData]);
+      }
+    }
     if (item.nextModule === 'salesInvoice') {
 
       data = await this.siService.getItem(item.nextModulePrimaryKey);
@@ -134,6 +144,13 @@ export class GlobalService {
       }
       if (previousModule === 'sales-invoice') {
         await this.siService.getItem(previousModulePrimaryKey).then(async (item) => {
+          await this.route.navigate([previousModule, {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+          }]);
+        });
+      }
+      if (previousModule === 'sales-order') {
+        await this.soService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);

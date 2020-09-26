@@ -28,6 +28,8 @@ import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-payment',
@@ -67,7 +69,7 @@ export class PaymentComponent implements OnInit {
               protected service: PaymentService, protected sService: SettingService, protected cdService: CashDeskService,
               protected cService: CustomerService, protected db: AngularFirestore, protected excelService: ExcelService,
               protected infoService: InformationService, protected atService: AccountTransactionService,
-              protected accService: CustomerAccountService, protected gfuService: GlobalUploadService,
+              protected accService: CustomerAccountService, protected gfuService: GlobalUploadService, protected toastService: ToastService,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService) {
   }
 
@@ -569,10 +571,10 @@ export class PaymentComponent implements OnInit {
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
       await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+        this.toastService.success('Dosya başarıyla kaldırıldı.');
       });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 

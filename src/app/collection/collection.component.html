@@ -354,7 +354,7 @@
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item">
+          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-1">#</div>
               <div class="col-sm-7">Dosya Adı</div>
@@ -362,7 +362,7 @@
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
           </div>
-          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="work-area-7">
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">

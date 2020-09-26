@@ -10,6 +10,8 @@ export class SalesInvoiceDetailMainModel {
   priceFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
+  totalTaxAmount?: number;
+  totalTaxAmountFormatted?: string;
   actionType?: string;
   invoiceStatus?: string;
 }
@@ -23,4 +25,6 @@ export const setInvoiceDetailCalculation = (record: SalesInvoiceDetailMainModel)
   record.totalPriceFormatted = currencyFormat(record.data.totalPrice);
   record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
   record.priceFormatted = currencyFormat(record.data.price);
+  record.totalTaxAmount = record.data.totalPriceWithTax - record.data.totalPrice;
+  record.totalTaxAmountFormatted = currencyFormat(record.totalTaxAmount);
 };

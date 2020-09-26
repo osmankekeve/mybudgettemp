@@ -87,7 +87,6 @@ export class SalesInvoiceComponent implements OnInit {
   productSearchText = '';
   itemIndex = -1;
 
-
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: SalesInvoiceService, protected cService: CustomerService, protected excelService: ExcelService,
               protected infoService: InformationService, protected atService: AccountTransactionService,
@@ -109,7 +108,17 @@ export class SalesInvoiceComponent implements OnInit {
       const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.showSelectedRecord(paramItem);
+        if (this.router.snapshot.paramMap.get('action') ==='create-invoice') {
+          const list = [];
+          list.push(paramItem.data.primaryKey);
+          await this.clearSelectedRecord();
+          this.selectedRecord.customer = paramItem.customer;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+          await this.generateOrderToInvoice(list);
+        } else {
+          this.showSelectedRecord(paramItem);
+        }
       }
     }
   }
@@ -134,6 +143,40 @@ export class SalesInvoiceComponent implements OnInit {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
+  }
+
+  async generateOrderToInvoice(orderPrimaryKeyList: Array<string>): Promise<void> {
+    try {
+      this.selectedRecord.data.orderPrimaryKeyList = orderPrimaryKeyList;
+      this.invoiceDetailList =[];
+      this.clearSelectedDetail();
+      this.setOrderCountInfo();
+      this.db.collection('tblSalesOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('orderPrimaryKey', 'in', orderPrimaryKeyList)
+          .where('invoicedStatus', '==', 'short');
+        return query;
+      }).get().toPromise().then((snapshot) => {
+        snapshot.forEach(async (doc) => {
+          const data = doc.data() as SalesOrderDetailModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new SalesOrderDetailMainModel();
+          returnData.data = this.sodService.checkFields(data);
+
+          const p = await this.pService.getItem(data.productPrimaryKey);
+          returnData.product = p.returnData;
+
+          const pu = await this.puService.getItem(data.unitPrimaryKey);
+          returnData.unit = pu.returnData.data;
+
+          this.invoiceDetailList.push(this.sidService.convertToSalesInvoiceDetail(returnData));
+          setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+        });
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   populateList(): void {
@@ -473,7 +516,7 @@ export class SalesInvoiceComponent implements OnInit {
         await this.route.navigate(['sales-invoice', {}]);
       }
     } catch (error) {
-      this.infoService.error(error);
+      await this.infoService.error(error);
     }
   }
 
@@ -591,7 +634,7 @@ export class SalesInvoiceComponent implements OnInit {
     }
   }
 
-  async btnReturnRecord_Click(): Promise<void> {
+  async btnCancelRecord_Click(): Promise<void> {
     try {
       await this.infoService.error('yazılmadı');
     } catch (error) {
@@ -602,7 +645,7 @@ export class SalesInvoiceComponent implements OnInit {
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
       await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+        this.toastService.success('Dosya başarıyla kaldırıldı.');
       });
     } catch (error) {
       await this.finishProcess(error, null);
@@ -625,7 +668,9 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnSelectCustomer_Click(): Promise<void> {
     try {
-      await this.clearSelectedRecord();
+      if (this.selectedRecord.data.customerCode !== '') {
+        await this.clearSelectedRecord();
+      }
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
@@ -650,38 +695,12 @@ export class SalesInvoiceComponent implements OnInit {
         this.toastService.success('Lütfen müşteri seçiniz', true);
       } else {
         const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
+        modalRef.componentInstance.orderType = this.selectedRecord.data.type;
         modalRef.componentInstance.customerPrimaryKey = this.selectedRecord.data.customerCode;
         modalRef.componentInstance.list = this.selectedRecord.data.orderPrimaryKeyList;
-        modalRef.result.then((result: any) => {
-          this.invoiceDetailList =[];
-          this.clearSelectedDetail();
+        modalRef.result.then(async (result: any) => {
           if (result) {
-            //this.selectedRecord.data.orderPrimaryKeyList = result;
-            this.setOrderCountInfo();
-            this.db.collection('tblSalesOrderDetail', ref => {
-              let query: CollectionReference | Query = ref;
-              query = query.where('orderPrimaryKey', 'in', result)
-                .where('invoicedStatus', '==', 'short');
-              return query;
-            }).get().toPromise().then((snapshot) => {
-              snapshot.forEach(async (doc) => {
-                const data = doc.data() as SalesOrderDetailModel;
-                data.primaryKey = doc.id;
-
-                const returnData = new SalesOrderDetailMainModel();
-                returnData.data = this.sodService.checkFields(data);
-
-                const p = await this.pService.getItem(data.productPrimaryKey);
-                returnData.product = p.returnData;
-
-                const pu = await this.puService.getItem(data.unitPrimaryKey);
-                returnData.unit = pu.returnData.data;
-
-                this.invoiceDetailList.push(this.sidService.convertToSalesInvoiceDetail(returnData));
-                setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
-              });
-            });
-            this.selectedRecord.data.type ="sales";
+            await this.generateOrderToInvoice(result);
           }
         }, () => {});
       }
@@ -944,5 +963,4 @@ export class SalesInvoiceComponent implements OnInit {
       this.selectedRecord.totalPriceWithTaxFormatted = null;
     }
   }
-
 }

@@ -28,6 +28,10 @@ import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-m
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import {ToastService} from '../services/toast.service';
+import {FileUploadConfig} from '../../file-upload.config';
+import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-product',
@@ -50,12 +54,20 @@ export class ProductComponent implements OnInit, OnDestroy {
     stockType: '-1',
     isActive: true,
   }
+  selectedFiles: FileList;
+  progress: { percentage: number } = { percentage: 0 };
+  progressShow = false;
+  snapshot: Observable<any>;
+  downloadURL: string;
+  percentage: Observable<number>;
+  task: AngularFireUploadTask;
 
   constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
               protected gfuService: GlobalUploadService, protected puService: ProductUnitService, protected sService: SettingService,
-              protected pumService: ProductUnitMappingService, protected modalService: NgbModal) {
+              protected pumService: ProductUnitMappingService, protected modalService: NgbModal, protected toastService: ToastService,
+              protected storage: AngularFireStorage) {
   }
 
   async ngOnInit() {
@@ -140,6 +152,7 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ProductMainModel;
+
     this.populateUnitMappings();
     this.populateFiles();
     this.populateActions();
@@ -251,21 +264,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  async finishProcess(error: any, info: any): Promise<void> {
-    // error.message sistem hatası
-    // error kontrol hatası
-    if (error === null) {
-      if (info !== null) {
-        this.infoService.success(info);
-      }
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
-    } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
-  }
-
   async btnShowMainFiler_Click(): Promise<void> {
     try {
       if (this.isMainFilterOpened === true) {
@@ -289,9 +287,21 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
-      await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+      await this.fuService.removeItem(item).then(async () => {
+        if (this.selectedRecord.data.imgUrl === item.data.downloadURL) {
+          this.selectedRecord.data.imgUrl = '';
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Dosya başarıyla kaldırıldı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        } else {
+          this.toastService.success('Dosya başarıyla kaldırıldı.');
+        }
       });
+      console.log(item);
     } catch (error) {
       await this.finishProcess(error, null);
     }
@@ -335,6 +345,57 @@ export class ProductComponent implements OnInit, OnDestroy {
       this.modalService.open(InfoModuleComponent, {size: 'lg'});
     } catch (error) {
       await this.infoService.error(error);
+    }
+  }
+
+  async btnUploadFile_Click() {
+    try {
+      this.onTransaction = true;
+      if (this.selectedFiles === undefined) {
+        await this.infoService.error('Lütfen dosya seçiniz.');
+        this.onTransaction = false;
+      } else {
+        //await this.fuService.removeItem(this.selectedRecord.imgFile);
+        const file = this.selectedFiles.item(0);
+        const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
+        const ref = await this.storage.ref(path);
+        this.storage.upload(path, file).then(async () => {
+          this.downloadURL = await ref.getDownloadURL().toPromise();
+          this.selectedRecord.data.imgUrl = this.downloadURL;
+          this.service.updateItem(this.selectedRecord)
+            .then(async () => {
+              const fileData = this.fuService.clearMainModel();
+              fileData.data.primaryKey = this.db.createId();
+              fileData.data.downloadURL = this.downloadURL;
+              fileData.data.parentType = 'product-profile';
+              fileData.data.parentPrimaryKey = this.selectedRecord.data.primaryKey;
+              fileData.data.size = file.size;
+              fileData.data.type = file.type;
+              fileData.data.path = path;
+              fileData.data.fileName = file.name;
+              await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
+              this.clearImageItems();
+              await this.finishSubProcess(null, 'Ürün resmi başarıyla güncellendi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        });
+      }
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  onFileChange(event) {
+    if (event) {
+      this.progress.percentage = 0;
+      this.progressShow = true;
+      this.selectedFiles = event.target.files;
+    } else {
+      this.progress.percentage = 0;
+      this.progressShow = false;
+      this.selectedFiles = new FileList();
     }
   }
 
@@ -442,6 +503,40 @@ export class ProductComponent implements OnInit, OnDestroy {
       stockType: '-1',
       isActive: true,
     }
+  }
+
+  clearImageItems(): void {
+    this.progress.percentage = 0;
+    this.progressShow = false;
+    this.selectedFiles = null;
+  }
+
+  async finishProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.infoService.success(info);
+      }
+      this.clearSelectedRecord();
+      this.selectedRecord = undefined;
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   format_amount($event): void {

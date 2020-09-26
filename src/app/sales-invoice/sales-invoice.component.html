@@ -131,19 +131,20 @@
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red font-weight-600">{{item.customer.data.customerName}}</span>
+                      <span class="text-red font-weight-600">{{item.customer.data.name}}</span>
                       <small> - {{item.customer.data.owner}}</small>
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-sm-3">
+                    <div class="col-sm-2">
                       <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
                       <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
                       <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
                       <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
                       <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                     </div>
-                    <div class="col-sm-3">{{item.data.receiptNo}}</div>
+                    <div class="col-sm-2">{{item.typeTr}}</div>
+                    <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
                     <div class="col-sm-2"><span
                       class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
@@ -175,7 +176,8 @@
           <div class="list-group">
             <div class="list-group-item bg-red text-light main-list-item">
               <div class="row">
-                <div class="col-sm-6">Müşteri Adı</div>
+                <div class="col-sm-5">Müşteri Adı</div>
+                <div class="col-sm-1">Fatura Tipi</div>
                 <div class="col-sm-1">Fiş No</div>
                 <div class="col-sm-2">Durum</div>
                 <div class="col-sm-1"><span class="float-right">Tutar</span></div>
@@ -188,7 +190,7 @@
                    (click)="showSelectedRecord(item)"
                    *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
                 <div class="row">
-                  <div class="col-sm-6">
+                  <div class="col-sm-5">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                     <span class="text-red font-weight-600 mr-2">{{item.customer.data.name}}</span>
                     <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
@@ -197,6 +199,7 @@
                     <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
                     <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                   </div>
+                  <div class="col-sm-1">{{item.typeTr}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
                   <div class="col-sm-2">{{item.statusTr}}</div>
                   <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
@@ -307,6 +310,20 @@
                   <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="type">Fatura Tipi</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="type" name="type" required
+                          (change)="onChangeType()"
+                          [disabled]="selectedRecord.data.primaryKey!=undefined"
+                          [(ngModel)]="selectedRecord.data.type">
+                    <option value="sales">Satış Faturası</option>
+                    <option value="return">İade Faturası</option>
+                    <option value="service">Hizmet Faturası</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
                   <label class="col-form-label float-left">Sipariş</label>
                 </div>
                 <div class="col-sm-9">
@@ -356,19 +373,6 @@
                   <label class="col-form-label float-left">
                     {{selectedRecord.customer.paymentTypeTr}}
                   </label>
-                </div>
-                <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="type">Fatura Tipi</label>
-                </div>
-                <div class="col-sm-9">
-                  <select class="form-control form-control-sm w-100" id="type" name="type" required
-                          (change)="onChangeType()"
-                          [disabled]="selectedRecord.data.primaryKey!=undefined"
-                          [(ngModel)]="selectedRecord.data.type">
-                    <option value="sales">Satış</option>
-                    <option value="return">İade</option>
-                  </select>
-                  <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
                 </div>
                 <div class="col-sm-3">
                   <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
@@ -506,17 +510,6 @@
                                     <label class="col-form-label float-right pb-0">{{item.data.quantity}} {{item.unit.unitName}}</label>
                                   </div>
                                   <div class="col-sm-6">
-                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
-                                  </div>
-                                  <div class="col-sm-6">
-                                    <label class="col-form-label float-right pb-0">%{{item.data.taxRate}}</label>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-sm-4"></div>
-                              <div class="col-sm-4">
-                                <div class="row">
-                                  <div class="col-sm-6">
                                     <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
                                   </div>
                                   <div class="col-sm-6">
@@ -526,6 +519,32 @@
                               </div>
                               <div class="col-sm-4">
                                 <div class="row">
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Ürün Tipi</label>
+                                  </div>
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-sm-4">
+                                <div class="row">
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
+                                  </div>
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label float-right pb-0">%{{item.data.taxRate}}</label>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-sm-4">
+                                <div class="row">
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV</label>
+                                  </div>
+                                  <div class="col-sm-6">
+                                    <label class="col-form-label float-right pb-0">{{item.totalTaxAmount | currency:'₺'}}</label>
+                                  </div>
                                   <div class="col-sm-6">
                                     <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
                                   </div>
@@ -553,34 +572,40 @@
                     <div class="card p-2">
                       <div class="row">
                         <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13">Toplam Tutar</small>
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam Tutar</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13">Detay İskonto</small>
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">Detay İskonto</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13">{{selectedRecord.totalDetailDiscountFormatted}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalDetailDiscountFormatted}}</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13">İskonto Dahil Fiyat</small>
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">İskonto Dahil Fiyat</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceFormatted}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceFormatted}}</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13">Genel İskonto</small>
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">Genel İskonto</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13">{{selectedRecord.generalDiscountFormatted}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.generalDiscountFormatted}}</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13">Genel Toplam</small>
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam KDV</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalTaxAmountFormatted}}</small>
+                        </div>
+                        <div class="col-sm-6">
+                          <small class="col-form-label float-left fs-13 p-0 pb-1">Genel Toplam</small>
+                        </div>
+                        <div class="col-sm-6">
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
                         </div>
                       </div>
                     </div>
@@ -847,7 +872,7 @@
         </div>
         <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
-                (click)="btnReturnRecord_Click()">İptal Et
+                (click)="btnCancelRecord_Click()">İptal Et
         </button>
       </div>
     </div>

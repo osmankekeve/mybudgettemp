@@ -3,4 +3,5 @@ export class RouterModel {
   previousModulePrimaryKey: string;
   nextModule: string;
   nextModulePrimaryKey: string;
+  action: string;
 }

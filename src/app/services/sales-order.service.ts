@@ -178,7 +178,7 @@ export class SalesOrderService {
     returnData.paymentTypePrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.description = '';
-    returnData.type = 'sales'; // sales, service
+    returnData.type = 'sales'; // sales, service, return
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done, portion
     returnData.platform = 'web'; // mobile, web
     returnData.approverPrimaryKey = '-1';
@@ -215,6 +215,8 @@ export class SalesOrderService {
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice); // iskonto dusulmus toplam fiyat
     returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount); // genel iskonto tutari
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax); // tum iskontolar dusulmus kdv eklenmis fiyat
+    returnData.totalTaxAmount = 0; // toplam kdv miktari
+    returnData.totalTaxAmountFormatted = currencyFormat(returnData.totalTaxAmount);
     returnData.orderDetailList = [];
     return returnData;
   }
@@ -229,6 +231,8 @@ export class SalesOrderService {
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    returnData.totalTaxAmount = returnData.data.totalPriceWithTax - returnData.data.totalPrice;
+    returnData.totalTaxAmountFormatted = currencyFormat(returnData.totalTaxAmount);
     return returnData;
   }
 
@@ -239,7 +243,7 @@ export class SalesOrderService {
           const data = doc.data() as SalesOrderModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesOrderMainModel();
+          const returnData = this.convertMainModel(data);
           returnData.data = this.checkFields(data);
           returnData.statusTr = getStatus().get(returnData.data.status);
           returnData.orderTypeTr = getOrderType().get(returnData.data.type);
@@ -273,12 +277,6 @@ export class SalesOrderService {
 
           const d8 = await this.eService.getItem(returnData.data.approverPrimaryKey, false);
           returnData.approverName = d8 != null ? d8.returnData.data.longName : '';
-
-          returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
-          returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
-          returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
-          returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
-          returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
 
           resolve(Object.assign({returnData}));
         } else {
@@ -334,7 +332,7 @@ export class SalesOrderService {
     return this.mainList$;
   }
 
-  getOrdersMain = async (customerPrimaryKey: string):
+  getOrdersMain = async (customerPrimaryKey: string, type: string):
     Promise<Array<SalesOrderMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<SalesOrderMainModel>();
@@ -343,7 +341,8 @@ export class SalesOrderService {
         query = query
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey)
-          .where('status', '==', 'approved');
+          .where('status', '==', 'approved')
+          .where('type', '==', type);
         return query;
       }).get()
         .subscribe(snapshot => {

@@ -23,6 +23,8 @@ import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {setOrderCalculation} from '../models/sales-order-model';
 import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {RouterModel} from '../models/router-model';
+import {GlobalService} from '../services/global.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -57,7 +59,7 @@ export class SalesOrderComponent implements OnInit {
   constructor(protected authService: AuthenticationService, protected service: SalesOrderService, private toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
-              protected sodService: SalesOrderDetailService, protected defService: DefinitionService,
+              protected sodService: SalesOrderDetailService, protected defService: DefinitionService, public globService: GlobalService,
               protected dService: DiscountListService) {
   }
 
@@ -104,6 +106,7 @@ export class SalesOrderComponent implements OnInit {
       type.push('approved');
       type.push('portion');
       type.push('closed');
+      type.push('done');
     } else if (this.filter.filterStatus === '-2') {
       type.push('approved');
       type.push('portion');
@@ -265,6 +268,15 @@ export class SalesOrderComponent implements OnInit {
 
   async btnCreateInvoice_Click(): Promise<void> {
     try {
+      this.onTransaction = true;
+      const r = new RouterModel();
+      r.nextModule = 'sales-invoice';
+      r.nextModulePrimaryKey = this.selectedRecord.data.primaryKey;
+      r.previousModule = 'sales-order';
+      r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
+      r.action = 'create-invoice';
+      await this.globService.showTransactionRecord(r);
+      this.finishProcess(null, 'Fatura taslağı oluşturuldu.');
 
     } catch (error) {
       await this.infoService.error(error);
@@ -366,6 +378,4 @@ export class SalesOrderComponent implements OnInit {
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
-
-
 }

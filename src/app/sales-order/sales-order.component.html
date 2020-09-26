@@ -372,7 +372,16 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-sm-4"></div>
+                        <div class="col-sm-4">
+                          <div class="row">
+                            <div class="col-sm-6">
+                              <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Ürün Tipi</label>
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
+                            </div>
+                          </div>
+                        </div>
                         <div class="col-sm-4">
                           <div class="row">
                             <div class="col-sm-6">
@@ -390,6 +399,12 @@
                             </div>
                             <div class="col-sm-6">
                               <label class="col-form-label float-right pb-0">{{item.data.totalPrice | currency:'₺'}}</label>
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV</label>
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="col-form-label float-right pb-0">{{item.totalTaxAmount | currency:'₺'}}</label>
                             </div>
                             <div class="col-sm-6">
                               <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
@@ -413,34 +428,40 @@
                 <div class="card p-2">
                   <div class="row">
                     <div class="col-sm-6">
-                      <small class="col-form-label float-left fs-13">Toplam Tutar</small>
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam Tutar</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-left fs-13">Detay İskonto</small>
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Detay İskonto</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-right fs-13">{{selectedRecord.totalDetailDiscountFormatted}}</small>
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalDetailDiscountFormatted}}</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-left fs-13">İskonto Dahil Fiyat</small>
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">İskonto Dahil Fiyat</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceFormatted}}</small>
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceFormatted}}</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-left fs-13">Genel İskonto</small>
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Genel İskonto</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-right fs-13">{{selectedRecord.generalDiscountFormatted}}</small>
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.generalDiscountFormatted}}</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-left fs-13">Genel Toplam</small>
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam KDV</small>
                     </div>
                     <div class="col-sm-6">
-                      <small class="col-form-label float-right fs-13">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalTaxAmountFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Genel Toplam</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
                     </div>
                   </div>
                 </div>
@@ -461,6 +482,7 @@
           </span>
         </div>
         <button type="button" class="btn btn-sm btn-success form-control"
+                [disabled]="onTransaction"
                 (click)="btnCreateInvoice_Click()">Fatura Oluştur
         </button>
       </div>
@@ -469,22 +491,26 @@
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
-            <i class="fa fa fa-arrow-left"></i>
+            <i class="fa fa fa-arrow-left" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
         <button type="button" class="btn btn-sm btn-danger form-control"
+                [disabled]="onTransaction"
                 (click)="btnSendToOffer_Click()">Teklife Geri Gönder
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.status === 'approved' || selectedRecord.data.status === 'portion'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
-            <i class="fa fa-times-circle"></i>
+            <i class="fa fa-times-circle" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
         <button type="button" class="btn btn-sm btn-danger form-control"
+                [disabled]="onTransaction"
                 (click)="btnCloseOrder_Click()">Siparişi Kapat
         </button>
       </div>

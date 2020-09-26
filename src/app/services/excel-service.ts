@@ -68,10 +68,13 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = item as SalesInvoiceMainModel;
         excelList.push({
-          'Customer Name': data.customerName,
+          'Customer Code': data.customer.data.code,
+          'Customer Name': data.customer.data.name,
+          'Invoice Type': data.typeTr,
+          'Invoice Status': data.statusTr,
           'Receipt No': data.data.receiptNo,
-          'Total Price': data.data.totalPrice,
-          'Total Price (+KDV)': data.data.totalPriceWithTax,
+          'Total Price': data.totalPriceFormatted,
+          'Total Price (+KDV)': data.totalPriceWithTaxFormatted,
           'Insert Date': getDateForExcel(data.data.insertDate),
           Description: data.data.description
         });

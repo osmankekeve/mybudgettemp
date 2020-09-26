@@ -17,6 +17,7 @@ export class OrderSelectComponent implements OnInit {
 
   @Input() public list: Array<string>;
   @Input() public customerPrimaryKey: string;
+  @Input() public orderType: string;
   @Output() passEntry: EventEmitter<any> = new EventEmitter();
   orderList: Array<SalesOrderMainModel>;
   searchText: '';
@@ -28,7 +29,7 @@ export class OrderSelectComponent implements OnInit {
     if (this.list === undefined) {
       this.list = [];
     }
-    Promise.all([this.service.getOrdersMain(this.customerPrimaryKey)]).then((values: any) => {
+    Promise.all([this.service.getOrdersMain(this.customerPrimaryKey, this.orderType)]).then((values: any) => {
       this.orderList = [];
       if (values[0] !== null) {
         const returnData = values[0] as Array<SalesOrderMainModel>;

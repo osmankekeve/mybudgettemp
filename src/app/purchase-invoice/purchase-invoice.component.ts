@@ -32,6 +32,8 @@ import {ActionMainModel} from '../models/action-main-model';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -69,7 +71,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: PurchaseInvoiceService, protected sService: SettingService, protected globService: GlobalService,
-              protected cService: CustomerService, protected atService: AccountTransactionService,
+              protected cService: CustomerService, protected atService: AccountTransactionService, protected toastService: ToastService,
               protected infoService: InformationService, protected gfuService: GlobalUploadService,
               protected excelService: ExcelService, protected db: AngularFirestore, protected accService: CustomerAccountService,
               protected actService: ActionService, protected fuService: FileUploadService) {
@@ -643,7 +645,7 @@ export class PurchaseInvoiceComponent implements OnInit {
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
       await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+        this.toastService.success('Dosya başarıyla kaldırıldı.');
       });
     } catch (error) {
       await this.finishProcess(error, null);

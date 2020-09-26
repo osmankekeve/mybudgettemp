@@ -10,6 +10,8 @@ export class SalesOrderDetailMainModel {
   priceFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
+  totalTaxAmount?: number;
+  totalTaxAmountFormatted?: string;
   actionType?: string;
   remainingQuantity?: number;
 }
@@ -24,4 +26,6 @@ export const setOrderDetailCalculation = (record: SalesOrderDetailMainModel): vo
   record.totalPriceWithTaxFormatted = currencyFormat(record.data.totalPriceWithTax);
   record.priceFormatted = currencyFormat(record.data.price);
   record.remainingQuantity = record.data.quantity - record.data.invoicedQuantity;
+  record.totalTaxAmount = record.data.totalPriceWithTax - record.data.totalPrice;
+  record.totalTaxAmountFormatted = currencyFormat(record.totalTaxAmount);
 };

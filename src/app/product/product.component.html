@@ -138,126 +138,150 @@
     <div class="tab-content">
       <div id="home" class="tab-pane p-1 active">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
-          <div class="form-row form-inline">
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="productCode">Ürün Kodu</label>
+          <div class="row">
+            <div class="col-sm-2">
+              <img src='{{selectedRecord.data.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
+              <div class="custom-file mt-1">
+                <input type="file" class="form-control mb-1"
+                       [disabled]="onTransaction"
+                       (change)="onFileChange($event)"/>
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                      <span class="input-group-text success-icon-side">
+                        <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                        <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                      </span>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-success form-control"
+                          [disabled]="onTransaction"
+                          (click)="btnUploadFile_Click()">Yükle
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="productCode" name="productCode" type="text"
-                     [disabled]="selectedRecord.data.primaryKey!=undefined"
-                     [(ngModel)]="selectedRecord.data.productCode" required>
-              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="productBaseCode">Ürün Taban Kodu</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="productBaseCode" name="productBaseCode" type="text"
-                     [(ngModel)]="selectedRecord.data.productBaseCode" required>
-              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="productName">Ürün Adı</label>
-            </div>
-            <div class="col-sm-9">
-              <input class="form-control form-control-sm w-100" id="productName" name="productName" type="text"
-                     [(ngModel)]="selectedRecord.data.productName" required>
-              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="stockType">Ürün Tipi</label>
-            </div>
-            <div class="col-sm-3">
-              <select class="form-control form-control-sm w-100" id="stockType" name="stockType" required
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      [(ngModel)]="selectedRecord.data.stockType">
-                <option value="normal">Normal Ürün</option>
-                <option value="promotion">Promosyon Ürün</option>
-                <option value="service">Hizmet Ürün</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="defaultUnitCode">Ürün Birim</label>
-            </div>
-            <div class="col-sm-3">
-              <select class="form-control form-control-sm w-100" id="defaultUnitCode" name="defaultUnitCode" required
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      [(ngModel)]="selectedRecord.data.defaultUnitCode">
-                <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>
-              </select>
-              <div class="invalid-feedback invalid-input-info">Lütfen birim seçiniz.</div>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="taxRate">KDV %</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="taxRate" name="taxRate" type="number"
-                     [(ngModel)]="selectedRecord.data.taxRate">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="sctAmount">ÖTV Tutarı</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="sctAmount" name="sctAmount" type="text"
-                     (focus)="focus_amount()"
-                     (blur)="format_amount($event)"
-                     [(ngModel)]="selectedRecord.sctAmountFormatted">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
-            </div>
-            <div class="col-sm-3">
-              <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                      [(ngModel)]="selectedRecord.data.isActive">
-                <option [ngValue]="true">Aktif</option>
-                <option [ngValue]="false">Pasif</option>
-              </select>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="isWebProduct">Web Ürün Mü?</label>
-            </div>
-            <div class="col-sm-3">
-              <select class="form-control form-control-sm w-100" id="isWebProduct" name="isWebProduct"
-                      [(ngModel)]="selectedRecord.data.isWebProduct">
-                <option [ngValue]="true">Evet</option>
-                <option [ngValue]="false">Hayır</option>
-              </select>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="weight">Ağarlık</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="weight" name="weight" type="text"
-                     [(ngModel)]="selectedRecord.data.weight">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="height">Yükseklik</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="height" name="height" type="text"
-                     [(ngModel)]="selectedRecord.data.height">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="barcode1">Barcode 1</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="barcode1" name="barcode1" type="text"
-                     [(ngModel)]="selectedRecord.data.barcode1">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="barcode2">Barcode 2</label>
-            </div>
-            <div class="col-sm-3">
-              <input class="form-control form-control-sm w-100" id="barcode2" name="barcode2" type="text"
-                     [(ngModel)]="selectedRecord.data.barcode2">
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="description">Açıklama</label>
-            </div>
-            <div class="col-sm-9">
-              <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                     [(ngModel)]="selectedRecord.data.description">
+            <div class="col-sm-10">
+              <div class="form-row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="productCode">Ürün Kodu</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="productCode" name="productCode" type="text"
+                         [disabled]="selectedRecord.data.primaryKey!=undefined"
+                         [(ngModel)]="selectedRecord.data.productCode" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="productBaseCode">Ürün Taban Kodu</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="productBaseCode" name="productBaseCode" type="text"
+                         [(ngModel)]="selectedRecord.data.productBaseCode" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="productName">Ürün Adı</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="productName" name="productName" type="text"
+                         [(ngModel)]="selectedRecord.data.productName" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="stockType">Ürün Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="stockType" name="stockType" required
+                          [disabled]="selectedRecord.data.primaryKey!=undefined"
+                          [(ngModel)]="selectedRecord.data.stockType">
+                    <option value="normal">Normal Ürün</option>
+                    <option value="promotion">Promosyon Ürün</option>
+                    <option value="service">Hizmet Ürün</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="defaultUnitCode">Ürün Birim</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="defaultUnitCode" name="defaultUnitCode" required
+                          [disabled]="selectedRecord.data.primaryKey!=undefined"
+                          [(ngModel)]="selectedRecord.data.defaultUnitCode">
+                    <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen birim seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="taxRate">KDV %</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="taxRate" name="taxRate" type="number"
+                         [(ngModel)]="selectedRecord.data.taxRate">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="sctAmount">ÖTV Tutarı</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="sctAmount" name="sctAmount" type="text"
+                         (focus)="focus_amount()"
+                         (blur)="format_amount($event)"
+                         [(ngModel)]="selectedRecord.sctAmountFormatted">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                          [(ngModel)]="selectedRecord.data.isActive">
+                    <option [ngValue]="true">Aktif</option>
+                    <option [ngValue]="false">Pasif</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="isWebProduct">Web Ürün Mü?</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="isWebProduct" name="isWebProduct"
+                          [(ngModel)]="selectedRecord.data.isWebProduct">
+                    <option [ngValue]="true">Evet</option>
+                    <option [ngValue]="false">Hayır</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="weight">Ağarlık</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="weight" name="weight" type="text"
+                         [(ngModel)]="selectedRecord.data.weight">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="height">Yükseklik</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="height" name="height" type="text"
+                         [(ngModel)]="selectedRecord.data.height">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="barcode1">Barcode 1</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="barcode1" name="barcode1" type="text"
+                         [(ngModel)]="selectedRecord.data.barcode1">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="barcode2">Barcode 2</label>
+                </div>
+                <div class="col-sm-3">
+                  <input class="form-control form-control-sm w-100" id="barcode2" name="barcode2" type="text"
+                         [(ngModel)]="selectedRecord.data.barcode2">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="description">Açıklama</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                         [(ngModel)]="selectedRecord.data.description">
+                </div>
+              </div>
             </div>
           </div>
         </form>
@@ -310,7 +334,7 @@
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item">
+          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-1">#</div>
               <div class="col-sm-7">Dosya Adı</div>
@@ -318,7 +342,7 @@
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
           </div>
-          <div class="work-area-7" *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="work-area-7">
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
@@ -411,3 +435,4 @@
     </div>
   </div>
 </div>
+

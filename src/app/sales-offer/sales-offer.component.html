@@ -165,6 +165,7 @@
                   [(ngModel)]="selectedRecord.data.type">
             <option value="sales">Satış Siparişi</option>
             <option value="service">Hizmet Siparişi</option>
+            <option value="return">İade Siparişi</option>
           </select>
           <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
         </div>
@@ -392,6 +393,12 @@
                 </div>
                 <div class="col-sm-6">
                   <small class="col-form-label float-right fs-13">{{selectedRecord.generalDiscountFormatted}}</small>
+                </div>
+                <div class="col-sm-6">
+                  <small class="col-form-label float-left fs-13">Toplam KDV</small>
+                </div>
+                <div class="col-sm-6">
+                  <small class="col-form-label float-right fs-13">{{selectedRecord.totalTaxAmountFormatted}}</small>
                 </div>
                 <div class="col-sm-6">
                   <small class="col-form-label float-left fs-13">Genel Toplam</small>

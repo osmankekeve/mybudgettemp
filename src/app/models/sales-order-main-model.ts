@@ -21,5 +21,7 @@ export class SalesOrderMainModel {
   totalPriceWithoutDiscountFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;
+  totalTaxAmount?: number;
+  totalTaxAmountFormatted?: string;
   orderDetailList: Array<SalesOrderDetailMainModel>;
 }

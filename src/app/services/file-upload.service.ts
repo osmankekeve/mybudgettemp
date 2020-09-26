@@ -15,6 +15,7 @@ import {currencyFormat, getFileIcons, getStatus} from '../core/correct-library';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {FileMainModel} from '../models/file-main-model';
 import {CollectionModel} from '../models/collection-model';
+import {ProductDiscountModel} from '../models/product-discount-model';
 
 @Injectable({
   providedIn: 'root'
@@ -26,9 +27,7 @@ export class FileUploadService {
   storageRef = storage().ref('files');
 
   constructor(public firebaseAuth: AngularFireAuth, public firebaseStorage: AngularFireStorage,
-              public logService: LogService,
-              public authService: AuthenticationService,
-              public db: AngularFirestore) {
+              public logService: LogService, public authService: AuthenticationService, public db: AngularFirestore) {
   }
 
   async addItem(record: FileMainModel) {
@@ -198,5 +197,39 @@ export class FileUploadService {
     }), flatMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  getFile = async (parentPrimaryKey: string):
+    Promise<FileMainModel> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('parentPrimaryKey', '==', parentPrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          snapshot.forEach(doc => {
+            const data = doc.data() as FileModel;
+            data.primaryKey = doc.id;
+
+            const returnData = this.clearMainModel();
+            returnData.data = this.checkFields(data);
+
+            const lastDot = data.fileName.lastIndexOf('.');
+            const ext = data.fileName.substring(lastDot + 1);
+            returnData.fileIcon = getFileIcons().get(ext);
+
+            resolve(returnData);
+          });
+        } else {
+          const returnData = this.clearMainModel();
+          resolve(returnData);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 
 }

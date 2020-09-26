@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getFloat, getInvoiceType, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
@@ -84,11 +84,13 @@ export class SalesInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          // varsa mevcut kayitlar silinir
           this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
               list.forEach(async item => {
                 await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
               });
             });
+          // faturadaki yeni kayitlar insert edilir
           for (const item of record.invoiceDetailList) {
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
@@ -105,14 +107,15 @@ export class SalesInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'sales' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
-          trans.amountType = record.data.type === 'sales' ? 'debit' : 'credit';
+          trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'return' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
             await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
+              // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
                 const order = item.returnData as SalesOrderMainModel;
                 order.data.status = value ? 'portion' : 'done';
@@ -136,11 +139,13 @@ export class SalesInvoiceService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+          // varsa mevcut kayitlar silinir
           this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
             list.forEach(async item => {
               await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
             });
           });
+          // faturadaki yeni kayitlar insert edilir
           for (const item of record.invoiceDetailList) {
             item.data.invoicePrimaryKey = record.data.primaryKey;
             item.invoiceStatus = record.data.status;
@@ -161,33 +166,29 @@ export class SalesInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'sales' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
-          trans.amountType = record.data.type === 'sales' ? 'debit' : 'credit';
+          trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'return' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
-        } else if (record.data.status === 'rejected') {
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+          for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
+            await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
+              // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
+              this.soService.getItem(orderPrimaryKey).then(item => {
+                const order = item.returnData as SalesOrderMainModel;
+                order.data.status = value ? 'portion' : 'done';
+                this.soService.updateItem(order);
+              });
+            });
+          }
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
-        } else {
+        }
+        else {
           // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
         }
-      }).finally(() => {
-        record.data.orderPrimaryKeyList.forEach(salesOrderPrimaryKey => {
-
-          this.db.collection('tblSalesOrderDetail', ref => {
-            let query: CollectionReference | Query = ref;
-            query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
-              .where('invoicedStatus', '==', 'short');
-            return query;
-          }).get()
-            .toPromise()
-            .then((snapshot) => {
-              if (snapshot.size === 0) {
-
-              }
-            });
-
-        });
       });
   }
 
@@ -275,7 +276,7 @@ export class SalesInvoiceService {
     returnData.customerCode = '';
     returnData.accountPrimaryKey = '-1';
     returnData.receiptNo = '';
-    returnData.type = '-1';
+    returnData.type = 'sales';
     returnData.description = '';
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
     returnData.approveByPrimaryKey = '-1';
@@ -302,12 +303,15 @@ export class SalesInvoiceService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getInvoiceType().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount); // ham tutar
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount); // detayda uygulanan toplam iskonto
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice); // iskonto dusulmus toplam fiyat
     returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount); // genel iskonto tutari
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax); // tum iskontolar dusulmus kdv eklenmis fiyat
+    returnData.totalTaxAmount = returnData.data.totalPriceWithTax - returnData.data.totalPrice;
+    returnData.totalTaxAmountFormatted = currencyFormat(returnData.totalTaxAmount);
     returnData.invoiceDetailList = [];
     return returnData;
   }
@@ -319,11 +323,14 @@ export class SalesInvoiceService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getInvoiceType().get(returnData.data.type);
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.generalDiscountFormatted = currencyFormat(returnData.data.generalDiscount);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
+    returnData.totalTaxAmount = returnData.data.totalPriceWithTax - returnData.data.totalPrice;
+    returnData.totalTaxAmountFormatted = currencyFormat(returnData.totalTaxAmount);
     return returnData;
   }
 

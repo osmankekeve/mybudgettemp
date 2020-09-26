@@ -282,13 +282,13 @@ body {
 }
 
 .work-area-9 {
-  max-height: calc(100vh - 605px);
+  max-height: calc(100vh - 545px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-10 {
-  max-height: calc(100vh - 620px);
+  max-height: calc(100vh - 568px);
   overflow: auto;
   scrollbar-width: thin;
 }

@@ -35,6 +35,8 @@ import {FileMainModel} from '../models/file-main-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-collection',
@@ -75,7 +77,7 @@ export class CollectionComponent implements OnInit {
               protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
               protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
-              protected gfuService: GlobalUploadService) {
+              protected gfuService: GlobalUploadService, protected toastService: ToastService) {
   }
 
   async ngOnInit() {
@@ -571,7 +573,7 @@ export class CollectionComponent implements OnInit {
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
     try {
       await this.fuService.removeItem(item).then(() => {
-        this.infoService.success('Dosya başarıyla kaldırıldı.');
+        this.toastService.success('Dosya başarıyla kaldırıldı.');
       });
     } catch (error) {
       await this.finishProcess(error, null);

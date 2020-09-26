@@ -40,11 +40,14 @@ export class SalesInvoiceDetailService {
   }
 
   async setItem(record: SalesInvoiceDetailMainModel, primaryKey: string) {
+    //
     await this.removeItem(record);
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async ()=> {
       this.db.collection('tblSalesOrderDetail').doc(record.data.orderDetailPrimaryKey).get().toPromise()
         .then(async doc => {
           if (record.invoiceStatus === 'approved') {
+            // fatura onaylandi ise kalem bazinda faturalanma miktari kontrol edilir.
+            // hepsi faturalanirsa complete, yoksa short durumunda guncellenir.
             const orderQuantity = doc.data().quantity;
             const orderInvoicedQuantity = doc.data().invoicedQuantity;
             const newInvoiceQuantity = record.data.quantity;
