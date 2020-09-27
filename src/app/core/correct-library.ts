@@ -209,7 +209,7 @@ export const getCashDeskVoucherType = () => {
 
 export const getStatus = () => {
   return new Map([['waitingForApprove', 'Onay Bekleniyor'], ['approved', 'Onaylandı'], ['rejected', 'Kabul Edilmedi'],
-    ['closed', 'Kapatıldı'], ['done', 'Tamamlandı'], ['portion', 'Parçalı Faturalama']]);
+    ['closed', 'Kapatıldı'], ['done', 'Tamamlandı'], ['portion', 'Parçalı Faturalama'], ['canceled', 'İptal Edildi']]);
 };
 
 export const getOrderType = () => {

@@ -273,6 +273,26 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'sales-invoice-detail') {
+      fileName = 'sales_invoice_detail';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Product Code': data.product.data.productCode,
+          'Product Name': data.product.data.productName,
+          'Product Type': data.product.stockTypeTr,
+          'Product Price': data.priceFormatted,
+          'Discount 1': '%' + data.data.discount1.toString(),
+          'Discount 2': '%' + data.data.discount2.toString(),
+          'Quantity': data.data.quantity,
+          'Unit': data.unit.unitName,
+          'Tax Rate': '%' + data.data.taxRate.toString(),
+          'Total Price': data.totalPriceFormatted,
+          'Total Tax': data.totalTaxAmountFormatted,
+          'Total Price With Tax': data.totalPriceWithTaxFormatted,
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

@@ -471,7 +471,6 @@ export class SalesInvoiceComponent implements OnInit {
         .then((list) => {
           this.invoiceDetailList = list;
           this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
-          //setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
         });
 
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
@@ -733,6 +732,14 @@ export class SalesInvoiceComponent implements OnInit {
     }
   }
 
+  async btnDetailExportToExcel_Click(): Promise<void> {
+    if (this.invoiceDetailList.length > 0) {
+      this.excelService.exportToExcel(this.invoiceDetailList, 'sales-invoice-detail');
+    } else {
+      await this.toastService.error('Aktarılacak kayıt bulunamadı.', true);
+    }
+  }
+
   async btnFileUpload_Click(): Promise<void> {
     try {
       this.gfuService.showModal(
@@ -775,6 +782,8 @@ export class SalesInvoiceComponent implements OnInit {
   showDetailRecord(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.selectedDetailRecord = record as SalesInvoiceDetailMainModel;
+    } else {
+      this.toastService.warning('Onaylı fatura detayı güncellenemez', true);
     }
   }
 

@@ -433,7 +433,11 @@
               <div class="card-header bg-gray-gradient">
                 <div class="row">
                   <div class="col-sm-6">
-                    <h5 class="float-left mr-2">Fatura Detayı</h5>
+                    <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2">
+                    <h4 class="float-left mr-2">Fatura Detayı</h4>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+                            *ngIf="selectedRecord.data.primaryKey!=undefined && invoiceDetailList.length > 0"
+                            (click)="btnDetailExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
                     <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
                             *ngIf="selectedDetailRecord"
                             (click)="btnShowJsonDataDetail_Click()"><i class="fa fa-jsfiddle"></i></button>

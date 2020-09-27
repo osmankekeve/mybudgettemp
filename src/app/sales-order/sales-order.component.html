@@ -480,7 +480,7 @@
     </div>
   </div>
   <div class="card-footer">
-    <div class="col-sm-2 float-right">
+    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status === 'approved' || selectedRecord.data.status === 'portion'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">

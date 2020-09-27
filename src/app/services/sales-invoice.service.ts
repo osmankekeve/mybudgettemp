@@ -278,7 +278,7 @@ export class SalesInvoiceService {
     returnData.receiptNo = '';
     returnData.type = 'sales';
     returnData.description = '';
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, canceled
     returnData.approveByPrimaryKey = '-1';
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web

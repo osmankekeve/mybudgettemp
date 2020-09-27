@@ -661,8 +661,8 @@ export class SalesOfferComponent implements OnInit {
       const a = await this.pumService.getProductUnitMapping(this.selectedDetail.data.productPrimaryKey, this.selectedDetail.unit.primaryKey);
       this.selectedDetail.data.unitPrimaryKey = this.selectedDetail.unit.primaryKey;
       this.selectedDetail.data.unitValue = a.unitValue;
-      this.selectedDetail.data.price = this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue;
-      this.selectedDetail.data.defaultPrice = this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue;
+      this.selectedDetail.data.price = getFloat((this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue).toFixed(2));
+      this.selectedDetail.data.defaultPrice = getFloat((this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue).toFixed(2));
       setOrderDetailCalculation(this.selectedDetail);
     });
   }

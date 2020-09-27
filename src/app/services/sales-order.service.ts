@@ -61,7 +61,7 @@ export class SalesOrderService {
   async updateItem(record: SalesOrderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async () => {
-        if (record.data.status === 'approved') {
+        if (record.data.status === 'approved' || record.data.status === 'waitingForApprove') {
           await this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
             .then((list) => {
               list.forEach(async item => {
