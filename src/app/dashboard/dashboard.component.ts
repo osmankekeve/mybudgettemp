@@ -45,15 +45,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.transactionList = undefined;
     const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    this.atService.getMainItems(start, end).subscribe(list => {
+    // gunluk hareketler
+    this.atService.getMainItems(start, end, null, null).subscribe(list => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
       }
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
       list.forEach((data: any) => {
         const item = data.returnData as AccountTransactionMainModel;
+        console.log(item);
         if (item.data.transactionType === 'salesInvoice') {
-          this.siAmount += getFloat(Math.abs(item.data.amount));
+          this.siAmount += getFloat(item.data.amount * -1);
         }
         if (item.data.transactionType === 'collection') {
           this.colAmount += getFloat(Math.abs(item.data.amount));
@@ -90,11 +92,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
       .then((values: any) => {
-        if (values[0] !== undefined || values[0] !== null) {
+        if (values[0] !== null) {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           returnData.forEach(item => {
             if (item.data.transactionType === 'salesInvoice') {
-              siAmount2 += getFloat(Math.abs(item.data.amount));
+              siAmount2 += getFloat(item.data.amount * -1);
             }
             if (item.data.transactionType === 'collection') {
               colAmount2 += getFloat(Math.abs(item.data.amount));

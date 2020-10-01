@@ -51,7 +51,7 @@ export class GlobalService {
         await this.route.navigate(['sales-invoice', routeData]);
       }
     }
-    if (item.nextModule === 'salesInvoice') {
+    if (item.nextModule === 'salesInvoice' || item.nextModule === 'cancelSalesInvoice') {
 
       data = await this.siService.getItem(item.nextModulePrimaryKey);
       if (data) {

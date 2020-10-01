@@ -6,6 +6,7 @@ export class AccountTransactionMainModel {
   customer?: any;
   iconUrl?: string;
   transactionTypeTr?: string;
+  subTransactionTypeTr?: string;
   matchTr?: string;
   remainingAmount?: number;
   actionType?: string;

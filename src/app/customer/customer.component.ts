@@ -50,6 +50,7 @@ import {DefinitionService} from '../services/definition.service';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 
 @Component({
   selector: 'app-customer',
@@ -84,7 +85,7 @@ export class CustomerComponent implements OnInit {
   transactionList$: Observable<AccountTransactionModel[]>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   executiveList$: Observable<ProfileMainModel[]>;
-  transactionList: Array<AccountTransactionModel>;
+  transactionList: Array<AccountTransactionMainModel>;
   deliveryAddressList: Array<DeliveryAddressMainModel>;
   totalValues = 0;
   BarChart: any;
@@ -221,101 +222,32 @@ export class CustomerComponent implements OnInit {
     this.accountList$ = this.accService.getAllItems(this.selectedCustomer.data.primaryKey);
 
     this.totalAmount = 0;
-    this.purchaseInvoiceList$ = undefined;
-    this.purchaseInvoiceList$ = this.piService.getCustomerItems(this.selectedCustomer.data.primaryKey);
-    this.purchaseInvoiceAmount = 0;
-    this.purchaseInvoiceList$.subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
-        if (item.actionType === 'added') {
-          this.purchaseInvoiceAmount += Math.round(item.data.totalPriceWithTax);
-          this.totalAmount += Math.round(item.data.totalPriceWithTax);
-        } else if (item.actionType === 'removed') {
-          this.purchaseInvoiceAmount -= Math.round(item.data.totalPriceWithTax);
-          this.totalAmount -= Math.round(item.data.totalPriceWithTax);
-        } else {
-          // TODO: not complated
-        }
-      });
-    });
-
-    this.siList$ = undefined;
-    this.siList$ = this.siService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.siAmount = 0;
-    this.siList$.subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as SalesInvoiceMainModel;
-        if (item.actionType === 'added') {
-          this.siAmount += Math.round(item.data.totalPriceWithTax);
-          this.totalAmount -= Math.round(item.data.totalPriceWithTax);
-        } else if (item.actionType === 'removed') {
-          this.siAmount -= Math.round(item.data.totalPriceWithTax);
-          this.totalAmount += Math.round(item.data.totalPriceWithTax);
-        } else {
-          // TODO: not complated
-        }
-      });
-    });
-
-    this.colList$ = undefined;
-    this.colList$ = this.colService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.colAmount = 0;
-    this.colList$.subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as CollectionMainModel;
-        if (item.actionType === 'added') {
-          this.colAmount += Math.round(item.data.amount);
-          this.totalAmount += Math.round(item.data.amount);
-        } else if (item.actionType === 'removed') {
-          this.colAmount -= Math.round(item.data.amount);
-          this.totalAmount -= Math.round(item.data.amount);
-        } else {
-          // TODO: not complated
-        }
-      });
-    });
-
-    this.payList$ = undefined;
-    this.payList$ = this.payService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.payAmount = 0;
-    this.payList$.subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as PaymentMainModel;
-        if (item.actionType === 'added') {
-          this.payAmount += Math.round(item.data.amount);
-          this.totalAmount -= Math.round(item.data.amount);
-        } else if (item.actionType === 'removed') {
-          this.payAmount -= Math.round(item.data.amount);
-          this.totalAmount += Math.round(item.data.amount);
-        } else {
-          // TODO: not complated
-        }
-      });
-    });
-
-    this.voucherList$ = undefined;
-    this.voucherList$ = this.avService.getCustomerItems(this.selectedCustomer.data.primaryKey);
     this.voucherAmount = 0;
-    this.voucherList$.subscribe(list => {
+    this.purchaseInvoiceAmount = 0;
+
+    this.atService.getMainItems(null, null, this.selectedCustomer.data.primaryKey, 'customer')
+      .subscribe(list => {
       list.forEach((data: any) => {
-        const item = data.returnData as AccountVoucherMainModel;
-        if (item.actionType === 'added') {
-          this.voucherAmount += Math.round(item.data.amount);
-          if (item.data.type === 'debitVoucher') {
-            this.totalAmount -= Math.round(item.data.amount);
-          } else {
-            this.totalAmount += Math.round(item.data.amount);
-          }
-        } else if (item.actionType === 'removed') {
-          this.voucherAmount -= Math.round(item.data.amount);
-          if (item.data.type === 'debitVoucher') {
-            this.totalAmount += Math.round(item.data.amount);
-          } else {
-            this.totalAmount -= Math.round(item.data.amount);
-          }
-        } else {
-          // TODO: not complated
+        const item = data.returnData as AccountTransactionMainModel;
+        if (item.data.transactionType === 'salesInvoice') {
+          this.siAmount += getFloat(item.data.amount * -1);
         }
+        if (item.data.transactionType === 'collection') {
+          this.colAmount += getFloat(item.data.amount * -1);
+        }
+        if (item.data.transactionType === 'purchaseInvoice') {
+          this.purchaseInvoiceAmount += getFloat(item.data.amount * -1);
+        }
+        if (item.data.transactionType === 'payment') {
+          this.payAmount += getFloat(item.data.amount * -1);
+        }
+        if (item.data.transactionType === 'accountVoucher') {
+          this.voucherAmount += getFloat(item.data.amount * -1);
+        }
+        this.totalAmount += getFloat(item.data.amount);
       });
     });
 
@@ -726,12 +658,17 @@ export class CustomerComponent implements OnInit {
       }
       if (this.openedPanel === 'accountSummary') {
         this.totalValues = 0;
-        this.rService.getCustomerTransactionsWithDateControl(this.selectedCustomer.data.primaryKey, undefined, undefined).then(list => {
-          this.transactionList = list;
-          this.transactionList.forEach(item => {
-            this.totalValues += item.amount;
+
+        this.atService.getMainItems(null, null, this.selectedCustomer.data.primaryKey, 'customer')
+          .subscribe(list => {
+            console.log(list);
+            this.transactionList=[];
+            list.forEach((data: any) => {
+              const item = data.returnData as AccountTransactionMainModel;
+              this.transactionList.push(item);
+              this.totalValues += item.data.amount;
+            });
           });
-        });
       }
       if (this.openedPanel === 'dashboard') {
         if (!this.selectedCustomer.data.primaryKey) {

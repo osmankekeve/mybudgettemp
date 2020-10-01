@@ -156,8 +156,22 @@ export const getDateForExcel = (value: number) => {
 };
 
 export const getTransactionTypes = () => {
-  return new Map([['salesInvoice', 'Satış Faturası'], ['collection', 'Tahsilat'], ['purchaseInvoice', 'Alım Faturası'],
-    ['payment', 'Ödeme'], ['accountVoucher', 'Cari Fiş'], ['cashDeskVoucher', 'Kasa Fişi'], ['buy-sale', 'Alış-Satış'], ['-1', 'Genel']]);
+  return new Map([
+    ['salesInvoice', 'Satış Faturası'],
+    ['cancelSalesInvoice', 'Satış Faturası İptal'],
+    ['returnSalesInvoice', 'Satış Faturası İade'],
+    ['cancelReturnSalesInvoice', 'Satış Faturası İade İptal'],
+    ['serviceSalesInvoice', 'Satış Faturası Hizmet'],
+    ['cancelServiceSalesInvoice', 'Satış Faturası Hizmet İptal'],
+
+    ['collection', 'Tahsilat'],
+    ['purchaseInvoice', 'Alım Faturası'],
+    ['payment', 'Ödeme'],
+    ['accountVoucher', 'Cari Fiş'],
+    ['cashDeskVoucher', 'Kasa Fişi'],
+    ['buy-sale', 'Alış-Satış'],
+    ['-1', 'Genel']
+  ]);
 };
 
 export const getMonths = () => {
@@ -271,6 +285,7 @@ export const encryptData = (strData: any) => {
 export const getModuleIcons = () => {
   return new Map([
     ['salesInvoice', '../../assets/images/sales_invoice.png'],
+    ['cancelSalesInvoice', '../../assets/images/sales_invoice.png'],
     ['collection', '../../assets/images/collection.png'],
     ['purchaseInvoice', '../../assets/images/purchase_invoice.png'],
     ['payment', '../../assets/images/payment.png'],

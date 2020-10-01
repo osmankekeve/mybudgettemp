@@ -179,10 +179,11 @@
                 <div class="col-sm-5">Müşteri Adı</div>
                 <div class="col-sm-1">Fatura Tipi</div>
                 <div class="col-sm-1">Fiş No</div>
-                <div class="col-sm-2">Durum</div>
+                <div class="col-sm-1">Durum</div>
                 <div class="col-sm-1"><span class="float-right">Tutar</span></div>
                 <div class="col-sm-1"><span class="float-right">Tutar (+KDV)</span></div>
                 <div class="col-sm-1"><span class="float-right text-center">Döküman Tarihi</span></div>
+                <div class="col-sm-1"><span class="float-right">Bilgi</span></div>
               </div>
             </div>
             <div class="work-area-6">
@@ -193,20 +194,23 @@
                   <div class="col-sm-5">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                     <span class="text-red font-weight-600 mr-2">{{item.customer.data.name}}</span>
-                    <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                    <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
-                    <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
-                    <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
-                    <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                   </div>
                   <div class="col-sm-1">{{item.typeTr}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
-                  <div class="col-sm-2">{{item.statusTr}}</div>
+                  <div class="col-sm-1">{{item.statusTr}}</div>
                   <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
                   <div class="col-sm-1"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
                   </div>
                   <div class="col-sm-1">
                     <span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
+                  </div>
+                  <div class="col-sm-1">
+                    <i class="fa fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+                    <i class="fa fa-thumbs-o-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+                    <i class="fa fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+                    <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+                    <i class="fa fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+                    <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                   </div>
                 </div>
               </div>
@@ -260,7 +264,8 @@
                 (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
       </div>
       <div class="col-sm-4">
-        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
+        <i class="float-right mr-2" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'" title="Hesap Hareket Kaydı"></i>
+        <i class="float-right mr-2" [ngClass]="isRecordHasReturnTransaction ? 'pulse-green' : 'pulse-red'" title="İade Hesap Hareket Kaydı"></i>
       </div>
     </div>
   </div>
@@ -436,7 +441,7 @@
                     <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2">
                     <h4 class="float-left mr-2">Fatura Detayı</h4>
                     <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                            *ngIf="selectedRecord.data.primaryKey!=undefined && invoiceDetailList.length > 0"
+                            *ngIf="selectedRecord.data.primaryKey!=undefined && invoiceDetailList?.length > 0"
                             (click)="btnDetailExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
                     <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
                             *ngIf="selectedDetailRecord"
@@ -462,7 +467,7 @@
                 <div class="row">
                   <div class="col-sm-12">
                     <div *ngIf="invoiceDetailList != undefined; else elseBlock3">
-                      <div class="list-group" *ngIf="invoiceDetailList.length > 0; else elseBlock">
+                      <div class="list-group" *ngIf="invoiceDetailList?.length > 0; else elseBlock">
                         <div class="work-area-10">
                           <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                                (click)="showDetailRecord(item , i)" title="Kaydı Göster"
@@ -813,7 +818,7 @@
       </div>
     </div>
   </div>
-  <div class="card-footer" *ngIf="!selectedDetailRecord">
+  <div class="card-footer" *ngIf="!selectedDetailRecord && selectedRecord.data.status !== 'canceled'">
     <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
@@ -842,7 +847,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">

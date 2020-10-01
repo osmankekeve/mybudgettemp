@@ -35,7 +35,7 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
     this.mainList = undefined;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItems(beginDate, finishDate).subscribe(list => {
+    this.service.getMainItems(beginDate, finishDate, null, null).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }

@@ -88,10 +88,12 @@ export class CollectionService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        } else if (record.data.status === 'rejected') {
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        } else {
+        }
+        else {
           await this.logService.addTransactionLog(record, 'update', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }

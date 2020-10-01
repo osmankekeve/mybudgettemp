@@ -65,6 +65,7 @@ export class SalesInvoiceComponent implements OnInit {
   selectedRecord: SalesInvoiceMainModel;
   selectedDetailRecord: SalesInvoiceDetailMainModel;
   isRecordHasTransaction = false;
+  isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
@@ -465,6 +466,7 @@ export class SalesInvoiceComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
+      this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
       this.setOrderCountInfo();
 
       this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey)
@@ -473,10 +475,14 @@ export class SalesInvoiceComponent implements OnInit {
           this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
         });
 
-      this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
       this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
+
+      this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+        this.isRecordHasReturnTransaction = list.length > 0;
+      });
+
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
       this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
       this.populateFiles();
@@ -635,7 +641,23 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnCancelRecord_Click(): Promise<void> {
     try {
-      await this.infoService.error('yazılmadı');
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'canceled';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (error) {
       await this.finishProcess(error, null);
     }

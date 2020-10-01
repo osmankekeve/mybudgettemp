@@ -4,26 +4,21 @@ import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
-import {SalesInvoiceModel, setInvoiceCalculation} from '../models/sales-invoice-model';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getFloat, getInvoiceType, getProductTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getInvoiceType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from './customer-account.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {ProductModel} from '../models/product-model';
-import {ProductMainModel} from '../models/product-main-model';
-import {ToastService} from './toast.service';
 import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
 import {SalesOrderDetailService} from './sales-order-detail.service';
 import {SalesOrderService} from './sales-order.service';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 
 @Injectable({
@@ -41,7 +36,7 @@ export class SalesInvoiceService {
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected accService: CustomerAccountService, protected atService: AccountTransactionService,
+              protected accService: CustomerAccountService, protected atService: AccountTransactionService, protected sodService: SalesOrderDetailService,
               protected actService: ActionService, protected sidService: SalesInvoiceDetailService, protected soService: SalesOrderService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
@@ -72,11 +67,9 @@ export class SalesInvoiceService {
         for (const item of record.invoiceDetailList) {
           await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
         }
+        await this.atService.removeItem(null, record.data.primaryKey);
         this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'salesInvoice');
-        if (record.data.status === 'approved') {
-          await this.atService.removeItem(null, record.data.primaryKey);
-        }
       });
   }
 
@@ -102,7 +95,6 @@ export class SalesInvoiceService {
           trans.primaryKey = record.data.primaryKey;
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
-          trans.transactionType = 'salesInvoice';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -110,11 +102,21 @@ export class SalesInvoiceService {
           trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
           trans.amountType = record.data.type === 'return' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
+          trans.transactionType = 'salesInvoice';
+          if (record.data.type === 'sales') {
+            trans.transactionSubType = 'salesInvoice';
+          }
+          if (record.data.type === 'return') {
+            trans.transactionSubType = 'returnSalesInvoice';
+          }
+          if (record.data.type === 'service') {
+            trans.transactionSubType = 'serviceSalesInvoice';
+          }
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onaylandı');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
-            await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
+            await this.soService.isOrderHasShortProduct(orderPrimaryKey).then(value => {
               // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
                 const order = item.returnData as SalesOrderMainModel;
@@ -126,7 +128,59 @@ export class SalesInvoiceService {
         }
         else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Geri Çevrildi');
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = '-1';
+          trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
+          trans.amountType = record.data.type === 'return' ? 'debit' : 'credit';
+          trans.insertDate = record.data.insertDate;
+          trans.transactionType = 'salesInvoice';
+          if (record.data.type === 'sales') {
+            trans.transactionSubType = 'cancelSalesInvoice';
+          }
+          if (record.data.type === 'return') {
+            trans.transactionSubType = 'cancelReturnSalesInvoice';
+          }
+          if (record.data.type === 'service') {
+            trans.transactionSubType = 'cancelServiceSalesInvoice';
+          }
+          await this.atService.setItem(trans, trans.primaryKey);
+          for (const item of record.invoiceDetailList) {
+            this.db.collection('tblSalesOrderDetail').doc(item.data.orderDetailPrimaryKey).get().toPromise()
+              .then(async doc => {
+                // siparis detayinda faturalanan miktar kadar acilir ve statusu shorta cekilir
+                const orderInvoicedQuantity = doc.data().invoicedQuantity;
+                await doc.ref.update( { invoicedQuantity: orderInvoicedQuantity - item.data.quantity, invoicedStatus: 'short' });
+              });
+          }
+          for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
+            // const shortDataBool = await this.soService.isOrderHasShortProduct(orderPrimaryKey);
+            // const completeDataBool = await this.soService.isOrderHasCompleteProduct(orderPrimaryKey);
+
+            // eger sipariste faturalanan miktar var ise portion durumuna, yoksa approved durumuna cevrilir.
+            let isHasInvoicedQuantity = false;
+            const list = await this.sodService.getMainItemsWithOrderPrimaryKey(orderPrimaryKey);
+            list.forEach(item => {
+              if (item.data.invoicedQuantity > 0) {
+                isHasInvoicedQuantity = true;
+              }
+            });
+            if (isHasInvoicedQuantity) {
+              await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'portion' });
+            } else {
+              await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'approved' });
+            }
+          }
+          await this.logService.addTransactionLog(record, 'canceled', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         }
         else {
           await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
@@ -161,7 +215,6 @@ export class SalesInvoiceService {
           trans.primaryKey = record.data.primaryKey;
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
-          trans.transactionType = 'salesInvoice';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -169,11 +222,21 @@ export class SalesInvoiceService {
           trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
           trans.amountType = record.data.type === 'return' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
+          trans.transactionType = 'salesInvoice';
+          if (record.data.type === 'sales') {
+            trans.transactionSubType = 'cancelSalesInvoice';
+          }
+          if (record.data.type === 'return') {
+            trans.transactionSubType = 'cancelReturnSalesInvoice';
+          }
+          if (record.data.type === 'service') {
+            trans.transactionSubType = 'cancelServiceSalesInvoice';
+          }
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
-            await this.soService.isOrderHasProductWaitingInvoice(orderPrimaryKey).then(value => {
+            await this.soService.isOrderHasShortProduct(orderPrimaryKey).then(value => {
               // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
                 const order = item.returnData as SalesOrderMainModel;
@@ -185,6 +248,58 @@ export class SalesInvoiceService {
         }
         else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = '-1';
+          trans.amount = record.data.type === 'return' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
+          trans.amountType = record.data.type === 'return' ? 'debit' : 'credit';
+          trans.insertDate = record.data.insertDate;
+          trans.transactionType = 'salesInvoice';
+          if (record.data.type === 'sales') {
+            trans.transactionSubType = 'cancelSalesInvoice';
+          }
+          if (record.data.type === 'return') {
+            trans.transactionSubType = 'cancelReturnSalesInvoice';
+          }
+          if (record.data.type === 'service') {
+            trans.transactionSubType = 'cancelServiceSalesInvoice';
+          }
+          await this.atService.setItem(trans, trans.primaryKey);
+          for (const item of record.invoiceDetailList) {
+            this.db.collection('tblSalesOrderDetail').doc(item.data.orderDetailPrimaryKey).get().toPromise()
+              .then(async doc => {
+                // siparis detayinda faturalanan miktar kadar acilir ve statusu shorta cekilir
+                const orderInvoicedQuantity = doc.data().invoicedQuantity;
+                await doc.ref.update( { invoicedQuantity: orderInvoicedQuantity - item.data.quantity, invoicedStatus: 'short' });
+              });
+          }
+          for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
+            // const shortDataBool = await this.soService.isOrderHasShortProduct(orderPrimaryKey);
+            // const completeDataBool = await this.soService.isOrderHasCompleteProduct(orderPrimaryKey);
+
+            // eger sipariste faturalanan miktar var ise portion durumuna, yoksa approved durumuna cevrilir.
+            let isHasInvoicedQuantity = false;
+            const list = await this.sodService.getMainItemsWithOrderPrimaryKey(orderPrimaryKey);
+            list.forEach(item => {
+              if (item.data.invoicedQuantity > 0) {
+                isHasInvoicedQuantity = true;
+              }
+            });
+            if (isHasInvoicedQuantity) {
+              await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'portion' });
+            } else {
+              await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'approved' });
+            }
+          }
+          await this.logService.addTransactionLog(record, 'canceled', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         }
         else {
           // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
@@ -334,6 +449,10 @@ export class SalesInvoiceService {
     return returnData;
   }
 
+  getCancelRecordPrimaryKey(model: SalesInvoiceModel): string {
+    return 'c-' + model.primaryKey;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
@@ -362,8 +481,7 @@ export class SalesInvoiceService {
           const data = c.payload.doc.data() as SalesInvoiceModel;
           data.primaryKey = c.payload.doc.id;
 
-          const returnData = new SalesInvoiceMainModel();
-          returnData.data = this.checkFields(data);
+          const returnData = this.convertMainModel(data);
           returnData.actionType = c.type;
           returnData.account = this.accountMap.get(returnData.data.accountPrimaryKey);
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);

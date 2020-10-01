@@ -360,13 +360,34 @@ export class SalesOrderService {
     }
   })
 
-  isOrderHasProductWaitingInvoice = async (salesOrderPrimaryKey: string):
+  isOrderHasShortProduct = async (salesOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
         query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
           .where('invoicedStatus', '==', 'short');
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isOrderHasCompleteProduct = async (salesOrderPrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+          .where('invoicedStatus', '==', 'complete');
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {
