@@ -277,8 +277,13 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   async btnSelectProduct_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(ProductSelectComponent);
+      const list = Array<string>();
+      list.push('normal');
+      list.push('service');
+
+      const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductPrice.product;
+      modalRef.componentInstance.productTypes = list;
       modalRef.result.then((result: any) => {
         if (result) {
           this.selectedProductPrice.product = result;
@@ -409,6 +414,14 @@ export class PriceListComponent implements OnInit, OnDestroy {
       });
       await this.finishProcess(null, 'Ürün fiyatları başarıyla kaldırıldı.', false);
 
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSubShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedProductPrice, null, 2));
     } catch (error) {
       await this.infoService.error(error);
     }

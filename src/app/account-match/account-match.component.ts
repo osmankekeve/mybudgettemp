@@ -3,16 +3,14 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {GlobalService} from '../services/global.service';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {getFloat} from '../core/correct-library';
-import {Chart} from 'chart.js';
 import {AccountTransactionService} from '../services/account-transaction.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountMatchService} from '../services/account-match.service';
+import {SalesOrderService} from '../services/sales-order.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-account-match',
@@ -52,9 +50,9 @@ export class AccountMatchComponent implements OnInit {
   };
   public xmlItems: any;
 
-  constructor(public authService: AuthenticationService, public service: CustomerAccountService, public infoService: InformationService,
-              public route: Router, public router: ActivatedRoute, public db: AngularFirestore, private http: HttpClient,
-              public atService: AccountTransactionService, public amService: AccountMatchService) {
+  constructor(protected authService: AuthenticationService, protected service: CustomerAccountService, protected infoService: InformationService,
+              protected route: Router, protected router: ActivatedRoute, protected db: AngularFirestore, protected http: HttpClient,
+              protected atService: AccountTransactionService, protected amService: AccountMatchService, protected toastService: ToastService) {
   }
 
   ngOnInit() {
@@ -413,7 +411,7 @@ export class AccountMatchComponent implements OnInit {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        await this.infoService.success(info);
+        await this.toastService.success(info, true);
         this.populateDebitTransactions();
         this.populateCreditTransactions();
       }

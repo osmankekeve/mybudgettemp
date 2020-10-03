@@ -21,23 +21,28 @@
     </div>
   </div>
   <div class="card-body">
-    <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-      <div class="col-sm-4" *ngFor="let item of mainList | filterCashDesk: searchText; index as i;">
-        <div class="card-list-parent">
-          <div class="card mb-2 bg-light cursor-pointer"
-               (click)="showSelectedRecord(item)" title="Kaydı Göster">
-            <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-            <div class="card-body">
-              <div class="font-weight-500 text-dark">{{item.data.name}}</div>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="col-sm-4" *ngFor="let item of mainList | filterCashDesk: searchText; index as i;">
+          <div class="card-list-parent">
+            <div class="card mb-2 bg-light cursor-pointer"
+                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
+              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+              <div class="card-body">
+                <div class="font-weight-500 text-dark">{{item.data.name}}</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
     </div>
-    <ng-template #elseBlock>
-      <div class="card bg-danger text-white">
-        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-      </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
     </ng-template>
   </div>
 </div>
@@ -220,7 +225,7 @@
               </ng-template>
             </div>
             <ng-template #elseBlock2>
-              <div class="card bg-danger text-white">
+              <div class="card bg-danger text-white m-3">
                 <div class="card-body">Görüntülenecek veri bulunamadı.</div>
               </div>
             </ng-template>

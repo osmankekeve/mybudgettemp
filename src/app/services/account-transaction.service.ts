@@ -190,10 +190,18 @@ export class AccountTransactionService {
     if (model.amount === undefined) {
       model.amount = cleanModel.amount;
     }
-    if (model.insertDate === undefined) { model.insertDate = cleanModel.insertDate; }
-    if (model.amountType === undefined) { model.amountType = cleanModel.amountType; }
-    if (model.paidAmount === undefined) { model.paidAmount = cleanModel.paidAmount; }
-    if (model.transactionSubType === undefined) { model.transactionSubType = model.transactionType; }
+    if (model.insertDate === undefined) {
+      model.insertDate = cleanModel.insertDate;
+    }
+    if (model.amountType === undefined) {
+      model.amountType = cleanModel.amountType;
+    }
+    if (model.paidAmount === undefined) {
+      model.paidAmount = cleanModel.paidAmount;
+    }
+    if (model.transactionSubType === undefined || model.transactionSubType === '-1') {
+      model.transactionSubType = model.transactionType;
+    }
 
     return model;
   }
@@ -293,7 +301,8 @@ export class AccountTransactionService {
     try {
       const list = Array<AccountTransactionMainModel>();
       this.db.collection(this.tableName, ref =>
-        ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
+        ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
+          .startAt(startDate.getTime()).endAt(endDate.getTime()))
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountTransactionModel;

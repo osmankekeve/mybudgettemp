@@ -180,6 +180,7 @@ export class SalesOfferComponent implements OnInit {
     Promise.all([this.plService.getPriceLists(list, 'sales'), this.setService.getItem('defaultPriceListPrimaryKey')])
       .then((values: any) => {
         this.priceLists = [];
+        console.log(values);
         if (values[0] !== null) {
           const returnData = values[0] as Array<PriceListModel>;
           returnData.forEach(value => {

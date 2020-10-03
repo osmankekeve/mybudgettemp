@@ -14,6 +14,7 @@ import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library'
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
+import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -77,6 +78,7 @@ export class CollectionService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'collection';
+          trans.transactionSubType = 'collection';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -92,6 +94,25 @@ export class CollectionService {
         else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'collection';
+          trans.transactionSubType = 'cancelCollection';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount * -1;
+          trans.amountType = 'debit';
+          trans.insertDate = record.data.insertDate;
+
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.addTransactionLog(record, 'approved', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         }
         else {
           await this.logService.addTransactionLog(record, 'update', 'collection');
@@ -172,7 +193,7 @@ export class CollectionService {
     returnData.receiptNo = '';
     returnData.amount = 0;
     returnData.description = '';
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, canceled
     returnData.approveByPrimaryKey = '-1';
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
@@ -185,7 +206,7 @@ export class CollectionService {
   clearMainModel(): CollectionMainModel {
     const returnData = new CollectionMainModel();
     returnData.data = this.clearSubModel();
-    returnData.customerName = '';
+    returnData.customer = this.cusService.clearMainModel();
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
@@ -234,9 +255,13 @@ export class CollectionService {
     return model;
   }
 
+  getCancelRecordPrimaryKey(model: CollectionModel): string {
+    return 'c-' + model.primaryKey;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as CollectionModel;
           data.primaryKey = doc.id;
@@ -248,13 +273,9 @@ export class CollectionService {
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
 
-          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
-            .then((values: any) => {
-              if (values[0] !== undefined || values[0] !== null) {
-                returnData.customer = values[0] as CustomerModel;
-                returnData.customerName = returnData.customer !== undefined ? returnData.customer.name : 'Belirlenemeyen Müşteri Kaydı';
-              }
-            });
+          const d1 = await this.cusService.getItem(returnData.data.customerCode);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
+
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -305,8 +326,7 @@ export class CollectionService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
@@ -346,8 +366,7 @@ export class CollectionService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
@@ -390,8 +409,7 @@ export class CollectionService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });

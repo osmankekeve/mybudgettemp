@@ -93,7 +93,10 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-4"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>{{item.customer.data.name}}</div>
+            <div class="col-sm-4"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
+              <span class="font-weight-600">{{item.customer.data.name}}</span>
+            </div>
             <div class="col-sm-2">{{item.data.receiptNo}}</div>
             <div class="col-sm-1">{{item.orderTypeTr}}</div>
             <div class="col-sm-2">{{item.statusTr}}</div>

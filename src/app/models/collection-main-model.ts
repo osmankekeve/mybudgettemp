@@ -1,9 +1,9 @@
 import {CollectionModel} from './collection-model';
-import {CustomerModel} from './customer-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class CollectionMainModel {
   data: CollectionModel;
-  customer?: CustomerModel;
+  customer?: CustomerMainModel;
   customerName?: string;
   employeeName?: string;
   approverName?: string;

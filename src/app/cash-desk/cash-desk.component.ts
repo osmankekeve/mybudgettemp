@@ -113,6 +113,11 @@ export class CashDeskComponent implements OnInit, OnDestroy {
         }
       });
     });
+    setTimeout(() => {
+      if (this.mainList === undefined) {
+        this.mainList = [];
+      }
+    }, 1000);
   }
 
   generateCharts(): void {

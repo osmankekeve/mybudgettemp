@@ -35,8 +35,9 @@ import {FileMainModel} from '../models/file-main-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-collection',
@@ -45,12 +46,12 @@ import {ToastService} from '../services/toast.service';
 })
 export class CollectionComponent implements OnInit {
   mainList: Array<CollectionMainModel>;
-  customerList: Array<CustomerModel>;
   cashDeskList$: Observable<CashDeskMainModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<CollectionMainModel>;
   actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
+  customerList: Array<CustomerModel>;
   selectedRecord: CollectionMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
@@ -77,7 +78,7 @@ export class CollectionComponent implements OnInit {
               protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
               protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
-              protected gfuService: GlobalUploadService, protected toastService: ToastService) {
+              protected gfuService: GlobalUploadService, protected toastService: ToastService, protected modalService: NgbModal) {
   }
 
   async ngOnInit() {
@@ -103,7 +104,7 @@ export class CollectionComponent implements OnInit {
         const salesInvoiceRecord = record as SalesInvoiceMainModel;
         await this.btnNew_Click();
         this.selectedRecord.data.customerCode = salesInvoiceRecord.data.customerCode;
-        await this.onChangeCustomer(this.selectedRecord.data.customerCode);
+        this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
         this.selectedRecord.data.accountPrimaryKey = salesInvoiceRecord.data.accountPrimaryKey;
         this.selectedRecord.data.amount = salesInvoiceRecord.data.totalPriceWithTax;
         this.selectedRecord.amountFormatted = salesInvoiceRecord.totalPriceWithTaxFormatted;
@@ -217,13 +218,13 @@ export class CollectionComponent implements OnInit {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<CollectionMainModel>;
           this.transactionList.forEach(item => {
-            if (creatingData.has(item.customer.name)) {
-              let amount = creatingData.get(item.customer.name);
+            if (creatingData.has(item.customer.data.name)) {
+              let amount = creatingData.get(item.customer.data.name);
               amount += item.data.amount;
-              creatingData.delete(item.customer.name);
-              creatingData.set(item.customer.name, amount);
+              creatingData.delete(item.customer.data.name);
+              creatingData.set(item.customer.data.name, amount);
             } else {
-              creatingData.set(item.customer.name, item.data.amount);
+              creatingData.set(item.customer.data.name, item.data.amount);
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.amount;
@@ -414,7 +415,6 @@ export class CollectionComponent implements OnInit {
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
-    this.populateCustomers();
     this.populateFiles();
     this.populateActions();
   }
@@ -562,11 +562,47 @@ export class CollectionComponent implements OnInit {
     }
   }
 
-  async btnReturnRecord_Click(): Promise<void> {
+  async btnCancelRecord_Click(): Promise<void> {
     try {
-      await this.infoService.error('yazılmadı');
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'canceled';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (error) {
       await this.finishProcess(error, null);
+    }
+  }
+
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -666,11 +702,12 @@ export class CollectionComponent implements OnInit {
     });
   }
 
-  async onChangeCustomer(value: any): Promise<void> {
-    await this.cService.getItem(value).then(item => {
-      this.selectedRecord.customer = item.data;
-      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
-    });
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

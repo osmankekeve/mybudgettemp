@@ -211,7 +211,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
         .then(async () => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+              this.finishProcess(null, 'Ürün birim başarıyla kaldırıldı.', true);
             })
             .catch((error) => {
               this.finishProcess(error, null, true);

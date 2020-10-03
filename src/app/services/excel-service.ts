@@ -85,9 +85,11 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = item as CollectionMainModel;
         excelList.push({
-          'Customer Name': data.customerName,
+          'Customer Code': data.customer.data.code,
+          'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
-          Amount: data.data.amount,
+          'Status': data.statusTr,
+          Amount: data.amountFormatted,
           'Insert Date': getDateForExcel(data.data.insertDate),
           Description: data.data.description
         });
