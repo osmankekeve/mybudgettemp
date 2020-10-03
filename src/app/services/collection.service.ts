@@ -111,8 +111,8 @@ export class CollectionService {
           trans.insertDate = record.data.insertDate;
 
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'approved', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+          await this.logService.addTransactionLog(record, 'canceled', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         }
         else {
           await this.logService.addTransactionLog(record, 'update', 'collection');
@@ -144,9 +144,30 @@ export class CollectionService {
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
-        } else if (record.data.status === 'rejected') {
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'collection');
-        } else {
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'collection';
+          trans.transactionSubType = 'cancelCollection';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount * -1;
+          trans.amountType = 'debit';
+          trans.insertDate = record.data.insertDate;
+
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.addTransactionLog(record, 'canceled', 'collection');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        }
+        else {
           // await this.logService.addTransactionLog(record, 'update', 'collection');
         }
       });

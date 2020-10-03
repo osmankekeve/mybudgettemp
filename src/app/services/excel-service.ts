@@ -55,11 +55,13 @@ export class ExcelService {
       list.forEach((data: any) => {
         const item = data as PaymentMainModel;
         excelList.push({
-          'Customer Name': item.customerName,
-          'Receipt No': item.data.receiptNo,
-          Amount: item.data.amount,
-          'Insert Date': getDateForExcel(item.data.insertDate),
-          Description: item.data.description
+          'Customer Code': data.customer.data.code,
+          'Customer Name': data.customer.data.name,
+          'Receipt No': data.data.receiptNo,
+          'Status': data.statusTr,
+          Amount: data.amountFormatted,
+          'Insert Date': getDateForExcel(data.data.insertDate),
+          Description: data.data.description
         });
       });
     }

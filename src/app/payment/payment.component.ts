@@ -1,5 +1,5 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {PaymentService} from '../services/payment.service';
 import {CashDeskService} from '../services/cash-desk.service';
@@ -26,10 +26,10 @@ import {ActionMainModel} from '../models/action-main-model';
 import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 
 @Component({
   selector: 'app-payment',
@@ -46,6 +46,7 @@ export class PaymentComponent implements OnInit {
   filesList: Array<FileMainModel>;
   selectedRecord: PaymentMainModel;
   isRecordHasTransaction = false;
+  isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
@@ -68,7 +69,7 @@ export class PaymentComponent implements OnInit {
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: PaymentService, protected sService: SettingService, protected cdService: CashDeskService,
               protected cService: CustomerService, protected db: AngularFirestore, protected excelService: ExcelService,
-              protected infoService: InformationService, protected atService: AccountTransactionService,
+              protected infoService: InformationService, protected atService: AccountTransactionService, protected modalService: NgbModal,
               protected accService: CustomerAccountService, protected gfuService: GlobalUploadService, protected toastService: ToastService,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService) {
   }
@@ -95,7 +96,7 @@ export class PaymentComponent implements OnInit {
         const purchaseInvoiceRecord = record as PurchaseInvoiceMainModel;
         await this.btnNew_Click();
         this.selectedRecord.data.customerCode = purchaseInvoiceRecord.data.customerCode;
-        await this.onChangeCustomer(this.selectedRecord.data.customerCode);
+        this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
         this.selectedRecord.data.accountPrimaryKey = purchaseInvoiceRecord.data.accountPrimaryKey;
         this.selectedRecord.data.amount = purchaseInvoiceRecord.data.totalPriceWithTax;
         this.selectedRecord.amountFormatted = purchaseInvoiceRecord.totalPriceWithTaxFormatted;
@@ -209,24 +210,27 @@ export class PaymentComponent implements OnInit {
     const creatingData = new Map();
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
       .then((values: any) => {
-        if (values[0] !== undefined || values[0] !== null) {
+        if (values[0] !== null) {
           this.transactionList = values[0] as Array<PaymentMainModel>;
           this.transactionList.forEach(item => {
-            if (creatingData.has(item.customer.name)) {
-              let amount = creatingData.get(item.customer.name);
+            if (creatingData.has(item.customer.data.name)) {
+              let amount = creatingData.get(item.customer.data.name);
               amount += item.data.amount;
-              creatingData.delete(item.customer.name);
-              creatingData.set(item.customer.name, amount);
+              creatingData.delete(item.customer.data.name);
+              creatingData.set(item.customer.data.name, amount);
             } else {
-              creatingData.set(item.customer.name, item.data.amount);
+              creatingData.set(item.customer.data.name, item.data.amount);
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.amount;
-            } else if (item.data.recordDate >= date2.getTime() && item.data.recordDate < date3.getTime()) {
+            }
+            else if (item.data.recordDate >= date2.getTime() && item.data.recordDate < date3.getTime()) {
               chart2DataValues[1] = getFloat(chart2DataValues[1]) + item.data.amount;
-            } else if (item.data.recordDate >= date3.getTime() && item.data.recordDate < date4.getTime()) {
+            }
+            else if (item.data.recordDate >= date3.getTime() && item.data.recordDate < date4.getTime()) {
               chart2DataValues[2] = getFloat(chart2DataValues[2]) + item.data.amount;
-            } else {
+            }
+            else {
               chart2DataValues[3] = getFloat(chart2DataValues[3]) + item.data.amount;
             }
           });
@@ -407,6 +411,9 @@ export class PaymentComponent implements OnInit {
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
+    this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.isRecordHasReturnTransaction = list.length > 0;
+    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.populateCustomers();
@@ -560,11 +567,47 @@ export class PaymentComponent implements OnInit {
     }
   }
 
-  async btnReturnRecord_Click(): Promise<void> {
+  async btnCancelRecord_Click(): Promise<void> {
     try {
-      this.infoService.error('yazılmadı');
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'canceled';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla iptal edildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('supplier');
+      list.push('customer-supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -578,11 +621,15 @@ export class PaymentComponent implements OnInit {
     }
   }
 
-  btnExportToExcel_Click(): void {
-    if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'payment');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'payment');
+      } else {
+        await this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -649,11 +696,12 @@ export class PaymentComponent implements OnInit {
     });
   }
 
-  async onChangeCustomer(value: any): Promise<void> {
-    await this.cService.getItem(value).then(item => {
-      this.selectedRecord.customer = item.data;
-      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
-    });
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   async finishProcess(error: any, info: any): Promise<void> {
@@ -674,6 +722,7 @@ export class PaymentComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
+    this.isRecordHasReturnTransaction = false;
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();
   }

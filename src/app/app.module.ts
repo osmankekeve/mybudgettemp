@@ -48,6 +48,7 @@ import {ToastService} from './services/toast.service';
 import {InfoModuleComponent} from './partials/info-module/info-module.component';
 import {OrderSelectComponent} from './partials/order-select/order-select.component';
 import {OrderFilterPipe} from './filters/order-filter.pipe';
+import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import {OrderFilterPipe} from './filters/order-filter.pipe';
         NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
         ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
         UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
-        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent, OrderSelectComponent, OrderFilterPipe
+        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent, OrderSelectComponent, OrderFilterPipe,
+        CustomerCustomerDataFilterPipe
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,

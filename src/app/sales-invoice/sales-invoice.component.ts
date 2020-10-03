@@ -942,6 +942,7 @@ export class SalesInvoiceComponent implements OnInit {
   async clearSelectedRecord(): Promise<void> {
     this.invoiceDetailList = undefined;
     this.isRecordHasTransaction = false;
+    this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
     this.setOrderCountInfo();

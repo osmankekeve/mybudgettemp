@@ -10,7 +10,7 @@ export class CustomerDataFilterPipe implements PipeTransform {
      return value;
     }
     return value.filter(
-      item => item.data.name.toLowerCase().indexOf(args.toLowerCase()) > -1
+      item => item.data.name.toLowerCase().indexOf(args.toLowerCase()) > -1 || item.data.code.toLowerCase().indexOf(args.toLowerCase()) > -1
    );
   }
 }

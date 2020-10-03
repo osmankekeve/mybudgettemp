@@ -54,6 +54,7 @@ export class CollectionComponent implements OnInit {
   customerList: Array<CustomerModel>;
   selectedRecord: CollectionMainModel;
   isRecordHasTransaction = false;
+  isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
@@ -413,6 +414,9 @@ export class CollectionComponent implements OnInit {
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
+    this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.isRecordHasReturnTransaction = list.length > 0;
+    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     this.populateFiles();
@@ -572,7 +576,7 @@ export class CollectionComponent implements OnInit {
         .then(async (values: any) => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
-              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla onaylandı.');
+              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla iptal edildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -728,6 +732,7 @@ export class CollectionComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.isRecordHasTransaction = false;
+    this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
   }

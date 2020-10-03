@@ -129,7 +129,7 @@
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showSelectedRecord(item)"
-                     *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+                     *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
@@ -180,18 +180,12 @@
             <div class="work-area-6">
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                    (click)="showSelectedRecord(item)"
-                   *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+                   *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                 <div class="row">
                   <div class="col-sm-5">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                     <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
                     <span class="font-weight-600 mr-2">{{item.customer.data.name}}</span>
-                    <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                    <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
-                    <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
-                    <i class="fa fa-ban mr-2 text-secondary" *ngIf="item.data.status === 'canceled'"></i>
-                    <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
-                    <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                   </div>
                   <div class="col-sm-2">{{item.customer.data.owner}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
@@ -245,7 +239,8 @@
                 (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
       </div>
       <div class="col-sm-4">
-        <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
+        <i class="float-right mr-2" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'" title="Hesap Hareket Kaydı"></i>
+        <i class="float-right mr-2" [ngClass]="isRecordHasReturnTransaction ? 'pulse-green' : 'pulse-red'" title="İptal Hesap Hareket Kaydı"></i>
       </div>
     </div>
   </div>

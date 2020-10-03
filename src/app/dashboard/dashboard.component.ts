@@ -53,18 +53,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
       // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
       list.forEach((data: any) => {
         const item = data.returnData as AccountTransactionMainModel;
-        console.log(item);
         if (item.data.transactionType === 'salesInvoice') {
-          this.siAmount += getFloat(item.data.amount * -1);
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.siAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.siAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'collection') {
-          this.colAmount += getFloat(Math.abs(item.data.amount));
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.colAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.colAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'purchaseInvoice') {
           this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
         }
         if (item.data.transactionType === 'payment') {
-          this.payAmount += getFloat(Math.abs(item.data.amount));
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.payAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.payAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'accountVoucher') {
           this.avAmount += getFloat(Math.abs(item.data.amount));
@@ -96,16 +107,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           returnData.forEach(item => {
             if (item.data.transactionType === 'salesInvoice') {
-              siAmount2 += getFloat(item.data.amount * -1);
+              if (item.data.transactionSubType.startsWith('cancel')) {
+                siAmount2 -= getFloat(Math.abs(item.data.amount));
+              } else {
+                siAmount2 += getFloat(Math.abs(item.data.amount));
+              }
             }
             if (item.data.transactionType === 'collection') {
-              colAmount2 += getFloat(Math.abs(item.data.amount));
+              if (item.data.transactionSubType.startsWith('cancel')) {
+                colAmount2 -= getFloat(Math.abs(item.data.amount));
+              } else {
+                colAmount2 += getFloat(Math.abs(item.data.amount));
+              }
             }
             if (item.data.transactionType === 'purchaseInvoice') {
               purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
             }
             if (item.data.transactionType === 'payment') {
-              payAmount2 += getFloat(Math.abs(item.data.amount));
+              if (item.data.transactionSubType.startsWith('cancel')) {
+                payAmount2 -= getFloat(Math.abs(item.data.amount));
+              } else {
+                payAmount2 += getFloat(Math.abs(item.data.amount));
+              }
             }
             if (item.data.transactionType === 'accountVoucher') {
               avAmount2 += getFloat(Math.abs(item.data.amount));

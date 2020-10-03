@@ -14,6 +14,7 @@ import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/corre
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
+import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -67,7 +68,7 @@ export class PaymentService {
 
   async updateItem(record: PaymentMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
         if (record.data.status === 'approved') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = record.data.primaryKey;
@@ -84,9 +85,30 @@ export class PaymentService {
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'payment');
-        } else if (record.data.status === 'rejected') {
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'payment');
-        } else {
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'payment';
+          trans.transactionSubType = 'cancelPayment';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount;
+          trans.amountType = 'credit';
+          trans.insertDate = record.data.insertDate;
+
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.addTransactionLog(record, 'canceled', 'payment');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        }
+        else {
           await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });
@@ -94,7 +116,7 @@ export class PaymentService {
 
   async setItem(record: PaymentMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
-      .then(async value => {
+      .then(async () => {
         await this.logService.addTransactionLog(record, 'insert', 'payment');
         await this.sService.increasePaymentNumber();
         if (record.data.status === 'approved') {
@@ -112,9 +134,30 @@ export class PaymentService {
           trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'payment');
-        } else if (record.data.status === 'rejected') {
+        }
+        else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'payment');
-        } else {
+        }
+        else if (record.data.status === 'canceled') {
+          const trans = this.atService.clearSubModel();
+          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
+          trans.receiptNo = record.data.receiptNo;
+          trans.transactionPrimaryKey = record.data.primaryKey;
+          trans.transactionType = 'payment';
+          trans.transactionSubType = 'cancelPayment';
+          trans.parentPrimaryKey = record.data.customerCode;
+          trans.parentType = 'customer';
+          trans.accountPrimaryKey = record.data.accountPrimaryKey;
+          trans.cashDeskPrimaryKey = record.data.cashDeskPrimaryKey;
+          trans.amount = record.data.amount;
+          trans.amountType = 'credit';
+          trans.insertDate = record.data.insertDate;
+
+          await this.atService.setItem(trans, trans.primaryKey);
+          await this.logService.addTransactionLog(record, 'canceled', 'payment');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        }
+        else {
           // await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });
@@ -187,6 +230,10 @@ export class PaymentService {
     return model;
   }
 
+  getCancelRecordPrimaryKey(model: PaymentModel): string {
+    return 'c-' + model.primaryKey;
+  }
+
   clearSubModel(): PaymentModel {
 
     const returnData = new PaymentModel();
@@ -200,7 +247,7 @@ export class PaymentService {
     returnData.cashDeskPrimaryKey = '-1';
     returnData.description = '';
     returnData.amount = 0;
-    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected
+    returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, canceled
     returnData.approveByPrimaryKey = '-1';
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
@@ -213,7 +260,7 @@ export class PaymentService {
   clearMainModel(): PaymentMainModel {
     const returnData = new PaymentMainModel();
     returnData.data = this.clearSubModel();
-    returnData.customerName = '';
+    returnData.customer = this.cusService.clearMainModel();
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
@@ -224,7 +271,7 @@ export class PaymentService {
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as PaymentModel;
           data.primaryKey = doc.id;
@@ -235,13 +282,8 @@ export class PaymentService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
-
-          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
-            .then((values: any) => {
-              if (values[0] !== undefined || values[0] !== null) {
-                returnData.customer = values[0] as CustomerModel;
-              }
-            });
+          const d1 = await this.cusService.getItem(returnData.data.customerCode);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
 
           resolve(Object.assign({returnData}));
         } else {
@@ -292,8 +334,7 @@ export class PaymentService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
@@ -333,8 +374,7 @@ export class PaymentService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
@@ -376,8 +416,7 @@ export class PaymentService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
-            returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
