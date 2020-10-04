@@ -115,6 +115,7 @@ export class SalesInvoiceComponent implements OnInit {
           await this.clearSelectedRecord();
           this.selectedRecord.customer = paramItem.customer;
           this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.selectedRecord.data.type = paramItem.data.type;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
           await this.generateOrderToInvoice(list);
         } else {
@@ -491,11 +492,7 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
+    this.isMainFilterOpened = this.isMainFilterOpened !== true;
     this.clearMainFiler();
   }
 

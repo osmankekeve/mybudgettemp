@@ -127,11 +127,12 @@
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                      (click)="showSelectedRecord(item)"
-                     *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+                     *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red font-weight-600">{{item.customer.data.name}}</span>
+                      <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
+                      <span class="font-weight-600">{{item.customer.data.name}}</span>
                       <small> - {{item.customer.data.owner}}</small>
                     </div>
                   </div>
@@ -189,11 +190,12 @@
             <div class="work-area-6">
               <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
                    (click)="showSelectedRecord(item)"
-                   *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+                   *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                 <div class="row">
                   <div class="col-sm-5">
                     <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                    <span class="text-red font-weight-600 mr-2">{{item.customer.data.name}}</span>
+                    <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
+                    <span class="font-weight-600">{{item.customer.data.name}}</span>
                   </div>
                   <div class="col-sm-1">{{item.typeTr}}</div>
                   <div class="col-sm-1">{{item.data.receiptNo}}</div>
@@ -348,6 +350,7 @@
                 <div class="col-sm-9">
                   <div class="input-group">
                     <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
+                           [disabled]="selectedRecord.data.status !== 'waitingForApprove'"
                            [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
@@ -384,6 +387,7 @@
                 </div>
                 <div class="col-sm-9">
                   <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text" step="any"
+                         [disabled]="selectedRecord.data.primaryKey!=undefined"
                          [(ngModel)]="selectedRecord.data.receiptNo" required>
                   <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                 </div>

@@ -299,6 +299,18 @@ export class AccountTransactionService {
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
+      this.cService.getAllItems().subscribe(list => {
+        this.customerMap.clear();
+        list.forEach(item => {
+          this.customerMap.set(item.primaryKey, item);
+        });
+      });
+      this.cdService.getItems().subscribe(list => {
+        this.cashDeskMap.clear();
+        list.forEach(item => {
+          this.cashDeskMap.set(item.primaryKey, item);
+        });
+      });
       const list = Array<AccountTransactionMainModel>();
       this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
@@ -328,35 +340,20 @@ export class AccountTransactionService {
     }
   })
 
-  getMainItemsOld(startDate: Date, endDate: Date, customerPrimaryKey: string): Observable<AccountTransactionMainModel[]> {
-    // left join siz
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid()));
-    this.mainMainList$ = this.listCollection.stateChanges().pipe(
-      map(changes =>
-        changes.map(c => {
-          const data = c.payload.doc.data() as AccountTransactionModel;
-          data.primaryKey = c.payload.doc.id;
-
-          const returnData = this.convertMainModel(data);
-          returnData.actionType = c.type;
-
-          if (returnData.data.transactionType === 'cashDeskVoucher') {
-            returnData.parentData = this.cashDeskMap.get(returnData.data.parentPrimaryKey);
-            returnData.customer = this.customerMap.get(returnData.data.parentPrimaryKey);
-          } else {
-            returnData.parentData = this.customerMap.get(returnData.data.parentPrimaryKey);
-          }
-          return Object.assign({returnData});
-        })
-      )
-    );
-    return this.mainMainList$;
-  }
-
   getMainItems(startDate: Date, endDate: Date, parentPrimaryKey: string, parentType: string): Observable<AccountTransactionMainModel[]> {
     // left join siz
+    this.cService.getAllItems().subscribe(list => {
+      this.customerMap.clear();
+      list.forEach(item => {
+        this.customerMap.set(item.primaryKey, item);
+      });
+    });
+    this.cdService.getItems().subscribe(list => {
+      this.cashDeskMap.clear();
+      list.forEach(item => {
+        this.cashDeskMap.set(item.primaryKey, item);
+      });
+    });
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
