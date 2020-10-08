@@ -141,6 +141,7 @@
                       <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
                       <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
                       <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
+                      <i class="fa fa-ban mr-2 text-secondary" *ngIf="item.data.status === 'canceled'"></i>
                       <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
                       <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
                     </div>

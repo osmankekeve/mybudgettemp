@@ -45,6 +45,8 @@ import {DiscountListComponent} from './discount-list/discount-list.component';
 import {DefinitionComponent} from './definition/definition.component';
 import {SalesOrderComponent} from './sales-order/sales-order.component';
 import {SalesOfferComponent} from './sales-offer/sales-offer.component';
+import {PurchaseOfferComponent} from './purchase-offer/purchase-offer.component';
+import {PurchaseOrderComponent} from './purchase-order/purchase-order.component';
 
 
 const routes: Routes = [
@@ -98,6 +100,8 @@ const routes: Routes = [
   {path: 'payment-type', component: DefinitionComponent, pathMatch: 'full'},
   {path: 'sales-offer', component: SalesOfferComponent, pathMatch: 'full'},
   {path: 'sales-order', component: SalesOrderComponent, pathMatch: 'full'},
+  {path: 'purchase-offer', component: PurchaseOfferComponent, pathMatch: 'full'},
+  {path: 'purchase-order', component: PurchaseOrderComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -114,7 +118,8 @@ export const routingComponents = [
   TestModuleComponent, NotificationComponent, NoteComponent, CRMComponent, LocationComponent, ProfileComponent, BuySellCurrencyComponent,
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent, ProductComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
-  ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent, SalesOrderComponent, SalesOfferComponent
+  ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent, SalesOrderComponent, SalesOfferComponent,
+  PurchaseOfferComponent, PurchaseOrderComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

@@ -4,15 +4,12 @@ import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderService} from '../services/sales-order.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {
   getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert,
   getTodayForInput, isNullOrEmpty,
 } from '../core/correct-library';
 import {PriceListService} from '../services/price-list.service';
-import {SalesOrderDetailService} from '../services/sales-order-detail.service';
 import {ToastService} from '../services/toast.service';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {PriceListModel} from '../models/price-list-model';
@@ -22,15 +19,18 @@ import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
+import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
+import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
+import {PurchaseOrderService} from '../services/purchase-order.service';
 
 @Component({
-  selector: 'app-sales-order',
-  templateUrl: './sales-order.component.html',
-  styleUrls: ['./sales-order.component.css']
+  selector: 'app-purchase-order',
+  templateUrl: './purchase-order.component.html',
+  styleUrls: ['./purchase-order.component.css']
 })
-export class SalesOrderComponent implements OnInit {
-  mainList: Array<SalesOrderMainModel>;
-  selectedRecord: SalesOrderMainModel;
+export class PurchaseOrderComponent implements OnInit {
+  mainList: Array<PurchaseOrderMainModel>;
+  selectedRecord: PurchaseOrderMainModel;
   searchText: '';
   productSearchText: '';
   recordDate: any;
@@ -53,10 +53,10 @@ export class SalesOrderComponent implements OnInit {
   termListMap = new Map();
   paymentListMap = new Map();
 
-  constructor(protected authService: AuthenticationService, protected service: SalesOrderService, private toastService: ToastService,
+  constructor(protected authService: AuthenticationService, protected service: PurchaseOrderService, private toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
-              protected sodService: SalesOrderDetailService, protected defService: DefinitionService, public globService: GlobalService,
+              protected sodService: PurchaseOrderDetailService, protected defService: DefinitionService, public globService: GlobalService,
               protected dService: DiscountListService) {
   }
 
@@ -117,7 +117,7 @@ export class SalesOrderComponent implements OnInit {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        const item = data.returnData as SalesOrderMainModel;
+        const item = data.returnData as PurchaseOrderMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.totalPrice += item.data.totalPrice;
@@ -157,7 +157,7 @@ export class SalesOrderComponent implements OnInit {
   populatePriceList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.plService.getPriceLists(list, 'sales')])
+    Promise.all([this.plService.getPriceLists(list, 'purchase')])
       .then((values: any) => {
         if (values[0] !== null) {
           const returnData = values[0] as Array<PriceListModel>;
@@ -171,7 +171,7 @@ export class SalesOrderComponent implements OnInit {
   populateDiscountList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.dService.getDiscountLists(list, 'sales')])
+    Promise.all([this.dService.getDiscountLists(list, 'purchase')])
       .then((values: any) => {
         if (values[0] !== null) {
           const returnData = values[0] as Array<DiscountListModel>;
@@ -219,11 +219,10 @@ export class SalesOrderComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.selectedRecord = this.service.clearMainModel();
     this.service.getItem(record.data.primaryKey).then(async value => {
-      this.selectedRecord = value.returnData as SalesOrderMainModel;
+      this.selectedRecord = value.returnData as PurchaseOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
       this.selectedRecord.priceListName = this.priceListMap.get(this.selectedRecord.data.priceListPrimaryKey);
       this.selectedRecord.discountListName = this.discountListMap.get(this.selectedRecord.data.discountListPrimaryKey);
-      this.selectedRecord.storageName = this.storageListMap.get(this.selectedRecord.data.storagePrimaryKey);
       this.selectedRecord.termName = this.termListMap.get(this.selectedRecord.data.termPrimaryKey);
       this.selectedRecord.paymentName = this.paymentListMap.get(this.selectedRecord.data.paymentTypePrimaryKey);
 
@@ -244,12 +243,12 @@ export class SalesOrderComponent implements OnInit {
 
   async btnReturnList_Click(): Promise<void> {
     this.selectedRecord = undefined;
-    await this.route.navigate(['sales-order', {}]);
+    await this.route.navigate(['purchase-order', {}]);
   }
 
   async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'sales-order');
+      this.excelService.exportToExcel(this.mainList, 'purchase-order');
     } else {
       await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
@@ -257,7 +256,7 @@ export class SalesOrderComponent implements OnInit {
 
   async btnDetailExportToExcel_Click(): Promise<void> {
     if (this.selectedRecord.orderDetailList.length > 0) {
-      this.excelService.exportToExcel(this.selectedRecord.orderDetailList, 'sales-order-detail');
+      this.excelService.exportToExcel(this.selectedRecord.orderDetailList, 'purchase-order-detail');
     } else {
       await this.toastService.error('Aktarılacak kayıt bulunamadı.', true);
     }
@@ -275,9 +274,9 @@ export class SalesOrderComponent implements OnInit {
     try {
       this.onTransaction = true;
       const r = new RouterModel();
-      r.nextModule = 'sales-invoice';
+      r.nextModule = 'purchase-invoice';
       r.nextModulePrimaryKey = this.selectedRecord.data.primaryKey;
-      r.previousModule = 'sales-order';
+      r.previousModule = 'purchase-order';
       r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
       r.action = 'create-invoice';
       await this.globService.showTransactionRecord(r);

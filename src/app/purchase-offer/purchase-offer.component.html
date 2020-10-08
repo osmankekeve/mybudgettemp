@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Satış Teklif Listesi</h4>
+        <h4 class="card-title float-left mr-2">Alım Teklif Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Teklif"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
@@ -131,7 +131,7 @@
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2" alt="">
-        <h4 class="card-title float-left mr-2">Satış Teklif Detayı</h4>
+        <h4 class="card-title float-left mr-2">Alım Teklif Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
@@ -145,7 +145,7 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left">Müşteri Adı</label>
+          <label class="col-form-label float-left">Tedarikçi Adı</label>
         </div>
         <div class="col-sm-9">
           <div class="input-group">
@@ -166,7 +166,7 @@
           <select class="form-control form-control-sm w-100" id="type" name="type" required
                   [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                   [(ngModel)]="selectedRecord.data.type">
-            <option value="sales">Satış Siparişi</option>
+            <option value="purchase">Alım Siparişi</option>
             <option value="service">Hizmet Siparişi</option>
             <option value="return">İade Siparişi</option>
           </select>
@@ -218,28 +218,6 @@
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
         <div class="col-sm-6"></div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="storagePrimaryKey">Depo</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
-                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
-                  [(ngModel)]="selectedRecord.data.storagePrimaryKey">
-            <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen seçim yapınız.</div>
-        </div>
-        <div class="col-sm-3">
-          <label class="col-form-label float-left" for="deliveryAddressPrimaryKey">Sevkiyat Adresi</label>
-        </div>
-        <div class="col-sm-3">
-          <select class="form-control form-control-sm w-100" id="deliveryAddressPrimaryKey" name="deliveryAddressPrimaryKey" required
-                  [disabled]="selectedRecord.data.status != 'waitingForApprove'"
-                  [(ngModel)]="selectedRecord.data.deliveryAddressPrimaryKey">
-            <option value={{item.primaryKey}} *ngFor="let item of deliveryAddressList">{{item.addressName}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen sevk adresi seçiniz.</div>
-        </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="termPrimaryKey">Vade</label>
         </div>
@@ -509,7 +487,7 @@
       </div>
     </div>
   </div>
-  <div class="card-footer">
+  <div class="card-footer" *ngIf="selectedRecord.orderDetailList?.length > 0">
     <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status == 'waitingForApprove' && !isNewPanelOpened">
       <div class="input-group">
         <div class="input-group-prepend">

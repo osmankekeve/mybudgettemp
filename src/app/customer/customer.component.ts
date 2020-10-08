@@ -233,19 +233,31 @@ export class CustomerComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as AccountTransactionMainModel;
         if (item.data.transactionType === 'salesInvoice') {
-          this.siAmount += getFloat(item.data.amount * -1);
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.siAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.siAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'collection') {
-          this.colAmount += getFloat(item.data.amount * -1);
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.colAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.colAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'purchaseInvoice') {
-          this.purchaseInvoiceAmount += getFloat(item.data.amount * -1);
+          this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
         }
         if (item.data.transactionType === 'payment') {
-          this.payAmount += getFloat(item.data.amount * -1);
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.payAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.payAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'accountVoucher') {
-          this.voucherAmount += getFloat(item.data.amount * -1);
+          this.voucherAmount += getFloat(Math.abs(item.data.amount));
         }
         this.totalAmount += getFloat(item.data.amount);
       });

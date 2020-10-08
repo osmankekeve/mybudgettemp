@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Satış Siparişi Listesi</h4>
+        <h4 class="card-title float-left mr-2">Alım Siparişi Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
@@ -141,7 +141,7 @@
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2" alt="">
-        <h4 class="card-title float-left mr-2">Satış Sipariş Detayı</h4>
+        <h4 class="card-title float-left mr-2">Alım Sipariş Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
@@ -158,7 +158,7 @@
           <div class="card-header bg-gray-gradient">
             <div class="row">
               <div class="col-sm-12">
-                <h4 class="float-left mr-2">Sipariş Özet</h4>
+                <h5 class="float-left mr-2">Sipariş Özet</h5>
                 <div class="loader-small float-right" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
               </div>
             </div>
@@ -216,24 +216,6 @@
               <div class="col-sm-9">
                 <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
                   {{selectedRecord.discountListName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Depo</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.storageName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Sevkiyat Adresi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.deliveryAddressName}}
                 </label>
                 <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
               </div>
@@ -310,7 +292,7 @@
             <div class="row">
               <div class="col-sm-6">
                 <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
-                <h4 class="float-left mr-2">Sipariş Detayı</h4>
+                <h5 class="float-left mr-2">Sipariş Detayı</h5>
                 <div class="loader-small float-right mr-2" *ngIf="selectedRecord.orderDetailList?.length === 0"></div>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                         *ngIf="selectedRecord.orderDetailList?.length > 0"

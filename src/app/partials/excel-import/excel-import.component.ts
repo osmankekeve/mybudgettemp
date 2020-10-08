@@ -315,28 +315,32 @@ export class ExcelImportComponent implements OnInit {
                 info: 'Lütfen ürünü tipini doğru girdiğinizden emin olunuz.'
               });
 
-            } else if (!this.unitMap.has(defaultUnitCode)) {
+            }
+            else if (!this.unitMap.has(defaultUnitCode)) {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen ürünü birimini doğru girdiğinizden emin olunuz.'
               });
 
-            } else if (isWebProduct !== 'Evet' && isWebProduct !== 'Hayır') {
+            }
+            else if (isWebProduct !== 'Evet' && isWebProduct !== 'Hayır') {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen web ürün durum bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }  else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
+            }
+            else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen aktiflik durum bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            } else {
+            }
+            else {
               this.transactionProcessCount ++;
               if (this.productMap.has(productCode)) {
                 const importRow = this.productMap.get(productCode);

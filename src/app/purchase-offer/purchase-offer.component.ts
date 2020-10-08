@@ -4,9 +4,6 @@ import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderService} from '../services/sales-order.service';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 import {setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
@@ -27,7 +24,6 @@ import {DefinitionModel} from '../models/definition-model';
 import {DefinitionService} from '../services/definition.service';
 import {DeliveryAddressModel} from '../models/delivery-address-model';
 import {DeliveryAddressService} from '../services/delivery-address.service';
-import {SalesOrderDetailService} from '../services/sales-order-detail.service';
 import {SettingModel} from '../models/setting-model';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {ProductPriceService} from '../services/product-price.service';
@@ -37,22 +33,25 @@ import {ProductUnitService} from '../services/product-unit.service';
 import {ProductDiscountService} from '../services/product-discount.service';
 import {ProductDiscountModel} from '../models/product-discount-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
-import {setOrderCalculation} from '../models/sales-order-model';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ToastService} from '../services/toast.service';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
+import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main-model';
+import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
+import {PurchaseOrderService} from '../services/purchase-order.service';
+import {setOrderCalculation} from '../models/purchase-order-model';
 
 @Component({
-  selector: 'app-sales-offer',
-  templateUrl: './sales-offer.component.html',
-  styleUrls: ['./sales-offer.component.css']
+  selector: 'app-purchase-offer',
+  templateUrl: './purchase-offer.component.html',
+  styleUrls: ['./purchase-offer.component.css']
 })
-export class SalesOfferComponent implements OnInit {
-  mainList: Array<SalesOrderMainModel>;
-  // orderDetailList: Array<SalesOrderDetailMainModel>;
-  selectedRecord: SalesOrderMainModel;
-  selectedDetail: SalesOrderDetailMainModel;
+export class PurchaseOfferComponent implements OnInit {
+  mainList: Array<PurchaseOrderMainModel>;
+  selectedRecord: PurchaseOrderMainModel;
+  selectedDetail: PurchaseOrderDetailMainModel;
   searchText: '';
   productSearchText: '';
   onTransaction = false;
@@ -79,11 +78,11 @@ export class SalesOfferComponent implements OnInit {
   deliveryAddressList: Array<DeliveryAddressModel>;
   unitList: Array<ProductUnitModel>;
 
-  constructor(protected authService: AuthenticationService, protected service: SalesOrderService, protected toastService: ToastService,
+  constructor(protected authService: AuthenticationService, protected service: PurchaseOrderService, protected toastService: ToastService,
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
-              protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
+              protected daService: DeliveryAddressService, protected sodService: PurchaseOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService,
               protected pdService: ProductDiscountService, protected setService: SettingService,
               protected pumService: ProductUnitMappingService) {
@@ -137,7 +136,7 @@ export class SalesOfferComponent implements OnInit {
         this.mainList = [];
       }
       list.forEach((data: any) => {
-        const item = data.returnData as SalesOrderMainModel;
+        const item = data.returnData as PurchaseOrderMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
           this.totalValues.totalPrice += item.data.totalPrice;
@@ -177,7 +176,7 @@ export class SalesOfferComponent implements OnInit {
   populatePriceList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.plService.getPriceLists(list, 'sales'), this.setService.getItem('defaultPriceListPrimaryKey')])
+    Promise.all([this.plService.getPriceLists(list, 'purchase'), this.setService.getItem('defaultPriceListPrimaryKey')])
       .then((values: any) => {
         this.priceLists = [];
         if (values[0] !== null) {
@@ -196,7 +195,7 @@ export class SalesOfferComponent implements OnInit {
   populateDiscountList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.dService.getDiscountLists(list, 'sales'), this.setService.getItem('defaultDiscountListPrimaryKey')])
+    Promise.all([this.dService.getDiscountLists(list, 'purchase'), this.setService.getItem('defaultDiscountListPrimaryKey')])
       .then((values: any) => {
       this.discountLists = [];
       if (values[0] !== null) {
@@ -208,23 +207,6 @@ export class SalesOfferComponent implements OnInit {
       if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
         const defaultDiscountListPrimaryKey = values[1].data as SettingModel;
         this.selectedRecord.data.discountListPrimaryKey = defaultDiscountListPrimaryKey.value;
-      }
-    });
-  }
-
-  populateStorageList(): void {
-    Promise.all([this.defService.getItemsForFill('storage'), this.setService.getItem('defaultStoragePrimaryKey')])
-      .then((values: any) => {
-      this.storageList = [];
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<DefinitionModel>;
-        returnData.forEach(value => {
-          this.storageList.push(value);
-        });
-      }
-      if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
-        const defaultStoragePrimaryKey = values[1].data as SettingModel;
-        this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
       }
     });
   }
@@ -249,21 +231,6 @@ export class SalesOfferComponent implements OnInit {
         returnData.forEach(value => {
           this.paymentList.push(value);
         });
-      }
-    });
-  }
-
-  populateDeliveryAddressList(): void {
-    this.deliveryAddressList = [];
-    Promise.all([this.daService.getItemsForFill(this.selectedRecord.customer.data.primaryKey)]).then((values: any) => {
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<DeliveryAddressModel>;
-        returnData.forEach(value => {
-          this.deliveryAddressList.push(value);
-        });
-        if (this.deliveryAddressList.length > 0) {
-          this.selectedRecord.data.deliveryAddressPrimaryKey = this.deliveryAddressList[0].primaryKey;
-        }
       }
     });
   }
@@ -325,12 +292,10 @@ export class SalesOfferComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.clearSelectedProductRecord();
     this.service.getItem(record.data.primaryKey).then(async value => {
-      this.selectedRecord = value.returnData as SalesOrderMainModel;
+      this.selectedRecord = value.returnData as PurchaseOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
-      this.populateDeliveryAddressList();
       this.populatePriceList();
       this.populateDiscountList();
-      this.populateStorageList();
       this.populateTermList();
       this.populatePaymentTypeList();
 
@@ -360,20 +325,15 @@ export class SalesOfferComponent implements OnInit {
 
   async btnReturnList_Click(): Promise<void> {
     this.selectedRecord = undefined;
-    await this.route.navigate(['sales-offer', {}]);
+    await this.route.navigate(['purchase-offer', {}]);
   }
 
   async btnNew_Click(): Promise<void> {
     try {
       this.clearSelectedRecord();
       this.selectedRecord.orderDetailList = [];
-      const receiptNoData = await this.sService.getOrderCode();
-      if (receiptNoData !== null) {
-        this.selectedRecord.data.receiptNo = receiptNoData;
-      }
       this.populatePriceList();
       this.populateDiscountList();
-      this.populateStorageList();
       this.populateTermList();
       this.populatePaymentTypeList();
     } catch (error) {
@@ -481,7 +441,7 @@ export class SalesOfferComponent implements OnInit {
   async btnSelectCustomer_Click(): Promise<void> {
     try {
       const list = Array<string>();
-      list.push('customer');
+      list.push('supplier');
       list.push('customer-supplier');
       const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
       modalRef.componentInstance.customer = this.selectedRecord.customer;
@@ -490,7 +450,6 @@ export class SalesOfferComponent implements OnInit {
         if (result) {
           this.selectedRecord.customer = result;
           this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
-          this.populateDeliveryAddressList();
         }
       }, () => {});
     } catch (error) {
@@ -500,7 +459,7 @@ export class SalesOfferComponent implements OnInit {
 
   async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'sales-order');
+      this.excelService.exportToExcel(this.mainList, 'purchase-order');
     } else {
       await this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
@@ -508,7 +467,7 @@ export class SalesOfferComponent implements OnInit {
 
   async btnDetailExportToExcel_Click(): Promise<void> {
     if (this.selectedRecord.orderDetailList.length > 0) {
-      this.excelService.exportToExcel(this.selectedRecord.orderDetailList, 'sales-order-detail');
+      this.excelService.exportToExcel(this.selectedRecord.orderDetailList, 'purchase-order-detail');
     } else {
       await this.toastService.error('Aktarılacak kayıt bulunamadı.', true);
     }
@@ -575,7 +534,7 @@ export class SalesOfferComponent implements OnInit {
 
   showOrderDetail(record: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
-      this.selectedDetail = record as SalesOrderDetailMainModel;
+      this.selectedDetail = record as PurchaseOrderDetailMainModel;
       this.isNewPanelOpened = true;
     } else {
       this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);

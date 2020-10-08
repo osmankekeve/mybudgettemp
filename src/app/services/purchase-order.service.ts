@@ -20,45 +20,44 @@ import {
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {SalesOrderModel} from '../models/sales-order-model';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderDetailService} from './sales-order-detail.service';
 import {PriceListService} from './price-list.service';
 import {DiscountListService} from './discount-list.service';
 import {DefinitionService} from './definition.service';
 import {DeliveryAddressService} from './delivery-address.service';
-import {CustomerMainModel} from '../models/customer-main-model';
 import {SettingService} from './setting.service';
+import {PurchaseOrderModel} from '../models/purchase-order-model';
+import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
+import {PurchaseOrderDetailService} from './purchase-order-detail.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SalesOrderService {
-  listCollection: AngularFirestoreCollection<SalesOrderModel>;
-  mainList$: Observable<SalesOrderMainModel[]>;
+export class PurchaseOrderService {
+  listCollection: AngularFirestoreCollection<PurchaseOrderModel>;
+  mainList$: Observable<PurchaseOrderMainModel[]>;
   employeeMap = new Map();
-  tableName = 'tblSalesOrder';
+  tableName = 'tblPurchaseOrder';
 
   constructor(protected authService: AuthenticationService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected atService: AccountTransactionService, protected sService: SettingService,
-              protected actService: ActionService, protected sodService: SalesOrderDetailService, protected plService: PriceListService,
+              protected actService: ActionService, protected sodService: PurchaseOrderDetailService, protected plService: PriceListService,
               protected dService: DiscountListService, protected daService: DeliveryAddressService, protected defService: DefinitionService) {
     this.listCollection = this.db.collection(this.tableName);
   }
 
-  async removeItem(record: SalesOrderMainModel) {
+  async removeItem(record: PurchaseOrderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
         for (const item of record.orderDetailList) {
           await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).delete();
         }
         this.actService.removeActions(this.tableName, record.data.primaryKey);
-        await this.logService.addTransactionLog(record, 'delete', 'salesOrder');
+        await this.logService.addTransactionLog(record, 'delete', 'purchaseOrder');
       });
   }
 
-  async updateItem(record: SalesOrderMainModel) {
+  async updateItem(record: PurchaseOrderMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'approved' || record.data.status === 'waitingForApprove') {
@@ -71,11 +70,11 @@ export class SalesOrderService {
           for (const item of record.orderDetailList) {
             await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
           }
-          await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'approved', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         }
         else if (record.data.status === 'rejected') {
-          await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'rejected', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         }
         else if (record.data.status === 'closed') {
@@ -83,21 +82,21 @@ export class SalesOrderService {
             item.data.invoicedStatus = 'complete';
             await this.sodService.updateItem(item);
           }
-          await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'closed', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
         }
         else if (record.data.status === 'done') {
-          await this.logService.addTransactionLog(record, 'done', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'done', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
         }
         else {
-          await this.logService.addTransactionLog(record, 'update', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'update', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
   }
 
-  async setItem(record: SalesOrderMainModel, primaryKey: string) {
+  async setItem(record: PurchaseOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
         await this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
@@ -111,19 +110,19 @@ export class SalesOrderService {
         }
 
         await this.sService.increaseOrderNumber();
-        await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
+        await this.logService.addTransactionLog(record, 'insert', 'purchaseOrder');
         this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         if (record.data.status === 'approved') {
-          await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'approved', 'purchaseOrder');
         } else if (record.data.status === 'rejected') {
-          await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
+          await this.logService.addTransactionLog(record, 'rejected', 'purchaseOrder');
         } else {
-          // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
+          // await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
         }
       });
   }
 
-  checkForSave(record: SalesOrderMainModel): Promise<string> {
+  checkForSave(record: PurchaseOrderMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       if (record.data.customerPrimaryKey === '-1') {
         reject('Lütfen müşteri seçiniz.');
@@ -131,8 +130,6 @@ export class SalesOrderService {
         reject('Lütfen fiyat listesi seçiniz.');
       } else if (record.data.priceListPrimaryKey === '-1') {
         reject('Lütfen iskonto listesi seçiniz.');
-      } else if (record.data.deliveryAddressPrimaryKey === '-1') {
-        reject('Lütfen sevkiyat adresi seçiniz.');
       } else if (record.data.totalPrice <= 0) {
         reject('Tutar sıfırdan büyük olmalıdır.');
       } else if (record.data.receiptNo === '') {
@@ -149,36 +146,32 @@ export class SalesOrderService {
     });
   }
 
-  checkForRemove(record: SalesOrderMainModel): Promise<string> {
+  checkForRemove(record: PurchaseOrderMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       resolve(null);
     });
   }
 
-  checkFields(model: SalesOrderModel): SalesOrderModel {
+  checkFields(model: PurchaseOrderModel): PurchaseOrderModel {
     const cleanModel = this.clearSubModel();
-    if (model.receiptNo === undefined) {
-      model.receiptNo = model.primaryKey; //boyle olsun
-    }
+
     return model;
   }
 
-  clearSubModel(): SalesOrderModel {
+  clearSubModel(): PurchaseOrderModel {
 
-    const returnData = new SalesOrderModel();
+    const returnData = new PurchaseOrderModel();
     returnData.primaryKey = null;
     returnData.userPrimaryKey = this.authService.getUid();
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.customerPrimaryKey = '-1';
     returnData.priceListPrimaryKey = '-1';
     returnData.discountListPrimaryKey = '-1';
-    returnData.deliveryAddressPrimaryKey = '-1';
-    returnData.storagePrimaryKey = '-1';
     returnData.termPrimaryKey = '-1';
     returnData.paymentTypePrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.description = '';
-    returnData.type = 'sales'; // sales, service, return
+    returnData.type = 'purchase'; // purchase, service, return
     returnData.status = 'waitingForApprove'; // waitingForApprove, approved, rejected, closed, done, portion
     returnData.platform = 'web'; // mobile, web
     returnData.approverPrimaryKey = '-1';
@@ -195,15 +188,13 @@ export class SalesOrderService {
     return returnData;
   }
 
-  clearMainModel(): SalesOrderMainModel {
-    const returnData = new SalesOrderMainModel();
+  clearMainModel(): PurchaseOrderMainModel {
+    const returnData = new PurchaseOrderMainModel();
     returnData.data = this.clearSubModel();
     returnData.customer = this.cusService.clearMainModel();
     returnData.actionType = 'added';
     returnData.priceListName = '';
     returnData.discountListName = '';
-    returnData.deliveryAddressName = '';
-    returnData.storageName = '';
     returnData.termName = '';
     returnData.paymentName = '';
     returnData.approverName = '';
@@ -220,7 +211,7 @@ export class SalesOrderService {
     return returnData;
   }
 
-  convertMainModel(model: SalesOrderModel): SalesOrderMainModel {
+  convertMainModel(model: PurchaseOrderModel): PurchaseOrderMainModel {
     const returnData = this.clearMainModel();
     returnData.data = this.checkFields(model);
     returnData.statusTr = getStatus().get(returnData.data.status);
@@ -239,7 +230,7 @@ export class SalesOrderService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
-          const data = doc.data() as SalesOrderModel;
+          const data = doc.data() as PurchaseOrderModel;
           data.primaryKey = doc.id;
 
           const returnData = this.convertMainModel(data);
@@ -248,31 +239,11 @@ export class SalesOrderService {
           returnData.orderTypeTr = getOrderType().get(returnData.data.type);
           returnData.priceListName = '';
           returnData.discountListName = '';
-          returnData.deliveryAddressName = '';
-          returnData.storageName = '';
           returnData.termName = '';
           returnData.paymentName = '';
 
           const d1 = await this.cusService.getItem(returnData.data.customerPrimaryKey);
           returnData.customer = this.cusService.convertMainModel(d1.data);
-
-          /*const d2 = await this.plService.getItem(returnData.data.priceListPrimaryKey);
-          returnData.priceListName = d2.returnData.data.listName;
-
-          const d3 = await this.dService.getItem(returnData.data.discountListPrimaryKey);
-          returnData.discountListName = d3.returnData.data.listName;
-
-          const d4 = await this.defService.getItem(returnData.data.storagePrimaryKey);
-          returnData.storageName = d4.returnData.data.custom1;
-
-          const d5 = await this.defService.getItem(returnData.data.termPrimaryKey);
-          returnData.termName = d5.returnData.data.custom1;
-
-          const d6 = await this.defService.getItem(returnData.data.paymentTypePrimaryKey);
-          returnData.paymentName = d6.returnData.data.custom1;*/
-
-          const d7 = await this.daService.getItem(returnData.data.deliveryAddressPrimaryKey);
-          returnData.deliveryAddressName = d7.returnData.data.addressName;
 
           const d8 = await this.eService.getItem(returnData.data.approverPrimaryKey, false);
           returnData.approverName = d8 != null ? d8.returnData.data.longName : '';
@@ -285,12 +256,12 @@ export class SalesOrderService {
     });
   }
 
-  getMainItems(): Observable<SalesOrderMainModel[]> {
+  getMainItems(): Observable<PurchaseOrderMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
-        const data = change.payload.doc.data() as SalesOrderModel;
+        const data = change.payload.doc.data() as PurchaseOrderModel;
         data.primaryKey = change.payload.doc.id;
 
         const returnData = this.convertMainModel(data);
@@ -307,14 +278,14 @@ export class SalesOrderService {
     return this.mainList$;
   }
 
-  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<SalesOrderMainModel[]> {
+  getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<PurchaseOrderMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
       ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('status', 'in', status));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
-        const data = change.payload.doc.data() as SalesOrderModel;
+        const data = change.payload.doc.data() as PurchaseOrderModel;
         data.primaryKey = change.payload.doc.id;
 
         const returnData = this.convertMainModel(data);
@@ -332,9 +303,9 @@ export class SalesOrderService {
   }
 
   getOrdersMain = async (customerPrimaryKey: string, type: string):
-    Promise<Array<SalesOrderMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<PurchaseOrderMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<SalesOrderMainModel>();
+      const list = Array<PurchaseOrderMainModel>();
       await this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
@@ -346,7 +317,7 @@ export class SalesOrderService {
       }).get()
         .subscribe(snapshot => {
           snapshot.forEach(async doc => {
-            const data = doc.data() as SalesOrderModel;
+            const data = doc.data() as PurchaseOrderModel;
             data.primaryKey = doc.id;
             list.push(this.convertMainModel(data));
           });
@@ -359,12 +330,12 @@ export class SalesOrderService {
     }
   })
 
-  isOrderHasShortProduct = async (salesOrderPrimaryKey: string):
+  isOrderHasShortProduct = async (purchaseOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      this.db.collection('tblSalesOrderDetail', ref => {
+      this.db.collection('tblPurchaseOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+        query = query.where('orderPrimaryKey', '==', purchaseOrderPrimaryKey)
           .where('invoicedStatus', '==', 'short');
         return query;
       }).get().subscribe(snapshot => {
@@ -380,12 +351,12 @@ export class SalesOrderService {
     }
   })
 
-  isOrderHasCompleteProduct = async (salesOrderPrimaryKey: string):
+  isOrderHasCompleteProduct = async (purchaseOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      this.db.collection('tblSalesOrderDetail', ref => {
+      this.db.collection('tblPurchaseOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+        query = query.where('orderPrimaryKey', '==', purchaseOrderPrimaryKey)
           .where('invoicedStatus', '==', 'complete');
         return query;
       }).get().subscribe(snapshot => {

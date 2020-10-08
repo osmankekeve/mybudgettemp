@@ -29,6 +29,7 @@ export class AccountVoucherService {
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
               public atService: AccountTransactionService, protected actService: ActionService) {
+    this.listCollection = this.db.collection(this.tableName);
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();

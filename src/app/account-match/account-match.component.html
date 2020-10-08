@@ -39,11 +39,10 @@
                      [ngClass]="{'bg-yellow': item.data.primaryKey === selectedRecord?.data.primaryKey}"
                      *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
                   <div class="row">
-                    <div class="col-sm-5">
+                    <div class="col-sm-10">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
                       <span class="text-red font-weight-600">{{item.data.name}}</span>
                     </div>
-                    <div class="col-sm-5">{{item.customer.name}}</div>
                     <div class="col-sm-2">{{item.currencyTr}}</div>
                   </div>
                 </div>
@@ -67,7 +66,7 @@
               <div class="list-group-item fs-14">
                 <div class="row">
                   <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Müşteri</div>
-                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.name}}</div>
+                  <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.data.name}}</div>
                   <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Hesap Adı</div>
                   <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.name}}</div>
                   <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Banka Adı</div>
@@ -168,7 +167,7 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
         <div class="float-right">
-          <h5 class="text-red font-weight-bold" title="{{selectedRecord.customer.name}}">{{selectedRecord.data.name}}</h5>
+          <h5 class="text-red font-weight-bold" title="{{selectedRecord.customer.data.name}}">{{selectedRecord.data.name}}</h5>
         </div>
       </div>
     </div>

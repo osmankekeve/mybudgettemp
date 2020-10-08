@@ -105,6 +105,7 @@ export class CollectionComponent implements OnInit {
         const salesInvoiceRecord = record as SalesInvoiceMainModel;
         await this.btnNew_Click();
         this.selectedRecord.data.customerCode = salesInvoiceRecord.data.customerCode;
+        this.selectedRecord.customer = salesInvoiceRecord.customer;
         this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
         this.selectedRecord.data.accountPrimaryKey = salesInvoiceRecord.data.accountPrimaryKey;
         this.selectedRecord.data.amount = salesInvoiceRecord.data.totalPriceWithTax;

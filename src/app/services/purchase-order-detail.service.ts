@@ -1,52 +1,49 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ActionService} from './action.service';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {ProductService} from './product.service';
 import {ProductMainModel} from '../models/product-main-model';
-import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
+import {currencyFormat} from '../core/correct-library';
 import {ProductUnitService} from './product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {SalesInvoiceDetailMainModel} from '../models/sales-invoice-detail-main-model';
-import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
+import {PurchaseOrderDetailModel} from '../models/purchase-order-detail-model';
+import {PurchaseOrderDetailMainModel, setOrderDetailCalculation} from '../models/purchase-order-detail-main-model';
+import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SalesOrderDetailService {
-  listCollection: AngularFirestoreCollection<SalesOrderDetailModel>;
-  mainList$: Observable<SalesOrderDetailMainModel[]>;
-  tableName = 'tblSalesOrderDetail';
+export class PurchaseOrderDetailService {
+  listCollection: AngularFirestoreCollection<PurchaseOrderDetailModel>;
+  mainList$: Observable<PurchaseOrderDetailMainModel[]>;
+  tableName = 'tblPurchaseOrderDetail';
 
   constructor(protected authService: AuthenticationService, protected pService: ProductService,
               protected logService: LogService, protected db: AngularFirestore,
-              protected actService: ActionService, protected puService: ProductUnitService, protected sid: SalesInvoiceDetailService) {
+              protected actService: ActionService, protected puService: ProductUnitService) {
     this.listCollection = this.db.collection(this.tableName);
   }
 
-  async addItem(record: SalesOrderDetailMainModel) {
+  async addItem(record: PurchaseOrderDetailMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: SalesOrderDetailMainModel) {
+  async removeItem(record: PurchaseOrderDetailMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: SalesOrderDetailMainModel) {
+  async updateItem(record: PurchaseOrderDetailMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: SalesOrderDetailMainModel, primaryKey: string) {
+  async setItem(record: PurchaseOrderDetailMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
-  checkForSave(record: SalesOrderDetailMainModel): Promise<string> {
+  checkForSave(record: PurchaseOrderDetailMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       if (record.data.productPrimaryKey === '-1') {
         reject('Lütfen ürün seçiniz.');
@@ -62,22 +59,20 @@ export class SalesOrderDetailService {
     });
   }
 
-  checkForRemove(record: SalesOrderDetailMainModel): Promise<string> {
+  checkForRemove(record: PurchaseOrderDetailMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       resolve(null);
     });
   }
 
-  checkFields(model: SalesOrderDetailModel): SalesOrderDetailModel {
+  checkFields(model: PurchaseOrderDetailModel): PurchaseOrderDetailModel {
     const cleanModel = this.clearSubModel();
-    if (model.invoicedQuantity == null) { model.invoicedQuantity = cleanModel.invoicedQuantity}
-    if (model.invoicedStatus == null) { model.invoicedStatus = cleanModel.invoicedStatus}
     return model;
   }
 
-  clearSubModel(): SalesOrderDetailModel {
+  clearSubModel(): PurchaseOrderDetailModel {
 
-    const returnData = new SalesOrderDetailModel();
+    const returnData = new PurchaseOrderDetailModel();
     returnData.primaryKey = null;
     returnData.orderPrimaryKey = '-1';
     returnData.productPrimaryKey = '-1';
@@ -102,8 +97,8 @@ export class SalesOrderDetailService {
     return returnData;
   }
 
-  clearMainModel(): SalesOrderDetailMainModel {
-    const returnData = new SalesOrderDetailMainModel();
+  clearMainModel(): PurchaseOrderDetailMainModel {
+    const returnData = new PurchaseOrderDetailMainModel();
     returnData.data = this.clearSubModel();
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
@@ -118,10 +113,10 @@ export class SalesOrderDetailService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as SalesOrderDetailModel;
+          const data = doc.data() as PurchaseOrderDetailModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesOrderDetailMainModel();
+          const returnData = new PurchaseOrderDetailMainModel();
           returnData.data = this.checkFields(data);
 
           Promise.all([
@@ -146,9 +141,9 @@ export class SalesOrderDetailService {
   }
 
   getMainItemsWithOrderPrimaryKey = async (orderPrimaryKey: string):
-    Promise<Array<SalesOrderDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<PurchaseOrderDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<SalesOrderDetailMainModel>();
+      const list = Array<PurchaseOrderDetailMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
@@ -160,7 +155,7 @@ export class SalesOrderDetailService {
           const data = doc.data() as SalesOrderDetailModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesOrderDetailMainModel();
+          const returnData = new PurchaseOrderDetailMainModel();
           returnData.data = this.checkFields(data);
 
           const p = await this.pService.getItem(data.productPrimaryKey);
@@ -171,41 +166,6 @@ export class SalesOrderDetailService {
 
           setOrderDetailCalculation(returnData);
           list.push(returnData);
-        });
-        resolve(list);
-      });
-
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  })
-
-  getMainItemsWithOrderPrimaryKeyArray = async (orderPrimaryKey: Array<string>):
-    Promise<Array<SalesInvoiceDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<SalesInvoiceDetailMainModel>();
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query
-          .where('orderPrimaryKey', 'in', orderPrimaryKey);
-        return query;
-      })
-        .get().subscribe(snapshot => {
-        snapshot.forEach(async doc => {
-          const data = doc.data() as SalesOrderDetailModel;
-          data.primaryKey = doc.id;
-
-          const returnData = new SalesOrderDetailMainModel();
-          returnData.data = this.checkFields(data);
-
-          const p = await this.pService.getItem(data.productPrimaryKey);
-          returnData.product = p.returnData;
-
-          const pu = await this.puService.getItem(data.unitPrimaryKey);
-          returnData.unit = pu.returnData.data;
-
-          list.push(this.sid.convertToSalesInvoiceDetail(returnData));
         });
         resolve(list);
       });
