@@ -13,17 +13,10 @@ import {
   currencyFormat, getInvoiceType
 } from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {CashDeskService} from './cash-desk.service';
-import {CollectionModel} from '../models/collection-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {ActivatedRoute} from '@angular/router';
-import {SalesInvoiceService} from './sales-invoice.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'

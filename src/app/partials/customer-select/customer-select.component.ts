@@ -53,7 +53,31 @@ export class CustomerSelectComponent implements OnInit {
           this.customerList = aa;
         }
       });
-    } else {
+    }
+    else if (module === 'purchaseInvoice') {
+      const collection = this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('status', '==', 'approved');
+        return query;
+      }).get();
+      collection.toPromise().then((snapshot) => {
+        if (snapshot.size == 0) {
+          this.customerList = [];
+        } else {
+          const aa = [];
+          snapshot.forEach(async doc => {
+            this.service.getItem(doc.data().customerPrimaryKey).then(result => {
+              const a = result.data as CustomerModel;
+              aa.push(this.service.convertMainModel(a));
+            });
+          });
+          this.customerList = aa;
+        }
+      });
+    }
+    else {
       Promise.all([this.service.getCustomersMain(this.customerTypes)]).then((values: any) => {
         this.customerList = [];
         if (values[0] !== null) {

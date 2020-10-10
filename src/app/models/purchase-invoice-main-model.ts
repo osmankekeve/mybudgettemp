@@ -1,15 +1,25 @@
 import {PurchaseInvoiceModel} from './purchase-invoice-model';
-import {CustomerModel} from './customer-model';
+import {PurchaseInvoiceDetailMainModel} from './purchase-invoice-detail-main-model';
+import {CustomerAccountModel} from './customer-account-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class PurchaseInvoiceMainModel {
   data: PurchaseInvoiceModel;
-  customer?: CustomerModel;
+  customer?: CustomerMainModel;
+  account?: CustomerAccountModel;
   customerName?: string;
   employeeName?: string;
   approverName?: string;
   actionType?: string;
-  totalPriceFormatted?: string;
-  totalPriceWithTaxFormatted?: string;
   statusTr?: string;
   platformTr?: string;
+  typeTr?: string;
+  totalDetailDiscountFormatted?: string;
+  generalDiscountFormatted?: string;
+  totalPriceWithoutDiscountFormatted?: string;
+  totalPriceFormatted?: string;
+  totalPriceWithTaxFormatted?: string;
+  totalTaxAmount?: number;
+  totalTaxAmountFormatted?: string;
+  invoiceDetailList: Array<PurchaseInvoiceDetailMainModel>;
 }

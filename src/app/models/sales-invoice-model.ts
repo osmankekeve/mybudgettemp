@@ -1,4 +1,3 @@
-import {SalesOrderMainModel} from './sales-order-main-model';
 import {currencyFormat} from '../core/correct-library';
 import {SalesInvoiceMainModel} from './sales-invoice-main-model';
 import {SalesInvoiceDetailMainModel} from './sales-invoice-detail-main-model';

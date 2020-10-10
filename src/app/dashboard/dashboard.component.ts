@@ -54,10 +54,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
       list.forEach((data: any) => {
         const item = data.returnData as AccountTransactionMainModel;
         if (item.data.transactionType === 'salesInvoice') {
-          if (item.data.transactionSubType.startsWith('cancel')) {
+          if (item.data.transactionSubType == 'salesInvoice'
+            || item.data.transactionSubType == 'serviceSalesInvoice'
+            || item.data.transactionSubType == 'cancelReturnSalesInvoice') {
+            this.siAmount += getFloat(Math.abs(item.data.amount));
+          } else if (item.data.transactionSubType == 'cancelSalesInvoice'
+            || item.data.transactionSubType == 'cancelServiceSalesInvoice'
+            || item.data.transactionSubType == 'returnSalesInvoice') {
             this.siAmount -= getFloat(Math.abs(item.data.amount));
           } else {
-            this.siAmount += getFloat(Math.abs(item.data.amount));
+
           }
         }
         if (item.data.transactionType === 'collection') {
@@ -68,7 +74,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
         }
         if (item.data.transactionType === 'purchaseInvoice') {
-          this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+          if (item.data.transactionSubType == 'purchaseInvoice'
+            || item.data.transactionSubType == 'servicePurchaseInvoice'
+            || item.data.transactionSubType == 'cancelReturnPurchaseInvoice') {
+            this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+          } else if (item.data.transactionSubType == 'cancelPurchaseInvoice'
+            || item.data.transactionSubType == 'cancelServicePurchaseInvoice'
+            || item.data.transactionSubType == 'returnPurchaseInvoice') {
+            this.purchaseInvoiceAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+
+          }
         }
         if (item.data.transactionType === 'payment') {
           if (item.data.transactionSubType.startsWith('cancel')) {
@@ -107,10 +123,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           returnData.forEach(item => {
             if (item.data.transactionType === 'salesInvoice') {
-              if (item.data.transactionSubType.startsWith('cancel')) {
+              if (item.data.transactionSubType == 'salesInvoice'
+                || item.data.transactionSubType == 'serviceSalesInvoice'
+                || item.data.transactionSubType == 'cancelReturnSalesInvoice') {
+                siAmount2 += getFloat(Math.abs(item.data.amount));
+              } else if (item.data.transactionSubType == 'cancelSalesInvoice'
+                || item.data.transactionSubType == 'cancelServiceSalesInvoice'
+                || item.data.transactionSubType == 'returnSalesInvoice') {
                 siAmount2 -= getFloat(Math.abs(item.data.amount));
               } else {
-                siAmount2 += getFloat(Math.abs(item.data.amount));
+
               }
             }
             if (item.data.transactionType === 'collection') {
@@ -121,7 +143,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
               }
             }
             if (item.data.transactionType === 'purchaseInvoice') {
+              if (item.data.transactionSubType == 'purchaseInvoice'
+              || item.data.transactionSubType == 'servicePurchaseInvoice'
+              || item.data.transactionSubType == 'cancelReturnPurchaseInvoice') {
               purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
+            } else if (item.data.transactionSubType == 'cancelPurchaseInvoice'
+              || item.data.transactionSubType == 'cancelServicePurchaseInvoice'
+              || item.data.transactionSubType == 'returnPurchaseInvoice') {
+              purchaseInvoiceAmount2 -= getFloat(Math.abs(item.data.amount));
+            } else {
+
+            }
+              if (item.data.transactionSubType.startsWith('cancel')) {
+                purchaseInvoiceAmount2 -= getFloat(Math.abs(item.data.amount));
+              } else {
+                purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
+              }
             }
             if (item.data.transactionType === 'payment') {
               if (item.data.transactionSubType.startsWith('cancel')) {

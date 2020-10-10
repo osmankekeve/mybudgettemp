@@ -1,5 +1,5 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore} from '@angular/fire/firestore';
+import {AngularFirestore, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
 import {CustomerModel} from '../models/customer-model';
@@ -34,6 +34,20 @@ import {FileUploadService} from '../services/file-upload.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
+import {PurchaseInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/purchase-invoice-detail-main-model';
+import {setInvoiceCalculation} from '../models/purchase-invoice-model';
+import {PurchaseInvoiceDetailService} from '../services/purchase-invoice-detail.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {OrderSelectComponent} from '../partials/order-select/order-select.component';
+import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
+import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
+import {ProductUnitService} from '../services/product-unit.service';
+import {ProductService} from '../services/product.service';
+import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main-model';
+import {PurchaseOrderDetailModel} from '../models/purchase-order-detail-model';
+import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
+import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -42,6 +56,7 @@ import {ToastService} from '../services/toast.service';
 })
 export class PurchaseInvoiceComponent implements OnInit {
   mainList: Array<PurchaseInvoiceMainModel>;
+  invoiceDetailList: Array<PurchaseInvoiceDetailMainModel>;
   customerList: Array<CustomerModel>;
   accountList$: Observable<CustomerAccountModel[]>;
   selectedRecord: PurchaseInvoiceMainModel;
@@ -49,10 +64,16 @@ export class PurchaseInvoiceComponent implements OnInit {
   actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
   isRecordHasTransaction = false;
+  isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   searchText: '';
   encryptSecretKey: string = getEncryptionKey();
+
+  selectedDetailRecord: PurchaseInvoiceDetailMainModel;
+  orderInfoText = 'Sipariş Seçilmedi';
+  productSearchText = '';
+  itemIndex = -1;
 
   date = new Date();
   filterBeginDate: any;
@@ -72,12 +93,13 @@ export class PurchaseInvoiceComponent implements OnInit {
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: PurchaseInvoiceService, protected sService: SettingService, protected globService: GlobalService,
               protected cService: CustomerService, protected atService: AccountTransactionService, protected toastService: ToastService,
-              protected infoService: InformationService, protected gfuService: GlobalUploadService,
+              protected infoService: InformationService, protected gfuService: GlobalUploadService, protected sidService: PurchaseInvoiceDetailService,
               protected excelService: ExcelService, protected db: AngularFirestore, protected accService: CustomerAccountService,
-              protected actService: ActionService, protected fuService: FileUploadService) {
+              protected actService: ActionService, protected fuService: FileUploadService, protected modalService: NgbModal,
+              protected puService: ProductUnitService, protected pService: ProductService, protected pod: PurchaseOrderDetailService) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.clearMainFiler();
     this.selectedRecord = undefined;
     this.populateCustomers();
@@ -87,7 +109,19 @@ export class PurchaseInvoiceComponent implements OnInit {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.showSelectedRecord(paramItem);
+        if (this.router.snapshot.paramMap.get('action') ==='create-invoice') {
+          const list = [];
+          list.push(paramItem.data.primaryKey);
+          await this.clearSelectedRecord();
+          this.selectedRecord.customer = paramItem.customer;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.selectedRecord.data.type = paramItem.data.type;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+          await this.generateOrderToInvoice(list);
+        }
+        else {
+          this.showSelectedRecord(paramItem);
+        }
       }
     }
   }
@@ -114,6 +148,40 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.onTransaction = false;
   }
 
+  async generateOrderToInvoice(orderPrimaryKeyList: Array<string>): Promise<void> {
+    try {
+      this.selectedRecord.data.orderPrimaryKeyList = orderPrimaryKeyList;
+      this.invoiceDetailList =[];
+      this.clearSelectedDetail();
+      this.setOrderCountInfo();
+      this.db.collection('tblPurchaseOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('orderPrimaryKey', 'in', orderPrimaryKeyList)
+          .where('invoicedStatus', '==', 'short');
+        return query;
+      }).get().toPromise().then((snapshot) => {
+        snapshot.forEach(async (doc) => {
+          const data = doc.data() as PurchaseOrderDetailModel;
+          data.primaryKey = doc.id;
+
+          const returnData = new PurchaseOrderDetailMainModel();
+          returnData.data = this.pod.checkFields(data);
+
+          const p = await this.pService.getItem(data.productPrimaryKey);
+          returnData.product = p.returnData;
+
+          const pu = await this.puService.getItem(data.unitPrimaryKey);
+          returnData.unit = pu.returnData.data;
+
+          this.invoiceDetailList.push(this.sidService.convertToPurchaseInvoiceDetail(returnData));
+          setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+        });
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   populateList(): void {
     this.mainList = undefined;
     this.totalValues = {
@@ -132,8 +200,8 @@ export class PurchaseInvoiceComponent implements OnInit {
         const item = data.returnData as PurchaseInvoiceMainModel;
         if (item.actionType === 'added') {
           this.mainList.push(item);
-          this.totalValues.totalPrice -= item.data.totalPrice;
-          this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+          this.totalValues.totalPrice += item.data.totalPrice;
+          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.mainList.length; i++) {
@@ -204,13 +272,13 @@ export class PurchaseInvoiceComponent implements OnInit {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<PurchaseInvoiceMainModel>;
           this.transactionList.forEach(item => {
-            if (creatingData.has(item.customer.name)) {
-              let amount = creatingData.get(item.customer.name);
+            if (creatingData.has(item.customer.data.name)) {
+              let amount = creatingData.get(item.customer.data.name);
               amount += item.data.totalPriceWithTax;
-              creatingData.delete(item.customer.name);
-              creatingData.set(item.customer.name, amount);
+              creatingData.delete(item.customer.data.name);
+              creatingData.set(item.customer.data.name, amount);
             } else {
-              creatingData.set(item.customer.name, item.data.totalPriceWithTax);
+              creatingData.set(item.customer.data.name, item.data.totalPriceWithTax);
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.totalPriceWithTax;
@@ -473,18 +541,29 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.selectedRecord = record as PurchaseInvoiceMainModel;
-    this.selectedRecord.data.totalPrice = Math.abs(this.selectedRecord.data.totalPrice);
-    this.selectedRecord.data.totalPriceWithTax = Math.abs(this.selectedRecord.data.totalPriceWithTax);
-    this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
-      this.isRecordHasTransaction = list.length > 0;
+    this.service.getItem(record.data.primaryKey).then(async value => {
+      this.selectedRecord = value.returnData as SalesInvoiceMainModel;
+      this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.setOrderCountInfo();
+
+      this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
+          this.invoiceDetailList = list;
+          this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
+        });
+
+      this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+        this.isRecordHasTransaction = list.length > 0;
+      });
+
+      this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+        this.isRecordHasReturnTransaction = list.length > 0;
+      });
+
+      this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+      this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+      this.populateFiles();
+      this.populateActions();
     });
-    this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
-    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
-    this.populateCustomers();
-    this.populateFiles();
-    this.populateActions();
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -524,10 +603,10 @@ export class PurchaseInvoiceComponent implements OnInit {
   }
 
   async btnNew_Click(): Promise<void> {
-    this.clearSelectedRecord();
-    const receiptNoData = await this.sService.getPurchaseInvoiceCode();
-    if (receiptNoData !== null) {
-      this.selectedRecord.data.receiptNo = receiptNoData;
+    try {
+      await this.clearSelectedRecord();
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -634,9 +713,25 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
   }
 
-  async btnReturnRecord_Click(): Promise<void> {
+  async btnCancelRecord_Click(): Promise<void> {
     try {
-      this.infoService.success('yazılmadı');
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'canceled';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
     } catch (error) {
       await this.finishProcess(error, null);
     }
@@ -695,6 +790,65 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
   }
 
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      if (this.selectedRecord.data.customerCode !== '') {
+        await this.clearSelectedRecord();
+      }
+      const list = Array<string>();
+      list.push('supplier');
+      list.push('customer-supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSelectOrder_Click(): Promise<void> {
+    try {
+      if (this.selectedRecord.data.customerCode === '') {
+        this.toastService.success('Lütfen müşteri seçiniz', true);
+      } else {
+        const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
+        modalRef.componentInstance.orderType = this.selectedRecord.data.type;
+        modalRef.componentInstance.customerPrimaryKey = this.selectedRecord.data.customerCode;
+        modalRef.componentInstance.list = this.selectedRecord.data.orderPrimaryKeyList;
+        modalRef.result.then(async (result: any) => {
+          if (result) {
+            await this.generateOrderToInvoice(result);
+          }
+        }, () => {});
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
@@ -747,17 +901,21 @@ export class PurchaseInvoiceComponent implements OnInit {
       });
   }
 
-  async onChangeCustomer(value: any): Promise<void> {
-    await this.cService.getItem(value).then(item => {
-      this.selectedRecord.customer = item.data;
-      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
-    });
-  }
-
-  clearSelectedRecord(): void {
+  async clearSelectedRecord(): Promise<void> {
+    this.invoiceDetailList = undefined;
     this.isRecordHasTransaction = false;
+    this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
+    this.setOrderCountInfo();
+    await this.getReceiptNo();
+  }
+
+  async getReceiptNo(): Promise<void> {
+    const receiptNoData = await this.sService.getPurchaseInvoiceCode();
+    if (this.selectedRecord != undefined && receiptNoData !== null) {
+      this.selectedRecord.data.receiptNo = receiptNoData;
+    }
   }
 
   clearMainFiler(): void {
@@ -766,6 +924,112 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.filterCustomerCode = '-1';
     this.filterStatus = '-1';
   }
+
+
+  showDetailRecord(record: any, index: any): void {
+    if (this.selectedRecord.data.status === 'waitingForApprove') {
+      this.selectedDetailRecord = record as PurchaseInvoiceDetailMainModel;
+    } else {
+      this.toastService.warning('Onaylı fatura detayı güncellenemez', true);
+    }
+  }
+
+  async btnSaveDetail_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      setInvoiceDetailCalculation(this.selectedDetailRecord);
+      Promise.all([this.sidService.checkForSave(this.selectedDetailRecord)])
+        .then(async (values: any) => {
+          this.invoiceDetailList[this.itemIndex] = this.selectedDetailRecord;
+          setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+          await this.finishSubProcess(null, 'Fatura detayı başarıyla güncellendi');
+        })
+        .catch((error) => {
+          this.finishProcess(error, null);
+        });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRemoveDetail_Click(): Promise<void> {
+    try {
+      this.invoiceDetailList.splice(this.itemIndex, 1);
+      setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+      this.toastService.success('Fatura detayı başarıyla kaldırıldı', true);
+      this.setOrderCountInfo();
+      this.clearSelectedDetail();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnReturnInvoiceList_Click(): Promise<void> {
+    try {
+      this.clearSelectedDetail();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnDetailExportToExcel_Click(): Promise<void> {
+    if (this.invoiceDetailList.length > 0) {
+      this.excelService.exportToExcel(this.invoiceDetailList, 'purchase-invoice-detail');
+    } else {
+      await this.toastService.error('Aktarılacak kayıt bulunamadı.', true);
+    }
+  }
+
+  async btnShowJsonDataDetail_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedDetailRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+        this.clearSelectedDetail();
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
+  async onChangeType() {
+    try {
+      this.clearSelectedDetail();
+      this.invoiceDetailList = undefined;
+      this.selectedRecord.invoiceDetailList = [];
+      this.selectedRecord.data.orderPrimaryKeyList = [];
+      setInvoiceCalculation(this.selectedRecord, []);
+      this.setOrderCountInfo();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  setOrderCountInfo(): void {
+    if (this.selectedRecord.data.orderPrimaryKeyList.length > 0) {
+      this.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() +  ' Adet Sipariş Seçildi';
+    } else {
+      this.orderInfoText = 'Sipariş Seçilmedi';
+    }
+  }
+
+  clearSelectedDetail(): void {
+    this.selectedDetailRecord = undefined;
+    this.itemIndex = -1;
+  }
+
+
+
 
   async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası

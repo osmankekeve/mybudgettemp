@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {AuthenticationService} from './authentication.service';
-import {LogService} from './log.service';
 import {SalesInvoiceService} from './sales-invoice.service';
 import {CollectionService} from './collection.service';
 import {PaymentService} from './payment.service';
@@ -17,8 +15,8 @@ import {RouterModel} from '../models/router-model';
 import {CustomerTargetService} from './customer-target.service';
 import {CustomerAccountService} from './customer-account.service';
 import {BuySaleService} from './buy-sale.service';
-import {CustomerAccountMainModel} from '../models/customer-main-account-model';
 import {SalesOrderService} from './sales-order.service';
+import {PurchaseOrderService} from './purchase-order.service';
 
 @Injectable({
   providedIn: 'root'
@@ -26,12 +24,12 @@ import {SalesOrderService} from './sales-order.service';
 export class GlobalService {
   encryptSecretKey: string = getEncryptionKey();
 
-  constructor(protected db: AngularFirestore, protected authService: AuthenticationService, protected route: Router,
+  constructor(protected db: AngularFirestore, protected route: Router,
               protected siService: SalesInvoiceService, protected cusService: CustomerService, protected readonly caService: CustomerAccountService,
               protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
               protected avService: AccountVoucherService, protected payService: PaymentService, protected atService: AccountTransactionService,
-              protected logService: LogService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
-              protected byService: BuySaleService, protected soService: SalesOrderService) {
+              protected router: ActivatedRoute, protected ctService: CustomerTargetService,
+              protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService) {
 
   }
 
@@ -43,68 +41,94 @@ export class GlobalService {
       previousModulePrimaryKey: item.previousModulePrimaryKey,
       action: item.action,
     };
-    if (item.nextModule === 'sales-invoice') {
-      // siparisten fatura
-      data = await this.soService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['sales-invoice', routeData]);
+    if (item.action == 'create-invoice') {
+      if (item.nextModule === 'sales-invoice') {
+        // siparisten fatura
+        data = await this.soService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['sales-invoice', routeData]);
+        }
+      }
+      else if (item.nextModule === 'purchase-invoice') {
+        // siparisten fatura
+        data = await this.poService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['purchaseInvoice', routeData]);
+        }
+      }
+      else {
+
       }
     }
-    if (item.nextModule === 'salesInvoice' || item.nextModule === 'cancelSalesInvoice') {
+    else {
+      if (item.nextModule === 'salesInvoice') {
 
-      data = await this.siService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['sales-invoice', routeData]);
+        data = await this.siService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['sales-invoice', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'collection') {
+      else if (item.nextModule === 'purchaseInvoice') {
 
-      data = await this.colService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['collection', routeData]);
+        data = await this.piService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['purchaseInvoice', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'purchaseInvoice') {
+      else if (item.nextModule === 'cancelPurchaseInvoice') {
 
-      data = await this.piService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['purchaseInvoice', routeData]);
+        data = await this.siService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['purchaseInvoice', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'payment') {
+      else if (item.nextModule === 'collection') {
 
-      data = await this.payService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['payment', routeData]);
+        data = await this.colService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['collection', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'accountVoucher') {
+      else if (item.nextModule === 'payment') {
 
-      data = await this.avService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['account-voucher', routeData]);
+        data = await this.payService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['payment', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'cashdeskVoucher' || item.nextModule === 'cashDeskVoucher') {
+      else if (item.nextModule === 'accountVoucher') {
 
-      data = await this.cdService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['cashdesk-voucher', routeData]);
+        data = await this.avService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['account-voucher', routeData]);
+        }
       }
-    }
-    if (item.nextModule === 'buy-sale') {
+      else if (item.nextModule === 'cashdeskVoucher' || item.nextModule === 'cashDeskVoucher') {
 
-      data = await this.byService.getItem(item.nextModulePrimaryKey);
-      if (data) {
-        routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
-        await this.route.navigate(['buy-sale', routeData]);
+        data = await this.cdService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['cashdesk-voucher', routeData]);
+        }
+      }
+      else if (item.nextModule === 'buy-sale') {
+
+        data = await this.byService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['buy-sale', routeData]);
+        }
+      }
+      else {
+
       }
     }
   }
@@ -158,6 +182,13 @@ export class GlobalService {
       }
       if (previousModule === 'purchaseInvoice') {
         await this.piService.getItem(previousModulePrimaryKey).then(async (item) => {
+          await this.route.navigate([previousModule, {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+          }]);
+        });
+      }
+      if (previousModule === 'purchase-order') {
+        await this.poService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);

@@ -158,7 +158,7 @@
           <div class="card-header bg-gray-gradient">
             <div class="row">
               <div class="col-sm-12">
-                <h4 class="float-left mr-2">Sipariş Özet</h4>
+                <h5 class="float-left mr-2">Sipariş Özet</h5>
                 <div class="loader-small float-right" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
               </div>
             </div>
@@ -310,7 +310,7 @@
             <div class="row">
               <div class="col-sm-6">
                 <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
-                <h4 class="float-left mr-2">Sipariş Detayı</h4>
+                <h5 class="float-left mr-2">Sipariş Detayı</h5>
                 <div class="loader-small float-right mr-2" *ngIf="selectedRecord.orderDetailList?.length === 0"></div>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                         *ngIf="selectedRecord.orderDetailList?.length > 0"

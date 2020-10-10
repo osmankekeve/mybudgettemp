@@ -100,7 +100,6 @@ export class SalesInvoiceComponent implements OnInit {
 
   async ngOnInit() {
     this.clearMainFiler();
-
     this.selectedRecord = undefined;
     this.populateCustomers();
     this.generateCharts();
@@ -118,7 +117,8 @@ export class SalesInvoiceComponent implements OnInit {
           this.selectedRecord.data.type = paramItem.data.type;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
           await this.generateOrderToInvoice(list);
-        } else {
+        }
+        else {
           this.showSelectedRecord(paramItem);
         }
       }

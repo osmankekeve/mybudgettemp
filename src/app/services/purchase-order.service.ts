@@ -28,6 +28,8 @@ import {SettingService} from './setting.service';
 import {PurchaseOrderModel} from '../models/purchase-order-model';
 import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
+import {SalesOrderMainModel} from '../models/sales-order-main-model';
+import {SalesOrderModel} from '../models/sales-order-model';
 
 @Injectable({
   providedIn: 'root'

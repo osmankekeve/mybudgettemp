@@ -168,6 +168,12 @@ export const getTransactionTypes = () => {
     ['cancelCollection', 'Tahsilat İptal'],
 
     ['purchaseInvoice', 'Alım Faturası'],
+    ['cancelPurchaseInvoice', 'Alım Faturası İptal'],
+    ['returnPurchaseInvoice', 'Alım İade Faturası'],
+    ['cancelReturnPurchaseInvoice', 'Alım İade Faturası İptal'],
+    ['servicePurchaseInvoice', 'Alım Hizmet Faturası'],
+    ['cancelServicePurchaseInvoice', 'Alım Hizmet Faturası İptal'],
+
     ['payment', 'Ödeme'],
     ['accountVoucher', 'Cari Fiş'],
     ['cashDeskVoucher', 'Kasa Fişi'],
@@ -233,7 +239,7 @@ export const getOrderType = () => {
 };
 
 export const getInvoiceType = () => {
-  return new Map([['sales', 'Satış Faturası'], ['service', 'Hizmet Faturası'], ['return', 'İade Faturası']]);
+  return new Map([['sales', 'Satış Faturası'], ['service', 'Hizmet Faturası'], ['return', 'İade Faturası'], ['purchase', 'Alım Faturası']]);
 };
 
 export const getBuySaleType = () => {

@@ -7,6 +7,8 @@ import {PriceListService} from '../../services/price-list.service';
 import {InformationService} from '../../services/information.service';
 import {SalesOrderMainModel} from '../../models/sales-order-main-model';
 import {SalesOrderService} from '../../services/sales-order.service';
+import {Router} from '@angular/router';
+import {PurchaseOrderService} from '../../services/purchase-order.service';
 
 @Component({
   selector: 'app-order-select',
@@ -22,22 +24,38 @@ export class OrderSelectComponent implements OnInit {
   orderList: Array<SalesOrderMainModel>;
   searchText: '';
 
-  constructor(public activeModal: NgbActiveModal, protected service: SalesOrderService, protected infoService: InformationService) {
+  constructor(public activeModal: NgbActiveModal, protected soService: SalesOrderService, protected poService: PurchaseOrderService, protected route: Router,
+              protected infoService: InformationService) {
   }
 
   async ngOnInit(): Promise<void> {
+    const module = this.route.url.replace('/', '');
     if (this.list === undefined) {
       this.list = [];
     }
-    Promise.all([this.service.getOrdersMain(this.customerPrimaryKey, this.orderType)]).then((values: any) => {
-      this.orderList = [];
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<SalesOrderMainModel>;
-        returnData.forEach(value => {
-          this.orderList.push(value);
-        });
-      }
-    });
+    if (module === 'sales-invoice') {
+      Promise.all([this.soService.getOrdersMain(this.customerPrimaryKey, this.orderType)]).then((values: any) => {
+        this.orderList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<SalesOrderMainModel>;
+          returnData.forEach(value => {
+            this.orderList.push(value);
+          });
+        }
+      });
+    } else if (module === 'purchaseInvoice') {
+      Promise.all([this.poService.getOrdersMain(this.customerPrimaryKey, this.orderType)]).then((values: any) => {
+        this.orderList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<SalesOrderMainModel>;
+          returnData.forEach(value => {
+            this.orderList.push(value);
+          });
+        }
+      });
+    } else {
+
+    }
   }
 
   markSelected(selectedOrder: SalesOrderMainModel) {
