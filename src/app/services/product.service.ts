@@ -116,6 +116,7 @@ export class ProductService {
     returnData.productBaseCode = '';
     returnData.productName = '';
     returnData.stockType = 'normal';
+    returnData.productType = 'buy-sale';
     returnData.defaultUnitCode = '-1';
     returnData.taxRate = 0;
     returnData.sctAmount = 0;
@@ -148,6 +149,7 @@ export class ProductService {
     if (model.imgUrl === undefined || model.imgUrl === '') {
       model.imgUrl = cleanModel.imgUrl;
     }
+    if (model.productType === undefined) { model.productType = cleanModel.productType; }
     return model;
   }
 
@@ -158,6 +160,7 @@ export class ProductService {
     returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
     returnData.sctAmountFormatted = currencyFormat(returnData.data.sctAmount);
     returnData.stockTypeTr = getProductTypes().get(returnData.data.stockType);
+    returnData.productTypeTr = getProductTypes().get(returnData.data.productType);
     return returnData;
   }
 

@@ -7,5 +7,6 @@ export class ProductMainModel {
   isActiveTr?: string;
   isWebProductTr?: string;
   stockTypeTr?: string;
+  productTypeTr?: string;
   sctAmountFormatted?: string;
 }

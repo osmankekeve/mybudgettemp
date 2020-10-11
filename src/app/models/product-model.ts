@@ -6,6 +6,7 @@ export class ProductModel {
   productBaseCode: string;
   productName: string;
   stockType: string; // normal, promotion, service
+  productType: string; // buy, sale, buy-sale
   defaultUnitCode: string;
   taxRate: number;
   sctAmount?: number;

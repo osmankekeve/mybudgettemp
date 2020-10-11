@@ -20,9 +20,9 @@
     <div class="list-group" *ngIf="productList.length > 0; else elseBlock">
       <div class="list-group-item bg-danger text-light main-list-item">
         <div class="row">
-          <div class="col-sm-3">Ürün Kodu</div>
-          <div class="col-sm-4">Ürün Adı</div>
-          <div class="col-sm-3">Ürün Tipi</div>
+          <div class="col-sm-5">Ürün Kodu</div>
+          <div class="col-sm-3">Stok Tipi</div>
+          <div class="col-sm-2">Ürün Tipi</div>
           <div class="col-sm-2">Aktif Mi?</div>
         </div>
       </div>
@@ -31,12 +31,13 @@
            (click)="markSelectedProduct(item)"
            *ngFor="let item of productList | filterProduct: searchText; index as i;">
         <div class="row">
-          <div class="col-sm-3">
+          <div class="col-sm-5">
             <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-            <span class="text-red font-weight-600">{{item.data.productCode}}</span>
+            <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
+            <span class="font-weight-600">{{item.data.productName}}</span>
           </div>
-          <div class="col-sm-4">{{item.data.productName}}</div>
           <div class="col-sm-3">{{item.stockTypeTr}}</div>
+          <div class="col-sm-2">{{item.productTypeTr}}</div>
           <div class="col-sm-2">{{item.isActiveTr}}</div>
         </div>
       </div>

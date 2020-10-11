@@ -67,7 +67,8 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
-            <div class="col-sm-5">Ürün</div>
+            <div class="col-sm-4">Ürün</div>
+            <div class="col-sm-1">Stok Tipi</div>
             <div class="col-sm-1">Ürün Tipi</div>
             <div class="col-sm-1"><span class="float-right">KDV %</span></div>
             <div class="col-sm-1"><span class="float-right">Ötv Tutarı</span></div>
@@ -75,18 +76,20 @@
             <div class="col-sm-1">Barkod 2</div>
             <div class="col-sm-1">Aktif Mi?</div>
             <div class="col-sm-1">Web Ürün Mü?</div>
+
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterProduct: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-5">
+            <div class="col-sm-4">
               <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
               <span class="font-weight-600">{{item.data.productName}}</span>
             </div>
             <div class="col-sm-1">{{item.stockTypeTr}}</div>
+            <div class="col-sm-1">{{item.productTypeTr}}</div>
             <div class="col-sm-1"><span class="float-right">%{{item.data.taxRate}}</span></div>
             <div class="col-sm-1"><span class="float-right">{{item.sctAmountFormatted}}</span></div>
             <div class="col-sm-1">{{item.data.barcode1}}</div>
@@ -180,13 +183,25 @@
                 <div class="col-sm-3">
                   <label class="col-form-label float-left" for="productName">Ürün Adı</label>
                 </div>
-                <div class="col-sm-9">
+                <div class="col-sm-3">
                   <input class="form-control form-control-sm w-100" id="productName" name="productName" type="text"
                          [(ngModel)]="selectedRecord.data.productName" required>
                   <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
                 </div>
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="stockType">Ürün Tipi</label>
+                  <label class="col-form-label float-left" for="productType">Ürün Tipi</label>
+                </div>
+                <div class="col-sm-3">
+                  <select class="form-control form-control-sm w-100" id="productType" name="productType" required
+                          [(ngModel)]="selectedRecord.data.productType">
+                    <option value="buy">Alım</option>
+                    <option value="sale">Satış</option>
+                    <option value="buy-sale">Alım-Şatış</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="stockType">Stok Tipi</label>
                 </div>
                 <div class="col-sm-3">
                   <select class="form-control form-control-sm w-100" id="stockType" name="stockType" required

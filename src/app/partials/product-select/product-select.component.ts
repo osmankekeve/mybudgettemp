@@ -1,10 +1,9 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {ProductModel} from '../../models/product-model';
 import {ProductService} from '../../services/product.service';
 import {ProductMainModel} from '../../models/product-main-model';
-import {PriceListService} from '../../services/price-list.service';
 import {InformationService} from '../../services/information.service';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-product-select',
@@ -19,7 +18,8 @@ export class ProductSelectComponent implements OnInit {
   productList: Array<ProductMainModel>;
   searchText: '';
 
-  constructor(public activeModal: NgbActiveModal, protected pService: ProductService, protected infoService: InformationService) {
+  constructor(public activeModal: NgbActiveModal, protected route: Router,  protected pService: ProductService,
+              protected infoService: InformationService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -30,12 +30,23 @@ export class ProductSelectComponent implements OnInit {
       this.productTypes = [];
       this.productTypes.push('normal');
     }
+    const module = this.route.url.replace('/', '');
     Promise.all([this.pService.getProductsForSelection(this.productTypes)]).then((values: any) => {
       this.productList = [];
-      if (values[0] !== undefined || values[0] !== null) {
+      if (values[0] !== null) {
         const returnData = values[0] as Array<ProductMainModel>;
         returnData.forEach(value => {
-          this.productList.push(value);
+          if (module === 'sales-offer') {
+            if (value.data.productType == 'sale' || value.data.productType == 'buy-sale') {
+              this.productList.push(value);
+            }
+          } else if (module === 'purchase-offer') {
+            if (value.data.productType == 'buy' || value.data.productType == 'buy-sale') {
+              this.productList.push(value);
+            }
+          } else {
+            this.productList.push(value);
+          }
         });
       }
     });
