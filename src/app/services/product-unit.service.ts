@@ -4,14 +4,10 @@ import {Observable} from 'rxjs/Observable';
 import {map, flatMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {CustomerModel} from '../models/customer-model';
 
 @Injectable({
   providedIn: 'root'

@@ -9,22 +9,13 @@ import {ProfileService} from './profile.service';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {CustomerModel} from '../models/customer-model';
 import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getProductTypes, getStatus} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductModel} from '../models/product-model';
 import {ProductService} from './product.service';
-import {DeliveryAddressModel} from '../models/delivery-address-model';
-import {ProductMainModel} from '../models/product-main-model';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {ProductUnitService} from './product-unit.service';
-import {ProductDiscountModel} from '../models/product-discount-model';
 
 @Injectable({
   providedIn: 'root'

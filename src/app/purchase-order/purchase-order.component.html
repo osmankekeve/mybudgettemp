@@ -154,135 +154,123 @@
   <div class="card-body">
     <div class="row">
       <div class="col-sm-5">
-        <div class="card">
-          <div class="card-header bg-gray-gradient">
-            <div class="row">
-              <div class="col-sm-12">
-                <h5 class="float-left mr-2">Sipariş Özet</h5>
-                <div class="loader-small float-right" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-            </div>
+        <div class="row form-inline">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Fiş No</label>
           </div>
-          <div class="card-body">
-            <div class="row form-inline">
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Fiş No</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.data.receiptNo}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Müşteri Adı</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.customer.data.name}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Sipariş Tipi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.orderTypeTr}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Döküman Tarihi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.data.recordDate | date: 'yyyy.MM.dd HH:mm:ss'}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Fiyat Listesi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.priceListName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">İskonto Listesi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.discountListName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Vade</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.termName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Ödeme Şekli</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.paymentName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Genel İskonto</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  %{{selectedRecord.data.generalDiscountValue}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Durum</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.statusTr}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Onay Tarihi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.data.approveDate | date: 'yyyy.MM.dd HH:mm:ss'}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Onaylayan Kişi</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.approverName}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-              <div class="col-sm-3">
-                <label class="col-form-label float-left font-weight-600">Açıklama</label>
-              </div>
-              <div class="col-sm-9">
-                <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-                  {{selectedRecord.data.description}}
-                </label>
-                <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
-              </div>
-            </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.data.receiptNo}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Müşteri Adı</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.customer.data.name}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Sipariş Tipi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.orderTypeTr}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Döküman Tarihi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.data.recordDate | date: 'yyyy.MM.dd HH:mm:ss'}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Fiyat Listesi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.priceListName}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">İskonto Listesi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.discountListName}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Vade</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.termName}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Ödeme Şekli</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.paymentName}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Genel İskonto</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              %{{selectedRecord.data.generalDiscountValue}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Durum</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.statusTr}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Onay Tarihi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.data.approveDate | date: 'yyyy.MM.dd HH:mm:ss'}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Onaylayan Kişi</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.approverName}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
+          </div>
+          <div class="col-sm-3">
+            <label class="col-form-label float-left font-weight-600">Açıklama</label>
+          </div>
+          <div class="col-sm-9">
+            <label class="col-form-label float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+              {{selectedRecord.data.description}}
+            </label>
+            <div class="col-form-label float-left bg-gray-gradient w-100" *ngIf="selectedRecord.data.primaryKey==undefined"></div>
           </div>
         </div>
       </div>
@@ -291,7 +279,7 @@
           <div class="card-header bg-gray-gradient">
             <div class="row">
               <div class="col-sm-6">
-                <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
+                <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
                 <h5 class="float-left mr-2">Sipariş Detayı</h5>
                 <div class="loader-small float-right mr-2" *ngIf="selectedRecord.orderDetailList?.length === 0"></div>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
