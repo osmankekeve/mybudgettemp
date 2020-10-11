@@ -23,6 +23,7 @@ import {SalesInvoiceMainModel} from './models/sales-invoice-main-model';
 import {PaymentMainModel} from './models/payment-main-model';
 import {RouterModel} from './models/router-model';
 import {ReminderMainModel} from './models/reminder-main-model';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
@@ -64,10 +65,18 @@ export class AppComponent implements OnInit {
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
     private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
-    private payService: PaymentService, public globService: GlobalService
+    private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
+    this.angularFireAuth.authState.subscribe(userResponse => {
+      if (userResponse) {
+        this.userDetails = JSON.stringify(userResponse);
+        sessionStorage.setItem('user', this.userDetails);
+      } else {
+        sessionStorage.setItem('user', null);
+      }
+    });
   }
 
   ngOnInit() {

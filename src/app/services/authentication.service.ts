@@ -14,9 +14,7 @@ import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
 })
 export class AuthenticationService {
 
-  constructor(protected angularFireAuth: AngularFireAuth,
-              protected db: AngularFirestore
-  ) {
+  constructor(protected angularFireAuth: AngularFireAuth, protected db: AngularFirestore ) {
     this.angularFireAuth.authState.subscribe(userResponse => {
       if (userResponse) {
         sessionStorage.setItem('user', JSON.stringify(userResponse));
