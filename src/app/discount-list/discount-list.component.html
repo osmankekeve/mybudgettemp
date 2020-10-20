@@ -212,8 +212,7 @@
               <div class="list-group" *ngIf="productsOnList.length > 0; else elseBlock">
                 <div class="list-group-item bg-danger text-light main-list-item">
                   <div class="row">
-                    <div class="col-sm-2">Kod</div>
-                    <div class="col-sm-6">Adı</div>
+                    <div class="col-sm-8">Ürün</div>
                     <div class="col-sm-2"><span class="float-right">İskonto 1</span></div>
                     <div class="col-sm-2"><span class="float-right">İskonto 2</span></div>
                   </div>
@@ -222,11 +221,11 @@
                      (click)="showSelectedProduct(item)"
                      *ngFor="let item of productsOnList | filterProductSub: productSearchText; index as i;">
                   <div class="row">
-                    <div class="col-sm-2">
+                    <div class="col-sm-8">
                       <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                      <span class="text-red font-weight-600">{{item.product.data.productCode}}</span>
+                      <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
+                      <span class="font-weight-600">{{item.product.data.productName}}</span>
                     </div>
-                    <div class="col-sm-6">{{item.product.data.productName}}</div>
                     <div class="col-sm-2"><span class="float-right">%{{item.data.discount1}}</span></div>
                     <div class="col-sm-2"><span class="float-right">%{{item.data.discount2}}</span></div>
                   </div>

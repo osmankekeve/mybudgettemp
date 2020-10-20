@@ -29,6 +29,8 @@ export class ProductSelectComponent implements OnInit {
     if (this.productTypes == null) {
       this.productTypes = [];
       this.productTypes.push('normal');
+      this.productTypes.push('promotion');
+      this.productTypes.push('service');
     }
     const module = this.route.url.replace('/', '');
     Promise.all([this.pService.getProductsForSelection(this.productTypes)]).then((values: any) => {

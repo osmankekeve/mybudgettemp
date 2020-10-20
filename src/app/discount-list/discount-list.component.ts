@@ -278,7 +278,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
 
   async btnSelectProduct_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(ProductSelectComponent);
+      const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductDiscount.product;
       modalRef.result.then((result: any) => {
         if (result) {

@@ -96,6 +96,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
+        <img src="../../assets/images/customers.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Müşteri Listesi</h4>
         <h4 class="card-title float-left mr-2">{{selectedCustomer.data.name}}</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
@@ -1114,7 +1115,6 @@
                   <div class="col-sm-9">
                     <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
                            [disabled]="selectedCustomer.data.code != ''"
-
                            [(ngModel)]="selectedCustomer.data.code">
                   </div>
                   <div class="col-sm-3">

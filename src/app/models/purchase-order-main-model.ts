@@ -1,6 +1,6 @@
 import {CustomerMainModel} from './customer-main-model';
-import {SalesOrderDetailMainModel} from './sales-order-detail-main-model';
 import {PurchaseOrderModel} from './purchase-order-model';
+import {PurchaseOrderDetailMainModel} from './purchase-order-detail-main-model';
 
 export class PurchaseOrderMainModel {
   data: PurchaseOrderModel;
@@ -21,5 +21,5 @@ export class PurchaseOrderMainModel {
   totalPriceWithTaxFormatted?: string;
   totalTaxAmount?: number;
   totalTaxAmountFormatted?: string;
-  orderDetailList: Array<SalesOrderDetailMainModel>;
+  orderDetailList: Array<PurchaseOrderDetailMainModel>;
 }
