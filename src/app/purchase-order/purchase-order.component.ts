@@ -157,6 +157,7 @@ export class PurchaseOrderComponent implements OnInit {
   populatePriceList(): void {
     const list = Array<boolean>();
     list.push(true);
+    list.push(false);
     Promise.all([this.plService.getPriceLists(list, 'purchase')])
       .then((values: any) => {
         if (values[0] !== null) {

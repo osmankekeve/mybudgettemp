@@ -176,7 +176,10 @@ export class PurchaseOfferComponent implements OnInit {
   populatePriceList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.plService.getPriceLists(list, 'purchase'), this.setService.getItem('defaultPriceListPrimaryKey')])
+    if (this.selectedRecord.data.primaryKey !== null) {
+      list.push(false);
+    }
+    Promise.all([this.plService.getPriceLists(list, 'purchase'), this.setService.getItem('defaultPurchasePriceListPrimaryKey')])
       .then((values: any) => {
         this.priceLists = [];
         if (values[0] !== null) {
@@ -195,7 +198,10 @@ export class PurchaseOfferComponent implements OnInit {
   populateDiscountList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.dService.getDiscountLists(list, 'purchase'), this.setService.getItem('defaultDiscountListPrimaryKey')])
+    if (this.selectedRecord.data.primaryKey !== null) {
+      list.push(false);
+    }
+    Promise.all([this.dService.getDiscountLists(list, 'purchase'), this.setService.getItem('defaultPurchaseDiscountListPrimaryKey')])
       .then((values: any) => {
       this.discountLists = [];
       if (values[0] !== null) {
@@ -238,7 +244,7 @@ export class PurchaseOfferComponent implements OnInit {
   populateUnits(): void {
     this.unitList = [];
     Promise.all([this.puService.getItemsForSelect()]).then((values: any) => {
-      if (values[0] !== undefined || values[0] !== null) {
+      if (values[0] !== null) {
         const returnData = values[0] as Array<ProductUnitModel>;
         returnData.forEach(value => {
 
@@ -556,6 +562,7 @@ export class PurchaseOfferComponent implements OnInit {
         modalRef.componentInstance.productTypes = list;
         modalRef.result.then((result: any) => {
           if (result) {
+            this.selectedDetail = this.sodService.clearMainModel();
             this.selectedDetail.product = result;
             this.selectedDetail.data.taxRate = this.selectedDetail.product.data.taxRate;
             this.selectedDetail.data.productPrimaryKey = this.selectedDetail.product.data.primaryKey;

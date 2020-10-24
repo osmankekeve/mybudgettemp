@@ -7,7 +7,13 @@ import {Router} from '@angular/router';
 import {ExcelService} from '../../services/excel-service';
 import {ProductUnitService} from '../../services/product-unit.service';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {getCustomerTypes, getCustomerTypesForImport, getFloat, getProductTypesForImport} from '../../core/correct-library';
+import {
+  getCustomerTypes,
+  getCustomerTypesForImport,
+  getFloat,
+  getStockTypesForImport,
+  getProductTypesForImport
+} from '../../core/correct-library';
 import {ProductUnitMappingService} from '../../services/product-unit-mapping.service';
 import {ProductPriceService} from '../../services/product-price.service';
 import {ProductDiscountService} from '../../services/product-discount.service';
@@ -43,6 +49,7 @@ export class ExcelImportComponent implements OnInit {
   unitMap = new Map();
   customerMap = new Map();
   stockTypeMap = new Map();
+  productTypeMap = new Map();
   unitMappingMap = new Map();
   priceMap = new Map();
   discountMap = new Map();
@@ -67,14 +74,15 @@ export class ExcelImportComponent implements OnInit {
           { key: 'Ürün taban kodlarının sistemde olduğundan emin olunuz.'},
           { key: 'KDV oranı alanını tam sayı olarak giriniz.'},
           { key: 'Ürün birim adının sistem ile eşleştiğinden emin olunuz.'},
-          { key: 'Ürün tipini doğru girdiğinizden emin olunuz. (Normal Ürün, Promosyon Ürün, Hizmet Ürün)'},
+          { key: 'Ürün stok tipini doğru girdiğinizden emin olunuz. (Normal Ürün, Promosyon Ürün, Hizmet Ürün)'},
+          { key: 'Ürün tipini doğru girdiğinizden emin olunuz. (Alım, Satış, Alım-Satış)'},
           { key: 'Ürün aktiflik durumunu doğru girdiğinizden emin olunuz.(Aktif, Pasif)'},
           { key: 'Ürün web ürün mü durumunu doğru girdiğinizden emin olunuz.(Evet, Hayır)'},
           { key: 'Excel de bulunan ürün kodları sistemde yoksa yeni kayıt eğer var ise mevcut kayıt güncellemesi yapılacaktır.'},
           { key: 'Güncellenecek olan kayıtların Varsayılan Birim Tipi, Ürün Tipi güncellenmez.'},
         ];
         this.templateItems = {
-          'Urun Tipi': '',
+          'Stok Tipi': '',
           'Urun Kodu': '',
           'Urun Taban Kodu': '',
           'Urun Adi': '',
@@ -87,7 +95,8 @@ export class ExcelImportComponent implements OnInit {
           'Barkod -2': '',
           'Web Ürün mü?': '',
           Aktiflik: '',
-          Açıklama: ''
+          Açıklama: '',
+          'Ürün Tipi': ''
         };
 
         const b = await this.puService.getItemsForSelect();
@@ -95,7 +104,8 @@ export class ExcelImportComponent implements OnInit {
           this.unitMap.set(item.unitName, item.primaryKey);
         });
 
-        this.stockTypeMap = getProductTypesForImport();
+        this.stockTypeMap = getStockTypesForImport();
+        this.productTypeMap = getProductTypesForImport();
       }
       if (this.module === 'product-unit') {
         this.headerTitle = 'Ürün&Birim Bağlantısı';
@@ -294,25 +304,34 @@ export class ExcelImportComponent implements OnInit {
           for (let i = 1; i < this.listExcelData.length; i++) {
             const item = this.listExcelData[i];
             const stockType = this.checkExcelCell(item[0]).toString().trimLeft().trimRight();
-            const productCode = this.checkExcelCell(item[1]).trimLeft().trimRight();
-            const productBaseCode = this.checkExcelCell(item[2]).trimLeft().trimRight();
-            const productName = this.checkExcelCell(item[3]).trimLeft().trimRight();
-            const defaultUnitCode = this.checkExcelCell(item[4]).trimLeft().trimRight();
-            const taxRate = this.checkExcelCell(item[5]).trimLeft().trimRight();
-            const sctAmount = this.checkExcelCell(item[6]).trimLeft().trimRight();
-            const weight = this.checkExcelCell(item[7]).trimLeft().trimRight();
-            const height = this.checkExcelCell(item[8]).trimLeft().trimRight();
-            const barcode1 = this.checkExcelCell(item[9]).trimLeft().trimRight();
-            const barcode2 = this.checkExcelCell(item[10]).trimLeft().trimRight();
-            const isWebProduct = this.checkExcelCell(item[11]).trimLeft().trimRight();
-            const isActive = this.checkExcelCell(item[12]).trimLeft().trimRight();
-            const description = this.checkExcelCell(item[13]).trimLeft().trimRight();
+            const productCode = this.checkExcelCell(item[1]).toString().trimLeft().trimRight();
+            const productBaseCode = this.checkExcelCell(item[2]).toString().trimLeft().trimRight();
+            const productName = this.checkExcelCell(item[3]).toString().trimLeft().trimRight();
+            const defaultUnitCode = this.checkExcelCell(item[4]).toString().trimLeft().trimRight();
+            const taxRate = this.checkExcelCell(item[5]).toString().trimLeft().trimRight();
+            const sctAmount = this.checkExcelCell(item[6]).toString().trimLeft().trimRight();
+            const weight = this.checkExcelCell(item[7]).toString().trimLeft().trimRight();
+            const height = this.checkExcelCell(item[8]).toString().trimLeft().trimRight();
+            const barcode1 = this.checkExcelCell(item[9]).toString().trimLeft().trimRight();
+            const barcode2 = this.checkExcelCell(item[10]).toString().trimLeft().trimRight();
+            const isWebProduct = this.checkExcelCell(item[11]).toString().trimLeft().trimRight();
+            const isActive = this.checkExcelCell(item[12]).toString().trimLeft().trimRight();
+            const description = this.checkExcelCell(item[13]).toString().trimLeft().trimRight();
+            const productType = this.checkExcelCell(item[14]).toString().trimLeft().trimRight();
 
-            if (!this.stockTypeMap.has(this.checkExcelCell(item[0]))) {
+            if (!this.stockTypeMap.has(stockType)) {
               errorList.push({
                 code: productCode,
                 name: productName,
-                info: 'Lütfen ürünü tipini doğru girdiğinizden emin olunuz.'
+                info: 'Lütfen stok tipini doğru girdiğinizden emin olunuz.'
+              });
+
+            }
+            else if (!this.productTypeMap.has(productType)) {
+              errorList.push({
+                code: productCode,
+                name: productName,
+                info: 'Lütfen ürün tipini doğru girdiğinizden emin olunuz.'
               });
 
             }
@@ -344,6 +363,7 @@ export class ExcelImportComponent implements OnInit {
               this.transactionProcessCount ++;
               if (this.productMap.has(productCode)) {
                 const importRow = this.productMap.get(productCode);
+                importRow.productType = this.productTypeMap.get(productType);
                 importRow.productBaseCode = productBaseCode;
                 importRow.productName = productName;
                 importRow.taxRate = Math.abs(getFloat(taxRate));
@@ -356,12 +376,13 @@ export class ExcelImportComponent implements OnInit {
                 importRow.isActive = isActive === 'Aktif';
                 importRow.description = description;
                 await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));
-                // console.log('product updated :' + importRow.productCode);
+                //console.log('product updated :' + importRow.productCode);
 
               } else {
                 const importRow = this.pService.clearSubModel();
                 importRow.primaryKey = this.db.createId();
-                importRow.stockType = stockType;
+                importRow.stockType = this.stockTypeMap.get(stockType);
+                importRow.productType = this.productTypeMap.get(productType);
                 importRow.productCode = productCode;
                 importRow.productBaseCode = productBaseCode;
                 importRow.productName = productName;
@@ -376,7 +397,7 @@ export class ExcelImportComponent implements OnInit {
                 importRow.isActive = isActive === 'Aktif';
                 importRow.description = description;
                 await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
-                // console.log('product imported :' + importRow.productCode);
+                //console.log('product imported :' + importRow.productCode);
               }
             }
           }

@@ -129,7 +129,7 @@
                     </select>
                   </div>
                   <div class="col-sm-3">
-                    <label class="col-form-label float-left">Varsayılan Fiyat Listesi</label>
+                    <label class="col-form-label float-left">Varsayılan Satış Fiyat Listesi</label>
                   </div>
                   <div class="col-sm-3">
                     <select class="form-control form-control-sm w-100"
@@ -140,7 +140,7 @@
                     </select>
                   </div>
                   <div class="col-sm-3">
-                    <label class="col-form-label float-left">Varsayılan İskonto Listesi</label>
+                    <label class="col-form-label float-left">Varsayılan Satış İskonto Listesi</label>
                   </div>
                   <div class="col-sm-3">
                     <select class="form-control form-control-sm w-100"
@@ -148,6 +148,28 @@
                             [(ngModel)]="general.defaultDiscountListPrimaryKey">
                       <option value="-1">Seçilmedi</option>
                       <option value={{item.primaryKey}} *ngFor="let item of discountLists">{{item.listName}}</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Alım Fiyat Listesi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultPurchasePriceList($event.target.value)"
+                            [(ngModel)]="general.defaultPurchasePriceListPrimaryKey">
+                      <option value="-1">Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of purchasePriceLists">{{item.listName}}</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-3">
+                    <label class="col-form-label float-left">Varsayılan Alım İskonto Listesi</label>
+                  </div>
+                  <div class="col-sm-3">
+                    <select class="form-control form-control-sm w-100"
+                            (change)="onChangeDefaultPurchaseDiscountList($event.target.value)"
+                            [(ngModel)]="general.defaultPurchaseDiscountListPrimaryKey">
+                      <option value="-1">Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of purchaseDiscountLists">{{item.listName}}</option>
                     </select>
                   </div>
                   <div class="col-sm-12">

@@ -24,11 +24,15 @@ export class SettingComponent implements OnInit {
   storageList: Array<DefinitionModel>;
   priceLists: Array<PriceListModel>;
   discountLists: Array<DiscountListModel>;
+  purchasePriceLists: Array<PriceListModel>;
+  purchaseDiscountLists: Array<DiscountListModel>;
   general = {
     defaultCurrencyCode: 'lira',
     defaultStoragePrimaryKey: '-1',
     defaultPriceListPrimaryKey: '-1',
-    defaultDiscountListPrimaryKey: '-1'
+    defaultDiscountListPrimaryKey: '-1',
+    defaultPurchasePriceListPrimaryKey: '-1',
+    defaultPurchaseDiscountListPrimaryKey: '-1'
   };
   purchaseInvoice = {
     prefix: '',
@@ -108,6 +112,8 @@ export class SettingComponent implements OnInit {
     await this.populateStorages();
     await this.populatePriceList();
     await this.populateDiscountList();
+    await this.populatePurchasePriceList();
+    await this.populatePurchaseDiscountList();
     this.service.getAllItems().subscribe(list => {
       list.forEach((item: any) => {
         if (item.key === 'purchaseInvoicePrefix') {
@@ -256,6 +262,12 @@ export class SettingComponent implements OnInit {
         }
         if (item.key === 'defaultDiscountListPrimaryKey') {
           this.general.defaultDiscountListPrimaryKey = item.value;
+        }
+        if (item.key === 'defaultPurchasePriceListPrimaryKey') {
+          this.general.defaultPurchasePriceListPrimaryKey = item.value;
+        }
+        if (item.key === 'defaultPurchaseDiscountListPrimaryKey') {
+          this.general.defaultPurchaseDiscountListPrimaryKey = item.value;
         }
         if (item.key === 'orderPrefix') {
           this.order.prefix = item.value;
@@ -485,6 +497,24 @@ export class SettingComponent implements OnInit {
     }).catch(err => this.toastService.error(err, true));
   }
 
+  async onChangeDefaultPurchasePriceList(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultPurchasePriceListPrimaryKey';
+    data.value = value;
+    await this.service.setItem(data).then(()=> {
+      this.toastService.success('Varsayılan alım fiyat listesi güncellendi', true)
+    }).catch(err => this.toastService.error(err, true));
+  }
+
+  async onChangeDefaultPurchaseDiscountList(value: string): Promise<void> {
+    const data = this.service.cleanModel();
+    data.key = 'defaultPurchaseDiscountListPrimaryKey';
+    data.value = value;
+    await this.service.setItem(data).then(()=> {
+      this.toastService.success('Varsayılan alım iskonto listesi güncellendi', true)
+    }).catch(err => this.toastService.error(err, true));
+  }
+
   async populateUnits(): Promise<void> {
     this.unitList = [];
     const units = await this.puService.getItemsForSelect();
@@ -521,6 +551,28 @@ export class SettingComponent implements OnInit {
     const data = await this.dService.getDiscountLists(list, 'sales');
     data.forEach(item => {
       this.discountLists.push(item);
+    });
+  }
+
+  async populatePurchasePriceList(): Promise<void> {
+    // promise select func.
+    const list = Array<boolean>();
+    list.push(true);
+    this.purchasePriceLists = [];
+    const data = await this.plService.getPriceLists(list, 'purchase');
+    data.forEach(item => {
+      this.purchasePriceLists.push(item);
+    });
+  }
+
+  async populatePurchaseDiscountList(): Promise<void> {
+    // promise select func.
+    const list = Array<boolean>();
+    list.push(true);
+    this.purchaseDiscountLists = [];
+    const data = await this.dService.getDiscountLists(list, 'purchase');
+    data.forEach(item => {
+      this.purchaseDiscountLists.push(item);
     });
   }
 

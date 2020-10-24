@@ -259,9 +259,14 @@ export const getProductTypes = () => {
     ['buy', 'Alım'], ['sale', 'Satış'], ['buy-sale', 'Alım-Satış']]);
 };
 
-export const getProductTypesForImport = () => {
+export const getStockTypesForImport = () => {
   return new Map([['Normal Ürün', 'normal'], ['Promosyon Ürün', 'promotion'], ['Hizmet Ürün', 'service']]);
 };
+
+export const getProductTypesForImport = () => {
+  return new Map([['Alım', 'buy'], ['Satış', 'sale'], ['Alım-Satış', 'buy-sale']]);
+};
+
 
 export const getCustomerTypesForImport = () => {
   return new Map([['Müşteri', 'customer'], ['Tedarikçi', 'supplier'], ['Müşteri-Tedarikçi', 'customer-supplier']]);
