@@ -214,9 +214,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   beginAtZero: true,
                   callback: (value, index, values) => {
                     if (Number(value) >= 1000) {
-                      return '₺' + value.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                     } else {
-                      return '₺' + value.toFixed(2);
+                      return '₺' + Number(value).toFixed(2);
                     }
                   }
                 }
