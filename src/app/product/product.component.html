@@ -67,9 +67,9 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
-            <div class="col-sm-4">Ürün</div>
-            <div class="col-sm-1">Stok Tipi</div>
-            <div class="col-sm-1">Ürün Tipi</div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-2">Stok Tipi</div>
+            <div class="col-sm-2">Ürün Tipi</div>
             <div class="col-sm-1"><span class="float-right">KDV %</span></div>
             <div class="col-sm-1"><span class="float-right">Ötv Tutarı</span></div>
             <div class="col-sm-1">Barkod 1</div>
@@ -83,13 +83,14 @@
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterProduct: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-12">
               <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
               <span class="font-weight-600">{{item.data.productName}}</span>
             </div>
-            <div class="col-sm-1">{{item.stockTypeTr}}</div>
-            <div class="col-sm-1">{{item.productTypeTr}}</div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-2">{{item.stockTypeTr}}</div>
+            <div class="col-sm-2">{{item.productTypeTr}}</div>
             <div class="col-sm-1"><span class="float-right">%{{item.data.taxRate}}</span></div>
             <div class="col-sm-1"><span class="float-right">{{item.sctAmountFormatted}}</span></div>
             <div class="col-sm-1">{{item.data.barcode1}}</div>

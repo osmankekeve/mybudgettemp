@@ -144,7 +144,7 @@
             </form>
           </div>
           <div class="card-footer">
-            <div class="col-sm-3 float-right">
+            <div class="btn-action float-right">
               <div class="input-group">
                 <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -158,7 +158,7 @@
                 </button>
               </div>
             </div>
-            <div class="col-sm-3 float-left"
+            <div class="btn-action float-left"
                  *ngIf="selectedRecord.data.primaryKey!=undefined">
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -230,7 +230,7 @@
                 </div>
               </div>
               <ng-template #elseBlock>
-                <div class="card bg-danger text-white">
+                <div class="card bg-danger text-white m-3">
                   <div class="card-body">Görüntülenecek veri bulunamadı.</div>
                 </div>
               </ng-template>

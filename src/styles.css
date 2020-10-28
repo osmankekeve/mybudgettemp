@@ -92,6 +92,10 @@ body {
   border-left: 4px solid #dc3545 !important;
 }
 
+.btn-action {
+  min-width: 150px !important;
+}
+
 /*Button*/
 .btn-round {
   width: 2rem;

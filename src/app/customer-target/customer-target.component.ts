@@ -169,7 +169,7 @@ export class CustomerTargetComponent implements OnInit {
       if (this.mainList3 === undefined) {
         this.mainList3 = [];
       }
-    }, 5000);
+    }, 1000);
   }
 
   generateCharts(): void {

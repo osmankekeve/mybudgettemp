@@ -270,7 +270,7 @@ export class SalesOfferComponent implements OnInit {
 
   populateUnits(): void {
     this.unitList = [];
-    Promise.all([this.puService.getItemsForSelect()]).then((values: any) => {
+    Promise.all([this.pumService.getProductUnitMapping(this.selectedDetail.data.productPrimaryKey, this.selectedDetail.product.data.defaultUnitCode)]).then((values: any) => {
       if (values[0] !== undefined || values[0] !== null) {
         const returnData = values[0] as Array<ProductUnitModel>;
         returnData.forEach(value => {
@@ -577,6 +577,7 @@ export class SalesOfferComponent implements OnInit {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.selectedDetail = record as SalesOrderDetailMainModel;
       this.isNewPanelOpened = true;
+      this.populateUnits();
     } else {
       this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);
     }

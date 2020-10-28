@@ -74,7 +74,7 @@
     </form>
   </div>
   <div class="card-footer">
-    <div class="col-sm-2 float-right">
+    <div class="btn-action float-right">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -82,13 +82,13 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction"
                 (click)="btnSave_Click()">Kaydet
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+    <div class="btn-action float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -96,7 +96,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnRemove_Click()">Kaldır
         </button>

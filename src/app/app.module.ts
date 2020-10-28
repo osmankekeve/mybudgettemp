@@ -53,16 +53,39 @@ import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-f
 @NgModule({
   declarations: [
         AppComponent, routingComponents,
-        NavBarComponent, SideNavBarComponent, CustomerDataFilterPipe, CustomerFilterPipe, LocationDataFilterPipe, ProductFilterPipe,
-        ProfileFilterPipe, NoteFilterPipe, CashDeskFilterPipe, CashDeskVoucherFilterPipe, CustomerAccountFilterPipe, DropzoneDirective,
-        UploaderComponent, UploadTaskComponent, DropzoneComponent, ProductSelectComponent, ProductSubFilterPipe, ListFilterPipe,
-        CustomerSelectComponent, ExcelImportComponent, ToastsComponent, InfoModuleComponent, OrderSelectComponent, OrderFilterPipe,
-        CustomerCustomerDataFilterPipe
+
+    NavBarComponent,
+    SideNavBarComponent,
+    UploaderComponent,
+    UploadTaskComponent,
+    DropzoneComponent,
+    ProductSelectComponent,
+    CustomerSelectComponent,
+    ExcelImportComponent,
+    ToastsComponent,
+    InfoModuleComponent,
+    OrderSelectComponent,
+
+    CustomerDataFilterPipe,
+    CustomerFilterPipe,
+    LocationDataFilterPipe,
+    ProductFilterPipe,
+    ProfileFilterPipe,
+    NoteFilterPipe,
+    CashDeskFilterPipe,
+    CashDeskVoucherFilterPipe,
+    CustomerAccountFilterPipe,
+    OrderFilterPipe,
+    ProductSubFilterPipe,
+    ListFilterPipe,
+    CustomerCustomerDataFilterPipe,
+
+    DropzoneDirective,
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
-    LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
+    //LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'

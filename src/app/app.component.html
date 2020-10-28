@@ -1,5 +1,4 @@
 
-<ngx-loading-bar></ngx-loading-bar>
 <div *ngIf="userDetails && employeeDetail" class="mb-5  d-inline-block">
   <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
     <div class="container-fluid">
@@ -66,9 +65,9 @@
                        (click)="setNotificationToPassive(item)">
                       <i class="fa fa-fw fa-times text-danger"></i>
                     </a>
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.log}}</div>
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["data"].log}}</div>
                     <div class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</small></div>
+                      class="float-right font-weight-bold">{{item["data"]["insertDate"] | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>
@@ -104,9 +103,9 @@
                        (click)="setNotificationToPassive(item)">
                       <i class="fa fa-fw fa-times text-danger"></i>
                     </a>
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.customerName}}</div>
+                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["customerName"]}}</div>
                     <div class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</small></div>
+                      class="float-right font-weight-bold">{{item["data"].actionDate | date: 'yyyy.MM.dd'}}</small></div>
                   </div>
                 </div>
               </div>

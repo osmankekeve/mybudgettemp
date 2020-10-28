@@ -255,7 +255,7 @@ export const getMailParents = () => {
 };
 
 export const getProductTypes = () => {
-  return new Map([['normal', 'Normal Ürün'], ['promotion', 'Promosyon Ürün'], ['service', 'Hizmet Ürün'],
+  return new Map([['normal', 'Normal'], ['promotion', 'Promosyon'], ['service', 'Hizmet'],
     ['buy', 'Alım'], ['sale', 'Satış'], ['buy-sale', 'Alım-Satış']]);
 };
 

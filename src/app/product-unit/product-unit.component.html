@@ -64,7 +64,7 @@
   </div>
   <div class="card-body">
     <div class="form-row">
-      <div class="col-sm-6">
+      <div class="col-sm-6 col">
         <div class="card">
           <div class="card-header bg-gray-gradient">
             <h5>Ürün Birim Bilgileri</h5>
@@ -101,7 +101,7 @@
             </form>
           </div>
           <div class="card-footer">
-            <div class="col-sm-3 float-right">
+            <div class="btn-action float-right">
               <div class="input-group">
                 <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -115,7 +115,7 @@
                 </button>
               </div>
             </div>
-            <div class="col-sm-3 float-left"
+            <div class="btn-action float-left"
                  *ngIf="selectedRecord.data.primaryKey!=undefined">
               <div class="input-group">
                 <div class="input-group-prepend">
@@ -169,19 +169,20 @@
               <div class="list-group" *ngIf="unitMappingList.length > 0; else elseBlock">
                 <div class="list-group-item bg-red text-light main-list-item">
                   <div class="row">
-                    <div class="col-sm-2">Ürün Kodu</div>
-                    <div class="col-sm-6">Ürün Adı</div>
-                    <div class="col-sm-4"><span class="float-right">Değer</span></div>
+                    <div class="col-sm-10">Ürün</div>
+                    <div class="col-sm-2"><span class="float-right">Değer</span></div>
                   </div>
                 </div>
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
                      (click)="showSelectedProduct(item)"
                      *ngFor="let item of unitMappingList | filterProductSub: productSearchText;">
                   <div class="row">
-                    <div class="col-sm-2 text-red font-weight-600"><i
-                      class="fa fa-arrow-circle-right mr-2"></i>{{item.product.data.productCode}}</div>
-                    <div class="col-sm-6">{{item.product.data.productName}}</div>
-                    <div class="col-sm-4"><span class="float-right">{{item.data.unitValue}}</span></div>
+                    <div class="col-sm-10">
+                      <i class="fa fa-arrow-circle-right text-red mr-2"></i>
+                      <span class="text-red font-weight-600 mr-2">{{item.product.data.productCode}}</span>
+                      <span class="font-weight-600">{{item.product.data.productName}}</span>
+                    </div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}}</span></div>
                   </div>
                 </div>
               </div>
