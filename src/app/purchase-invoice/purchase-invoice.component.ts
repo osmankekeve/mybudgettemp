@@ -39,8 +39,6 @@ import {setInvoiceCalculation} from '../models/purchase-invoice-model';
 import {PurchaseInvoiceDetailService} from '../services/purchase-invoice-detail.service';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {OrderSelectComponent} from '../partials/order-select/order-select.component';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 import {ProductUnitService} from '../services/product-unit.service';
 import {ProductService} from '../services/product.service';
 import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main-model';

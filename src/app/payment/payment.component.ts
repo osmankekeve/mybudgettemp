@@ -95,7 +95,8 @@ export class PaymentComponent implements OnInit {
       if (record) {
         const purchaseInvoiceRecord = record as PurchaseInvoiceMainModel;
         await this.btnNew_Click();
-        this.selectedRecord.data.customerCode = purchaseInvoiceRecord.data.customerCode;
+        this.selectedRecord.customer = purchaseInvoiceRecord.customer;
+        this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
         this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
         this.selectedRecord.data.accountPrimaryKey = purchaseInvoiceRecord.data.accountPrimaryKey;
         this.selectedRecord.data.amount = purchaseInvoiceRecord.data.totalPriceWithTax;

@@ -25,24 +25,23 @@
       <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
         <div class="list-group-item bg-danger text-light main-list-item">
           <div class="row">
-            <div class="col-sm-1">Sıra</div>
-            <div class="col-sm-4">Kullanıcı Adı</div>
+            <div class="col-sm-5">Kullanıcı Adı</div>
             <div class="col-sm-3">Mail Adres</div>
             <div class="col-sm-2">Telefon</div>
             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
              (click)="showSelectedRecord(item)"
              *ngFor="let item of mainList | filterProfile: searchText; index as i;">
           <div class="row">
-            <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
-            <div class="col-sm-4">{{item.data.longName}}</div>
+            <div class="col-sm-5">
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="font-weight-600">{{item.data.longName}}</span>
+            </div>
             <div class="col-sm-3">{{item.data.mailAddress}}</div>
             <div class="col-sm-2">{{item.data.phone}}</div>
             <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-
           </div>
         </div>
       </div>
@@ -155,7 +154,7 @@
       </button>
     </div>
   </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined" hidden>
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
