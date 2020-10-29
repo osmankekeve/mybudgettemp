@@ -3,6 +3,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <h5 class="card-title float-left mr-2">Ayarlar</h5>
+              <div class="loader-small float-left mr-2" *ngIf="isTransactionOn"></div>
             </div>
         </div>
     </div>
@@ -13,7 +14,7 @@
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="form-inline">
                 <div style="width: 50px;">
-                  <i class="fa fa-2x fa-user-circle mr-2"></i>
+                  <i class="fa fa-2x fa-shield mr-2"></i>
                 </div>
                 <div>Genel</div>
               </div>
@@ -23,7 +24,7 @@
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="form-inline">
                 <div style="width: 50px;">
-                  <i class="fa fa-2x fa-user-circle mr-2"></i>
+                  <i class="fa fa-2x fa-shield mr-2"></i>
                 </div>
                 <div>Müşteri</div>
               </div>
@@ -33,7 +34,7 @@
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="form-inline">
                 <div style="width: 50px;">
-                  <i class="fa fa-2x fa-user-circle mr-2"></i>
+                  <i class="fa fa-2x fa-shield mr-2"></i>
                 </div>
                 <div>Satış Faturası</div>
               </div>
@@ -43,7 +44,7 @@
             <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
               <div class="form-inline">
                 <div style="width: 50px;">
-                  <i class="fa fa-2x fa-address-card mr-2"></i>
+                  <i class="fa fa-2x fa-shield mr-2"></i>
                 </div>
                 <div>Tahsilat</div>
               </div>

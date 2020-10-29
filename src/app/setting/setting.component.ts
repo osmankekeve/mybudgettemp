@@ -102,12 +102,14 @@ export class SettingComponent implements OnInit {
     length: ''
   };
   openedPanel = 'general';
+  isTransactionOn = false;
 
   constructor(protected authService: AuthenticationService, protected service: SettingService, protected infoService: InformationService,
               protected db: AngularFirestore, protected puService: ProductUnitService, protected defService: DefinitionService,
               protected plService: PriceListService, protected dService: DiscountListService, protected toastService: ToastService) { }
 
   async ngOnInit() {
+    this.isTransactionOn = true;
     await this.populateUnits();
     await this.populateStorages();
     await this.populatePriceList();
@@ -282,6 +284,7 @@ export class SettingComponent implements OnInit {
           this.order.length = item.value;
         }
       });
+      this.isTransactionOn = false;
     });
   }
 

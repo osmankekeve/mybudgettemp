@@ -5,6 +5,7 @@ import {ProfileService} from '../services/profile.service';
 import {getDateForInput, getInputDataForInsert, getTodayForInput} from '../core/correct-library';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ActivatedRoute, Router} from '@angular/router';
+import {AuthenticationService} from '../services/authentication.service';
 
 @Component({
   selector: 'app-user',
@@ -17,12 +18,14 @@ export class UserComponent implements OnInit, OnDestroy {
   birthDate: any;
   searchText: '';
   onTransaction = false;
+  employeeDetail: any;
 
-  constructor(public infoService: InformationService, public service: ProfileService, public db: AngularFirestore,
-              public route: Router, public router: ActivatedRoute) {
+  constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected service: ProfileService,
+              protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute) {
   }
 
   async ngOnInit() {
+    this.employeeDetail = this.authService.isEmployeeLoggedIn();
     this.populateList();
     this.selectedRecord = undefined;
   }

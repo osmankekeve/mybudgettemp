@@ -89,10 +89,10 @@
             <option value="user">Kullanıcı</option>
           </select>
         </div>
-        <div class="col-sm-3">
+        <div class="col-sm-3" *ngIf="employeeDetail.data.primaryKey == selectedRecord.data.primaryKey">
           <label class="col-form-label float-left" for="password">Şifre</label>
         </div>
-        <div class="col-sm-9">
+        <div class="col-sm-9" *ngIf="employeeDetail.data.primaryKey == selectedRecord.data.primaryKey">
           <input class="form-control form-control-sm w-100" id="password" name="password" type="password"
                  [(ngModel)]="selectedRecord.data.password" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
