@@ -13,6 +13,7 @@ export class PurchaseOrderMainModel {
   discountListName?: string;
   termName?: string;
   paymentName?: string;
+  storageName?: string;
   approverName?: string;
   totalDetailDiscountFormatted?: string;
   generalDiscountFormatted?: string;

@@ -24,6 +24,10 @@ import {PaymentMainModel} from './models/payment-main-model';
 import {RouterModel} from './models/router-model';
 import {ReminderMainModel} from './models/reminder-main-model';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {SalesOrderService} from './services/sales-order.service';
+import {SalesOrderMainModel} from './models/sales-order-main-model';
+import {PurchaseOrderService} from './services/purchase-order.service';
+import {PurchaseOrderMainModel} from './models/purchase-order-main-model';
 
 @Component({
   selector: 'app-root',
@@ -65,7 +69,8 @@ export class AppComponent implements OnInit {
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
     private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
-    private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth
+    private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth,
+    protected soService: SalesOrderService,  protected poService: PurchaseOrderService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -478,6 +483,48 @@ export class AppComponent implements OnInit {
         }
       });
     });
+    const type = [];
+    type.push('waitingForApprove');
+    this.soService.getMainItemsBetweenDates(null, null,  type)
+      .subscribe(list => {
+        list.forEach((data: any) => {
+          const item = data.returnData as SalesOrderMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'salesOrder';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Satış Siparişi onay bekliyor.';
+
+          if (item.actionType === 'added') {
+            this.waitingWorksCount++;
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            this.waitingWorksCount--;
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
+      });
+    this.poService.getMainItemsBetweenDates(null, null,  type)
+      .subscribe(list => {
+        list.forEach((data: any) => {
+          const item = data.returnData as PurchaseOrderMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'purchaseOrder';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Alım Siparişi onay bekliyor.';
+
+          if (item.actionType === 'added') {
+            this.waitingWorksCount++;
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            this.waitingWorksCount--;
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
+      });
   }
 
   setNotificationToPassive(item: any): void {

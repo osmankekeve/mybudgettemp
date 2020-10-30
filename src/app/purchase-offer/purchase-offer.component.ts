@@ -254,6 +254,23 @@ export class PurchaseOfferComponent implements OnInit {
     });
   }
 
+  populateStorageList(): void {
+    Promise.all([this.defService.getItemsForFill('storage'), this.setService.getItem('defaultStoragePrimaryKey')])
+      .then((values: any) => {
+        this.storageList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<DefinitionModel>;
+          returnData.forEach(value => {
+            this.storageList.push(value);
+          });
+        }
+        if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
+          const defaultStoragePrimaryKey = values[1].data as SettingModel;
+          this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
+        }
+      });
+  }
+
   populateProductAfterSelectData(): void {
     this.unitList = [];
     Promise.all([
@@ -304,6 +321,7 @@ export class PurchaseOfferComponent implements OnInit {
       this.populateDiscountList();
       this.populateTermList();
       this.populatePaymentTypeList();
+      this.populateStorageList();
 
       await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
         .then((list) => {
@@ -342,6 +360,7 @@ export class PurchaseOfferComponent implements OnInit {
       this.populateDiscountList();
       this.populateTermList();
       this.populatePaymentTypeList();
+      this.populateStorageList();
     } catch (error) {
       this.finishProcess(error, null);
     }

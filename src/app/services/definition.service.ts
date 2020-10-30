@@ -54,6 +54,52 @@ export class DefinitionService {
 
   checkForRemove(record: DefinitionMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      if (record.data.typeKey === 'storage') {
+        await this.isStorageUsedOnSalesOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Satış siparişinde kullanıldığından silinemez.');
+          }
+        });
+        await this.isStorageUsedOnPurchaseOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Alım siparişinde kullanıldığından silinemez.');
+          }
+        });
+      }
+      if (record.data.typeKey === 'term') {
+        await this.isTermUsedOnCustomer(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Müşteride kullanıldığından silinemez.');
+          }
+        });
+        await this.isTermUsedOnSalesOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Satış siparişinde kullanıldığından silinemez.');
+          }
+        });
+        await this.isTermUsedOnPurchaseOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Alım siparişinde kullanıldığından silinemez.');
+          }
+        });
+      }
+      if (record.data.typeKey === 'payment-type') {
+        await this.isPaymentTypeUsedOnCustomer(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Müşteride kullanıldığından silinemez.');
+          }
+        });
+        await this.isPaymentTypeUsedOnSalesOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Satış siparişinde kullanıldığından silinemez.');
+          }
+        });
+        await this.isPaymentTypeUsedOnPurchaseOrder(record.data.primaryKey).then(result => {
+          if (result) {
+            reject('Alım siparişinde kullanıldığından silinemez.');
+          }
+        });
+      }
       resolve(null);
     });
   }
@@ -158,6 +204,166 @@ export class DefinitionService {
           resolve(list);
         });
 
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isStorageUsedOnSalesOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('storagePrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isStorageUsedOnPurchaseOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('storagePrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isTermUsedOnCustomer = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCustomer', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('termKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isTermUsedOnSalesOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('termPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isTermUsedOnPurchaseOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('termPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isPaymentTypeUsedOnCustomer = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCustomer', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('paymentTypeKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isPaymentTypeUsedOnSalesOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('paymentTypePrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isPaymentTypeUsedOnPurchaseOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('paymentTypePrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});

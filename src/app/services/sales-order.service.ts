@@ -127,23 +127,32 @@ export class SalesOrderService {
     return new Promise((resolve, reject) => {
       if (record.data.customerPrimaryKey === '-1') {
         reject('Lütfen müşteri seçiniz.');
-      } else if (record.data.priceListPrimaryKey === '-1') {
+      }
+      else if (record.data.priceListPrimaryKey === '-1') {
         reject('Lütfen fiyat listesi seçiniz.');
-      } else if (record.data.priceListPrimaryKey === '-1') {
+      }
+      else if (record.data.priceListPrimaryKey === '-1') {
         reject('Lütfen iskonto listesi seçiniz.');
-      } else if (record.data.deliveryAddressPrimaryKey === '-1') {
+      }
+      else if (record.data.deliveryAddressPrimaryKey === '-1') {
         reject('Lütfen sevkiyat adresi seçiniz.');
-      } else if (record.data.totalPrice <= 0) {
+      }
+      else if (record.data.totalPrice <= 0) {
         reject('Tutar sıfırdan büyük olmalıdır.');
-      } else if (record.data.receiptNo === '') {
+      }
+      else if (record.data.receiptNo === '') {
         reject('Lütfen fiş numarası giriniz.');
-      } else if (record.data.totalPrice <= 0) {
+      }
+      else if (record.data.totalPrice <= 0) {
         reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
-      } else if (isNullOrEmpty(record.data.recordDate)) {
+      }
+      else if (isNullOrEmpty(record.data.recordDate)) {
         reject('Lütfen kayıt tarihi seçiniz.');
-      } else if (record.orderDetailList.length === 0) {
+      }
+      else if (record.orderDetailList.length === 0) {
         reject('Boş sipariş kaydedilemez.');
-      } else {
+      }
+      else {
         resolve(null);
       }
     });
@@ -308,10 +317,21 @@ export class SalesOrderService {
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<SalesOrderMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid())
-        .where('status', 'in', status));
+    this.listCollection = this.db.collection(this.tableName, ref => {
+      let query: CollectionReference | Query = ref;
+      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+      if (startDate !== null) {
+        query = query.startAt(startDate.getTime());
+      }
+      if (endDate !== null) {
+        query = query.endAt(endDate.getTime());
+      }
+      if (status !== null) {
+        query = query.where('status', 'in', status);
+      }
+      return query;
+    });
+
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as SalesOrderModel;

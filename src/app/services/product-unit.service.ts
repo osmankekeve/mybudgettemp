@@ -73,6 +73,16 @@ export class ProductUnitService {
           reject('Birim ürün birim bağlantısında kullanıldığından silinemez.');
         }
       });
+      await this.isUsedOnSalesOrderDetail(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Ürün satış teklifinde kullanıldığından silinemez.');
+        }
+      });
+      await this.isUsedOnPurchaseOrderDetail(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Ürün alim teklifinde kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -179,8 +189,7 @@ export class ProductUnitService {
     try {
       this.db.collection('tblProduct', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
+        query = query.limit(1).where('userPrimaryKey', '==', this.authService.getUid())
           .where('defaultUnitCode', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
@@ -201,8 +210,48 @@ export class ProductUnitService {
     try {
       this.db.collection('tblProductUnitMapping', ref => {
         let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('unitPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUsedOnSalesOrderDetail = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
         query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
+          .where('unitPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isUsedOnPurchaseOrderDetail = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
           .where('unitPrimaryKey', '==', primaryKey);
         return query;
       }).get().subscribe(snapshot => {

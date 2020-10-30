@@ -218,7 +218,17 @@
                  [(ngModel)]="selectedRecord.data.receiptNo" required>
           <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
         </div>
-        <div class="col-sm-6"></div>
+        <div class="col-sm-3">
+          <label class="col-form-label float-left" for="storagePrimaryKey">Depo</label>
+        </div>
+        <div class="col-sm-3">
+          <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
+                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
+                  [(ngModel)]="selectedRecord.data.storagePrimaryKey">
+            <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
+          </select>
+          <div class="invalid-feedback invalid-input-info">Lütfen seçim yapınız.</div>
+        </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="termPrimaryKey">Vade</label>
         </div>

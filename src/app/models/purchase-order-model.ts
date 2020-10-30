@@ -10,6 +10,7 @@ export class PurchaseOrderModel {
   discountListPrimaryKey: string;
   termPrimaryKey: string;
   paymentTypePrimaryKey: string;
+  storagePrimaryKey: string;
   receiptNo: string;
   status: string; // waitingForApprove, approved, rejected
   type: string; // purchase, service, return

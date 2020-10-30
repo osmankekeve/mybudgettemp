@@ -36,17 +36,14 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {OrderSelectComponent} from '../partials/order-select/order-select.component';
 import {ToastService} from '../services/toast.service';
-import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
+import {SalesOrderDetailMainModel,} from '../models/sales-order-detail-main-model';
 import {SalesInvoiceDetailService} from '../services/sales-invoice-detail.service';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {DeliveryAddressService} from '../services/delivery-address.service';
 import {SalesOrderDetailService} from '../services/sales-order-detail.service';
 import {SalesInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/sales-invoice-detail-main-model';
 import {setInvoiceCalculation} from '../models/sales-invoice-model';
 import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 import {ProductUnitService} from '../services/product-unit.service';
 import {ProductService} from '../services/product.service';
-import {setOrderCalculation} from '../models/sales-order-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -710,7 +707,7 @@ export class SalesInvoiceComponent implements OnInit {
   async btnSelectOrder_Click(): Promise<void> {
     try {
       if (this.selectedRecord.data.customerCode === '') {
-        this.toastService.success('Lütfen müşteri seçiniz', true);
+        this.toastService.error('Lütfen müşteri seçiniz', true);
       } else {
         const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
         modalRef.componentInstance.orderType = this.selectedRecord.data.type;

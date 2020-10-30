@@ -28,8 +28,6 @@ import {SettingService} from './setting.service';
 import {PurchaseOrderModel} from '../models/purchase-order-model';
 import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderModel} from '../models/sales-order-model';
 
 @Injectable({
   providedIn: 'root'
@@ -156,7 +154,7 @@ export class PurchaseOrderService {
 
   checkFields(model: PurchaseOrderModel): PurchaseOrderModel {
     const cleanModel = this.clearSubModel();
-
+    if (model.storagePrimaryKey === undefined) { model.storagePrimaryKey = cleanModel.storagePrimaryKey; }
     return model;
   }
 
@@ -171,6 +169,7 @@ export class PurchaseOrderService {
     returnData.discountListPrimaryKey = '-1';
     returnData.termPrimaryKey = '-1';
     returnData.paymentTypePrimaryKey = '-1';
+    returnData.storagePrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.description = '';
     returnData.type = 'purchase'; // purchase, service, return
@@ -199,6 +198,7 @@ export class PurchaseOrderService {
     returnData.discountListName = '';
     returnData.termName = '';
     returnData.paymentName = '';
+    returnData.storageName = '';
     returnData.approverName = '';
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.orderTypeTr = getOrderType().get(returnData.data.type);
@@ -281,10 +281,20 @@ export class PurchaseOrderService {
   }
 
   getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<PurchaseOrderMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime())
-        .where('userPrimaryKey', '==', this.authService.getUid())
-        .where('status', 'in', status));
+    this.listCollection = this.db.collection(this.tableName, ref => {
+      let query: CollectionReference | Query = ref;
+      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+      if (startDate !== null) {
+        query = query.startAt(startDate.getTime());
+      }
+      if (endDate !== null) {
+        query = query.endAt(endDate.getTime());
+      }
+      if (status !== null) {
+        query = query.where('status', 'in', status);
+      }
+      return query;
+    });
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as PurchaseOrderModel;

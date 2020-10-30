@@ -3,18 +3,11 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import { Observable } from 'rxjs/Observable';
 import { map, flatMap } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
-import { NoteModel } from '../models/note-model';
-import { NoteMainModel } from '../models/note-main-model';
 import {DeliveryAddressModel} from '../models/delivery-address-model';
 import {DeliveryAddressMainModel} from '../models/delivery-address-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {currencyFormat, getStatus} from '../core/correct-library';
 import {CustomerModel} from '../models/customer-model';
 import {combineLatest} from 'rxjs';
 import {CustomerService} from './customer.service';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {DefinitionModel} from '../models/definition-model';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +48,12 @@ export class DeliveryAddressService {
   }
 
   checkForRemove(record: DeliveryAddressMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isUsedOnOrder(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Siparişte kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -176,4 +174,23 @@ export class DeliveryAddressService {
     }
   })
 
+  isUsedOnOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('deliveryAddressPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
 }
