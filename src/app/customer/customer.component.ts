@@ -43,12 +43,9 @@ import {FileMainModel} from '../models/file-main-model';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {DeliveryAddressMainModel} from '../models/delivery-address-main-model';
 import {DeliveryAddressService} from '../services/delivery-address.service';
-import {ProductMainModel} from '../models/product-main-model';
 import {DefinitionModel} from '../models/definition-model';
-import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
-import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 

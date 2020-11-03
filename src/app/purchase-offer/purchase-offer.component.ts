@@ -42,6 +42,8 @@ import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main
 import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
 import {PurchaseOrderService} from '../services/purchase-order.service';
 import {setOrderCalculation} from '../models/purchase-order-model';
+import {GlobalService} from '../services/global.service';
+import {ActionService} from '../services/action.service';
 
 @Component({
   selector: 'app-purchase-offer',
@@ -83,7 +85,7 @@ export class PurchaseOfferComponent implements OnInit {
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
               protected daService: DeliveryAddressService, protected sodService: PurchaseOrderDetailService,
-              protected puService: ProductUnitService, protected ppService: ProductPriceService,
+              protected puService: ProductUnitService, protected ppService: ProductPriceService, protected actService: ActionService,
               protected pdService: ProductDiscountService, protected setService: SettingService,
               protected pumService: ProductUnitMappingService) {
   }
@@ -322,12 +324,12 @@ export class PurchaseOfferComponent implements OnInit {
       this.populateTermList();
       this.populatePaymentTypeList();
       this.populateStorageList();
-
       await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
         .then((list) => {
           this.selectedRecord.orderDetailList = [];
           this.selectedRecord.orderDetailList = list;
         });
+      this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     });
   }
 

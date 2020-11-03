@@ -133,11 +133,11 @@ export class LogService {
 
     } else if (systemModule === 'salesOrder') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customer.data.name + ' müşteriye Satış Teklifi ';
+      item.log = record.data.receiptNo + ' fiş numaralı Satış Siparişi ';
 
     } else if (systemModule === 'purchaseOrder') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customer.data.name + ' müşteriye Alım Teklifi ';
+      item.log = record.data.receiptNo + ' fiş numaralı Alım Siparişi ';
 
     } else {
       item.log = ' bilinmeyen modül ';
