@@ -11,6 +11,7 @@ import {CookieService} from 'ngx-cookie-service';
 export class SideNavBarComponent implements OnInit, AfterViewInit {
   userDetails: any;
   employeeDetail: any;
+  companyDetail: any;
   loginTime: any;
 
   constructor( private authService: AuthenticationService,
@@ -26,6 +27,7 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
         this.loginTime = this.cookieService.get('loginTime');
       }
     }
+    this.companyDetail = JSON.parse(sessionStorage.getItem('company'))
   }
 
   ngAfterViewInit() {

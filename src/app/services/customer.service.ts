@@ -18,15 +18,8 @@ import 'rxjs-compat/add/operator/combineLatest';
 import 'rxjs-compat/add/observable/combineLatest';
 import 'rxjs-compat/add/observable/from';
 import 'rxjs-compat/add/operator/merge';
-import {ProductModel} from '../models/product-model';
-import {ProductMainModel} from '../models/product-main-model';
-import {DiscountListService} from './discount-list.service';
 import {DefinitionService} from './definition.service';
 import {DefinitionModel} from '../models/definition-model';
-import {CustomerAccountService} from './customer-account.service';
-import {GlobalService} from './global.service';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderModel} from '../models/sales-order-model';
 
 @Injectable({
   providedIn: 'root'

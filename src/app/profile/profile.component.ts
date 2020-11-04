@@ -8,8 +8,6 @@ import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
-import {getInputDataForInsert} from '../core/correct-library';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
 
 @Component({

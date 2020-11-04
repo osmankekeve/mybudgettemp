@@ -28,6 +28,9 @@ import {SalesOrderService} from './services/sales-order.service';
 import {SalesOrderMainModel} from './models/sales-order-main-model';
 import {PurchaseOrderService} from './services/purchase-order.service';
 import {PurchaseOrderMainModel} from './models/purchase-order-main-model';
+import {CompanyModel} from './models/company-model';
+import {CompanyService} from './services/company.service';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-root',
@@ -46,6 +49,7 @@ export class AppComponent implements OnInit {
   passwordInput: string;
   isForgotPassword: boolean;
   userDetails: any;
+  companyDetails: any;
   notificationCount = 0;
   showNotificationPanel = false;
   actionCount = 0;
@@ -70,7 +74,7 @@ export class AppComponent implements OnInit {
     private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
     private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth,
-    protected soService: SalesOrderService,  protected poService: PurchaseOrderService
+    protected soService: SalesOrderService,  protected poService: PurchaseOrderService, protected service: CompanyService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -80,6 +84,7 @@ export class AppComponent implements OnInit {
         sessionStorage.setItem('user', this.userDetails);
       } else {
         sessionStorage.setItem('user', null);
+        sessionStorage.setItem('company', null);
       }
     });
   }
@@ -113,10 +118,12 @@ export class AppComponent implements OnInit {
       this.employeeDetail = undefined;
     } else {
       this.isEmployeeLoggedIn();
+      this.isEmployeeLoggedIn();
       this.populateReminderList();
       this.populateActivityList();
     }
   }
+
 
   // Check localStorage is having employee Data
   isEmployeeLoggedIn() {
@@ -138,8 +145,10 @@ export class AppComponent implements OnInit {
       .then(res => {
         this.userDetails = undefined;
         this.employeeDetail = undefined;
+        this.companyDetails = undefined;
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('employee');
+        sessionStorage.removeItem('company');
         sessionStorage.clear();
       }, err => {
         this.infoService.error(err.message);
@@ -152,12 +161,18 @@ export class AppComponent implements OnInit {
     try {
       if (this.emailInput === undefined || this.emailInput.trim() === '') {
         this.finishProcess('Lütfen sistem mail adresi giriniz.', null);
-      } else if (this.passwordInput === undefined || this.passwordInput.trim() === '') {
+      }
+      else if (this.passwordInput === undefined || this.passwordInput.trim() === '') {
         this.finishProcess('Lütfen sistem şifresi giriniz.', null);
-      } else {
+      }
+      else {
         this.authService.login(this.emailInput, this.passwordInput)
           .then(res => {
             if (res != null) {
+              this.service.getItem(res.user.uid).then(async value => {
+                this.companyDetails = value.data as CompanyModel;
+                sessionStorage.setItem('company', JSON.stringify(this.companyDetails));
+              });
               this.isUserLoggedIn();
               this.populateSettings();
               if (this.isCMAChecked) {

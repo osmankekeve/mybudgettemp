@@ -1,0 +1,147 @@
+<div class="card work-area">
+  <div class="card-header bg-gray-gradient">
+    <div class="row">
+      <div class="col-sm-12">
+        <img src="../../assets/images/product-list.png" class="float-left mr-2" width="30px" alt="">
+        <h4 class="card-title float-left mr-2">Firma Bilgileri</h4>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body work-area-11">
+    <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+      <div class="row">
+        <div class="col-sm-2">
+          <img src='{{selectedRecord.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
+          <div class="custom-file mt-1">
+            <input type="file" class="form-control mb-1"
+                   [disabled]="onTransaction"
+                   (change)="onFileChange($event)"/>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                      <span class="input-group-text success-icon-side">
+                        <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                        <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                      </span>
+              </div>
+              <button type="button" class="btn btn-sm btn-success form-control"
+                      [disabled]="onTransaction"
+                      (click)="btnUploadFile_Click()">Yükle
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-10">
+          <div class="form-row form-inline">
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="companyName">Firma Adı</label>
+            </div>
+            <div class="col-sm-9">
+              <input class="form-control form-control-sm w-100" id="companyName" name="companyName" type="text"
+                     [(ngModel)]="selectedRecord.companyName" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="companyOwner">Firma Sahibi</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="companyOwner" name="companyOwner" type="text"
+                     [(ngModel)]="selectedRecord.companyOwner" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="companyOwner">Firma Sahibi Mail</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="companyOwnerMailAddress" name="companyOwnerMailAddress" type="text"
+                     [(ngModel)]="selectedRecord.companyOwnerMailAddress" required>
+              <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="companyManager">Firma Yöneticisi</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="companyManager" name="companyManager" type="text"
+                     [(ngModel)]="selectedRecord.companyManager">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="companyManagerMailAddress">Firma Yönetici Mail</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="companyManagerMailAddress" name="companyManagerMailAddress" type="text"
+                     [(ngModel)]="selectedRecord.companyManagerMailAddress">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="telephone">Firma Telefon</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="telephone" name="telephone" type="text"
+                     [(ngModel)]="selectedRecord.telephone">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="fax">Firma Fax</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="fax" name="fax" type="text"
+                     [(ngModel)]="selectedRecord.fax">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="taxOffice">Vergi Dairesi</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="taxOffice" name="taxOffice" type="text"
+                     [(ngModel)]="selectedRecord.taxOffice">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="taxNumber">Vergi Numarası</label>
+            </div>
+            <div class="col-sm-3">
+              <input class="form-control form-control-sm w-100" id="taxNumber" name="taxNumber" type="text"
+                     [(ngModel)]="selectedRecord.taxNumber">
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="address">Adres</label>
+            </div>
+            <div class="col-sm-9">
+              <input class="form-control form-control-sm w-100" id="address" name="address" type="text"
+                     [(ngModel)]="selectedRecord.address">
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="card-footer">
+    <div class="col-sm-2 float-right">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-sm btn-success form-control"
+                [disabled]="onTransaction || !f.valid"
+                (click)="btnSave_Click()">Kaydet
+        </button>
+      </div>
+    </div>
+    <div class="col-sm-2 float-left"
+         *ngIf="selectedRecord.primaryKey!=undefined">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text danger-icon-side">
+            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-sm btn-danger form-control"
+                [disabled]="onTransaction"
+                (click)="btnRemove_Click()">Kaldır
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

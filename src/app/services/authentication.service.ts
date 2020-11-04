@@ -8,6 +8,9 @@ import { ProfileMainModel } from '../models/profile-main-model';
 import { ProfileService } from './profile.service';
 import { LogService } from './log.service';
 import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
+import {CompanyModel} from '../models/company-model';
+import {PurchaseOrderService} from './purchase-order.service';
+import {CompanyService} from './company.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +23,7 @@ export class AuthenticationService {
         sessionStorage.setItem('user', JSON.stringify(userResponse));
       } else {
         sessionStorage.setItem('user', null);
+        sessionStorage.setItem('company', null);
       }
     });
   }
