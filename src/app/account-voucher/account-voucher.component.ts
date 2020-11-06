@@ -23,6 +23,9 @@ import {SettingModel} from '../models/setting-model';
 import {CustomerAccountModel} from '../models/customer-account-model';
 import {CustomerAccountService} from '../services/customer-account.service';
 import {GlobalService} from '../services/global.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {ToastService} from '../services/toast.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-account-voucher',
@@ -59,7 +62,7 @@ export class AccountVoucherComponent implements OnInit {
               public service: AccountVoucherService, public cdService: CashDeskService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public sService: SettingService,
               public cService: CustomerService, public db: AngularFirestore, public accService: CustomerAccountService,
-              public globService: GlobalService) {
+              public globService: GlobalService, protected modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -184,13 +187,13 @@ export class AccountVoucherComponent implements OnInit {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<AccountVoucherMainModel>;
           this.transactionList.forEach(item => {
-            if (creatingData.has(item.customer.name)) {
-              let amount = creatingData.get(item.customer.name);
+            if (creatingData.has(item.customer.data.name)) {
+              let amount = creatingData.get(item.customer.data.name);
               amount += item.data.amount;
-              creatingData.delete(item.customer.name);
-              creatingData.set(item.customer.name, amount);
+              creatingData.delete(item.customer.data.name);
+              creatingData.set(item.customer.data.name, amount);
             } else {
-              creatingData.set(item.customer.name, item.data.amount);
+              creatingData.set(item.customer.data.name, item.data.amount);
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.amount;
@@ -324,7 +327,7 @@ export class AccountVoucherComponent implements OnInit {
         this.isRecordHasTransaction = false;
       }
     });
-    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
+    this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -348,6 +351,27 @@ export class AccountVoucherComponent implements OnInit {
     const receiptNoData = await this.sService.getAccountVoucherCode();
     if (receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
+    }
+  }
+
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      list.push('supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+          this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -540,11 +564,12 @@ export class AccountVoucherComponent implements OnInit {
     });
   }
 
-  async onChangeCustomer(value: any): Promise<void> {
-    await this.cService.getItem(value).then(item => {
-      this.selectedRecord.customer = item.data;
-      this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.primaryKey);
-    });
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

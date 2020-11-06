@@ -414,7 +414,6 @@ export class SalesInvoiceService {
     const returnData = new SalesInvoiceMainModel();
     returnData.data = this.clearSubModel();
     returnData.customer = this.cusService.clearMainModel();
-    returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);

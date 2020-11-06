@@ -85,9 +85,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -97,9 +94,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -193,10 +187,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
     }
   }
 
-  clearSelectedRecord(): void {
-    this.selectedRecord = this.service.clearModel();
-  }
-
   clearImageItems(): void {
     this.progress.percentage = 0;
     this.progressShow = false;
@@ -204,8 +194,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
   }
 
   finishFinally(): void {
-    this.clearSelectedRecord();
-    this.selectedRecord = undefined;
     this.onTransaction = false;
   }
 
@@ -214,8 +202,6 @@ export class CompanyComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
     } else {
       this.infoService.error(error.message !== undefined ? error.message : error);
     }

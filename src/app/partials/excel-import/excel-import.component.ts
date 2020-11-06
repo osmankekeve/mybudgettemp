@@ -22,6 +22,8 @@ import {ProfileService} from '../../services/profile.service';
 import {DeliveryAddressService} from '../../services/delivery-address.service';
 import {DefinitionService} from '../../services/definition.service';
 import {CustomerAccountService} from '../../services/customer-account.service';
+import {SettingService} from '../../services/setting.service';
+import {ProductUnitModel} from '../../models/product-unit-model';
 
 @Component({
   selector: 'app-excel-import',
@@ -61,7 +63,8 @@ export class ExcelImportComponent implements OnInit {
               protected route: Router, protected excelService: ExcelService, protected puService: ProductUnitService,
               protected db: AngularFirestore, protected pumService: ProductUnitMappingService, protected ppService: ProductPriceService,
               protected pdService: ProductDiscountService, protected cusService: CustomerService, protected profService: ProfileService,
-              protected defService: DefinitionService, protected caService: CustomerAccountService, protected daService: DeliveryAddressService) {
+              protected defService: DefinitionService, protected caService: CustomerAccountService, protected daService: DeliveryAddressService,
+              protected sService: SettingService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -304,8 +307,8 @@ export class ExcelImportComponent implements OnInit {
           for (let i = 1; i < this.listExcelData.length; i++) {
             const item = this.listExcelData[i];
             const stockType = this.checkExcelCell(item[0]).toString().trimLeft().trimRight();
-            const productCode = this.checkExcelCell(item[1]).toString().trimLeft().trimRight();
-            const productBaseCode = this.checkExcelCell(item[2]).toString().trimLeft().trimRight();
+            let productCode = this.checkExcelCell(item[1]).toString().trimLeft().trimRight();
+            let productBaseCode = this.checkExcelCell(item[2]).toString().trimLeft().trimRight();
             const productName = this.checkExcelCell(item[3]).toString().trimLeft().trimRight();
             const defaultUnitCode = this.checkExcelCell(item[4]).toString().trimLeft().trimRight();
             const taxRate = this.checkExcelCell(item[5]).toString().trimLeft().trimRight();
@@ -379,6 +382,13 @@ export class ExcelImportComponent implements OnInit {
                 //console.log('product updated :' + importRow.productCode);
 
               } else {
+                if (productCode === '') {
+                  const receiptNoData = await this.sService.getProductCode();
+                  if (receiptNoData !== null) {
+                    productCode = receiptNoData;
+                    productBaseCode = receiptNoData;
+                  }
+                }
                 const importRow = this.pService.clearSubModel();
                 importRow.primaryKey = this.db.createId();
                 importRow.stockType = this.stockTypeMap.get(stockType);
@@ -396,7 +406,25 @@ export class ExcelImportComponent implements OnInit {
                 importRow.isWebProduct = isWebProduct === 'Evet';
                 importRow.isActive = isActive === 'Aktif';
                 importRow.description = description;
-                await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
+                //await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
+                //await this.sService.increaseProductNumber();
+                Promise.all([
+                  this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow)),
+                  this.sService.increaseProductNumber(),
+                  this.puService.getItemsForSelect()
+                ]).then(async (values: any) => {
+                    if (values[2] !== null) {
+                      const returnData = values[2] as Array<ProductUnitModel>;
+                      for (const recordUnit of returnData) {
+                        const newData = this.pumService.clearMainModel();
+                        newData.data.primaryKey = this.db.createId();
+                        newData.data.unitPrimaryKey = recordUnit.primaryKey;
+                        newData.data.unitValue = 1;
+                        newData.data.productPrimaryKey = importRow.primaryKey;
+                        await this.db.collection('tblProductUnitMapping').doc(newData.data.primaryKey).set(Object.assign({}, newData.data))
+                      }
+                    }
+                  });
                 //console.log('product imported :' + importRow.productCode);
               }
             }

@@ -77,44 +77,53 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-red text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-3"></div>
-            <div class="col-sm-2">Sipariş No</div>
-            <div class="col-sm-2">Sipariş Tipi</div>
-            <div class="col-sm-2">Durum</div>
-            <div class="col-sm-1"><span class="float-right">Toplam Tutar</span></div>
-            <div class="col-sm-1"><span class="float-right text-center">Toplam Tutar (+KDV)</span></div>
-            <div class="col-sm-1"><span class="float-right">Kayıt Tarihi</span></div>
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
-          <div class="row">
-            <div class="col-sm-12"><i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr style="font-size: 11px">
+            <th>Müşteri</th>
+            <th>Sipariş No</th>
+            <th>Sipariş Tipi</th>
+            <th>Durum</th>
+            <th><span class="float-right">Toplam Tutar</span></th>
+            <th><span class="float-right text-center">Toplam Tutar (+KDV)</span></th>
+            <th><span class="float-right">Kayıt Tarihi</span></th>
+            <th><span class="float-right">Bilgi</span></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer"  style="font-size: 11px"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
               <span class="font-weight-600">{{item.customer.data.name}}</span>
-            </div>
-            <div class="col-sm-3"></div>
-            <div class="col-sm-2">{{item.data.receiptNo}}</div>
-            <div class="col-sm-2">{{item.orderTypeTr}}</div>
-            <div class="col-sm-2">{{item.statusTr}}</div>
-            <div class="col-sm-1"><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></div>
-            <div class="col-sm-1"><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></div>
-            <div class="col-sm-1"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
-          </div>
-        </div>
-        <li class="list-group-item list-group-item-success main-list-item">
-          <div class="row">
-            <div class="col-sm-9">Toplam</div>
-            <div class="col-sm-1"><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></div>
-            <div class="col-sm-1"><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
-            </div>
-            <div class="col-sm-1"></div>
-          </div>
-        </li>
+            </td>
+            <td>{{item.data.receiptNo}}</td>
+            <td>{{item.orderTypeTr}}</td>
+            <td>{{item.statusTr}}</td>
+            <td><span class="float-right">{{item.data.totalPrice | currency:'₺'}}</span></td>
+            <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
+            <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
+            <td>
+              <i class="fa fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+              <i class="fa fa-thumbs-o-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+              <i class="fa fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+              <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+              <i class="fa fa-check-circle-o mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+              <i class="fa fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+              <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+            </td>
+          </tr>
+          <tr class="table-success" style="font-size: 11px">
+            <td colspan="4">Toplam</td>
+            <td><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></td>
+            <td><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span></td>
+            <td colspan="2"></td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

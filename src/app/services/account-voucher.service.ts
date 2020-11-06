@@ -41,7 +41,7 @@ export class AccountVoucherService {
       this.cusService.getAllItems().subscribe(list => {
         this.customerMap.clear();
         list.forEach(item => {
-          this.customerMap.set(item.primaryKey, item);
+          this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
         });
       });
     }
@@ -188,7 +188,7 @@ export class AccountVoucherService {
   clearMainModel(): AccountVoucherMainModel {
     const returnData = new AccountVoucherMainModel();
     returnData.data = this.clearSubModel();
-    returnData.customerName = '';
+    returnData.customer = this.cusService.clearMainModel();
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
@@ -261,8 +261,7 @@ export class AccountVoucherService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          returnData.customer = customer !== undefined ? customer : undefined;
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kaydı';
+          returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
           return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
@@ -295,8 +294,7 @@ export class AccountVoucherService {
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          returnData.customer = customer !== undefined ? customer : undefined;
-          returnData.customerName = customer !== undefined ? customer.name : 'Belirlenemeyen Müşteri Kayıt';
+          returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
           return Object.assign({returnData}); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
@@ -316,7 +314,7 @@ export class AccountVoucherService {
         if (endDate !== null) {
           query = query.endAt(endDate.getTime());
         }
-        if (status !== null && status !== '-1') {
+        if (status !== null && status !== '-1' && status !== '-2') {
           query = query.where('status', '==', status);
         }
         return query;

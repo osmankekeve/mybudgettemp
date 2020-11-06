@@ -42,7 +42,7 @@ export class CollectionService {
       this.cusService.getAllItems().subscribe(list => {
         this.customerMap.clear();
         list.forEach(item => {
-          this.customerMap.set(item.primaryKey, item);
+          this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
         });
       });
     }

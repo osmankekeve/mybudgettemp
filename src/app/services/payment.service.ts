@@ -14,7 +14,6 @@ import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/corre
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {CollectionModel} from '../models/collection-model';
 
 @Injectable({
   providedIn: 'root'
@@ -41,7 +40,7 @@ export class PaymentService {
       this.cusService.getAllItems().subscribe(list => {
         this.customerMap.clear();
         list.forEach(item => {
-          this.customerMap.set(item.primaryKey, item);
+          this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
         });
       });
     }

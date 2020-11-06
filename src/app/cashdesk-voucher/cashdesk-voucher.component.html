@@ -79,40 +79,51 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-2">Fiş Numarası</div>
-            <div class="col-sm-2">Tip</div>
-            <div class="col-sm-2">Ana Kasa</div>
-            <div class="col-sm-2">Hedef Kasa</div>
-            <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-            <div class="col-sm-2"><span class="float-right text-center">Döküman Tarihi</span></div>
 
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList | filterCashDeskVoucher: searchText; index as i;">
-          <div class="row">
-            <div class="col-sm-2">
-              <i class="fa fa-arrow-circle-right mr-2 text-success"></i>
-              <span class="text-success font-weight-600"></span> {{item.data.receiptNo}}
-            </div>
-            <div class="col-sm-2">{{item.typeTr}}</div>
-            <div class="col-sm-2">{{item.casDeskName}}</div>
-            <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey !=='-1'">{{item.secondCashDeskName}}</div>
-            <div class="col-sm-2" *ngIf="item.data.secondCashDeskPrimaryKey ==='-1'"><i class="fa fa-times-circle mr-2 text-danger"></i></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></div>
-          </div>
-        </div>
-        <li class="list-group-item list-group-item-success main-list-item">
-          <div class="row">
-            <div class="col-sm-8">Toplam</div>
-            <div class="col-sm-2"><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></div>
-          </div>
-        </li>
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr style="font-size: 11px">
+            <th>Fiş Numarası</th>
+            <th>Tip</th>
+            <th>Ana Kasa</th>
+            <th>Hedef Kasa</th>
+            <th><span class="float-right">Tutar</span></th>
+            <th><span class="float-right">Kayıt Tarihi</span></th>
+            <th><span class="float-right">Bilgi</span></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer"  style="font-size: 11px"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterCashDeskVoucher: searchText; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.data.receiptNo}}</span>
+            </td>
+            <td>{{item.typeTr}}</td>
+            <td>{{item.casDeskName}}</td>
+            <td *ngIf="item.data.secondCashDeskPrimaryKey !=='-1'">{{item.secondCashDeskName}}</td>
+            <td *ngIf="item.data.secondCashDeskPrimaryKey ==='-1'"><i class="fa fa-times-circle mr-2 text-danger"></i></td>
+            <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
+            <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
+            <td>
+              <i class="fa fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+              <i class="fa fa-thumbs-o-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+              <i class="fa fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+              <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+              <i class="fa fa-check-circle-o mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+              <i class="fa fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+              <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+            </td>
+          </tr>
+          <tr class="table-success" style="font-size: 11px">
+            <td colspan="4">Toplam</td>
+            <td><span class="float-right">{{totalValues.amount | currency:'₺'}}</span></td>
+            <td colspan="2"></td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

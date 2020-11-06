@@ -219,7 +219,9 @@ export class ProductComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.');
+              this.finishSubProcess(null, 'Ürün başarıyla kaldırıldı.');
+              this.clearSelectedRecord();
+              this.selectedRecord = undefined;
             })
             .catch((error) => {
               this.finishProcess(error, null);
@@ -253,7 +255,8 @@ export class ProductComponent implements OnInit, OnDestroy {
                 await this.pumService.setItem(newData, newData.data.primaryKey);
               }
             }
-            await this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Birimler Başarıyla oluşturuldu.');
+            await this.populateUnits();
+            await this.finishSubProcess(null,'Birimler başarıyla oluşturuldu');
           }
         })
         .catch((error) => {

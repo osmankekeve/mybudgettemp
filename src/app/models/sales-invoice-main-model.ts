@@ -5,7 +5,6 @@ import {SalesInvoiceDetailMainModel} from './sales-invoice-detail-main-model';
 
 export class SalesInvoiceMainModel {
   data: SalesInvoiceModel;
-  customerName?: string;
   customer?: CustomerMainModel;
   account?: CustomerAccountModel;
   employeeName?: string;

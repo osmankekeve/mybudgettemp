@@ -40,13 +40,12 @@ export class PurchaseOrderComponent implements OnInit {
   filter = {
     filterBeginDate: getFirstDayOfMonthForInput(),
     filterFinishDate: getTodayForInput(),
-    filterStatus: '-2',
+    filterStatus: '-1',
   };
   totalValues = {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
-
   priceListMap = new Map();
   discountListMap = new Map();
   storageListMap = new Map();
@@ -362,7 +361,7 @@ export class PurchaseOrderComponent implements OnInit {
   clearMainFiler(): void {
     this.filter.filterBeginDate = getFirstDayOfMonthForInput();
     this.filter.filterFinishDate = getTodayForInput();
-    this.filter.filterStatus = '-2';
+    this.filter.filterStatus = '-1';
   }
 
   finishProcess(error: any, info: any): void {

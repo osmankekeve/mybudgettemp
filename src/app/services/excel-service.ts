@@ -28,8 +28,8 @@ export class ExcelService {
 
   public saveAsExcelFile(buffer: any, fileName: string): void {
     // this.setStyles(fileName);
-    const data: Blob = new Blob([buffer], {type: ExcelConfig.EXCEL_TYPE});
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ExcelConfig.EXCEL_TYPE);
+    const data: Blob = new Blob([buffer], {type: ExcelConfig.EXCEL_EXTENSION});
+    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ExcelConfig.EXCEL_EXTENSION);
   }
 
   public exportToExcel(list: any[], record: string): void {
@@ -41,7 +41,8 @@ export class ExcelService {
       list.forEach((data: any) => {
         const item = data as PurchaseInvoiceMainModel;
         excelList.push({
-          'Customer Name': item.customerName,
+          'Customer Code': item.customer.data.code,
+          'Customer Name': item.customer.data.name,
           'Receipt No': item.data.receiptNo,
           'Total Price': item.data.totalPrice,
           'Total Price (+KDV)': item.data.totalPriceWithTax,
@@ -159,7 +160,7 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = item as AccountVoucherMainModel;
         excelList.push({
-          'Customer Name': data.customerName,
+          'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
           Amount: data.data.amount,
           Type: data.data.type === 'debitVoucher' ? 'Borç' : 'Alacak',

@@ -47,7 +47,10 @@ export class CustomerSelectComponent implements OnInit {
           snapshot.forEach(async doc => {
             this.service.getItem(doc.data().customerPrimaryKey).then(result => {
               const a = result.data as CustomerModel;
-              aa.push(this.service.convertMainModel(a));
+              const aMain = this.service.convertMainModel(a);
+              if (!aa.includes(aMain)) {
+                aa.push(aMain);
+              }
             });
           });
           this.customerList = aa;
