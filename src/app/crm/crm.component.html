@@ -80,12 +80,15 @@
         </div>
         <div class="col-sm-6">
           <div class="card-list-parent"
-               *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+               *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.customer.name}}</div>
+                <div>
+                  <span class="text-red mr-2 text-small">{{item["customer"].data.code}}</span>
+                  <span class="text-small">{{item["customer"].data.name}}</span>
+                </div>
                 <div class="row">
                   <div class="col">
                     <img src="../../assets/images/{{item.data.relationType}}.png" width="25px" class="float-left mr-1">
@@ -126,16 +129,19 @@
     <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="row form-inline">
         <div class="col-sm-3">
-          <label class="col-form-label float-left">Müşteri</label>
+          <label class="col-form-label float-left" for="customerName">Müşteri</label>
         </div>
         <div class="col-sm-9">
-          <select class="form-control form-control-sm w-100" id="parentPrimaryKey" name="parentPrimaryKey" required
-                  [disabled]="selectedRecord.data.primaryKey!=undefined"
-                  [(ngModel)]="selectedRecord.data.parentPrimaryKey">
-            <option value={{item.primaryKey}}
-                    *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
-          </select>
-          <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+          <div class="input-group">
+            <input class="form-control form-control-sm" name="customerName" id="customerName"
+                   [(ngModel)]="selectedRecord.customer?.data.name" disabled>
+            <div class="input-group-append">
+              <button class="btn btn-sm btn-outline-secondary" type="button"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined"
+                      (click)="btnSelectCustomer_Click()">
+                <i class="fa fa-arrow-circle-right"></i></button>
+            </div>
+          </div>
         </div>
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="relationType">Etkinlik Tipi</label>
@@ -186,7 +192,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-success form-control"
+        <button type="button" class="btn btn-sm btn-success form-control"
                 [disabled]="onTransaction || !f.valid"
                 (click)="btnSave_Click()">Kaydet
         </button>
@@ -200,7 +206,7 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-danger form-control"
+        <button type="button" class="btn btn-sm btn-danger form-control"
                 [disabled]="onTransaction"
                 (click)="btnRemove_Click()">Kaldır
         </button>

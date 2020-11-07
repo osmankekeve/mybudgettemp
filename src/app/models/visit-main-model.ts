@@ -1,9 +1,9 @@
 import {VisitModel} from './visit-model';
-import {CustomerModel} from './customer-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class VisitMainModel {
   visit?: VisitModel;
-  customer?: CustomerModel;
+  customer?: CustomerMainModel;
   customerName: string;
   employeeName?: string;
   actionType?: string;

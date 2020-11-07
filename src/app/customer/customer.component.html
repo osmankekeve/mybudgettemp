@@ -53,7 +53,7 @@
       <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
         <table class="table table-bordered table-striped table-hover">
           <thead>
-          <tr style="font-size: 11px">
+          <tr class="table-row-class">
             <th>Müşteri Adı</th>
             <th>Müşteri Tipi</th>
             <th>Yetkili</th>
@@ -63,7 +63,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr class="cursor-pointer"  style="font-size: 11px"
+          <tr class="cursor-pointer table-row-class"
               (click)="showSelectedCustomer(item)"
               *ngFor="let item of mainList | filterDataCustomer: searchText; index as i;">
             <td>

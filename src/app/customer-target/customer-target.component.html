@@ -43,165 +43,46 @@
         <button type="button" class="btn btn-sm btn-success" (click)="btnMainFilter_Click()">Filtrele</button>
       </div>
     </div>
-    <div class="row">
-      <div class="col-sm-4">
-        <div class="card mb-2">
-          <div class="card-header">
-            <div class="font-weight-600 text-red">Yıllık Hedefler</div>
-          </div>
-        </div>
-        <div *ngIf="mainList1 != undefined; else elseBlock2">
-          <div class="card-list-parent" *ngIf="mainList1.length > 0; else elseBlock1">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList1 | filterCustomer : searchText; index as i;"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-500 text-dark float-left">{{item.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.data.year}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ng-template #elseBlock1>
-            <div class="card bg-danger text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
-          </ng-template>
-        </div>
-        <ng-template #elseBlock2>
-          <div class="loader"></div>
-        </ng-template>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Müşteri</th>
+            <th>Hedef Tipi</th>
+            <th>Hedef</th>
+            <th>Başlangıç Ayı</th>
+            <th>Bitiş Ayı</th>
+            <th>Yıl</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
+              <span class="font-weight-600">{{item.customer.data.name}}</span>
+            </td>
+            <td>{{item.typeTr}}</td>
+            <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
+            <td>{{item.beginMonthTr}}</td>
+            <td>{{item.finishMonthTr}}</td>
+            <td>{{item.data.year}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
-      <div class="col-sm-4">
-        <div class="card mb-2">
-          <div class="card-header">
-            <div class="font-weight-600 text-red">Aylık Hedefler</div>
-          </div>
+      <ng-template #elseBlock>
+        <div class="card bg-danger text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
-        <div *ngIf="mainList2 != undefined; else elseBlock2">
-          <div class="card-list-parent" *ngIf="mainList2.length > 0; else elseBlock2">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList2 | filterCustomer : searchText; index as i;"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small text-dark float-left">{{item.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.data.year}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Ay:</div>
-                    <span class="text-small text-dark float-left">{{item.beginMonthTr}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ng-template #elseBlock2>
-            <div class="card bg-danger text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
-          </ng-template>
-        </div>
-        <ng-template #elseBlock2>
-          <div class="loader"></div>
-        </ng-template>
-      </div>
-      <div class="col-sm-4">
-        <div class="card mb-2">
-          <div class="card-header">
-            <div class="font-weight-600 text-red">Periodik Hedefler</div>
-          </div>
-        </div>
-        <div *ngIf="mainList3 != undefined; else elseBlock2">
-          <div class="card-list-parent" *ngIf="mainList3.length > 0; else elseBlock3">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 *ngFor="let item of mainList3 | filterCustomer : searchText; index as i;"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small text-dark float-left">{{item.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div class="text-small text-dark float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.data.year}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Başlangıç:</div>
-                    <span class="text-small text-dark float-left">{{item.beginMonthTr}}</span>
-                  </div>
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Bitiş:</div>
-                    <span class="text-small text-dark float-left">{{item.finishMonthTr}}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ng-template #elseBlock3>
-            <div class="card bg-danger text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
-          </ng-template>
-        </div>
-        <ng-template #elseBlock2>
-          <div class="loader"></div>
-        </ng-template>
-      </div>
+      </ng-template>
     </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
@@ -210,8 +91,12 @@
       <div class="col-sm-12">
         <img src="../../assets/images/target_2.png" width="30px" class="float-left mr-2"/>
         <h4 class="card-title float-left mr-2">Hedef Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Bilgiler"
+                (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
       </div>
     </div>
   </div>
@@ -225,17 +110,19 @@
           <div class="card-body">
             <form (ngSubmit)="btnSave_Click()" class="row was-validated" #f="ngForm">
               <div class="col-sm-6">
-                <label class="col-form-label float-left" for="customerCode">Müşteri</label>
+                <label class="col-form-label float-left" for="customerName">Müşteri</label>
               </div>
               <div class="col-sm-6">
-                <select class="form-control form-control-sm w-100" id="customerCode" name="customerCode" required
-                        [disabled]="selectedRecord.data.primaryKey!=undefined"
-                        (change)="onChangeCustomer($event)"
-                        [(ngModel)]="selectedRecord.data.customerCode">
-                  <option value={{item.primaryKey}}
-                          *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
-                </select>
-                <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+                <div class="input-group">
+                  <input class="form-control form-control-sm" name="customerName" id="customerName"
+                         [(ngModel)]="selectedRecord.customer?.data.name" disabled>
+                  <div class="input-group-append">
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                            [disabled]="selectedRecord.data.primaryKey!=undefined"
+                            (click)="btnSelectCustomer_Click()">
+                      <i class="fa fa-arrow-circle-right"></i></button>
+                  </div>
+                </div>
               </div>
               <div class="col-sm-6">
                 <label class="col-form-label float-left" for="type">Hedef Tipi</label>
@@ -268,7 +155,7 @@
               </div>
               <div class="col-sm-12"
                    *ngIf="selectedRecord.data.type == 'periodic' || selectedRecord.data.type == 'monthly'; else elseBlock1">
-                <div class="form-row">
+                <div class="row">
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Başlangıç Ayı</label>
                   </div>
@@ -299,7 +186,7 @@
                 <div class="col-sm-12"></div>
               </ng-template>
               <div class="col-sm-12" *ngIf="selectedRecord.data.type == 'periodic'; else elseBlock2">
-                <div class="form-row">
+                <div class="row">
                   <div class="col-sm-6">
                     <label class="col-form-label float-left" for="type">Bitiş Ayı</label>
                   </div>

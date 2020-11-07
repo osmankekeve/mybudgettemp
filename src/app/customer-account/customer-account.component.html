@@ -2,7 +2,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Hesaplar Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Tahsilat"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
@@ -27,33 +27,29 @@
   </div>
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group">
-          <div class="list-group-item bg-danger text-light main-list-item">
-            <div class="row">
-              <div class="col-sm-5">Hesap Adı</div>
-              <div class="col-sm-5">Müşteri Adı</div>
-              <div class="col-sm-1">Döviz Tipi</div>
-              <div class="col-sm-1"><span class="float-right">Tarih</span></div>
-            </div>
-          </div>
-          <div class="work-area-6">
-            <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                 (click)="showSelectedRecord(item)"
-                 *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
-              <div class="row">
-                <div class="col-sm-5">
-                  <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-                  <span class="text-red font-weight-600">{{item.data.name}}</span>
-                </div>
-                <div class="col-sm-5">{{item.customer.data.name}}</div>
-                <div class="col-sm-1">{{item.currencyTr}}</div>
-                <div class="col-sm-1"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Müşteri</th>
+            <th>Döviz Tipi</th>
+            <th><span class="float-right">Tarih</span></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
+              <span class="font-weight-600">{{item.data.name}}</span>
+            </td>
+            <td>{{item.currencyTr}}</td>
+            <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">
@@ -91,7 +87,7 @@
             <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
               <div class="row form-inline">
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="customerPrimaryKey">Müşteri</label>
+                  <label class="col-form-label float-left" for="customerName">Müşteri</label>
                 </div>
                 <div class="col-sm-9">
                   <div class="input-group">
@@ -262,7 +258,7 @@
                   <div class="row">
                     <div class="col-sm-3 text-red">
                       <i class="fa fa-arrow-circle-right mr-2"></i>
-                      <span class="text-red font-weight-600">{{item.transactionTypeTr}}</span>
+                      <span class="text-red font-weight-600">{{item["transactionTypeTr"]}}</span>
                     </div>
                     <div class="col-sm-3">{{item.receiptNo}}</div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>

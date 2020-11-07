@@ -56,7 +56,7 @@ export class AccountMatchComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedRecord = undefined;
+    this.clearSelectedRecord();
     this.populateList();
 
     // region Kur

@@ -14,6 +14,7 @@ import {PaymentModel} from '../models/payment-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {SettingService} from './setting.service';
 import {CustomerService} from './customer.service';
+import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,10 @@ export class CustomerTargetService {
   async addItem(record: CustomerTargetMainModel) {
     await this.logService.addTransactionLog(record, 'insert', 'customerTarget');
     return await this.listCollection.add(Object.assign({}, record.data));
+  }
+  async setItem(record: CustomerTargetMainModel, primaryKey: string) {
+    await this.logService.addTransactionLog(record, 'insert', 'customerTarget');
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
   async removeItem(record: CustomerTargetMainModel) {
@@ -64,7 +69,7 @@ export class CustomerTargetService {
             .then((values: any) => {
               if (values[0] !== undefined || values[0] !== null) {
                 const customer = values[0] as CustomerModel;
-                returnData.customerName = customer.name;
+                returnData.customer = this.cusService.convertMainModel(customer);
               }
             });
 
@@ -133,6 +138,7 @@ export class CustomerTargetService {
   clearMainModel(): CustomerTargetMainModel {
     const returnData = new CustomerTargetMainModel();
     returnData.data = this.clearSubModel();
+    returnData.customer = this.cusService.clearMainModel();
     returnData.typeTr = 'Yıllık';
     returnData.beginMonthTr = this.months.get(returnData.data.beginMonth.toString());
     returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
@@ -160,7 +166,7 @@ export class CustomerTargetService {
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          returnData.customerName = customer.name;
+          returnData.customer = this.cusService.convertMainModel(customer);
           return Object.assign({ returnData }); }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
@@ -186,7 +192,7 @@ export class CustomerTargetService {
 
         return this.db.collection('tblCustomer').doc(returnData.data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
-          returnData.customerName = customer.name;
+          returnData.customer = this.cusService.convertMainModel(customer);
 
           return Object.assign({ returnData }); }));
       });

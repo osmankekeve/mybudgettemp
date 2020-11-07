@@ -1,8 +1,9 @@
 import {CustomerTargetModel} from './customer-target-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class CustomerTargetMainModel {
   data?: CustomerTargetModel;
-  customerName?: string;
+  customer?: CustomerMainModel;
   typeTr?: string;
   beginMonthTr?: string;
   finishMonthTr?: string;

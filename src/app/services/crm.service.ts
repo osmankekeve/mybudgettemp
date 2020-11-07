@@ -28,7 +28,7 @@ export class CustomerRelationService {
       this.cusService.getAllItems().subscribe(list => {
         this.customerMap.clear();
         list.forEach(item => {
-          this.customerMap.set(item.primaryKey, item);
+          this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
         });
       });
     }
@@ -52,7 +52,7 @@ export class CustomerRelationService {
 
   async setItem(record: CustomerRelationMainModel, primaryKey: string) {
     await this.logService.addTransactionLog(record, 'insert', 'crm');
-    return await this.listCollection.doc(primaryKey).set(record.data);
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
   checkForSave(record: CustomerRelationMainModel): Promise<string> {
@@ -127,6 +127,7 @@ export class CustomerRelationService {
   clearMainModel(): CustomerRelationMainModel {
     const returnData = new CustomerRelationMainModel();
     returnData.data = this.clearSubModel();
+    returnData.customer = this.cusService.clearMainModel();
     returnData.actionType = 'added';
     returnData.relationTypeTR = this.relationTypeMap.get(returnData.data.relationType);
     return returnData;
@@ -166,7 +167,7 @@ export class CustomerRelationService {
 
         return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });
@@ -190,7 +191,7 @@ export class CustomerRelationService {
 
         return this.db.collection('tblCustomer').doc(data.parentPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customer = customer !== undefined ? customer : undefined;
+            returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
             return Object.assign({returnData});
           }));
       });

@@ -17,6 +17,10 @@ import * as CryptoJS from 'crypto-js';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {Chart} from 'chart.js';
 import {SettingModel} from '../models/setting-model';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ToastService} from '../services/toast.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 
 @Component({
   selector: 'app-visit',
@@ -29,7 +33,6 @@ export class VisitComponent implements OnInit {
   customerList$: Observable<CustomerModel[]>;
   profileList$: Observable<ProfileMainModel[]>;
   selectedRecord: VisitMainModel;
-  refModel: VisitMainModel;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
   filterBeginDate: any;
@@ -43,7 +46,7 @@ export class VisitComponent implements OnInit {
   constructor(public authService: AuthenticationService, public service: VisitService, public route: Router,
               public atService: AccountTransactionService, public infoService: InformationService,
               public cService: CustomerService, public router: ActivatedRoute, public proService: ProfileService,
-              public db: AngularFirestore) {
+              public db: AngularFirestore, protected modalService: NgbModal, protected toastService: ToastService) {
   }
 
   async ngOnInit() {
@@ -65,7 +68,7 @@ export class VisitComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -208,7 +211,6 @@ export class VisitComponent implements OnInit {
 
   showSelectedRecord(record: VisitMainModel): void {
     this.selectedRecord = record;
-    this.refModel = record;
     this.recordDate = getDateForInput(this.selectedRecord.visit.visitDate);
   }
 
@@ -285,6 +287,42 @@ export class VisitComponent implements OnInit {
     }
   }
 
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      list.push('supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.visit.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   btnShowMainFiler_Click(): void {
     if (this.isMainFilterOpened === true) {
       this.isMainFilterOpened = false;
@@ -313,16 +351,7 @@ export class VisitComponent implements OnInit {
     }
   }
 
-  onChangeCustomer($event: any): void {
-    try {
-      this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
-    } catch (err) {
-      this.infoService.error(err);
-    }
-  }
-
   clearSelectedRecord(): void {
-    this.refModel = undefined;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearVisitMainModel();
   }

@@ -1,9 +1,9 @@
 import {CustomerRelationModel} from './customer-relation-model';
-import {CustomerModel} from './customer-model';
+import {CustomerMainModel} from './customer-main-model';
 
 export class CustomerRelationMainModel {
   data?: CustomerRelationModel;
-  customer?: CustomerModel;
+  customer?: CustomerMainModel;
   actionType?: string;
   relationTypeTR?: string;
 }

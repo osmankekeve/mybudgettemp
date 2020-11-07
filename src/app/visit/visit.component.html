@@ -2,7 +2,7 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Ziyaret Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Etkinlik"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
@@ -85,16 +85,19 @@
           </div>
         </div>
         <div class="col-sm-6">
-          <div class="card-list-parent" *ngFor="let item of mainList | filterCustomer: searchText; index as i;">
+          <div class="card-list-parent" *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
             <div class="card mb-2 bg-light cursor-pointer"
                  (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
-                <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2"
+                <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" alt=""
                      *ngIf="item.visit.isVisited"/>
-                <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2"
+                <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" alt=""
                      *ngIf="!item.visit.isVisited"/>
-                <div class="font-weight-500 text-dark">{{item.customer.name}}</div>
+                <div>
+                  <span class="text-red mr-2 text-small">{{item["customer"].data.code}}</span>
+                  <span class="text-small">{{item["customer"].data.name}}</span>
+                </div>
                 <div class="row">
                   <div class="col">
                     <div class="text-small text-dark float-left">{{item.employeeName}}</div>
@@ -123,10 +126,14 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-12">
-        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2">
+        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Ziyaret Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Bilgiler"
+                (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
       </div>
     </div>
   </div>
@@ -141,17 +148,19 @@
             <div class="card-body work-area-2">
               <div class="row">
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left">Müşteri</label>
+                  <label class="col-form-label float-left" for="customerName">Müşteri</label>
                 </div>
                 <div class="col-sm-9">
-                  <select class="form-control form-control-sm w-100" id="customerPrimaryKey" name="customerPrimaryKey" required
-                          [disabled]="selectedRecord.visit.primaryKey"
-                          (change)="onChangeCustomer($event)"
-                          [(ngModel)]="selectedRecord.visit.customerPrimaryKey">
-                    <option value={{item.primaryKey}}
-                            *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
-                  </select>
-                  <div class="invalid-feedback invalid-input-info">Lütfen müşteri seçiniz.</div>
+                  <div class="input-group">
+                    <input class="form-control form-control-sm" name="customerName" id="customerName"
+                           [(ngModel)]="selectedRecord.customer?.data.name" disabled>
+                    <div class="input-group-append">
+                      <button class="btn btn-sm btn-outline-secondary" type="button"
+                              [disabled]="selectedRecord.visit.primaryKey!=undefined"
+                              (click)="btnSelectCustomer_Click()">
+                        <i class="fa fa-arrow-circle-right"></i></button>
+                    </div>
+                  </div>
                 </div>
                 <div class="col-sm-3">
                   <label class="col-form-label float-left">Personel</label>

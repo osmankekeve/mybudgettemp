@@ -313,14 +313,16 @@ export class SettingService {
     const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
     Promise.all([ purchaseInvoiceNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'purchaseInvoiceNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'purchaseInvoiceNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -329,13 +331,15 @@ export class SettingService {
     const paymentNumber = this.getItem('paymentNumber');
     Promise.all([ paymentNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'paymentNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false, valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'paymentNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false, valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -344,14 +348,16 @@ export class SettingService {
     const salesInvoiceNumber = this.getItem('salesInvoiceNumber');
     Promise.all([ salesInvoiceNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'salesInvoiceNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'salesInvoiceNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -360,14 +366,16 @@ export class SettingService {
     const collectionNumber = this.getItem('collectionNumber');
     Promise.all([ collectionNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'collectionNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'collectionNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -376,14 +384,16 @@ export class SettingService {
     const accountVoucherNumber = this.getItem('accountVoucherNumber');
     Promise.all([ accountVoucherNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'accountVoucherNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'accountVoucherNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -392,14 +402,16 @@ export class SettingService {
     const cashDeskVoucherNumber = this.getItem('cashDeskVoucherNumber');
     Promise.all([ cashDeskVoucherNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'cashDeskVoucherNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'cashDeskVoucherNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -408,14 +420,16 @@ export class SettingService {
     const customerNumber = this.getItem('customerNumber');
     Promise.all([ customerNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'customerNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'customerNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -424,14 +438,16 @@ export class SettingService {
     const productNumber = this.getItem('productNumber');
     Promise.all([ productNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'productNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'productNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }
@@ -440,14 +456,16 @@ export class SettingService {
     const orderNumber = this.getItem('orderNumber');
     Promise.all([ orderNumber])
       .then((values: any) => {
-        const numb = values[0].data as SettingModel;
-        if (numb.value !== '') {
-          return this.setItem({
-            key: 'orderNumber',
-            value: getString(getNumber(numb.value) + 1),
-            valueBool: false,
-            valueNumber: 0
-          });
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'orderNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
         }
       });
   }

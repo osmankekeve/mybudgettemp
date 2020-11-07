@@ -104,7 +104,7 @@
       <div class="table-responsive" *ngIf="mainList.length > 0; else elseBlock">
         <table class="table table-bordered">
           <thead>
-          <tr style="font-size: 11px">
+          <tr class="table-row-class">
             <th>Müşteri</th>
             <th>Satış</th>
             <th>Tahsilat</th>
@@ -115,7 +115,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr style="font-size: 11px" *ngFor="let item of mainList; index as i;">
+          <tr class="table-row-class" *ngFor="let item of mainList; index as i;">
             <td>{{i + 1}}-{{item.stringField1}}</td>
             <td>{{item.numberField1 | currency:'₺'}}</td>
             <td>{{item.numberField2 | currency:'₺'}}</td>

@@ -35,7 +35,7 @@ export class VisitService {
     this.cusService.getAllItems().subscribe(list => {
       this.customerMap.clear();
       list.forEach(item => {
-        this.customerMap.set(item.primaryKey, item);
+        this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
       });
     });
   }
@@ -90,6 +90,7 @@ export class VisitService {
           const returnData = new VisitMainModel();
           returnData.visit = data;
           returnData.actionType = '';
+          returnData.customer = this.customerMap.get(returnData.visit.customerPrimaryKey);
           returnData.employeeName = this.employeeMap.get(data.employeePrimaryKey);
           returnData.isVisitedTr = returnData.visit.isVisited ? 'Ziyaret Edildi' : 'Ziyaret Edilmedi';
 
@@ -119,6 +120,7 @@ export class VisitService {
   clearVisitMainModel(): VisitMainModel {
     const returnData = new VisitMainModel();
     returnData.visit = this.clearVisitModel();
+    returnData.customer = this.cusService.clearMainModel();
     returnData.customerName = '';
     returnData.employeeName = this.employeeMap.get(returnData.visit.employeePrimaryKey);
     returnData.isVisitedTr = 'Ziyaret Edilmedi';
@@ -143,9 +145,7 @@ export class VisitService {
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customerName = customer.name;
-            returnData.customer = customer;
-
+            returnData.customer = this.cusService.convertMainModel(customer);
             return Object.assign({returnData});
           }));
       });
@@ -170,8 +170,7 @@ export class VisitService {
 
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
-            returnData.customerName = customer.name;
-            returnData.customer = customer;
+            returnData.customer = this.cusService.convertMainModel(customer);
 
             return Object.assign({returnData});
           }));

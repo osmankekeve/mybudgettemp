@@ -179,7 +179,7 @@
           <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
             <table class="table table-bordered table-striped table-hover">
               <thead>
-              <tr style="font-size: 11px">
+              <tr class="table-row-class">
                 <th>Müşteri</th>
                 <th>Fiş No</th>
                 <th>Fatura Tipi</th>
@@ -191,7 +191,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr class="cursor-pointer"  style="font-size: 11px"
+              <tr class="cursor-pointer table-row-class"
                   (click)="showSelectedRecord(item)"
                   *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                 <td>
@@ -215,7 +215,7 @@
                   <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                 </td>
               </tr>
-              <tr class="table-success" style="font-size: 11px">
+              <tr class="table-success table-row-class">
                 <td colspan="4">Toplam</td>
                 <td><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></td>
                 <td><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span></td>
@@ -567,7 +567,7 @@
                           <small class="col-form-label float-left fs-13 p-0 pb-1">Ürün Sayısı</small>
                         </div>
                         <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{invoiceDetailList.length}}</small>
+                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{invoiceDetailList?.length}}</small>
                         </div>
                         <div class="col-sm-6">
                           <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam Tutar</small>

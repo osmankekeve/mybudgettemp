@@ -37,7 +37,7 @@
     <div class="table-responsive table-responsive-sm work-area-2">
       <table class="table table-sm table-striped table-bordered">
         <tbody>
-        <tr style="font-size: 12px" [ngClass]="{'text-red font-weight-600': i==0}" *ngFor = "let item of listExcelData; index as i;">
+        <tr class="table-row-class" [ngClass]="{'text-red font-weight-600': i==0}" *ngFor = "let item of listExcelData; index as i;">
           <td *ngFor = "let key of listExcelDataKeys">{{item[key]}}</td>
         </tr>
         </tbody>

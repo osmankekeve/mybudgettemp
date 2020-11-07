@@ -80,7 +80,7 @@
       <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
         <table class="table table-bordered table-striped table-hover">
         <thead>
-          <tr style="font-size: 11px">
+          <tr class="table-row-class">
           <th>Müşteri</th>
           <th>Sipariş No</th>
           <th>Sipariş Tipi</th>
@@ -92,7 +92,7 @@
         </tr>
         </thead>
         <tbody>
-          <tr class="cursor-pointer"  style="font-size: 11px"
+          <tr class="cursor-pointer table-row-class"
             (click)="showSelectedRecord(item)"
             *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
           <td>
@@ -116,7 +116,7 @@
             <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
           </td>
         </tr>
-          <tr class="table-success" style="font-size: 11px">
+          <tr class="table-success table-row-class">
             <td colspan="4">Toplam</td>
             <td><span class="float-right">{{totalValues.totalPrice | currency:'₺'}}</span></td>
             <td><span class="float-right">{{totalValues.totalPriceWithTax | currency:'₺'}}</span></td>

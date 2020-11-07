@@ -22,18 +22,24 @@
   </div>
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of mainList | filterCashDesk: searchText; index as i;">
-          <div class="card-list-parent">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <div class="font-weight-500 text-dark">{{item.data.name}}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Kasa</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterCashDesk: searchText; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="font-weight-600 mr-1">{{item.data.name}}</span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

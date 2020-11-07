@@ -67,7 +67,7 @@
       <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
         <table class="table table-bordered table-striped table-hover">
           <thead>
-          <tr style="font-size: 11px">
+          <tr class="table-row-class">
             <th>Ürün Adı</th>
             <th>Stok Tipi</th>
             <th>Ürün Tipi</th>
@@ -80,7 +80,7 @@
           </tr>
           </thead>
           <tbody>
-            <tr class="cursor-pointer"  style="font-size: 11px"
+            <tr class="cursor-pointer table-row-class"
                 (click)="showSelectedRecord(item)"
                 *ngFor="let item of mainList | filterProduct: searchText; index as i;">
               <td>

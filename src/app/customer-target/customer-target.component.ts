@@ -15,6 +15,11 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AccountTransactionService} from '../services/account-transaction.service';
+import {ToastService} from '../services/toast.service';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-customer-target',
@@ -22,11 +27,8 @@ import {GlobalService} from '../services/global.service';
   styleUrls: ['./customer-target.component.css']
 })
 export class CustomerTargetComponent implements OnInit {
-  mainList1: Array<CustomerTargetMainModel> = [];
-  mainList2: Array<CustomerTargetMainModel> = [];
-  mainList3: Array<CustomerTargetMainModel> = [];
+  mainList: Array<CustomerTargetMainModel> = [];
   selectedRecord: CustomerTargetMainModel;
-  customerList$: Observable<CustomerModel[]>;
   transactionList$: Observable<CollectionMainModel[]>;
   currentAmount = 0;
   encryptSecretKey: string = getEncryptionKey();
@@ -37,13 +39,13 @@ export class CustomerTargetComponent implements OnInit {
     isActive: true
   };
 
-  constructor(public authService: AuthenticationService, public route: Router, public router: ActivatedRoute,
-              public infoService: InformationService, public colService: CollectionService, public globService: GlobalService,
-              public cService: CustomerService, public service: CustomerTargetService, public db: AngularFirestore) {
+  constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
+              protected infoService: InformationService, protected colService: CollectionService, protected globService: GlobalService,
+              protected cService: CustomerService, protected service: CustomerTargetService, protected db: AngularFirestore,
+              protected modalService: NgbModal, protected toastService: ToastService) {
   }
 
   async ngOnInit() {
-    this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.selectedRecord = undefined;
 
@@ -58,7 +60,7 @@ export class CustomerTargetComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -79,95 +81,37 @@ export class CustomerTargetComponent implements OnInit {
   }
 
   populateList(): void {
-    this.mainList1 = undefined;
-    this.mainList2 = undefined;
-    this.mainList3 = undefined;
+    this.mainList = undefined;
     this.service.getMainItems(this.filter.isActive).subscribe(list => {
-      if (this.mainList1 === undefined) {
-        this.mainList1 = [];
-      }
-      if (this.mainList2 === undefined) {
-        this.mainList2 = [];
-      }
-      if (this.mainList3 === undefined) {
-        this.mainList3 = [];
+      if (this.mainList === undefined) {
+        this.mainList = [];
       }
       list.forEach((data: any) => {
         const item = data.returnData as CustomerTargetMainModel;
         if (item.actionType === 'added') {
-          if (item.data.type === 'yearly') {
-            this.mainList1.push(item);
-          }
-          if (item.data.type === 'monthly') {
-            this.mainList2.push(item);
-          }
-          if (item.data.type === 'periodic') {
-            this.mainList3.push(item);
-          }
+          this.mainList.push(item);
         }
         if (item.actionType === 'removed') {
-          if (item.data.type === 'yearly') {
-            for (let i = 0; i < this.mainList1.length; i++) {
-              if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
-                this.mainList1.splice(i, 1);
-                break;
-              }
-            }
-          }
-          if (item.data.type === 'monthly') {
-            for (let i = 0; i < this.mainList2.length; i++) {
-              if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
-                this.mainList2.splice(i, 1);
-                break;
-              }
-            }
-          }
-          if (item.data.type === 'periodic') {
-            for (let i = 0; i < this.mainList3.length; i++) {
-              if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
-                this.mainList3.splice(i, 1);
-                break;
-              }
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+              break;
             }
           }
         }
         if (item.actionType === 'modified') {
-          if (item.data.type === 'yearly') {
-            for (let i = 0; i < this.mainList1.length; i++) {
-              if (item.data.primaryKey === this.mainList1[i].data.primaryKey) {
-                this.mainList1[i] = item;
-                break;
-              }
-            }
-          }
-          if (item.data.type === 'monthly') {
-            for (let i = 0; i < this.mainList2.length; i++) {
-              if (item.data.primaryKey === this.mainList2[i].data.primaryKey) {
-                this.mainList2[i] = item;
-                break;
-              }
-            }
-          }
-          if (item.data.type === 'periodic') {
-            for (let i = 0; i < this.mainList3.length; i++) {
-              if (item.data.primaryKey === this.mainList3[i].data.primaryKey) {
-                this.mainList3[i] = item;
-                break;
-              }
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList[i] = item;
+              break;
             }
           }
         }
       });
     });
     setTimeout(() => {
-      if (this.mainList1 === undefined) {
-        this.mainList1 = [];
-      }
-      if (this.mainList2 === undefined) {
-        this.mainList2 = [];
-      }
-      if (this.mainList3 === undefined) {
-        this.mainList3 = [];
+      if (this.mainList === undefined) {
+        this.mainList = [];
       }
     }, 1000);
   }
@@ -244,8 +188,8 @@ export class CustomerTargetComponent implements OnInit {
           this.selectedRecord.data.finishMonth = getNumber(this.selectedRecord.data.finishMonth);
           this.selectedRecord.data.year = getNumber(this.selectedRecord.data.year);
           if (this.selectedRecord.data.primaryKey === null) {
-            this.selectedRecord.data.primaryKey = '';
-            await this.service.addItem(this.selectedRecord)
+            this.selectedRecord.data.primaryKey = this.db.createId();
+            await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
                 this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
               })
@@ -291,6 +235,26 @@ export class CustomerTargetComponent implements OnInit {
     }
   }
 
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      list.push('supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async btnShowMainFiler_Click(): Promise<void> {
     try {
       if (this.isMainFilterOpened === true) {
@@ -312,6 +276,22 @@ export class CustomerTargetComponent implements OnInit {
     }
   }
 
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   onChangeType(record: any): void {
     if (record === 'yearly') {
       this.selectedRecord.data.beginMonth = -1;
@@ -327,10 +307,6 @@ export class CustomerTargetComponent implements OnInit {
       this.selectedRecord.data.beginMonth = -1;
       this.selectedRecord.data.finishMonth = -1;
     }
-  }
-
-  onChangeCustomer($event: any): void {
-    this.selectedRecord.customerName = $event.target.options[$event.target.options.selectedIndex].text;
   }
 
   onChangeBeginMonth($event: any): void {

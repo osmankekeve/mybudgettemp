@@ -4,7 +4,7 @@ import { AccountTransactionService } from '../services/account-transaction.servi
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { CustomerRelationService } from '../services/crm.service';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {NgbDateStruct, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
@@ -13,6 +13,9 @@ import * as CryptoJS from 'crypto-js';
 import {getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Chart} from 'chart.js';
 import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
+import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import {ToastService} from '../services/toast.service';
+import {GlobalUploadService} from '../services/global-upload.service';
 
 @Component({
   selector: 'app-crm',
@@ -21,7 +24,6 @@ import {CustomerRelationMainModel} from '../models/customer-relation-main-model'
 })
 export class CRMComponent implements OnInit {
   mainList: Array<CustomerRelationMainModel>;
-  customerList$: Observable<CustomerModel[]>;
   selectedRecord: CustomerRelationMainModel;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
@@ -35,15 +37,14 @@ export class CRMComponent implements OnInit {
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
-              public atService: AccountTransactionService,
+              public atService: AccountTransactionService, protected toastService: ToastService,
               public infoService: InformationService, public route: Router, public router: ActivatedRoute,
-              public cService: CustomerService,
+              public cService: CustomerService, protected modalService: NgbModal,
               public db: AngularFirestore) {
   }
 
   ngOnInit() {
     this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
     this.populateList();
     this.generateCharts();
 
@@ -58,7 +59,7 @@ export class CRMComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -261,6 +262,26 @@ export class CRMComponent implements OnInit {
   async btnReturnList_Click(): Promise<void> {
     await this.finishProcess(null, null);
     await this.route.navigate(['crm', {}]);
+  }
+
+  async btnSelectCustomer_Click(): Promise<void> {
+    try {
+      const list = Array<string>();
+      list.push('customer');
+      list.push('customer-supplier');
+      list.push('supplier');
+      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      modalRef.componentInstance.customer = this.selectedRecord.customer;
+      modalRef.componentInstance.customerTypes = list;
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.selectedRecord.customer = result;
+          this.selectedRecord.data.parentPrimaryKey = this.selectedRecord.customer.data.primaryKey;
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   btnMainFilter_Click(): void {
