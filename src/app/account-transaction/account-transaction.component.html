@@ -2,7 +2,7 @@
     <div class="card-header bg-gray-gradient">
         <div class="row">
             <div class="col-sm-8">
-              <img src="../../assets/images/account_transactions.png" width="30px" class="float-left mr-2">
+              <img src="../../assets/images/account_transactions.png" width="30px" class="float-left mr-2" alt="">
                 <h4 class="card-title float-left mr-2">Tüm Cari Hareketler</h4>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                         (click)="btnShowMainFiler_Click()" ><i class="fa fa-filter"></i></button>
@@ -20,7 +20,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="card mb-2" *ngIf="isMainFilterOpened">
+      <div class="card mb-2" *ngIf="isMainFilterOpened">
           <div class="card-header">Filtreler</div>
           <div class="card-body bg-light">
             <div class="row">
@@ -56,42 +56,56 @@
             </div>
           </div>
         </div>
-        <div class="list-group" *ngIf="mainList != undefined; else elseBlock">
-                <div class="list-group-item bg-success text-light main-list-item">
-                        <div class="row">
-                            <div class="col-sm-3">Fiş Numarası</div>
-                            <div class="col-sm-3">İşlem</div>
-                            <div class="col-sm-2">Tutar</div>
-                            <div class="col-sm-2">Tutar Tipi</div>
-                            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-
-                        </div>
-                </div>
-            <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+      <div *ngIf="mainList != undefined; else elseBlock2">
+        <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr class="table-row-class">
+              <th>Fiş Numarası</th>
+              <th>İşlem Tipi</th>
+              <th>Alt İşlem Tipi</th>
+              <th>Tutar Tipi</th>
+              <th><span class="float-right">Tutar</span></th>
+              <th><span class="float-right">Tarih</span></th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr class="cursor-pointer table-row-class"
                 (click)="showSelectedRecord(item)"
-                *ngFor="let item of mainList; index as i;">
-                <div class="row">
-                    <div class="col-sm-3">{{item.data.receiptNo}}</div>
-                    <div class="col-sm-3">{{item.data.transactionType}}</div>
-                    <div class="col-sm-2">{{item.data.amount | currency:'₺'}}</div>
-                    <div class="col-sm-2">{{item.data.amountType}}</div>
-                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-                </div>
-            </div>
+                *ngFor="let item of mainList">
+              <td>
+                <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                <span>{{item.data.receiptNo}}</span>
+              </td>
+              <td>{{item.transactionTypeTr}}</td>
+              <td>{{item.subTransactionTypeTr}}</td>
+              <td>{{item.amountTypeTr}}</td>
+                <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
+              <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+            </tr>
+            </tbody>
+          </table>
         </div>
         <ng-template #elseBlock>
-            <div class="card bg-danger text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
+          <div class="card bg-danger text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+          </div>
         </ng-template>
+      </div>
+      <ng-template #elseBlock2>
+        <div class="loader"></div>
+      </ng-template>
     </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header">
     <div class="row">
         <div class="col-sm-12">
+          <img src="../../assets/images/account_transactions.png" width="30px" class="float-left mr-2" alt="">
             <h4 class="card-title float-left mr-2">Hareket Detayı</h4>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()">
+              <i class="fa fa-arrow-left"></i>
+            </button>
         </div>
     </div>
   </div>

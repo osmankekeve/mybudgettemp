@@ -154,7 +154,8 @@ export class AccountTransactionService {
   clearMainModel(): AccountTransactionMainModel {
     const returnData = new AccountTransactionMainModel();
     returnData.data = this.clearSubModel();
-    returnData.customer = null;
+    returnData.customer = this.cService.clearMainModel();
+    returnData.amountTypeTr = '';
     returnData.actionType = 'added';
     returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.paidAmount);
     returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
@@ -207,6 +208,7 @@ export class AccountTransactionService {
     returnData.subTransactionTypeTr = getTransactionTypes().get(model.transactionSubType);
     returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.amount);
     returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
+    returnData.amountTypeTr = model.amountType === 'debit' ? 'Borç' : 'Alacak';
     return returnData;
   }
 

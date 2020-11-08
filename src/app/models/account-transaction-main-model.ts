@@ -8,6 +8,7 @@ export class AccountTransactionMainModel {
   transactionTypeTr?: string;
   subTransactionTypeTr?: string;
   matchTr?: string;
+  amountTypeTr?: string;
   remainingAmount?: number;
   actionType?: string;
 }

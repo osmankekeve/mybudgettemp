@@ -11,26 +11,28 @@
   </div>
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-red text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-2">Key</div>
-            <div class="col-sm-8">Değer</div>
-            <div class="col-sm-2">Aktif mi?</div>
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList | filterNote: searchText; index as i;">
-          <div class="row">
-            <div class="col-sm-2">
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Key</th>
+            <th>Değer</th>
+            <th>Aktif Mi?</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterNote: searchText; index as i;">
+            <td>
               <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600 mr-2">{{item.data.key}}</span>
-            </div>
-            <div class="col-sm-8">{{item.data.custom1}}</div>
-            <div class="col-sm-2">{{item.isActiveTr}}</div>
-          </div>
-        </div>
+              <span class="text-red font-weight-600 mr-1">{{item.data.key}}</span>
+            </td>
+            <td>{{item.data.custom1}}</td>
+            <td>{{item.isActiveTr}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

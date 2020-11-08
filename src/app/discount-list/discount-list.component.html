@@ -21,30 +21,32 @@
   </div>
   <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-danger text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-4">Liste Adı</div>
-            <div class="col-sm-2">Liste Tipi</div>
-            <div class="col-sm-2"><span class="float-right">Başlangıç Tarihi</span></div>
-            <div class="col-sm-2"><span class="float-right">Bitiş Tarihi</span></div>
-            <div class="col-sm-2"><span class="float-right">Aktif Mi?</span></div>
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)"
-             *ngFor="let item of mainList | filterList: searchText; index as i;">
-          <div class="row">
-            <div class="col-sm-4">
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Liste Adı</th>
+            <th>Liste Tipi</th>
+            <th><span class="float-right">Başlangıç Tarihi</span></th>
+            <th><span class="float-right">Bitiş Tarihi</span></th>
+            <th>Aktif Mi?</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class"
+              (click)="showSelectedRecord(item)"
+              *ngFor="let item of mainList | filterList: searchText; index as i;">
+            <td>
               <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600">{{item.data.listName}}</span>
-            </div>
-            <div class="col-sm-2">{{item.typeTr}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.beginDate | date: 'yyyy.MM.dd'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.finishDate | date: 'yyyy.MM.dd'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.isActiveTr}}</span></div>
-          </div>
-        </div>
+              <span class="text-red font-weight-600 mr-1">{{item.data.listName}}</span>
+            </td>
+            <td>{{item.typeTr}}</td>
+            <td><span class="float-right">{{item.data.beginDate | date: 'yyyy.MM.dd'}}</span></td>
+            <td><span class="float-right">{{item.data.finishDate | date: 'yyyy.MM.dd'}}</span></td>
+            <td>{{item.isActiveTr}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

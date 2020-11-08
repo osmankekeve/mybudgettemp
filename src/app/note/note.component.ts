@@ -7,6 +7,7 @@ import {NoteService} from '../services/note.service';
 import {ExcelService} from '../services/excel-service';
 import {Router} from '@angular/router';
 import {NoteMainModel} from '../models/note-main-model';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-note',
@@ -22,7 +23,7 @@ export class NoteComponent implements OnInit {
 
   constructor(public authService: AuthenticationService, public service: NoteService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router) {
+              public route: Router, protected toastService: ToastService) {
   }
 
   ngOnInit() {
@@ -167,7 +168,7 @@ export class NoteComponent implements OnInit {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {

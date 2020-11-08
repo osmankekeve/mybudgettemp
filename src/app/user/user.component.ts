@@ -6,6 +6,8 @@ import {getDateForInput, getInputDataForInsert, getTodayForInput} from '../core/
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
+import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-user',
@@ -21,7 +23,7 @@ export class UserComponent implements OnInit, OnDestroy {
   employeeDetail: any;
 
   constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected service: ProfileService,
-              protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute) {
+              protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute, protected modalService: NgbModal) {
   }
 
   async ngOnInit() {
@@ -154,6 +156,22 @@ export class UserComponent implements OnInit, OnDestroy {
     this.finishProcess(error, null);
   }
 }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
 
   clearSelectedRecord(): void {
     this.birthDate = getTodayForInput();

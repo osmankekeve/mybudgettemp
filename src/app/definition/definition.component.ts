@@ -6,6 +6,8 @@ import {AuthenticationService} from '../services/authentication.service';
 import {Router} from '@angular/router';
 import {DefinitionService} from '../services/definition.service';
 import {DefinitionMainModel} from '../models/definition-main-model';
+import {GlobalUploadService} from '../services/global-upload.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-definition',
@@ -36,7 +38,7 @@ export class DefinitionComponent implements OnInit {
   };
 
   constructor(public authService: AuthenticationService, public service: DefinitionService, public atService: AccountTransactionService,
-              public infoService: InformationService, public db: AngularFirestore, public route: Router ) {
+              public infoService: InformationService, public db: AngularFirestore, public route: Router, protected toastService: ToastService ) {
   }
 
   ngOnInit() {
@@ -134,7 +136,7 @@ export class DefinitionComponent implements OnInit {
           this.finishProcess(error, null);
         });
     } catch (error) {
-      this.finishProcess(error, null);
+      await this.finishProcess(error, null);
     }
   }
 
@@ -176,7 +178,7 @@ export class DefinitionComponent implements OnInit {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       this.clearSelectedRecord();
       this.selectedRecord = undefined;
     } else {

@@ -55,111 +55,141 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Satış Faturası ';
 
-    } else if (systemModule === 'collection') {
+    }
+    else if (systemModule === 'collection') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Tahsilat ';
 
-    } else if (systemModule === 'purchaseInvoice') {
+    }
+    else if (systemModule === 'purchaseInvoice') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Alım Faturası ';
 
-    } else if (systemModule === 'payment') {
+    }
+    else if (systemModule === 'payment') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Ödeme ';
 
-    } else if (systemModule === 'cashDesk') {
+    }
+    else if (systemModule === 'cashDesk') {
       item.parentPrimaryKey = record.primaryKey;
       item.log = record.receiptNo + ' fiş numaralı Kasa ';
 
-    } else if (systemModule === 'accountVoucher') {
+    }
+    else if (systemModule === 'accountVoucher') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Hesap Fişi ';
 
-    } else if (systemModule === 'cashdeskVoucher') {
+    }
+    else if (systemModule === 'cashdeskVoucher') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Kasa Fişi ';
 
-    } else if (systemModule === 'crm') {
+    }
+    else if (systemModule === 'crm') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = ' Etkinlik ';
 
-    } else if (systemModule === 'visit') {
+    }
+    else if (systemModule === 'visit') {
       item.parentPrimaryKey = record.visit.primaryKey;
-      item.log = record.customerName + ' müşteriye ziyaret ';
+      item.log = record.customer.data.name + ' müşteriye ziyaret ';
 
-    } else if (systemModule === 'fileUpload') {
+    }
+    else if (systemModule === 'fileUpload') {
       item.parentPrimaryKey = record.primaryKey;
       item.log = record.fileName + ' isimli dosya ';
 
-    } else if (systemModule === 'customerTarget') {
+    }
+    else if (systemModule === 'customerTarget') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.customerName + ' müşteriye Hedef ';
 
-    } else if (systemModule === 'mail') {
+    }
+    else if (systemModule === 'mail') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.customerName + ' alıcısına mail  (' + record.isSendTr + ') ';
 
-    } else if (systemModule === 'customer-account') {
+    }
+    else if (systemModule === 'customer-account') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.customer.data.name + ' hesap ';
 
-    } else if (systemModule === 'customer') {
+    }
+    else if (systemModule === 'customer') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.name + ' isimli Müşteri ';
 
-    } else if (systemModule === 'product') {
+    }
+    else if (systemModule === 'product') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.productName + '(' + record.data.productCode + ')' + ' isimli Ürün ';
 
-    } else if (systemModule === 'product-unit') {
+    }
+    else if (systemModule === 'product-unit') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.name + ' isimli Ürün Birimi ';
 
-    } else if (systemModule === 'product-price') {
+    }
+    else if (systemModule === 'product-price') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.product.data.productName + ' isimli ürüne Fiyat  ';
 
-    } else if (systemModule === 'product-discount') {
+    }
+    else if (systemModule === 'product-discount') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.product.data.productName + ' isimli ürüne İskonto  ';
 
-    } else if (systemModule === 'product-unit-mapping') {
+    }
+    else if (systemModule === 'product-unit-mapping') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.product.data.productName + ' isimli ürüne ait Birim  ';
 
-    } else if (systemModule === 'buy-sale') {
+    }
+    else if (systemModule === 'buy-sale') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.currencyName + ' dövize ait ' + ' ' + record.transactionTypeTr + ' işlemi ';
 
-    } else if (systemModule === 'salesOrder') {
+    }
+    else if (systemModule === 'salesOrder') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Satış Siparişi ';
 
-    } else if (systemModule === 'purchaseOrder') {
+    }
+    else if (systemModule === 'purchaseOrder') {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.receiptNo + ' fiş numaralı Alım Siparişi ';
 
-    } else {
+    }
+    else {
       item.log = ' bilinmeyen modül ';
     }
 
     if (action === 'insert') {
       item.log += 'oluşturuldu.';
-    } else if (action === 'update') {
+    }
+    else if (action === 'update') {
       item.log += 'güncellendi.';
-    } else if (action === 'delete') {
+    }
+    else if (action === 'delete') {
       item.log += 'kaldırıldı.';
-    } else if (action === 'approved') {
+    }
+    else if (action === 'approved') {
       item.log += 'onaylandı.';
-    } else if (action === 'rejected') {
+    }
+    else if (action === 'rejected') {
       item.log += 'geri çevrildi.';
-    } else if (action === 'closed') {
+    }
+    else if (action === 'closed') {
       item.log += 'kapatıldı.';
-    } else if (action === 'canceled') {
+    }
+    else if (action === 'canceled') {
       item.log += 'iptal edildi.';
-    } else if (action === 'done') {
+    }
+    else if (action === 'done') {
       item.log += 'işlemler bitirildi.';
-    } else {
+    }
+    else {
       //
     }
 

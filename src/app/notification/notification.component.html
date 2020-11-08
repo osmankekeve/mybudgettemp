@@ -63,24 +63,24 @@
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-1">Sıra</div>
-            <div class="col-sm-9">Bildirim</div>
-            <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-
-          </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             *ngFor="let item of mainList; index as i;">
-          <div class="row">
-            <div class="col-sm-1"><span class="text-bold text-dark">{{i + 1}})</span></div>
-            <div class="col-sm-9">{{item.data.log}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-
-          </div>
-        </div>
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Bildirim</th>
+            <th><span class="float-right">Tarih</span></th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr class="cursor-pointer table-row-class" *ngFor="let item of mainList">
+              <td>
+                <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                <span>{{item["data"].log}}</span>
+              </td>
+              <td><span class="float-right">{{item["data"].insertDate | date: 'yyyy.MM.dd'}}</span></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">

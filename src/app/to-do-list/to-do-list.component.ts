@@ -9,6 +9,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
+import {PurchaseOrderService} from '../services/purchase-order.service';
+import {ToastService} from '../services/toast.service';
 
 @Component({
   selector: 'app-to-do-list',
@@ -30,7 +32,7 @@ export class ToDoListComponent implements OnInit {
   filterIsActive = '1';
   onTransaction = false;
 
-  constructor(public authService: AuthenticationService, public service: ToDoService,
+  constructor(public authService: AuthenticationService, public service: ToDoService, protected toastService: ToastService,
               public proService: ProfileService, public router: ActivatedRoute,
               public infoService: InformationService, public route: Router,
               public db: AngularFirestore) {
@@ -52,7 +54,7 @@ export class ToDoListComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -232,7 +234,7 @@ export class ToDoListComponent implements OnInit {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       this.generateCharts();
       this.clearSelectedRecord();

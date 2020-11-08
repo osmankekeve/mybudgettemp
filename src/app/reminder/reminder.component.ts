@@ -12,6 +12,8 @@ import {ReminderMainModel} from '../models/reminder-main-model';
 import {CustomerModel} from '../models/customer-model';
 import {ExcelService} from '../services/excel-service';
 import {CustomerService} from '../services/customer.service';
+import {PurchaseOrderService} from '../services/purchase-order.service';
+import {ToastService} from '../services/toast.service';
 @Component({
   selector: 'app-reminder',
   templateUrl: './reminder.component.html',
@@ -32,7 +34,7 @@ export class ReminderComponent implements OnInit {
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ReminderService, protected cService: CustomerService,
-              public proService: ProfileService, public router: ActivatedRoute,
+              public proService: ProfileService, public router: ActivatedRoute, protected toastService: ToastService,
               public infoService: InformationService, public route: Router,
               public db: AngularFirestore) {
   }
@@ -54,7 +56,7 @@ export class ReminderComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -241,7 +243,7 @@ export class ReminderComponent implements OnInit {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       this.generateCharts();
       this.clearSelectedRecord();
