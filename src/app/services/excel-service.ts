@@ -175,9 +175,10 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = {
           Transaction: item.transactionTypeTr,
-          'Receipt No': item.receiptNo,
-          Amount: item.amount,
-          Type: item.amountType === 'debit' ? 'Borç' : 'Alacak',
+          'Sub Transaction': item.subTransactionTypeTr,
+          'Receipt No': item.data.receiptNo,
+          Amount: item.data.amount,
+          Type: item.data.amountType === 'debit' ? 'Borç' : 'Alacak',
           'Insert Date': getDateForExcel(item.insertDate)
         };
         excelList.push(data);

@@ -68,13 +68,9 @@ export class CustomerComponent implements OnInit {
   accountList$: Observable<CustomerAccountModel[]>;
   purchaseInvoiceList$: Observable<PurchaseInvoiceMainModel[]>;
   purchaseInvoiceAmount: any;
-  siList$: Observable<SalesInvoiceMainModel[]>;
   siAmount: any;
-  colList$: Observable<CollectionMainModel[]>;
   colAmount: any;
-  payList$: Observable<PaymentMainModel[]>;
   payAmount: any;
-  voucherList$: Observable<AccountVoucherMainModel[]>;
   voucherAmount: any;
   totalAmount: any;
   openedPanel: string;
@@ -670,7 +666,6 @@ export class CustomerComponent implements OnInit {
 
         this.atService.getMainItems(null, null, this.selectedCustomer.data.primaryKey, 'customer')
           .subscribe(list => {
-            console.log(list);
             this.transactionList=[];
             list.forEach((data: any) => {
               const item = data.returnData as AccountTransactionMainModel;

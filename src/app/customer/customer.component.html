@@ -1282,33 +1282,37 @@
   <div *ngIf="openedPanel=='accountSummary'">
     <div class="card-body">
       <div *ngIf="transactionList != undefined; else elseBlock2">
-        <div class="list-group" *ngIf="transactionList; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item">
-            <div class="row">
-              <div class="col-sm-6">İşlem</div>
-              <div class="col-sm-2">Fiş Numarası</div>
-              <div class="col-sm-2"><span class="float-right">Tutar</span></div>
-              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-            </div>
-          </div>
-          <div class="list-group-item list-group-item-action main-list-item"
-               *ngFor="let item of transactionList; index as i;">
-            <div class="row">
-              <div class="col-sm-6">
-                <img src='{{item.iconUrl}}' width="30px" class="mr-2">
-                <span>{{item.subTransactionTypeTr}}</span>
-              </div>
-              <div class="col-sm-2">{{item.data.receiptNo}}</div>
-              <div class="col-sm-2"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-              <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
-            </div>
-          </div>
-          <li class="list-group-item list-group-item-success main-list-item">
-            <div class="row">
-              <div class="col-sm-8">Toplam</div>
-              <div class="col-sm-2"><span class="float-right">{{totalValues | currency:'₺'}}</span></div>
-            </div>
-          </li>
+        <div class="table-responsive work-area-11" *ngIf="transactionList.length > 0; else elseBlock">
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr class="table-row-class">
+              <th>Fiş Numarası</th>
+              <th>İşlem Tipi</th>
+              <th>Alt İşlem Tipi</th>
+              <th>Tutar Tipi</th>
+              <th><span class="float-right">Tutar</span></th>
+              <th><span class="float-right">Tarih</span></th>
+            </tr>
+            </thead>
+            <tbody>
+              <tr class="table-row-class" *ngFor="let item of transactionList">
+              <td>
+                <img src='{{item.iconUrl}}' width="20px" class="mr-2" alt="">
+                <span>{{item.data.receiptNo}}</span>
+              </td>
+              <td>{{item.transactionTypeTr}}</td>
+              <td>{{item.subTransactionTypeTr}}</td>
+              <td>{{item.amountTypeTr}}</td>
+              <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
+              <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+            </tr>
+              <tr class="table-success table-row-class">
+                <td colspan="4">Toplam</td>
+                <td><span class="float-right">{{totalValues | currency:'₺'}}</span></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <ng-template #elseBlock>
           <div class="card bg-danger text-white">
@@ -1360,138 +1364,65 @@
   </div>
   <div *ngIf="openedPanel=='visit'">
     <div class="card-body">
-      <div class="list-group mb-2" *ngIf="visitList != undefined; else elseBlock">
-        <div *ngIf="visitList.length > 0; else elseBlock2">
-          <div class="list-group-item bg-success text-light main-list-item">
-            <div class="row">
-              <div class="col-sm-2">Sıra</div>
-              <div class="col-sm-5">Personel</div>
-              <div class="col-sm-3">Açıklama</div>
-              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
-            </div>
-          </div>
-          <div class="list-group-item list-group-item-action main-list-item"
-               *ngFor="let item of visitList; index as i;">
-            <div class="row">
-              <div class="col-sm-2"><span class="text-bold text-dark">{{i + 1}})</span></div>
-              <div class="col-sm-5">{{item.employeeName}}</div>
-              <div class="col-sm-3">{{item.visit.description}}</div>
-              <div class="col-sm-2"><span
-                class="float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</span></div>
-            </div>
-          </div>
+      <div *ngIf="visitList != undefined; else elseBlock2">
+        <div class="table-responsive work-area-11" *ngIf="visitList.length > 0; else elseBlock">
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+            <tr class="table-row-class">
+              <th>Personel</th>
+              <th>Açıklama</th>
+              <th><span class="float-right">Tarih</span></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="table-row-class" *ngFor="let item of visitList">
+              <td>{{item.employeeName}}</td>
+              <td>{{item.visit.description}}</td>
+              <td><span class="float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</span></td>
+            </tr>
+            </tbody>
+          </table>
         </div>
-        <ng-template #elseBlock2>
+        <ng-template #elseBlock>
           <div class="card bg-danger text-white">
             <div class="card-body">Görüntülenecek veri bulunamadı.</div>
           </div>
         </ng-template>
       </div>
-      <ng-template #elseBlock>
+      <ng-template #elseBlock2>
         <div class="loader"></div>
       </ng-template>
     </div>
   </div>
   <div *ngIf="openedPanel=='target'">
     <div class="card-body">
-      <div class="row" *ngIf="targetList$ | async; let targetList; else elseBlock">
-        <div class="col-sm-4" *ngFor="let item of targetList; index as i;"
-             (click)="showTargetRecord(item)">
-          <div class="card-list-parent">
-            <div class="card mb-2 bg-light cursor-pointer">
-
-              <div class="card-body" *ngIf="item.returnData.data.type =='yearly'">
-                <div class="font-weight-500 text-dark">{{item.returnData.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-500 text-dark float-left">{{item.returnData.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div
-                      class="text-small text-dark float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.year}}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" *ngIf="item.returnData.data.type =='monthly'">
-                <div class="font-weight-500 text-dark">{{item.returnData.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small text-dark float-left">{{item.returnData.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div
-                      class="text-small text-dark float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.year}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Ay:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.beginMonthTr}}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body" *ngIf="item.returnData.data.type =='periodic'">
-                <div class="font-weight-500 text-dark">{{item.returnData.customerName}}</div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small text-dark float-left">{{item.returnData.typeTr}}</div>
-                  </div>
-                  <div class="col">
-                    <div
-                      class="text-small text-dark float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Hedef:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.amount | currency:'₺'}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Yıl:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.data.year}}</span>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Başlangıç:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.beginMonthTr}}</span>
-                  </div>
-                  <div class="col">
-                    <div class="text-small font-weight-bold text-dark float-left mr-2">Bitiş:</div>
-                    <span class="text-small text-dark float-left">{{item.returnData.finishMonthTr}}</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
+      <div class="table-responsive work-area-11" *ngIf="targetList$ | async; let targetList; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+          <tr class="table-row-class">
+            <th>Müşteri</th>
+            <th>Hedef Tipi</th>
+            <th>Hedef</th>
+            <th>Başlangıç Ayı</th>
+            <th>Bitiş Ayı</th>
+            <th>Yıl</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="table-row-class" *ngFor="let item of targetList">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.returnData.customer.data.code}}</span>
+              <span class="font-weight-600">{{item.returnData.customer.data.name}}</span>
+            </td>
+            <td>{{item.returnData.typeTr}}</td>
+            <td><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></td>
+            <td>{{item.returnData.beginMonthTr}}</td>
+            <td>{{item.returnData.finishMonthTr}}</td>
+            <td>{{item.returnData.data.year}}</td>
+          </tr>
+          </tbody>
+        </table>
       </div>
       <ng-template #elseBlock>
         <div class="card bg-danger text-white">
