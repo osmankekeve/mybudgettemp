@@ -14,6 +14,7 @@ import {ProductModel} from '../models/product-model';
 import {ProductMainModel} from '../models/product-main-model';
 import {ProductUnitMappingService} from './product-unit-mapping.service';
 import {FileUploadService} from './file-upload.service';
+import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
 
 @Injectable({
   providedIn: 'root'
@@ -347,4 +348,30 @@ export class ProductService {
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
+
+  getProductPurchasePrices = async (productPrimaryKey: string):
+    Promise<Array<PurchaseInvoiceDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<any>();
+      this.db.collection('tblPurchaseInvoiceDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.orderBy('insertDate', 'desc')
+        .where('productPrimaryKey', '==', productPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as PurchaseInvoiceDetailModel;
+
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
 }

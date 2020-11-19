@@ -107,7 +107,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        if (this.router.snapshot.paramMap.get('action') ==='create-invoice') {
+        if (this.router.snapshot.paramMap.get('action') === 'create-invoice') {
           const list = [];
           list.push(paramItem.data.primaryKey);
           await this.clearSelectedRecord();
@@ -116,8 +116,7 @@ export class PurchaseInvoiceComponent implements OnInit {
           this.selectedRecord.data.type = paramItem.data.type;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
           await this.generateOrderToInvoice(list);
-        }
-        else {
+        } else {
           this.showSelectedRecord(paramItem);
         }
       }
@@ -911,7 +910,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   async getReceiptNo(): Promise<void> {
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
-    if (this.selectedRecord != undefined && receiptNoData !== null) {
+    if (this.selectedRecord !== undefined && receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }

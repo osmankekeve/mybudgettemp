@@ -32,6 +32,8 @@ import {ToastService} from '../services/toast.service';
 import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
+import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
+import * as Chart from 'chart.js';
 
 @Component({
   selector: 'app-product',
@@ -45,6 +47,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   filesList: Array<FileMainModel>;
   unitList: Array<ProductUnitModel>;
   unitMappingList: Array<ProductUnitMappingMainModel>;
+  productPurchasePriceList: Array<PurchaseInvoiceDetailModel>;
+
   selectedRecord: ProductMainModel;
   encryptSecretKey: string = getEncryptionKey();
   isMainFilterOpened = false;
@@ -61,6 +65,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   downloadURL: string;
   percentage: Observable<number>;
   task: AngularFireUploadTask;
+  productPurchasePriceChart: any;
 
   constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
@@ -157,6 +162,69 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.populateFiles();
     this.populateActions();
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+
+    this.productPurchasePriceList = [];
+    const dateList = [];
+    const priceList = [];
+    Promise.all([this.service.getProductPurchasePrices(this.selectedRecord.data.primaryKey)])
+      .then((values: any) => {
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<PurchaseInvoiceDetailModel>;
+          returnData.forEach(item => {
+            dateList.push(item.insertDate);
+            priceList.push(item.price);
+          });
+        }
+      })
+      .finally(() => {
+        console.log(dateList);
+        console.log(priceList);
+        this.productPurchasePriceChart = new Chart('productPurchasePriceChart', {
+          type: 'line', // bar, pie, doughnut
+          data: {
+            labels: dateList,
+            datasets: [{
+              label: '# of Votes',
+              fill: false,
+              data: priceList,
+              borderColor: "#bae755",
+              backgroundColor: "#e755ba",
+              pointBackgroundColor: "#55bae7",
+              pointBorderColor: "#55bae7",
+              pointHoverBackgroundColor: "#55bae7",
+              pointHoverBorderColor: "#55bae7",
+            }]
+          },
+          options: {
+            title: {
+              text: 'Aylık Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + Number(value).toFixed(2);
+                    }
+                  }
+                }
+              }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
+            },
+          },
+        });
+      });
   }
 
   async btnReturnList_Click(): Promise<void> {
