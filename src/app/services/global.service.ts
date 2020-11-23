@@ -17,6 +17,7 @@ import {CustomerAccountService} from './customer-account.service';
 import {BuySaleService} from './buy-sale.service';
 import {SalesOrderService} from './sales-order.service';
 import {PurchaseOrderService} from './purchase-order.service';
+import { ProductService } from './product.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,10 +26,10 @@ export class GlobalService {
   encryptSecretKey: string = getEncryptionKey();
 
   constructor(protected db: AngularFirestore, protected route: Router,
-              protected siService: SalesInvoiceService, protected cusService: CustomerService, protected readonly caService: CustomerAccountService,
+              protected siService: SalesInvoiceService, protected cusService: CustomerService, protected caService: CustomerAccountService,
               protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
-              protected avService: AccountVoucherService, protected payService: PaymentService, protected atService: AccountTransactionService,
-              protected router: ActivatedRoute, protected ctService: CustomerTargetService,
+              protected avService: AccountVoucherService, protected payService: PaymentService, protected proService: ProductService,
+              protected atService: AccountTransactionService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
               protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService) {
 
   }
@@ -125,6 +126,14 @@ export class GlobalService {
         if (data) {
           routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
           await this.route.navigate(['buy-sale', routeData]);
+        }
+      }
+      else if (item.nextModule === 'product') {
+
+        data = await this.proService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['product', routeData]);
         }
       }
       else {

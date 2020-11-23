@@ -4,12 +4,12 @@ import { InformationService } from '../services/information.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { CustomerService } from '../services/customer.service';
 import { CustomerModel } from '../models/customer-model';
-import { AccountTransactionModel } from '../models/account-transaction-model';
 import {getFirstDayOfMonthForInput, getFloat, getTodayForInput} from '../core/correct-library';
 import { AccountTransactionService } from '../services/account-transaction.service';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {Chart} from 'chart.js';
-import {ReportService} from "../services/report.service";
+import {ReportService} from '../services/report.service';
+import { ProductService } from '../services/product.service';
+import { RouterModel } from '../models/router-model';
+import { GlobalService } from '../services/global.service';
 @Component({
   selector: 'app-reports',
   templateUrl: './reports.component.html',
@@ -18,6 +18,7 @@ import {ReportService} from "../services/report.service";
 export class ReportsComponent implements OnInit, OnDestroy {
   selectedReport: any;
   mainList: Array<any> = [];
+  listExcelDataKeys: Array<any> = [];
   customerList$: Observable<CustomerModel[]>;
   isMainFilterOpened = false;
   recordDate: any;
@@ -28,14 +29,19 @@ export class ReportsComponent implements OnInit, OnDestroy {
   filterCustomerCode: any;
   filterBalance: any;
 
-  constructor(public infoService: InformationService, public customerService: CustomerService,
-              public atService: AccountTransactionService, public rService: ReportService,
+  isShowFilterDatePanel = false;
+  isShowFilterCustomerPanel = false;
+  isShowFilterAccountStatus = false;
+
+  constructor(public infoService: InformationService, public customerService: CustomerService, public proService: ProductService,
+              public atService: AccountTransactionService, public rService: ReportService, public globService: GlobalService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
     this.selectedReport = undefined;
     this.customerList$ = this.customerService.getAllItems();
     this.clearMainFiler();
+    this.setVisibilityFilterInputs();
   }
 
   ngOnDestroy(): void {
@@ -46,6 +52,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
     this.mainList = [];
     this.selectedReport = data;
+    this.setVisibilityFilterInputs();
   }
 
   populateAccountTransactions(startDate: Date, endDate: Date, transactionType: string): void {
@@ -72,17 +79,25 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
   }
 
-  btnFilter_Click(): void {
+  btnStartReport_Click(): void {
     this.mainList = undefined;
+    this.isMainFilterOpened = false;
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
     if (this.selectedReport === 'accountReport') {
       Promise.all([this.rService.getAllAccountTransactions(this.filterCustomerCode, beginDate, finishDate, this.filterBalance)])
         .then((values: any) => {
-          if (values[0] !== undefined || values[0] !== null) {
+          if (values[0] !== null) {
             this.mainList = values[0] as Array<any>;
           }
         });
+    } else if (this.selectedReport === 'productPurchaseSKUReport') {
+      Promise.all([this.rService.getProductsPurchaseSKU(beginDate, finishDate)])
+      .then((values: any) => {
+        if (values[0] !== null) {
+          this.mainList = values[0] as Array<any>;
+        }
+      });
     } else {
       //
     }
@@ -101,11 +116,35 @@ export class ReportsComponent implements OnInit, OnDestroy {
     this.clearMainFiler();
   }
 
+  async showSelectedProduct(record: any): Promise<void> {
+    const r = new RouterModel();
+    r.nextModule = 'product';
+    r.nextModulePrimaryKey = record.productPrimaryKey;
+    r.previousModule = 'reports';
+    r.previousModulePrimaryKey = '';
+    await this.globService.showTransactionRecord(r);
+  }
+
   clearMainFiler(): void {
     this.filterBeginDate = getFirstDayOfMonthForInput();
     this.filterFinishDate = getTodayForInput();
     this.filterCustomerCode = '-1';
     this.filterBalance = '1';
-    this.isMainFilterOpened = true;
+  }
+
+  setVisibilityFilterInputs(): void {
+    this.isShowFilterDatePanel = false;
+    this.isShowFilterCustomerPanel = false;
+    this.isShowFilterAccountStatus = false;
+
+    if (this.selectedReport === 'accountReport') {
+      this.isShowFilterDatePanel = true;
+      this.isShowFilterCustomerPanel = true;
+      this.isShowFilterAccountStatus = true;
+
+    }
+    if (this.selectedReport === 'productPurchaseSKUReport') {
+      this.isShowFilterDatePanel = true;
+    }
   }
 }

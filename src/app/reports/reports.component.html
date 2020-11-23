@@ -2,21 +2,31 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-4">
+        <img src="../../assets/images/report_icon_2.png" width="30px" class="float-left mr-2" alt=""/>
         <h5 class="card-title float-left mr-2">Raporlar</h5>
       </div>
     </div>
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-sm-6 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
+      <div class="col-sm-4 cursor-pointer mb-1" (click)="onClickShowReport('accountReport')">
         <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
           <div class="row">
-            <div class="col-sm-2">
-              <img src="../../assets/images/report_icon_2.png" width="50px"/>
-            </div>
-            <div class="col-sm-10">
+            <div class="col-sm-12">
+              <img src="../../assets/images/report_icon_2.png" class="float-left mr-2" width="45px" alt=""/>
               <div>Cari Hesap</div>
               <small class="text-secondary">Müşteri Detayında Bakiye Raporlar</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4 cursor-pointer mb-1" (click)="onClickShowReport('productPurchaseSKUReport')">
+        <div class="border p-2 bg-light" style="border-radius: 0 25px 25px 0">
+          <div class="row">
+            <div class="col-sm-12">
+              <img src="../../assets/images/report_icon_2.png" class="float-left mr-2" width="45px" alt=""/>
+              <div>Ürün Alım SKU Raporu</div>
+              <small class="text-secondary">Ürün Bazında Tarih aralıklı SKU Raporlar</small>
             </div>
           </div>
         </div>
@@ -28,6 +38,7 @@
   <div class="card-header">
     <div class="row">
       <div class="col-sm-12">
+        <img src="../../assets/images/report_icon_2.png" width="30px" class="float-left mr-2" alt=""/>
         <h5 class="card-title float-left mr-2">Rapor Detayı</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -40,18 +51,7 @@
     <div class="card mb-2" *ngIf="isMainFilterOpened">
       <div class="card-header">Filtreler</div>
       <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Müşteri</label>
-          </div>
-          <div class="col-sm-9">
-            <select class="form-control form-control-sm w-100"
-                    [(ngModel)]="filterCustomerCode">
-              <option value="-1">Hepsini Seç</option>
-              <option value={{item.primaryKey}}
-                      *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
-            </select>
-          </div>
+        <div class="row" *ngIf="isShowFilterDatePanel">
           <div class="col-sm-3">
             <label class="col-form-label float-left">Başlangıç Tarihi</label>
           </div>
@@ -78,6 +78,21 @@
               </div>
             </div>
           </div>
+        </div>
+        <div class="row" *ngIf="isShowFilterCustomerPanel">
+          <div class="col-sm-3">
+            <label class="col-form-label float-left">Müşteri</label>
+          </div>
+          <div class="col-sm-9">
+            <select class="form-control form-control-sm w-100"
+                    [(ngModel)]="filterCustomerCode">
+              <option value="-1">Hepsini Seç</option>
+              <option value={{item.primaryKey}}
+                      *ngFor="let item of customerList$ | async; index as i;">{{item.name}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" *ngIf="isShowFilterAccountStatus">
           <div class="col-sm-3">
             <label class="col-form-label float-left">Bakiye Durumu</label>
           </div>
@@ -94,7 +109,7 @@
       <div class="card-footer">
         <div class="row">
           <div class="col-sm-2">
-            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnFilter_Click()">Filtrele
+            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnStartReport_Click()">Rapor Oluştur
             </button>
           </div>
         </div>
@@ -102,7 +117,7 @@
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="table-responsive" *ngIf="mainList.length > 0; else elseBlock">
-        <table class="table table-bordered">
+        <table class="table table-bordered" *ngIf="selectedReport === 'accountReport'">
           <thead>
           <tr class="table-row-class">
             <th>Müşteri</th>
@@ -123,6 +138,28 @@
             <td>{{item.numberField4 | currency:'₺'}}</td>
             <td>{{item.numberField5 | currency:'₺'}}</td>
             <td>{{item.numberField6 | currency:'₺'}}</td>
+          </tr>
+          </tbody>
+        </table>        
+        <table class="table table-bordered" *ngIf="selectedReport === 'productPurchaseSKUReport'">
+          <thead>
+          <tr class="table-row-class">
+            <th>Ürün</th>
+            <th>Stok Tipi</th>
+            <th>SKU</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="cursor-pointer table-row-class" 
+          (click)="showSelectedProduct(item)"
+          *ngFor="let item of mainList; index as i;">
+            <td>
+              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <span class="text-red font-weight-600 mr-1">{{item.productCode}}</span>
+              <span class="font-weight-600">{{item.productName}}</span>
+            </td>
+            <td>{{item.productStockType}}</td>
+            <td>{{item.sku}}</td>
           </tr>
           </tbody>
         </table>

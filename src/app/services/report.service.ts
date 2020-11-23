@@ -9,6 +9,9 @@ import { AuthenticationService } from './authentication.service';
 import { CustomerService } from './customer.service';
 import { AccountTransactionModel } from "../models/account-transaction-model";
 import { getModuleIcons, getTransactionTypes } from "../core/correct-library";
+import { ProductService } from './product.service';
+import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
+import { ProductModel } from '../models/product-model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,13 +23,12 @@ export class ReportService {
   transactionTypes = getTransactionTypes();
 
   constructor(public authService: AuthenticationService,
-              public cService: CustomerService,
+              public cService: CustomerService, public proService: ProductService,
               public db: AngularFirestore) {
 
   }
 
   getCustomerTransactionsWithDateControl = async (customerPrimaryKey: string, startDate: Date, endDate: Date):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const returnList = Array<AccountTransactionModel>();
@@ -63,7 +65,6 @@ export class ReportService {
   })
 
   getAllAccountTransactions = async (customerPrimaryKey: string, startDate: Date, endDate: Date, filterBalance: string):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<any>();
@@ -123,5 +124,45 @@ export class ReportService {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
+  })
+
+  getProductsPurchaseSKU = async (startDate: Date, endDate: Date):
+    Promise<Array<any>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const list = Array<any>();
+        this.db.collection('tblProduct', ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.where('userPrimaryKey', '==', this.authService.getUid());
+          return query;
+        })
+          .get().toPromise().then(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data() as ProductModel;
+            const returnData = this.proService.convertMainModel(data);
+
+            const addData = {
+              productPrimaryKey: returnData.data.primaryKey,
+              productCode: returnData.data.productCode,
+              productName: returnData.data.productName,
+              productStockType: returnData.stockTypeTr,
+              sku: 0
+            };
+
+            this.db.collection('tblPurchaseInvoiceDetail', ref => {
+              let query: CollectionReference | Query = ref;
+              query = query.where('productPrimaryKey', '==', addData.productPrimaryKey);
+              return query;
+            })
+              .get().toPromise().then(snapshot2 => {
+                addData.sku = snapshot2.size;
+                list.push(addData);
+            });
+          });
+          resolve(list);
+        });
+      } catch (error) {
+        console.error(error);
+        reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      }
   })
 }
