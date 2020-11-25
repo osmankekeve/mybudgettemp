@@ -2,15 +2,12 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 import { SalesInvoiceModel } from '../models/sales-invoice-model';
 import { AuthenticationService } from './authentication.service';
 import { CustomerService } from './customer.service';
-import { AccountTransactionModel } from "../models/account-transaction-model";
-import { getModuleIcons, getTransactionTypes } from "../core/correct-library";
+import { AccountTransactionModel } from '../models/account-transaction-model';
+import { getModuleIcons, getTransactionTypes } from '../core/correct-library';
 import { ProductService } from './product.service';
-import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
 import { ProductModel } from '../models/product-model';
 
 @Injectable({

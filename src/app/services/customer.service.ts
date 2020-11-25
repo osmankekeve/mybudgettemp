@@ -20,6 +20,8 @@ import 'rxjs-compat/add/observable/from';
 import 'rxjs-compat/add/operator/merge';
 import {DefinitionService} from './definition.service';
 import {DefinitionModel} from '../models/definition-model';
+import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
+import { SalesInvoiceModel } from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -552,4 +554,53 @@ export class CustomerService {
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
+
+  getCustomerPurchaseInvoiceChartData = async (customerPrimaryKey: string):
+    Promise<Array<PurchaseInvoiceModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<any>();
+      this.db.collection('tblPurchaseInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as PurchaseInvoiceModel;
+
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  getCustomerSalesInvoiceChartData = async (customerPrimaryKey: string):
+    Promise<Array<SalesInvoiceModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<any>();
+      this.db.collection('tblSalesInvoice', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as SalesInvoiceModel;
+
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
 }

@@ -47,7 +47,6 @@ export class ProductComponent implements OnInit, OnDestroy {
   filesList: Array<FileMainModel>;
   unitList: Array<ProductUnitModel>;
   unitMappingList: Array<ProductUnitMappingMainModel>;
-  productPurchasePriceList: Array<PurchaseInvoiceDetailModel>;
 
   selectedRecord: ProductMainModel;
   encryptSecretKey: string = getEncryptionKey();
@@ -57,7 +56,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   filter = {
     stockType: '-1',
     isActive: true,
-  }
+  };
   selectedFiles: FileList;
   progress: { percentage: number } = { percentage: 0 };
   progressShow = false;
@@ -85,7 +84,6 @@ export class ProductComponent implements OnInit, OnDestroy {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        console.log(paramItem);
         this.showSelectedRecord(paramItem);
       }
     }
@@ -164,9 +162,9 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.populateActions();
     this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
 
-    this.productPurchasePriceList = [];
     const dateList = [];
     const priceList = [];
+    //#22223B, #4A4E69
     Promise.all([this.service.getProductPurchasePrices(this.selectedRecord.data.primaryKey)])
       .then((values: any) => {
         if (values[0] !== null) {
@@ -178,8 +176,6 @@ export class ProductComponent implements OnInit, OnDestroy {
         }
       })
       .finally(() => {
-        console.log(dateList);
-        console.log(priceList);
         this.productPurchasePriceChart = new Chart('productPurchasePriceChart', {
           type: 'line', // bar, pie, doughnut
           data: {
@@ -188,17 +184,17 @@ export class ProductComponent implements OnInit, OnDestroy {
               label: '# of Votes',
               fill: false,
               data: priceList,
-              borderColor: "#bae755",
-              backgroundColor: "#e755ba",
-              pointBackgroundColor: "#55bae7",
-              pointBorderColor: "#55bae7",
-              pointHoverBackgroundColor: "#55bae7",
-              pointHoverBorderColor: "#55bae7",
+              borderColor: '#EBD2B4',
+              backgroundColor: '#EBD2B4',
+              pointBackgroundColor: '#F4989C',
+              pointBorderColor: '#F4989C',
+              pointHoverBackgroundColor: '#F4989C',
+              pointHoverBorderColor: '#F4989C',
             }]
           },
           options: {
             title: {
-              text: 'Aylık Cari Hareketler',
+              text: 'Alım Hareketleri',
               display: true
             },
             scales: {
@@ -325,7 +321,7 @@ export class ProductComponent implements OnInit, OnDestroy {
               }
             }
             await this.populateUnits();
-            await this.finishSubProcess(null,'Birimler başarıyla oluşturuldu');
+            await this.finishSubProcess(null, 'Birimler başarıyla oluşturuldu');
           }
         })
         .catch((error) => {
@@ -572,7 +568,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.filter = {
       stockType: '-1',
       isActive: true,
-    }
+    };
   }
 
   clearImageItems(): void {

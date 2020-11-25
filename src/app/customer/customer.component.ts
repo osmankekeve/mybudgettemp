@@ -17,7 +17,7 @@ import {FileUploadService} from '../services/file-upload.service';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import {Router, ActivatedRoute} from '@angular/router';
-import { currencyFormat, getEncryptionKey, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat } from '../core/correct-library';
+import { currencyFormat, getDateForInput, getEncryptionKey, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat } from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import {CustomerTargetMainModel} from '../models/customer-target-main-model';
@@ -48,6 +48,8 @@ import {DefinitionService} from '../services/definition.service';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
+import * as Chart from 'chart.js';
 
 @Component({
   selector: 'app-customer',
@@ -58,8 +60,6 @@ import {AccountTransactionMainModel} from '../models/account-transaction-main-mo
 export class CustomerComponent implements OnInit {
   mainList: Array<CustomerMainModel>;
   selectedCustomer: CustomerMainModel;
-  newSalesInvoice: SalesInvoiceMainModel;
-  newPurchaseInvoice: PurchaseInvoiceMainModel;
   newCollection: CollectionMainModel;
   newPayment: PaymentMainModel;
   newVoucher: AccountVoucherMainModel;
@@ -93,6 +93,11 @@ export class CustomerComponent implements OnInit {
   isActive = true;
   recordDate: any;
   onTransaction = false;
+
+  buyingChart: any;
+  purchaseInvoiceList: any;
+  sellingChart: any;
+  salesInvoiceList: any;
 
   constructor(protected db: AngularFirestore, protected service: CustomerService, protected piService: PurchaseInvoiceService,
               protected siService: SalesInvoiceService, protected colService: CollectionService, protected infoService: InformationService,
@@ -258,10 +263,138 @@ export class CustomerComponent implements OnInit {
 
     this.mailList$ = undefined;
     this.mailList$ = this.mailService.getCustomerItems(this.selectedCustomer.data.primaryKey);
+    this.gerenateDashboardChart();
   }
 
   showSelectedDeliveryAddressRecord(item: any): void {
     this.newDeliveryAddress = item as DeliveryAddressMainModel;
+  }
+
+  gerenateDashboardChart(): void {
+    const dateList = [];
+    this.purchaseInvoiceList = undefined;
+    Promise.all([this.service.getCustomerPurchaseInvoiceChartData(this.selectedCustomer.data.primaryKey)])
+      .then((values: any) => {
+        if (values[0] !== null) {
+          this.purchaseInvoiceList = [];
+          const returnData = values[0] as Array<PurchaseInvoiceModel>;
+          returnData.forEach(item => {
+            const date = new Date(item.insertDate).toLocaleDateString('en-us');
+            dateList.push(date);
+            this.purchaseInvoiceList.push(item.totalPriceWithTax);
+          });
+        }
+      })
+      .finally(() => {
+        this.buyingChart = new Chart('buyingChart', {
+          type: 'line', // bar, pie, doughnut
+          data: {
+            labels: dateList,
+            datasets: [{
+              label: '# of Votes',
+              fill: false,
+              data: this.purchaseInvoiceList,
+              borderColor: '#bf4e6a',
+              backgroundColor: '#bf4e6a',
+              pointBackgroundColor: '#ffaa15',
+              pointBorderColor: '#ffaa15',
+              pointHoverBackgroundColor: '#ffaa15',
+              pointHoverBorderColor: '#ffaa15',
+            }]
+          },
+          options: {
+            title: {
+              text: 'Alım Cari Hareketler',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  callback: (value, index, values) => {
+                    if (Number(value) >= 1000) {
+                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                    } else {
+                      return '₺' + Number(value).toFixed(2);
+                    }
+                  }
+                }
+              }]
+            },
+            tooltips: {
+              callbacks: {
+                label(tooltipItem, data) {
+                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                  });
+                }
+              }
+            },
+          },
+        });
+      });
+
+    const dateList2 = [];
+    // #ffaa15, #bf4e6a
+    this.salesInvoiceList = undefined;
+    Promise.all([this.service.getCustomerSalesInvoiceChartData(this.selectedCustomer.data.primaryKey)])
+        .then((values: any) => {
+          if (values[0] !== null) {
+            this.salesInvoiceList = [];
+            const returnData = values[0] as Array<PurchaseInvoiceModel>;
+            returnData.forEach(item => {
+              const date = new Date(item.insertDate).toLocaleDateString('en-us');
+              dateList2.push(date);
+              this.salesInvoiceList.push(item.totalPriceWithTax);
+            });
+          }
+        })
+        .finally(() => {
+          this.sellingChart = new Chart('sellingChart', {
+            type: 'line', // bar, pie, doughnut
+            data: {
+              labels: dateList2,
+              datasets: [{
+                label: '# of Votes',
+                fill: false,
+                data: this.salesInvoiceList,
+                borderColor: '#B9D6F2',
+                backgroundColor: '#B9D6F2',
+                pointBackgroundColor: '#006DAA',
+                pointBorderColor: '#006DAA',
+                pointHoverBackgroundColor: '#006DAA',
+                pointHoverBorderColor: '#006DAA',
+              }]
+            },
+            options: {
+              title: {
+                text: 'Satış Cari Hareketler',
+                display: true
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    callback: (value, index, values) => {
+                      if (Number(value) >= 1000) {
+                        return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                      } else {
+                        return '₺' + Number(value).toFixed(2);
+                      }
+                    }
+                  }
+                }]
+              },
+              tooltips: {
+                callbacks: {
+                  label(tooltipItem, data) {
+                    return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                      return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                    });
+                  }
+                }
+              },
+            },
+          });
+        });
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -336,64 +469,6 @@ export class CustomerComponent implements OnInit {
         });
     } catch (error) {
       await this.finishProcess(error, null);
-    }
-  }
-
-  async btnSaveSalesInvoice_Click(): Promise<void> {
-    try {
-      this.onTransaction = true;
-      Promise.all([this.siService.checkForSave(this.newSalesInvoice)])
-        .then(async (values: any) => {
-          if (this.newSalesInvoice.data.primaryKey === null) {
-            this.newSalesInvoice.data.primaryKey = this.db.createId();
-            this.newSalesInvoice.data.recordDate = getInputDataForInsert(this.recordDate);
-            this.newSalesInvoice.data.insertDate = Date.now();
-            await this.siService.setItem(this.newSalesInvoice, this.newSalesInvoice.data.primaryKey)
-              .then(async () => {
-                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
-              })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.clearNewSalesInvoice();
-              });
-          }
-        })
-        .catch((error) => {
-          this.finishProcess(error, null);
-        });
-    } catch (error) {
-      await this.finishProcess(error, null);
-    }
-  }
-
-  async btnSavePurchaseInvoice_Click(): Promise<void> {
-    try {
-      this.onTransaction = true;
-      Promise.all([this.piService.checkForSave(this.newPurchaseInvoice)])
-        .then(async (values: any) => {
-          if (this.newPurchaseInvoice.data.primaryKey === null) {
-            this.newPurchaseInvoice.data.primaryKey = this.db.createId();
-            this.newPurchaseInvoice.data.recordDate = getInputDataForInsert(this.recordDate);
-            this.newPurchaseInvoice.data.insertDate = Date.now();
-            await this.piService.setItem(this.newPurchaseInvoice, this.newPurchaseInvoice.data.primaryKey)
-              .then(async () => {
-                await this.finishSubProcess(null, 'Kayıt başarıyla tamamlandı.');
-              })
-              .catch(async (error) => {
-                await this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.clearNewPurchaseInvoice();
-              });
-          }
-        })
-        .catch(async (error) => {
-          await this.finishProcess(error, null);
-        });
-    } catch (error) {
-      this.infoService.error(error);
     }
   }
 
@@ -640,13 +715,11 @@ export class CustomerComponent implements OnInit {
         this.transactionList$ = this.atService.getCustomerTransactionItems(this.selectedCustomer.data.primaryKey, panel);
       }
       if (this.openedPanel === 'salesInvoice') {
-        await this.clearNewSalesInvoice();
       }
       if (this.openedPanel === 'collection') {
         await this.clearNewCollection();
       }
       if (this.openedPanel === 'purchaseInvoice') {
-        await this.clearNewPurchaseInvoice();
       }
       if (this.openedPanel === 'payment') {
         await this.clearNewPayment();
@@ -666,7 +739,7 @@ export class CustomerComponent implements OnInit {
 
         this.atService.getMainItems(null, null, this.selectedCustomer.data.primaryKey, 'customer')
           .subscribe(list => {
-            this.transactionList=[];
+            this.transactionList = [];
             list.forEach((data: any) => {
               const item = data.returnData as AccountTransactionMainModel;
               this.transactionList.push(item);
@@ -773,6 +846,9 @@ export class CustomerComponent implements OnInit {
         });
         await this.clearDeliveryAddress();
       }
+      if (this.openedPanel === 'dashboard') {
+        this.gerenateDashboardChart();
+      }
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -798,28 +874,6 @@ export class CustomerComponent implements OnInit {
     this.accountList$ = new Observable<CustomerAccountModel[]>();
     this.openedPanel = 'edit';
     this.selectedCustomer = this.service.clearMainModel();
-  }
-
-  async clearNewSalesInvoice(): Promise<void> {
-    this.onTransaction = false;
-    this.recordDate = getTodayForInput();
-    this.newSalesInvoice = this.siService.clearMainModel();
-    this.newSalesInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
-    const receiptNoData = await this.sService.getSalesInvoiceCode();
-    if (receiptNoData !== null) {
-      this.newSalesInvoice.data.receiptNo = receiptNoData;
-    }
-  }
-
-  async clearNewPurchaseInvoice(): Promise<void> {
-    this.onTransaction = false;
-    this.recordDate = getTodayForInput();
-    this.newPurchaseInvoice = this.piService.clearMainModel();
-    this.newPurchaseInvoice.data.customerCode = this.selectedCustomer.data.primaryKey;
-    const receiptNoData = await this.sService.getPurchaseInvoiceCode();
-    if (receiptNoData !== null) {
-      this.newPurchaseInvoice.data.receiptNo = receiptNoData;
-    }
   }
 
   async clearNewCollection(): Promise<void> {
@@ -908,27 +962,11 @@ export class CustomerComponent implements OnInit {
   }
 
   format_totalPrice($event): void {
-    if (this.openedPanel === 'salesInvoice') {
-      this.newSalesInvoice.data.totalPrice = getFloat(moneyFormat($event.target.value));
-      this.newSalesInvoice.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-    } else if (this.openedPanel === 'purchaseInvoice') {
-      this.newPurchaseInvoice.data.totalPrice = getFloat(moneyFormat($event.target.value));
-      this.newPurchaseInvoice.totalPriceFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-    } else {
-      // nothing
-    }
+
   }
 
   format_totalPriceWithTax($event): void {
-    if (this.openedPanel === 'salesInvoice') {
-      this.newSalesInvoice.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
-      this.newSalesInvoice.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-    } else if (this.openedPanel === 'purchaseInvoice') {
-      this.newPurchaseInvoice.data.totalPriceWithTax = getFloat(moneyFormat($event.target.value));
-      this.newPurchaseInvoice.totalPriceWithTaxFormatted = currencyFormat(getFloat(moneyFormat($event.target.value)));
-    } else {
-      // nothing
-    }
+
   }
 
   format_amount($event): void {
@@ -968,34 +1006,10 @@ export class CustomerComponent implements OnInit {
   }
 
   focus_totalPrice(): void {
-    if (this.openedPanel === 'salesInvoice') {
-      if (this.newSalesInvoice.data.totalPrice === 0) {
-        this.newSalesInvoice.data.totalPrice = null;
-        this.newSalesInvoice.totalPriceFormatted = null;
-      }
-    } else if (this.openedPanel === 'purchaseInvoice') {
-      if (this.newPurchaseInvoice.data.totalPrice === 0) {
-        this.newPurchaseInvoice.data.totalPrice = null;
-        this.newPurchaseInvoice.totalPriceFormatted = null;
-      }
-    } else {
-      // nothing
-    }
+
   }
 
   focus_totalPriceWithTax(): void {
-    if (this.openedPanel === 'salesInvoice') {
-      if (this.newSalesInvoice.data.totalPriceWithTax === 0) {
-        this.newSalesInvoice.data.totalPriceWithTax = null;
-        this.newSalesInvoice.totalPriceWithTaxFormatted = null;
-      }
-    } else if (this.openedPanel === 'purchaseInvoice') {
-      if (this.newPurchaseInvoice.data.totalPriceWithTax === 0) {
-        this.newPurchaseInvoice.data.totalPriceWithTax = null;
-        this.newPurchaseInvoice.totalPriceWithTaxFormatted = null;
-      }
-    } else {
-      // nothing
-    }
+
   }
 }
