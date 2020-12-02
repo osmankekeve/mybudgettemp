@@ -50,6 +50,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import * as Chart from 'chart.js';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-customer',
@@ -101,7 +102,7 @@ export class CustomerComponent implements OnInit {
 
   constructor(protected db: AngularFirestore, protected service: CustomerService, protected piService: PurchaseInvoiceService,
               protected siService: SalesInvoiceService, protected colService: CollectionService, protected infoService: InformationService,
-              protected cdService: CashDeskService, protected avService: AccountVoucherService,
+              protected cdService: CashDeskService, protected avService: AccountVoucherService, protected toastService: ToastService,
               protected authService: AuthenticationService, protected modalService: NgbModal,
               protected excelService: ExcelService, protected fuService: FileUploadService, protected vService: VisitService,
               protected router: ActivatedRoute, protected ctService: CustomerTargetService, protected sService: SettingService,
@@ -130,7 +131,7 @@ export class CustomerComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getCustomer(primaryKey)
           .then(item => {
@@ -270,104 +271,42 @@ export class CustomerComponent implements OnInit {
     this.newDeliveryAddress = item as DeliveryAddressMainModel;
   }
 
-  gerenateDashboardChart(): void {
-    const dateList = [];
-    this.purchaseInvoiceList = undefined;
-    Promise.all([this.service.getCustomerPurchaseInvoiceChartData(this.selectedCustomer.data.primaryKey)])
-      .then((values: any) => {
-        if (values[0] !== null) {
-          this.purchaseInvoiceList = [];
-          const returnData = values[0] as Array<PurchaseInvoiceModel>;
-          returnData.forEach(item => {
-            const date = new Date(item.insertDate).toLocaleDateString('en-us');
-            dateList.push(date);
-            this.purchaseInvoiceList.push(item.totalPriceWithTax);
-          });
-        }
-      })
-      .finally(() => {
-        this.buyingChart = new Chart('buyingChart', {
-          type: 'line', // bar, pie, doughnut
-          data: {
-            labels: dateList,
-            datasets: [{
-              label: '# of Votes',
-              fill: false,
-              data: this.purchaseInvoiceList,
-              borderColor: '#bf4e6a',
-              backgroundColor: '#bf4e6a',
-              pointBackgroundColor: '#ffaa15',
-              pointBorderColor: '#ffaa15',
-              pointHoverBackgroundColor: '#ffaa15',
-              pointHoverBorderColor: '#ffaa15',
-            }]
-          },
-          options: {
-            title: {
-              text: 'Alım Cari Hareketler',
-              display: true
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  callback: (value, index, values) => {
-                    if (Number(value) >= 1000) {
-                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    } else {
-                      return '₺' + Number(value).toFixed(2);
-                    }
-                  }
-                }
-              }]
-            },
-            tooltips: {
-              callbacks: {
-                label(tooltipItem, data) {
-                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
-                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-                  });
-                }
-              }
-            },
-          },
-        });
-      });
-
-    const dateList2 = [];
-    // #ffaa15, #bf4e6a
-    this.salesInvoiceList = undefined;
-    Promise.all([this.service.getCustomerSalesInvoiceChartData(this.selectedCustomer.data.primaryKey)])
+  async gerenateDashboardChart(): Promise<void> {
+    try {
+      const dateList = [];
+      this.purchaseInvoiceList = undefined;
+      Promise.all([this.service.getCustomerPurchaseInvoiceChartData(this.selectedCustomer.data.primaryKey)])
         .then((values: any) => {
           if (values[0] !== null) {
-            this.salesInvoiceList = [];
+            this.purchaseInvoiceList = [];
             const returnData = values[0] as Array<PurchaseInvoiceModel>;
             returnData.forEach(item => {
               const date = new Date(item.insertDate).toLocaleDateString('en-us');
-              dateList2.push(date);
-              this.salesInvoiceList.push(item.totalPriceWithTax);
+              dateList.push(date);
+              this.purchaseInvoiceList.push(item.totalPriceWithTax);
             });
           }
         })
         .finally(() => {
-          this.sellingChart = new Chart('sellingChart', {
+          this.buyingChart = new Chart('buyingChart', {
             type: 'line', // bar, pie, doughnut
             data: {
-              labels: dateList2,
+              labels: dateList,
               datasets: [{
                 label: '# of Votes',
                 fill: false,
-                data: this.salesInvoiceList,
-                borderColor: '#B9D6F2',
-                backgroundColor: '#B9D6F2',
-                pointBackgroundColor: '#006DAA',
-                pointBorderColor: '#006DAA',
-                pointHoverBackgroundColor: '#006DAA',
-                pointHoverBorderColor: '#006DAA',
+                data: this.purchaseInvoiceList,
+                borderColor: '#bf4e6a',
+                backgroundColor: '#bf4e6a',
+                pointBackgroundColor: '#ffaa15',
+                pointBorderColor: '#ffaa15',
+                pointHoverBackgroundColor: '#ffaa15',
+                pointHoverBorderColor: '#ffaa15'
               }]
             },
             options: {
               title: {
-                text: 'Satış Cari Hareketler',
+                text: 'Alım Cari Hareketler',
                 display: true
               },
               scales: {
@@ -395,6 +334,73 @@ export class CustomerComponent implements OnInit {
             },
           });
         });
+  
+      const dateList2 = [];
+      // #ffaa15, #bf4e6a
+      this.salesInvoiceList = undefined;
+      Promise.all([this.service.getCustomerSalesInvoiceChartData(this.selectedCustomer.data.primaryKey)])
+          .then((values: any) => {
+            if (values[0] !== null) {
+              this.salesInvoiceList = [];
+              const returnData = values[0] as Array<PurchaseInvoiceModel>;
+              returnData.forEach(item => {
+                const date = new Date(item.insertDate).toLocaleDateString('en-us');
+                dateList2.push(date);
+                this.salesInvoiceList.push(item.totalPriceWithTax);
+              });
+            }
+          })
+          .finally(() => {
+            this.sellingChart = new Chart('sellingChart', {
+              type: 'line', // bar, pie, doughnut
+              data: {
+                labels: dateList2,
+                datasets: [{
+                  label: '# of Votes',
+                  fill: false,
+                  data: this.salesInvoiceList,
+                  borderColor: '#B9D6F2',
+                  backgroundColor: '#B9D6F2',
+                  pointBackgroundColor: '#006DAA',
+                  pointBorderColor: '#006DAA',
+                  pointHoverBackgroundColor: '#006DAA',
+                  pointHoverBorderColor: '#006DAA',
+                }]
+              },
+              options: {
+                title: {
+                  text: 'Satış Cari Hareketler',
+                  display: true
+                },
+                scales: {
+                  yAxes: [{
+                    ticks: {
+                      callback: (value, index, values) => {
+                        if (Number(value) >= 1000) {
+                          return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        } else {
+                          return '₺' + Number(value).toFixed(2);
+                        }
+                      }
+                    }
+                  }]
+                },
+                tooltips: {
+                  callbacks: {
+                    label(tooltipItem, data) {
+                      return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                        return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                      });
+                    }
+                  }
+                },
+              },
+            });
+          });
+
+    } catch (error) {
+      await this.toastService.error(error);
+    }
   }
 
   async btnReturnList_Click(): Promise<void> {

@@ -49,6 +49,7 @@ import {InfoModuleComponent} from './partials/info-module/info-module.component'
 import {OrderSelectComponent} from './partials/order-select/order-select.component';
 import {OrderFilterPipe} from './filters/order-filter.pipe';
 import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-filter.pipe';
+import { SortPipe } from './filters/sort.pipe';
 
 @NgModule({
   declarations: [
@@ -79,6 +80,7 @@ import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-f
     ProductSubFilterPipe,
     ListFilterPipe,
     CustomerCustomerDataFilterPipe,
+    SortPipe,
 
     DropzoneDirective,
     ],
