@@ -243,7 +243,6 @@ export class ProductService {
           resolve(list);
         });
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -263,7 +262,6 @@ export class ProductService {
         }
       });
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -283,7 +281,6 @@ export class ProductService {
         }
       });
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -303,7 +300,6 @@ export class ProductService {
         }
       });
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -323,7 +319,6 @@ export class ProductService {
         }
       });
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -344,7 +339,6 @@ export class ProductService {
       resolve();
 
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })
@@ -369,7 +363,6 @@ export class ProductService {
       });
 
     } catch (error) {
-      console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
     }
   })

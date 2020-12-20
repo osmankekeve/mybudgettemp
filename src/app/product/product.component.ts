@@ -169,8 +169,8 @@ export class ProductComponent implements OnInit, OnDestroy {
       .then((values: any) => {
         if (values[0] !== null) {
           const returnData = values[0] as Array<PurchaseInvoiceDetailModel>;
-          returnData.forEach(item => {
-            dateList.push(item.insertDate);
+          returnData.forEach((item) => {
+            dateList.push(item.quantity.toString() + " Miktar");
             priceList.push(item.price);
           });
         }
