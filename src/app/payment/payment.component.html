@@ -138,12 +138,15 @@
                   </div>
                   <div class="row">
                     <div class="col-sm-4">
-                      <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                      <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
-                      <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
-                      <i class="fa fa-ban mr-2 text-secondary" *ngIf="item.data.status === 'canceled'"></i>
-                      <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
-                      <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
+                      <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+                      <i class="far fa-thumbs-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+                      <i class="far fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+                      <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+                      <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
+                      <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
+                      <i class="far fa-check-circle mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+                      <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+                      <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                     </div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2">{{item.statusTr}}</div>
@@ -191,13 +194,15 @@
                 <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
                 <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
                 <td>
-                  <i class="fa fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                  <i class="fa fa-thumbs-o-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
-                  <i class="fa fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
-                  <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
-                  <i class="fa fa-check-circle-o mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
-                  <i class="fa fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
-                  <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+                  <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+                  <i class="far fa-thumbs-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+                  <i class="far fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+                  <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+                  <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
+                  <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
+                  <i class="far fa-check-circle mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+                  <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+                  <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                 </td>
               </tr>
               <tr class="table-success table-row-class">
