@@ -74,6 +74,7 @@ export class PaymentService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'payment';
+          trans.transactionSubType = 'payment';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -124,6 +125,7 @@ export class PaymentService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'payment';
+          trans.transactionSubType = 'payment';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;

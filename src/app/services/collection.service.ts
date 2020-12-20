@@ -134,6 +134,7 @@ export class CollectionService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'collection';
+          trans.transactionSubType = 'collection';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
