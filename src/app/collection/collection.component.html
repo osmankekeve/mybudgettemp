@@ -9,7 +9,7 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+                (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="XML'e Aktar"
                 (click)="btnExportToXml_Click()" hidden><i class="fa fa-file-archive-o"></i></button>
         <button hidden class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Hesapları Güncelle"
@@ -474,7 +474,7 @@
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
-            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="far fa-trash-alth" *ngIf="!onTransaction"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>

@@ -9,7 +9,7 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+                (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
       </div>
       <div class="col-sm-4 head-filter">
         <div class="input-group input-group-round">
@@ -107,14 +107,15 @@
             <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
             <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
             <td>
-              <i class="fa fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-              <i class="fa fa-thumbs-o-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
-              <i class="fa fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
-              <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
-              <i class="fa fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
-              <i class="fa fa-check-circle-o mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
-              <i class="fa fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
-              <i class="fa fa-mobile-phone mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+              <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+              <i class="far fa-thumbs-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
+              <i class="far fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
+              <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
+              <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
+              <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
+              <i class="far fa-check-circle mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+              <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
+              <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
             </td>
           </tr>
           <tr class="table-success table-row-class">
@@ -296,7 +297,7 @@
                     (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                     *ngIf="selectedRecord.orderDetailList?.length > 0"
-                    (click)="btnDetailExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+                    (click)="btnDetailExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
           </div>
           <div class="col-sm-4 head-filter">
             <div class="input-group input-group-round">
@@ -426,7 +427,7 @@
             <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Json Göster"
                     (click)="btnShowJsonDataDetail_Click()"><i class="fa fa-jsfiddle"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-right" title="Ürün Kaydet"
-                    (click)="btnSaveProductDetail_Click()"><i class="fa fa-save"></i></button>
+                    (click)="btnSaveProductDetail_Click()"><i class="far fa-save"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Ürün Kaldır"
                     *ngIf="selectedDetail.data.primaryKey != undefined"
                     (click)="btnRemoveProductDetail_Click()"><i class="fa fa-remove"></i></button>
@@ -541,7 +542,7 @@
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
-            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>

@@ -19,6 +19,7 @@ import {PurchaseInvoiceDetailService} from './purchase-invoice-detail.service';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {PurchaseOrderService} from './purchase-order.service';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
+import { PurchaseOrderMainModel } from '../models/purchase-order-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -235,7 +236,7 @@ export class PurchaseInvoiceService {
             await this.soService.isOrderHasShortProduct(orderPrimaryKey).then(value => {
               // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
-                const order = item.returnData as SalesOrderMainModel;
+                const order = item.returnData as PurchaseOrderMainModel;
                 order.data.status = value ? 'portion' : 'done';
                 this.soService.updateItem(order);
               });

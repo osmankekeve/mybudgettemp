@@ -47,7 +47,7 @@ export class PurchaseInvoiceDetailService {
             const orderInvoicedQuantity = doc.data().invoicedQuantity;
             const newInvoiceQuantity = record.data.quantity;
             let resultQuantity = 0;
-            let resultStatus ='short';
+            let resultStatus = 'short';
             if (orderInvoicedQuantity + newInvoiceQuantity === orderQuantity) {
               resultQuantity = orderQuantity;
               resultStatus = 'complete';

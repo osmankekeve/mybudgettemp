@@ -122,7 +122,7 @@
               <div class="input-group">
                 <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
-            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
                 </div>
@@ -149,7 +149,7 @@
                         (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                         *ngIf="unitMappingList?.length > 0"
-                        (click)="btnExportToExcel_Click()"><i class="fa fa-file-excel-o"></i></button>
+                        (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Eşleşmeyi Kaldır"
                         *ngIf="unitMappingList?.length > 0"
                         (click)="btnRemoveAllProducts_Click()"><i class="fa fa-remove"></i></button>
@@ -257,7 +257,7 @@
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text danger-icon-side">
-            <i class="fa fa-trash" *ngIf="!onTransaction"></i>
+            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
                 </div>
