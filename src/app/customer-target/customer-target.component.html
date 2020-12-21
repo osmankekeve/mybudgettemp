@@ -61,7 +61,7 @@
               (click)="showSelectedRecord(item)"
               *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
             <td>
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.customer.data.code}}</span>
               <span class="font-weight-600">{{item.customer.data.name}}</span>
             </td>
@@ -120,7 +120,7 @@
                     <button class="btn btn-sm btn-outline-secondary" type="button"
                             [disabled]="selectedRecord.data.primaryKey!=undefined"
                             (click)="btnSelectCustomer_Click()">
-                      <i class="fa fa-arrow-circle-right"></i></button>
+                      <i class="far fa-arrow-alt-circle-right"></i></button>
                   </div>
                 </div>
               </div>
@@ -328,7 +328,7 @@
                    *ngFor="let item of transactionList;">
                 <div class="row">
                   <div class="col-sm-6">
-                    <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                    <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                     <span class="text-red">{{item.returnData.data.receiptNo}}</span>
                   </div>
                   <div class="col-sm-3"><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span>

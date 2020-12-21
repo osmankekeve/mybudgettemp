@@ -84,7 +84,7 @@
                 (click)="showSelectedRecord(item)"
                 *ngFor="let item of mainList | filterProduct: searchText; index as i;">
               <td>
-                <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                 <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
                 <span class="font-weight-600">{{item.data.productName}}</span>
               </td>
@@ -323,7 +323,7 @@
                          *ngFor="let item of unitMappingList;">
                       <div class="row">
                         <div class="col-sm-8 text-red"><i
-                          class="fa fa-arrow-circle-right mr-2"></i>{{item.unit.unitName}}</div>
+                          class="far fa-arrow-alt-circle-right mr-2"></i>{{item.unit.unitName}}</div>
                         <div class="col-sm-4"><span class="float-right">{{item.data.unitValue}}</span></div>
                       </div>
                     </div>

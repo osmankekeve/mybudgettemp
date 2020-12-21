@@ -85,11 +85,9 @@ export class PaymentService {
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'payment');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'payment');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -107,8 +105,7 @@ export class PaymentService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'payment');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else {
+        } else {
           await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });
@@ -135,11 +132,9 @@ export class PaymentService {
           trans.insertDate = record.data.insertDate;
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'payment');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'payment');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -157,8 +152,7 @@ export class PaymentService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'payment');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else {
+        } else {
           // await this.logService.addTransactionLog(record, 'update', 'payment');
         }
       });

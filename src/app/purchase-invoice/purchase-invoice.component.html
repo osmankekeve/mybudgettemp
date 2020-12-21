@@ -140,12 +140,12 @@
                   <div class="row">
                     <div class="col-sm-2">
                       <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                      <i class="far fa-thumbs-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
-                      <i class="far fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
-                      <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
-                      <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
+                      <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
+                      <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
+                      <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
+                      <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
                       <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
-                      <i class="far fa-check-circle mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+                      <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
                       <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
                       <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                     </div>
@@ -210,12 +210,12 @@
                 <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
                 <td>
                   <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-                  <i class="far fa-thumbs-up mr-2 text-secondary float-right" *ngIf="item.data.status === 'approved'"></i>
-                  <i class="far fa-thumbs-down mr-2 text-secondary float-right" *ngIf="item.data.status === 'rejected'"></i>
-                  <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'canceled'"></i>
-                  <i class="fas fa-ban mr-2 text-secondary float-right" *ngIf="item.data.status === 'closed'"></i>
+                  <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
+                  <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
+                  <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
+                  <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
                   <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
-                  <i class="far fa-check-circle mr-2 text-secondary float-right" *ngIf="item.data.status === 'done'"></i>
+                  <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
                   <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
                   <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
                 </td>
@@ -295,7 +295,7 @@
                       <button class="btn btn-sm btn-outline-secondary" type="button"
                               [disabled]="selectedRecord.data.primaryKey!=undefined"
                               (click)="btnSelectCustomer_Click()">
-                        <i class="fa fa-arrow-circle-right"></i></button>
+                        <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
@@ -335,7 +335,7 @@
                       <button class="btn btn-sm btn-outline-secondary" type="button"
                               [disabled]="selectedRecord.data.primaryKey!=undefined"
                               (click)="btnSelectOrder_Click()">
-                        <i class="fa fa-arrow-circle-right"></i></button>
+                        <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
@@ -462,7 +462,7 @@
                             <div class="col-sm-10">
                               <div class="row">
                                 <div class="col-sm-12">
-                                  <i class="fa fa-arrow-circle-right mr-2 text-red font-weight-600"></i>
+                                  <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
                                   <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
                                   <span class="font-weight-600">{{item.product.data.productName}}</span>
                                 </div>
@@ -618,7 +618,7 @@
               <div class="card-body" *ngIf="selectedDetailRecord">
                 <div class="row fs-13">
                   <div class="col-sm-12">
-                    <i class="fa fa-arrow-circle-right mr-2 text-red font-weight-600"></i>
+                    <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
                     <span class="text-red font-weight-600 mr-1">{{selectedDetailRecord.product.data.productCode}}</span>
                     <span class="font-weight-600">{{selectedDetailRecord.product.data.productName}}</span>
                   </div>

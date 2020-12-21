@@ -14,7 +14,6 @@ import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library'
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -90,12 +89,10 @@ export class CollectionService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -113,8 +110,7 @@ export class CollectionService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else {
+        } else {
           await this.logService.addTransactionLog(record, 'update', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
@@ -145,11 +141,9 @@ export class CollectionService {
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'collection');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -167,8 +161,7 @@ export class CollectionService {
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'collection');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else {
+        } else {
           // await this.logService.addTransactionLog(record, 'update', 'collection');
         }
       });

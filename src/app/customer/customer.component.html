@@ -67,7 +67,7 @@
               (click)="showSelectedCustomer(item)"
               *ngFor="let item of mainList | filterDataCustomer: searchText; index as i;">
             <td>
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.data.code}}</span>
               <span class="font-weight-600">{{item.data.name}}</span>
             </td>
@@ -359,7 +359,7 @@
                      *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
@@ -506,7 +506,7 @@
                      *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
@@ -549,7 +549,7 @@
                      *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
@@ -696,7 +696,7 @@
                      *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
@@ -845,7 +845,7 @@
                      *ngFor="let item of transactionList;">
                   <div class="row">
                     <div class="col-sm-6">
-                      <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+                      <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
@@ -1189,7 +1189,7 @@
           <tbody>
           <tr class="table-row-class" *ngFor="let item of targetList">
             <td>
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.returnData.customer.data.code}}</span>
               <span class="font-weight-600">{{item.returnData.customer.data.name}}</span>
             </td>
@@ -1224,7 +1224,7 @@
              *ngFor="let item of visitList; index as i;">
           <div class="row">
             <div class="col-sm-2"><i
-              class="fa fa-arrow-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
+              class="far fa-arrow-alt-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
             <div class="col-sm-8">{{item.returnData.data.subject}}</div>
             <div class="col-sm-1">{{item.returnData.isSendTr}}</div>
             <div class="col-sm-1">

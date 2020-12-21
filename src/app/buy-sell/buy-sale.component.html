@@ -39,13 +39,17 @@
              *ngFor="let item of mainList | filterNote: searchText; index as i;">
           <div class="row">
             <div class="col-sm-2">
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-2">{{item.currencyName}}</span>
-              <i class="fa fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"></i>
-              <i class="fa fa-thumbs-o-up mr-2 text-secondary" *ngIf="item.data.status === 'approved'"></i>
-              <i class="fa fa-thumbs-down mr-2 text-secondary" *ngIf="item.data.status === 'rejected'"></i>
-              <i class="fa fa-wifi mr-2 text-secondary" *ngIf="item.data.platform === 'web'"></i>
-              <i class="fa fa-mobile-phone mr-2 text-secondary" *ngIf="item.data.platform === 'mobile'"></i>
+              <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
+              <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
+              <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
+              <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
+              <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
+              <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
+              <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
+              <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'"></i>
+              <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'"></i>
             </div>
             <div class="col-sm-2">{{item.employeeName}}</div>
             <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>

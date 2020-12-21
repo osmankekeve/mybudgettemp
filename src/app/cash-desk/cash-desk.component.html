@@ -34,7 +34,7 @@
               (click)="showSelectedRecord(item)"
               *ngFor="let item of mainList | filterCashDesk: searchText; index as i;">
             <td>
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="font-weight-600 mr-1">{{item.data.name}}</span>
             </td>
           </tr>
@@ -206,7 +206,7 @@
                        *ngFor="let item of transactionList; index as i;">
                     <div class="row">
                       <div class="col-sm-3 text-red"><i
-                        class="fa fa-arrow-circle-right mr-2"></i>{{item.transactionTypeTr}}</div>
+                        class="far fa-arrow-alt-circle-right mr-2"></i>{{item.transactionTypeTr}}</div>
                       <div class="col-sm-3">{{item.receiptNo}}</div>
                       <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
                       <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>

@@ -34,7 +34,7 @@
               (click)="showSelectedRecord(item)"
               *ngFor="let item of mainList | filterProduct: searchText; index as i;">
             <td>
-              <i class="fa fa-arrow-circle-right mr-2 text-red"></i>
+              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-1">{{item.data.unitName}}</span>
             </td>
             <td>{{item.isActiveTr}}</td>
@@ -180,7 +180,7 @@
                      *ngFor="let item of unitMappingList | filterProductSub: productSearchText;">
                   <div class="row">
                     <div class="col-sm-10">
-                      <i class="fa fa-arrow-circle-right text-red mr-2"></i>
+                      <i class="far fa-arrow-alt-circle-right text-red mr-2"></i>
                       <span class="text-red font-weight-600 mr-2">{{item.product.data.productCode}}</span>
                       <span class="font-weight-600">{{item.product.data.productName}}</span>
                     </div>
@@ -224,7 +224,7 @@
                            [(ngModel)]="selectedMapping.product.data.productName" disabled>
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
-                        class="fa fa-arrow-circle-right"></i></button>
+                        class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
