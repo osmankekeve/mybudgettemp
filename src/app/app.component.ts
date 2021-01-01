@@ -67,6 +67,7 @@ export class AppComponent implements OnInit {
   isEMAChecked = false;
   cookieEMA = ''; // Company Mail Address
   onTransaction = false;
+  searchWaitingWorksText = '';
 
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
@@ -117,7 +118,6 @@ export class AppComponent implements OnInit {
     if (!this.userDetails) {
       this.employeeDetail = undefined;
     } else {
-      this.isEmployeeLoggedIn();
       this.isEmployeeLoggedIn();
       this.populateReminderList();
       this.populateActivityList();

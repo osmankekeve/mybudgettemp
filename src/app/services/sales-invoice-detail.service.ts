@@ -7,19 +7,14 @@ import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {ActionService} from './action.service';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {ProductService} from './product.service';
 import {ProductMainModel} from '../models/product-main-model';
 import {currencyFormat, getStatus} from '../core/correct-library';
 import {ProductUnitService} from './product-unit.service';
-
 import {ProductUnitModel} from '../models/product-unit-model';
 import {SalesInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/sales-invoice-detail-main-model';
 import {SalesInvoiceDetailModel} from '../models/sales-invoice-detail-model';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {SalesOrderDetailService} from './sales-order-detail.service';
 
 @Injectable({
   providedIn: 'root'

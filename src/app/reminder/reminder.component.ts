@@ -10,9 +10,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ReminderMainModel} from '../models/reminder-main-model';
 import {CustomerModel} from '../models/customer-model';
-import {ExcelService} from '../services/excel-service';
 import {CustomerService} from '../services/customer.service';
-import {PurchaseOrderService} from '../services/purchase-order.service';
 import {ToastService} from '../services/toast.service';
 @Component({
   selector: 'app-reminder',
@@ -195,6 +193,14 @@ export class ReminderComponent implements OnInit {
     try {
       this.generateCharts();
       this.populateList();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
     } catch (error) {
       await this.infoService.error(error);
     }

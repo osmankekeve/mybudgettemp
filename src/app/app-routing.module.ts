@@ -48,6 +48,7 @@ import {SalesOfferComponent} from './sales-offer/sales-offer.component';
 import {PurchaseOfferComponent} from './purchase-offer/purchase-offer.component';
 import {PurchaseOrderComponent} from './purchase-order/purchase-order.component';
 import {CompanyComponent} from './company/company.component';
+import { CampaignComponent } from './campaign/campaign.component';
 
 
 const routes: Routes = [
@@ -104,6 +105,7 @@ const routes: Routes = [
   {path: 'purchase-offer', component: PurchaseOfferComponent, pathMatch: 'full'},
   {path: 'purchase-order', component: PurchaseOrderComponent, pathMatch: 'full'},
   {path: 'company', component: CompanyComponent, pathMatch: 'full'},
+  {path: 'campaign', component: CampaignComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -121,7 +123,7 @@ export const routingComponents = [
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent, ProductComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
   ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent, SalesOrderComponent, SalesOfferComponent,
-  PurchaseOfferComponent, PurchaseOrderComponent, CompanyComponent
+  PurchaseOfferComponent, PurchaseOrderComponent, CompanyComponent, CampaignComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

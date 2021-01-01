@@ -48,8 +48,7 @@
             <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
           </button>
         </form>
-        <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true"
-             (mouseleave)="showNotificationPanel=false">
+        <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
           <div class="card-header bg-warning text-wight">
             <i class="fa fa-fw fa-bell material-icons mr-1"></i>
             <span>Bildirimler</span>
@@ -117,8 +116,7 @@
             </ng-template>
           </div>
         </div>
-        <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true"
-             (mouseleave)="showReminderPanel=false">
+        <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true" (mouseleave)="showReminderPanel=false">
           <div class="card-header bg-warning text-wight">
             <i class="fa fa-globe material-icons mr-1"></i>
             <span>Hatırlatıcı</span>
@@ -169,17 +167,26 @@
             </div>
           </div>
         </div>
-        <div class="card notificationHeaderPanel" *ngIf="showWaitingWorksPanel==true"
-             (mouseleave)="showWaitingWorksPanel=false">
+        <div class="card notificationHeaderPanel" *ngIf="showWaitingWorksPanel==true" (mouseleave)="showWaitingWorksPanel=false">
           <div class="card-header bg-warning text-wight">
-            <i class="fa fa-fw fa-bell material-icons mr-1"></i>
+            <i class="far fa-bell mr-1"></i>
             <span>Bekleyen İşlemler</span>
           </div>
           <div class="card-body bg-light panelHeightControl">
             <div *ngIf="waitingWorkList.length > 0; else elseBlock">
+              <div class="head-filter mb-1">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fa fa-filter"></i>
+                                </span>
+                  </div>
+                  <input type="search" class="form-control filter-list-input" placeholder="İşlem Ara.." [(ngModel)]="searchWaitingWorksText">
+                </div>
+              </div>
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                     *ngFor="let item of waitingWorkList;" title="Kaydı Göster" style="font-size: 85%">
+                     *ngFor="let item of waitingWorkList | filterWaitingWork: searchWaitingWorksText;" title="Kaydı Göster" style="font-size: 85%">
                   <div class="row"
                        (click)="showWaitingWorkRecord(item)">
                     <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</div>

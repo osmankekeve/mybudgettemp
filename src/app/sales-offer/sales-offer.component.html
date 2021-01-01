@@ -2,7 +2,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
+        <img src="../../assets/images/sales_invoice.png" width="30px" alt="" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Satış Teklif Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Teklif"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
@@ -107,15 +107,15 @@
           <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
           <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
           <td>
-            <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-            <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
-            <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
-            <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
-            <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
-            <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
-            <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
-            <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
-            <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+            <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
+            <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
+            <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
+            <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
+            <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
+            <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
+            <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
+            <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
+            <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
           </td>
         </tr>
         <tr class="table-success table-row-class">
@@ -142,7 +142,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2" alt="">
+        <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Satış Teklif Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -235,7 +235,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
-                  [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
+                  [disabled]="selectedRecord.data.status != 'waitingForApprove'"
                   [(ngModel)]="selectedRecord.data.storagePrimaryKey">
             <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
           </select>
@@ -278,7 +278,7 @@
           <label class="col-form-label float-left" for="generalDiscount">Sipariş İndirimi</label>
         </div>
         <div class="col-sm-3">
-          <input class="form-control form-control-sm w-100" id="generalDiscount" name="generalDiscount" type="number"
+          <input class="form-control form-control-sm w-100" id="generalDiscount" name="generalDiscount" type="number" min="0"
                  [disabled]="selectedRecord.data.status != 'waitingForApprove'"
                  (change)="txtGeneralDiscount_TextChange()"
                  [(ngModel)]="selectedRecord.data.generalDiscountValue">
@@ -297,6 +297,37 @@
                  [disabled]="selectedRecord.data.status != 'waitingForApprove'"
                  [(ngModel)]="selectedRecord.data.description">
         </div>
+        <div class="col-sm-12">
+          <div class="row" ng-if="packetCampaignList.length > 0">
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="campaignPrimaryKey">Paket Kampanya</label>
+            </div>
+            <div class="col-sm-3">
+              <select class="form-control form-control-sm w-100" id="campaignPrimaryKey" name="campaignPrimaryKey"
+                      (change)="ddlPacketCampaign_SelectedIndexChanged($event.target.value)"
+                      [disabled]="selectedRecord.data.primaryKey != null"
+                      [(ngModel)]="selectedRecord.data.campaignPrimaryKey">
+                      <option value="-1">Paket Kampanya Seçilmedi</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of packetCampaignList">{{item.title}}</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="campaignQuantity">Paket Miktarı</label>
+            </div>
+            <div class="col-sm-3">
+              <div class="input-group">
+                <input class="form-control form-control-sm" id="campaignQuantity" name="campaignQuantity" type="number" min="0"
+                      [disabled]="selectedRecord.data.primaryKey!=undefined || selectedRecord.data.campaignPrimaryKey =='-1'"
+                       [(ngModel)]="selectedRecord.data.campaignQuantity">
+              <div class="input-group-append">
+                <button class="btn btn-sm btn-success"
+                [disabled]="selectedRecord.data.primaryKey!=undefined || selectedRecord.data.campaignPrimaryKey =='-1'"
+                (click)="btnCreatePacketCampaign_Click()" type="button">Oluştur</button>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
       </div>
     </form>
     <div class="card" *ngIf="!isNewPanelOpened">
@@ -305,7 +336,7 @@
           <div class="col-sm-8">
             <h5 class="float-left mr-2">Sipariş Detayı</h5>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
-                    *ngIf="selectedRecord.data.status == 'waitingForApprove'"
+                    *ngIf="selectedRecord.data.status == 'waitingForApprove' && selectedRecord.data.campaignPrimaryKey =='-1'"
                     (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                     *ngIf="selectedRecord.orderDetailList?.length > 0"
@@ -350,6 +381,9 @@
                       {{item.product.data.productName}}
                     </div>
                     <div class="col-sm-3">
+                      <i class="fas fa-coins text-secondary mr-1" *ngIf="item.data.listPrice > 0 && item.data.listPrice !=item.data.price" title="Farklı Fiyat"></i>
+                      <i class="fas fa-percent text-secondary mr-1" *ngIf="item.data.discount1 !=item.data.defaultDiscount1 || item.data.discount2 !=item.data.defaultDiscount2" title="Farklı İskonto"></i>
+                      <i class="fas fa-bullhorn text-secondary mr-1" *ngIf="item.data.campaignPrimaryKey !='-1'" title="Kampanya"></i>
                     </div>
                     <div class="col-sm-1">
                       <span class="float-right">{{item.data.price | currency:'₺'}}</span>
@@ -497,15 +531,15 @@
                    [(ngModel)]="selectedDetail.priceFormatted">
           </div>
           <div class="col-sm-1">
-            <input class="form-control form-control-sm w-100" id="discount1" name="discount1" type="number"
+            <input class="form-control form-control-sm w-100" id="discount1" name="discount1" type="number" min="0"
                    [(ngModel)]="selectedDetail.data.discount1">
           </div>
           <div class="col-sm-1">
-            <input class="form-control form-control-sm w-100" id="discount2" name="discount2" type="number"
+            <input class="form-control form-control-sm w-100" id="discount2" name="discount2" type="number" min="0"
                    [(ngModel)]="selectedDetail.data.discount2">
           </div>
           <div class="col-sm-1">
-            <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number"
+            <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0"
                    [(ngModel)]="selectedDetail.data.quantity">
           </div>
           <div class="col-sm-2">
@@ -541,7 +575,7 @@
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
-            <i class="fa fa-check" *ngIf="!onTransaction"></i>
+            <i class="fa fa-thumbs-up" *ngIf="!onTransaction"></i>
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>

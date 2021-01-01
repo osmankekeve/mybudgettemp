@@ -32,15 +32,18 @@ export class CustomerSelectComponent implements OnInit {
       this.customer = this.service.clearMainModel();
     }
     if (module === 'sales-invoice') {
+      const type = [];
+      type.push('approved');
+      type.push('portion');
       const collection = this.db.collection('tblSalesOrder', ref => {
         let query: CollectionReference | Query = ref;
         query = query
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('status', '==', 'approved');
+          .where('status', 'in', type);
         return query;
       }).get();
       collection.toPromise().then((snapshot) => {
-        if (snapshot.size == 0) {
+        if (snapshot.size === 0) {
           this.customerList = [];
         } else {
           const aa = [];
@@ -56,17 +59,19 @@ export class CustomerSelectComponent implements OnInit {
           this.customerList = aa;
         }
       });
-    }
-    else if (module === 'purchaseInvoice') {
+    } else if (module === 'purchaseInvoice') {
+      const type = [];
+      type.push('approved');
+      type.push('portion');
       const collection = this.db.collection('tblPurchaseOrder', ref => {
         let query: CollectionReference | Query = ref;
         query = query
           .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('status', '==', 'approved');
+          .where('status', 'in', type);
         return query;
       }).get();
       collection.toPromise().then((snapshot) => {
-        if (snapshot.size == 0) {
+        if (snapshot.size === 0) {
           this.customerList = [];
         } else {
           const aa = [];
@@ -79,8 +84,7 @@ export class CustomerSelectComponent implements OnInit {
           this.customerList = aa;
         }
       });
-    }
-    else {
+    } else {
       Promise.all([this.service.getCustomersMain(this.customerTypes)]).then((values: any) => {
         this.customerList = [];
         if (values[0] !== null) {

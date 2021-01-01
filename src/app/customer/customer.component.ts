@@ -657,7 +657,7 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnExportToExcel_Click(): void {
+  async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
         this.excelService.exportToExcel(this.mainList, 'customer');
@@ -665,7 +665,8 @@ export class CustomerComponent implements OnInit {
         this.infoService.error('Aktarılacak kayıt bulunamadı.');
       }
     } catch (error) {
-      this.infoService.error(error);
+      console.log(error);
+      await this.infoService.error(error);
     }
   }
 

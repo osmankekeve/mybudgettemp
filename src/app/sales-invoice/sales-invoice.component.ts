@@ -36,7 +36,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {OrderSelectComponent} from '../partials/order-select/order-select.component';
 import {ToastService} from '../services/toast.service';
-import {SalesOrderDetailMainModel,} from '../models/sales-order-detail-main-model';
+import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
 import {SalesInvoiceDetailService} from '../services/sales-invoice-detail.service';
 import {SalesOrderDetailService} from '../services/sales-order-detail.service';
 import {SalesInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/sales-invoice-detail-main-model';
@@ -105,7 +105,7 @@ export class SalesInvoiceComponent implements OnInit {
       const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        if (this.router.snapshot.paramMap.get('action') ==='create-invoice') {
+        if (this.router.snapshot.paramMap.get('action') === 'create-invoice') {
           const list = [];
           list.push(paramItem.data.primaryKey);
           await this.clearSelectedRecord();
@@ -114,8 +114,7 @@ export class SalesInvoiceComponent implements OnInit {
           this.selectedRecord.data.type = paramItem.data.type;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
           await this.generateOrderToInvoice(list);
-        }
-        else {
+        } else {
           this.showSelectedRecord(paramItem);
         }
       }
@@ -147,7 +146,7 @@ export class SalesInvoiceComponent implements OnInit {
   async generateOrderToInvoice(orderPrimaryKeyList: Array<string>): Promise<void> {
     try {
       this.selectedRecord.data.orderPrimaryKeyList = orderPrimaryKeyList;
-      this.invoiceDetailList =[];
+      this.invoiceDetailList = [];
       this.clearSelectedDetail();
       this.setOrderCountInfo();
       this.db.collection('tblSalesOrderDetail', ref => {
@@ -790,7 +789,7 @@ export class SalesInvoiceComponent implements OnInit {
 
   async getReceiptNo(): Promise<void> {
     const receiptNoData = await this.sService.getSalesInvoiceCode();
-    if (this.selectedRecord != undefined && receiptNoData !== null) {
+    if (this.selectedRecord !== undefined && receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
     }
   }

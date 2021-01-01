@@ -116,11 +116,9 @@ export class PurchaseInvoiceService {
               });
             });
           }
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseInvoice');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -171,8 +169,7 @@ export class PurchaseInvoiceService {
           }
           await this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
-        }
-        else {
+        } else {
           // await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
         }
       });
@@ -242,12 +239,10 @@ export class PurchaseInvoiceService {
               });
             });
           }
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else if (record.data.status === 'canceled') {
+        } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
           trans.receiptNo = record.data.receiptNo;
@@ -298,8 +293,7 @@ export class PurchaseInvoiceService {
           }
           await this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
-        }
-        else {
+        } else {
           await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }

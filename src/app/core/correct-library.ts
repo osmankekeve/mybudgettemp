@@ -1,7 +1,6 @@
 import {isNullOrUndefined} from 'util';
 import * as CryptoJS from 'crypto-js';
 
-
 export const getNumber = (value: any) => {
   if (Number(value)) {
     return parseInt(value.toString(), 0);
@@ -92,6 +91,16 @@ export const getTodayStart = () => {
   return getDateAndTime(0, 0, 0);
 };
 
+export const getDateTime = (year: number, month: number, day: number, hour: number, minute: number, seconds: number) => {
+  const date = new Date();
+  return new Date(year, month, day, hour, minute, seconds);
+};
+
+export const getDateTimeNow = () => {
+  const date = new Date();
+  return date.getTime();
+};
+
 export const getTodayEnd = () => {
   return getDateAndTime(23, 59, 59);
 };
@@ -134,6 +143,12 @@ export const getDateForInput = (value: number) => {
   }
 };
 
+export const getDateTimeForInput = (value: number) => {
+  const date = new Date(value);
+  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(),
+    hour: date.getHours(), minute: date.getMinutes(), seconds: date.getSeconds() };
+};
+
 export const getInputDataForInsert = (value: any) => {
   const date = new Date();
   if (isNullOrEmpty(value)) {
@@ -142,6 +157,16 @@ export const getInputDataForInsert = (value: any) => {
   } else {
     return new Date(value.year, value.month - 1, value.day,
       date.getHours(), date.getMinutes(), date.getSeconds()).getTime();
+  }
+};
+
+export const getDateTimeForQueryFilter = (value: any) => {
+  if (isNullOrEmpty(value)) {
+    const date = new Date();
+    return getDateTime(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0).getTime();
+  } else {
+    const date = new Date(value);
+    return getDateTime(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0).getTime();
   }
 };
 
@@ -272,6 +297,10 @@ export const getCustomerTypesForImport = () => {
   return new Map([['Müşteri', 'customer'], ['Tedarikçi', 'supplier'], ['Müşteri-Tedarikçi', 'customer-supplier']]);
 };
 
+export const getCampaignType = () => {
+  return new Map([['normal', 'Normal Kampanya'], ['packet', 'Paket Kampanya']]);
+};
+
 export const getEncryptionKey = () => {
   return '34OSman17';
 };
@@ -292,8 +321,7 @@ export const padLeft = (str: string, size: number) => {
 };
 
 export const encryptData = (strData: any) => {
-  return CryptoJS.AES.encrypt(JSON.stringify(strData),
-    this.getEncryptionKey()).toString();
+  return CryptoJS.AES.encrypt(JSON.stringify(strData), getEncryptionKey()).toString();
 };
 
 export const getModuleIcons = () => {
@@ -355,7 +383,7 @@ export const getConvertedUnitValue = (productValue: number, productDefaultUnitCo
     if (productDefaultUnitCode === productCurrentUnitCode) {
       defaultValue = productValue;
     } else {
-      defaultValue = productValue/productCurrentUnitValue;
+      defaultValue = productValue / productCurrentUnitValue;
     }
     if (productDefaultUnitCode === productTargetUnitCode) {
       return defaultValue.toFixed(2);

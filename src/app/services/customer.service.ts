@@ -11,7 +11,7 @@ import { AuthenticationService } from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
-import {currencyFormat, getCustomerTypes, getPaymentTypes, getProductTypes, getTerms} from '../core/correct-library';
+import {currencyFormat, getCustomerTypes, getPaymentTypes, getProductTypes, getString, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
 import 'rxjs-compat/add/observable/of';
 import 'rxjs-compat/add/operator/combineLatest';
@@ -308,11 +308,27 @@ export class CustomerService {
           const returnData = new CustomerMainModel();
           returnData.data = this.checkFields(data);
           returnData.actionType = c.type;
-          returnData.employee = this.employeeMap.get(data.employeePrimaryKey);
-          returnData.executive = this.employeeMap.get(data.executivePrimary);
-          returnData.paymentTypeTr = this.paymentMap.get(returnData.data.paymentTypeKey);
-          returnData.termTr = this.termMap.get(returnData.data.termKey);
-          returnData.customerTypeTr = getCustomerTypes().get(returnData.data.customerType);
+
+          Promise.all([
+            this.eService.getItem(data.employeePrimaryKey, false),
+            this.eService.getItem(data.executivePrimary, false)
+          ])
+            .then((values: any) => {
+              if (values[0] !== null) {
+                returnData.employee = values[0].returnData.data;
+              } else {
+                returnData.employee = this.eService.clearProfileModel();
+              }
+              if (values[1] !== null) {
+                returnData.executive = values[1].returnData.data;
+              } else {
+                returnData.executive = this.eService.clearProfileModel();
+              }
+            });
+
+          returnData.paymentTypeTr = getString(this.paymentMap.get(returnData.data.paymentTypeKey));
+          returnData.termTr = getString(this.termMap.get(returnData.data.termKey));
+          returnData.customerTypeTr = getString(getCustomerTypes().get(returnData.data.customerType));
           return Object.assign({returnData});
         })
       )

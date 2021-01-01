@@ -73,24 +73,20 @@ export class SalesOrderService {
           }
           await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else if (record.data.status === 'closed') {
+        } else if (record.data.status === 'closed') {
           for (const item of record.orderDetailList) {
             item.data.invoicedStatus = 'complete';
             await this.sodService.updateItem(item);
           }
           await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
-        }
-        else if (record.data.status === 'done') {
+        } else if (record.data.status === 'done') {
           await this.logService.addTransactionLog(record, 'done', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
-        }
-        else {
+        } else {
           await this.logService.addTransactionLog(record, 'update', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
@@ -127,32 +123,23 @@ export class SalesOrderService {
     return new Promise((resolve, reject) => {
       if (record.data.customerPrimaryKey === '-1') {
         reject('Lütfen müşteri seçiniz.');
-      }
-      else if (record.data.priceListPrimaryKey === '-1') {
+      } else if (record.data.priceListPrimaryKey === '-1') {
         reject('Lütfen fiyat listesi seçiniz.');
-      }
-      else if (record.data.priceListPrimaryKey === '-1') {
+      } else if (record.data.priceListPrimaryKey === '-1') {
         reject('Lütfen iskonto listesi seçiniz.');
-      }
-      else if (record.data.deliveryAddressPrimaryKey === '-1') {
+      } else if (record.data.deliveryAddressPrimaryKey === '-1') {
         reject('Lütfen sevkiyat adresi seçiniz.');
-      }
-      else if (record.data.totalPrice <= 0) {
+      } else if (record.data.totalPrice <= 0) {
         reject('Tutar sıfırdan büyük olmalıdır.');
-      }
-      else if (record.data.receiptNo === '') {
+      } else if (record.data.receiptNo === '') {
         reject('Lütfen fiş numarası giriniz.');
-      }
-      else if (record.data.totalPrice <= 0) {
+      } else if (record.data.totalPrice <= 0) {
         reject('Tutar (+KDV) sıfırdan büyük olmalıdır.');
-      }
-      else if (isNullOrEmpty(record.data.recordDate)) {
+      } else if (isNullOrEmpty(record.data.recordDate)) {
         reject('Lütfen kayıt tarihi seçiniz.');
-      }
-      else if (record.orderDetailList.length === 0) {
+      } else if (record.orderDetailList.length === 0) {
         reject('Boş sipariş kaydedilemez.');
-      }
-      else {
+      } else {
         resolve(null);
       }
     });
@@ -168,6 +155,15 @@ export class SalesOrderService {
     const cleanModel = this.clearSubModel();
     if (model.receiptNo === undefined) {
       model.receiptNo = model.primaryKey; //boyle olsun
+    }
+    if (model.deliveryAddressPrimaryKey === undefined) {
+      model.deliveryAddressPrimaryKey = cleanModel.deliveryAddressPrimaryKey;
+    }
+    if (model.campaignPrimaryKey === undefined) {
+      model.campaignPrimaryKey = cleanModel.campaignPrimaryKey;
+    }
+    if (model.campaignQuantity === undefined) {
+      model.campaignQuantity = cleanModel.campaignQuantity;
     }
     return model;
   }
@@ -185,6 +181,8 @@ export class SalesOrderService {
     returnData.storagePrimaryKey = '-1';
     returnData.termPrimaryKey = '-1';
     returnData.paymentTypePrimaryKey = '-1';
+    returnData.campaignPrimaryKey = '-1'; // packet
+    returnData.campaignQuantity = 0;
     returnData.receiptNo = '';
     returnData.description = '';
     returnData.type = 'sales'; // sales, service, return
@@ -281,7 +279,7 @@ export class SalesOrderService {
           returnData.paymentName = d6.returnData.data.custom1;*/
 
           const d7 = await this.daService.getItem(returnData.data.deliveryAddressPrimaryKey);
-          returnData.deliveryAddressName = d7.returnData.data.addressName;
+          returnData.deliveryAddressName = d7 != null ? d7.returnData.data.addressName : '';
 
           const d8 = await this.eService.getItem(returnData.data.approverPrimaryKey, false);
           returnData.approverName = d8 != null ? d8.returnData.data.longName : '';

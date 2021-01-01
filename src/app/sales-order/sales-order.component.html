@@ -2,7 +2,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-8">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" alt="" class="float-left mr-2">
+        <img src="../../assets/images/sales_invoice.png" width="30px" alt="" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Satış Siparişi Listesi</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
                 (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
@@ -107,15 +107,15 @@
           <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
           <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
           <td>
-            <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-            <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
-            <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
-            <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
-            <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
-            <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
-            <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
-            <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'"></i>
-            <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'"></i>
+            <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
+            <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
+            <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
+            <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
+            <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
+            <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
+            <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
+            <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
+            <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
           </td>
         </tr>
           <tr class="table-success table-row-class">
@@ -142,7 +142,7 @@
   <div class="card-header bg-gray-gradient">
     <div class="row">
       <div class="col-sm-12">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2" alt="">
+        <img src="../../assets/images/sales_invoice.png" width="30px" class="float-left mr-2" alt="">
         <h4 class="card-title float-left mr-2">Satış Sipariş Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
@@ -190,11 +190,14 @@
               <div class="col-sm-2 text-secondary mb-2">{{selectedRecord.data.approveDate | date: 'yyyy.MM.dd HH:mm:ss'}}</div>
               <div class="col-sm-2 font-weight-600 text-dark-blue mb-2">Onaylayan Kişi</div>
               <div class="col-sm-2 text-secondary mb-2">{{selectedRecord.approverName}}</div>
-              <div class="col-sm-2 font-weight-600 text-dark-blue mb-2">Açıklama</div>
-              <div class="col-sm-2 text-secondary mb-2">{{selectedRecord.data.description}}</div>
-              <div class="col-sm-4 mb-2"></div>
               <div class="col-sm-2 font-weight-600 text-dark-blue mb-2">Ürün Bilgisi</div>
               <div class="col-sm-2 text-secondary mb-2">{{selectedRecord.orderDetailList?.length}} Kalem Ürün Bulunmaktadır.</div>
+              <div class="col-sm-12">
+                <div class="row">
+                  <div class="col-sm-2 font-weight-600 text-dark-blue mb-2">Açıklama</div>
+                  <div class="col-sm-10 text-secondary mb-2">{{selectedRecord.data.description}}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -204,7 +207,7 @@
           <div class="card-header bg-gray-gradient">
             <div class="row">
               <div class="col-sm-9">
-                <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
+                <img src="../../assets/images/sales_invoice.png" width="30px" alt="" class="float-left mr-2">
                 <h5 class="float-left mr-2">Sipariş Detayı</h5>
                 <div class="loader-small float-right mr-2" *ngIf="selectedRecord.orderDetailList?.length === 0"></div>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
@@ -296,6 +299,11 @@
                               <div class="col-sm-6">
                                 <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
                               </div>
+                              <div class="col-sm-6">
+                                <i class="fas fa-coins text-secondary mr-1" *ngIf="item.data.listPrice > 0 && item.data.listPrice !=item.data.price" title="Farklı Fiyat"></i>
+                                <i class="fas fa-percent text-secondary mr-1" *ngIf="item.data.discount1 !=item.data.defaultDiscount1 || item.data.discount2 !=item.data.defaultDiscount2" title="Farklı İskonto"></i>
+                                <i class="fas fa-bullhorn text-secondary mr-1" *ngIf="item.data.campaignPrimaryKey !='-1'" title="Kampanya"></i>
+                              </div>
                             </div>
                           </div>
                           <div class="col-sm-4">
@@ -330,7 +338,7 @@
                               </div>
                             </div>
                           </div>
-                          <div class="col-sm-12" *ngIf="item.data.quantity === item.data.invoicedQuantity">* Bu kalem ürünün tamamı faturalaştırılmıştır.</div>
+                          <div class="col-sm-6" *ngIf="item.data.quantity === item.data.invoicedQuantity">* Bu kalem ürünün tamamı faturalaştırılmıştır.</div>
                         </div>
                       </div>
                     </div>

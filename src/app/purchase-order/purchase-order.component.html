@@ -107,15 +107,15 @@
             <td><span class="float-right">{{item.data.totalPriceWithTax | currency:'₺'}}</span></td>
             <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
             <td>
-              <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'"></i>
-              <i class="far fa-thumbs-up mr-2 text-orange float-right" *ngIf="item.data.status === 'approved'"></i>
-              <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'"></i>
-              <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'"></i>
-              <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'"></i>
-              <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'"></i>
-              <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'"></i>
-              <i class="fas fa-wifi mr-2 text-secondary float-right" *ngIf="item.data.platform === 'web'"></i>
-              <i class="fas fa-mobile mr-2 text-secondary float-right" *ngIf="item.data.platform === 'mobile'"></i>
+              <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
+              <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
+              <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
+              <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
+              <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
+              <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
+              <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
+              <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
+              <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
             </td>
           </tr>
           <tr class="table-success table-row-class">
@@ -291,6 +291,11 @@
                               </div>
                               <div class="col-sm-6">
                                 <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
+                              </div>
+                              <div class="col-sm-6">
+                                <i class="fas fa-coins text-secondary mr-1" *ngIf="item.data.listPrice > 0 && item.data.listPrice !=item.data.price" title="Farklı Fiyat"></i>
+                                <i class="fas fa-percent text-secondary mr-1" *ngIf="item.data.discount1 !=item.data.defaultDiscount1 || item.data.discount2 !=item.data.defaultDiscount2" title="Farklı İskonto"></i>
+                                <i class="fas fa-bullhorn text-secondary mr-1" *ngIf="item.data.campaignPrimaryKey !='-1'" title="Kampanya"></i>
                               </div>
                             </div>
                           </div>

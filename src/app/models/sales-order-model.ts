@@ -12,6 +12,8 @@ export class SalesOrderModel {
   storagePrimaryKey: string;
   termPrimaryKey: string;
   paymentTypePrimaryKey: string;
+  campaignPrimaryKey: string; // packet
+  campaignQuantity?: number;
   receiptNo: string;
   status: string; // waitingForApprove, approved, rejected
   type: string; // sales, service, return

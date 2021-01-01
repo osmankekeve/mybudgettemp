@@ -10,7 +10,6 @@ import {ActionService} from './action.service';
 import {DiscountListMainModel} from '../models/discount-list-main-model';
 import {DiscountListModel} from '../models/discount-list-model';
 import {ProductDiscountService} from './product-discount.service';
-import {PriceListModel} from '../models/price-list-model';
 
 @Injectable({
   providedIn: 'root'
@@ -142,7 +141,7 @@ export class DiscountListService {
         let query: CollectionReference | Query = ref;
         query = query.where('userPrimaryKey', '==', this.authService.getUid())
           .where('isActive', 'in', isActive)
-          .where('type', '==', type);;
+          .where('type', '==', type);
         return query;
       }).get()
         .subscribe(snapshot => {

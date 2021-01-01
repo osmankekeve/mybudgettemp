@@ -7,7 +7,7 @@ import { AuthenticationService } from './authentication.service';
 import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
-import {getEducation, getGenders, getStatus, getUserTypes} from '../core/correct-library';
+import {getEducation, getGenders, getStatus, getUserTypes, isNullOrEmpty} from '../core/correct-library';
 import {CustomerMainModel} from '../models/customer-main-model';
 
 @Injectable({
@@ -166,25 +166,29 @@ export class ProfileService {
 
   getItem(primaryKey: string, isSetToSession: boolean): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get()
-        .toPromise()
-        .then(doc => {
-          if (doc.exists) {
-            const data = doc.data() as ProfileModel;
-            data.primaryKey = doc.id;
-
-            const returnData = this.clearProfileMainModel();
-            returnData.data = this.checkFields(data);
-            returnData.typeTr = getUserTypes().get(returnData.data.type);
-            returnData.genderTr = getGenders().get(returnData.data.gender);
-            returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
-            returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-            if (isSetToSession) {sessionStorage.setItem('employee', JSON.stringify(returnData)); }
-            resolve(Object.assign({returnData}));
-          } else {
-            resolve(null);
-          }
-      });
+      if (isNullOrEmpty(primaryKey)) {
+        resolve(null);
+      } else {
+        this.db.collection(this.tableName).doc(primaryKey).get()
+          .toPromise()
+          .then(doc => {
+            if (doc.exists) {
+              const data = doc.data() as ProfileModel;
+              data.primaryKey = doc.id;
+  
+              const returnData = this.clearProfileMainModel();
+              returnData.data = this.checkFields(data);
+              returnData.typeTr = getUserTypes().get(returnData.data.type);
+              returnData.genderTr = getGenders().get(returnData.data.gender);
+              returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
+              returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+              if (isSetToSession) {sessionStorage.setItem('employee', JSON.stringify(returnData)); }
+              resolve(Object.assign({returnData}));
+            } else {
+              resolve(null);
+            }
+        });
+      }
     });
   }
 

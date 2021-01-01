@@ -1,12 +1,9 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ActionService} from './action.service';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {ProductService} from './product.service';
 import {ProductMainModel} from '../models/product-main-model';
@@ -15,38 +12,43 @@ import {ProductUnitService} from './product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
 import {SalesInvoiceDetailMainModel} from '../models/sales-invoice-detail-main-model';
 import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
+import { CampaignDetailModel } from '../models/campaign-detail-model';
+import { CampaignDetailMainModel, setCampaignDetailCalculation } from '../models/campaign-detail-main-model';
+import { ProductModel } from '../models/product-model';
+import { combineLatest, flatMap, map } from 'rxjs/operators';
+import { ProductPriceModel } from '../models/product-price-model';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SalesOrderDetailService {
-  listCollection: AngularFirestoreCollection<SalesOrderDetailModel>;
-  mainList$: Observable<SalesOrderDetailMainModel[]>;
-  tableName = 'tblSalesOrderDetail';
+export class CampaignDetailService {
+  listCollection: AngularFirestoreCollection<CampaignDetailModel>;
+  mainList$: Observable<CampaignDetailMainModel[]>;
+  tableName = 'tblCampaignDetail';
 
   constructor(protected authService: AuthenticationService, protected pService: ProductService,
               protected logService: LogService, protected db: AngularFirestore,
-              protected actService: ActionService, protected puService: ProductUnitService, protected sid: SalesInvoiceDetailService) {
+              protected actService: ActionService, protected puService: ProductUnitService) {
     this.listCollection = this.db.collection(this.tableName);
   }
 
-  async addItem(record: SalesOrderDetailMainModel) {
+  async addItem(record: CampaignDetailMainModel) {
     return await this.listCollection.add(Object.assign({}, record.data));
   }
 
-  async removeItem(record: SalesOrderDetailMainModel) {
+  async removeItem(record: CampaignDetailMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
-  async updateItem(record: SalesOrderDetailMainModel) {
+  async updateItem(record: CampaignDetailMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
   }
 
-  async setItem(record: SalesOrderDetailMainModel, primaryKey: string) {
+  async setItem(record: CampaignDetailMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
   }
 
-  checkForSave(record: SalesOrderDetailMainModel): Promise<string> {
+  checkForSave(record: CampaignDetailMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       if (record.data.productPrimaryKey === '-1') {
         reject('Lütfen ürün seçiniz.');
@@ -62,25 +64,22 @@ export class SalesOrderDetailService {
     });
   }
 
-  checkForRemove(record: SalesOrderDetailMainModel): Promise<string> {
+  checkForRemove(record: CampaignDetailMainModel): Promise<string> {
     return new Promise((resolve, reject) => {
       resolve(null);
     });
   }
 
-  checkFields(model: SalesOrderDetailModel): SalesOrderDetailModel {
+  checkFields(model: CampaignDetailModel): CampaignDetailModel {
     const cleanModel = this.clearSubModel();
-    if (model.invoicedQuantity == null) { model.invoicedQuantity = cleanModel.invoicedQuantity; }
-    if (model.invoicedStatus == null) { model.invoicedStatus = cleanModel.invoicedStatus; }
-    if (model.campaignPrimaryKey == null) { model.campaignPrimaryKey = cleanModel.campaignPrimaryKey; }
     return model;
   }
 
-  clearSubModel(): SalesOrderDetailModel {
+  clearSubModel(): CampaignDetailModel {
 
-    const returnData = new SalesOrderDetailModel();
+    const returnData = new CampaignDetailModel();
     returnData.primaryKey = null;
-    returnData.orderPrimaryKey = '-1';
+    returnData.campaignPrimaryKey = '';
     returnData.productPrimaryKey = '-1';
     returnData.listPrice = 0;
     returnData.price = 0;
@@ -90,21 +89,18 @@ export class SalesOrderDetailService {
     returnData.discount2 = 0;
     returnData.defaultDiscount2 = 0;
     returnData.quantity = 0;
-    returnData.invoicedQuantity = 0;
-    returnData.invoicedStatus = 'short'; // short, complete
     returnData.taxRate = 0;
     returnData.insertDate = 0;
     returnData.totalPrice = 0;
     returnData.totalPriceWithTax = 0;
-    returnData.campaignPrimaryKey = '-1';
     returnData.unitPrimaryKey = '-1';
     returnData.unitValue = 0;
 
     return returnData;
   }
 
-  clearMainModel(): SalesOrderDetailMainModel {
-    const returnData = new SalesOrderDetailMainModel();
+  clearMainModel(): CampaignDetailMainModel {
+    const returnData = new CampaignDetailMainModel();
     returnData.data = this.clearSubModel();
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
@@ -119,10 +115,10 @@ export class SalesOrderDetailService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          const data = doc.data() as SalesOrderDetailModel;
+          const data = doc.data() as CampaignDetailModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesOrderDetailMainModel();
+          const returnData = new CampaignDetailMainModel();
           returnData.data = this.checkFields(data);
 
           Promise.all([
@@ -146,22 +142,21 @@ export class SalesOrderDetailService {
     });
   }
 
-  getMainItemsWithOrderPrimaryKey = async (orderPrimaryKey: string):
-    Promise<Array<SalesOrderDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+  getMainItemsWithPrimaryKey = async (campaignPrimaryKey: string):
+    Promise<Array<CampaignDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<SalesOrderDetailMainModel>();
+      const list = Array<CampaignDetailMainModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query
-          .where('orderPrimaryKey', '==', orderPrimaryKey);
+        query = query.where('campaignPrimaryKey', '==', campaignPrimaryKey);
         return query;
       })
         .get().subscribe(snapshot => {
         snapshot.forEach(async doc => {
-          const data = doc.data() as SalesOrderDetailModel;
+          const data = doc.data() as CampaignDetailModel;
           data.primaryKey = doc.id;
 
-          const returnData = new SalesOrderDetailMainModel();
+          const returnData = new CampaignDetailMainModel();
           returnData.data = this.checkFields(data);
 
           const p = await this.pService.getItem(data.productPrimaryKey);
@@ -170,7 +165,7 @@ export class SalesOrderDetailService {
           const pu = await this.puService.getItem(data.unitPrimaryKey);
           returnData.unit = pu.returnData.data;
 
-          setOrderDetailCalculation(returnData);
+          setCampaignDetailCalculation(returnData);
           list.push(returnData);
         });
         resolve(list);
@@ -182,38 +177,27 @@ export class SalesOrderDetailService {
     }
   })
 
-  getMainItemsWithOrderPrimaryKeyArray = async (orderPrimaryKey: Array<string>):
-    Promise<Array<SalesInvoiceDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<SalesInvoiceDetailMainModel>();
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query
-          .where('orderPrimaryKey', 'in', orderPrimaryKey);
-        return query;
-      })
-        .get().subscribe(snapshot => {
-        snapshot.forEach(async doc => {
-          const data = doc.data() as SalesOrderDetailModel;
-          data.primaryKey = doc.id;
+  getProductsOnList(campaignPrimaryKey: string): Observable<CampaignDetailMainModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.where('userPrimaryKey', '==', this.authService.getUid())
+        .where('campaignPrimaryKey', '==', campaignPrimaryKey));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
+        const data = change.payload.doc.data() as CampaignDetailModel;
+        data.primaryKey = change.payload.doc.id;
 
-          const returnData = new SalesOrderDetailMainModel();
-          returnData.data = this.checkFields(data);
+        const returnData = new CampaignDetailMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+        returnData.priceFormatted = currencyFormat(returnData.data.price);
 
-          const p = await this.pService.getItem(data.productPrimaryKey);
-          returnData.product = p.returnData;
-
-          const pu = await this.puService.getItem(data.unitPrimaryKey);
-          returnData.unit = pu.returnData.data;
-
-          list.push(this.sid.convertToSalesInvoiceDetail(returnData));
-        });
-        resolve(list);
+        return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
+          .pipe(map((product: ProductModel) => {
+            returnData.product = this.pService.convertMainModel(product);
+            return Object.assign({returnData});
+          }));
       });
-
-    } catch (error) {
-      console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
-    }
-  })
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
 }

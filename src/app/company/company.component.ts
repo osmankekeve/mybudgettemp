@@ -1,42 +1,15 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {
-  currencyFormat, getDateForInput,
-  getEncryptionKey,
-  getFloat, getInputDataForInsert, getTodayForInput,
-  moneyFormat
-} from '../core/correct-library';
-import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
-import {GlobalService} from '../services/global.service';
-import * as CryptoJS from 'crypto-js';
-import {ProductMainModel} from '../models/product-main-model';
-import {ProductModel} from '../models/product-model';
-import {ProductService} from '../services/product.service';
-import {ActionMainModel} from '../models/action-main-model';
-import {ActionService} from '../services/action.service';
 import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {FileMainModel} from '../models/file-main-model';
-import {ProductUnitService} from '../services/product-unit.service';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {SettingService} from '../services/setting.service';
-import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
-import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
-import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {ToastService} from '../services/toast.service';
 import {FileUploadConfig} from '../../file-upload.config';
-import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
+import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
-import {ProfileMainModel} from '../models/profile-main-model';
-import {ProfileService} from '../services/profile.service';
 import {CompanyModel} from '../models/company-model';
 import {CompanyService} from '../services/company.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 
 @Component({
   selector: 'app-company',
@@ -75,7 +48,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           if (this.selectedRecord.primaryKey === null) {
             this.selectedRecord.primaryKey = this.authService.getUid();
             await this.service.addItem(this.selectedRecord)
@@ -109,7 +82,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Kullanıcı başarıyla kaldırıldı.');

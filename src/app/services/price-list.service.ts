@@ -10,8 +10,6 @@ import {ActionService} from './action.service';
 import {PriceListModel} from '../models/price-list-model';
 import {PriceListMainModel} from '../models/price-list-main-model';
 import {ProductPriceService} from './product-price.service';
-import {CustomerMainModel} from '../models/customer-main-model';
-import {CustomerModel} from '../models/customer-model';
 
 @Injectable({
   providedIn: 'root'

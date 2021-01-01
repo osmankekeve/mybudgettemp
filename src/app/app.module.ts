@@ -50,6 +50,8 @@ import {OrderSelectComponent} from './partials/order-select/order-select.compone
 import {OrderFilterPipe} from './filters/order-filter.pipe';
 import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-filter.pipe';
 import { SortPipe } from './filters/sort.pipe';
+import { CampaignFilterPipe } from './filters/campaign-filter.pipe';
+import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -81,13 +83,15 @@ import { SortPipe } from './filters/sort.pipe';
     ListFilterPipe,
     CustomerCustomerDataFilterPipe,
     SortPipe,
+    CampaignFilterPipe,
+    WaitingWorkFilterPipe,
 
     DropzoneDirective,
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
-    //LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
+    // LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
       apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
