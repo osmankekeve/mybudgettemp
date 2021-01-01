@@ -391,6 +391,10 @@ body {
   font-size: 13px !important;
 }
 
+.fs-10 {
+  font-size: 10px !important;
+}
+
 .table-row-class {
   font-size: 12px !important;
 }
