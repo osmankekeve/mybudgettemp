@@ -16,8 +16,8 @@ export class InfoModuleComponent implements OnInit {
   headerTitle = '';
 
   ngOnInit(): void {
-    const module = this.route.url.replace('/', '');
-    if (module === 'product') {
+    const module = this.route.url;
+    if (module.startsWith('/product')) {
       this.headerTitle = 'Ürünler';
       this.mainList = [
         { key: 'Ürün kodları sistemde tekil olmalıdır.'},
@@ -29,7 +29,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Otomatik ürün kodu için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
-    if (module === 'sales-offer') {
+    if (module.startsWith('/sales-offer')) {
       this.headerTitle = 'Satış Teklifi';
       this.mainList = [
         { key: 'Müşteri sekmesinde, \'Müşteri\' ve \'Tedarikçi-Müşteri\' tipindeki müşteriler görüntülenir.'},
@@ -41,7 +41,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
-    if (module === 'sales-order') {
+    if (module.startsWith('/sales-order')) {
       this.headerTitle = 'Satış Siparişi';
       this.mainList = [
         { key: 'Teklif onaylandıktan sonra sipariş süreci başlar, sonraki adım faturalamadır.'},
@@ -50,7 +50,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
       ];
     }
-    if (module === 'sales-invoice') {
+    if (module.startsWith('/sales-invoice')) {
       this.headerTitle = 'Satış Faturası';
       this.mainList = [
         { key: 'Onaylanmış siparişler faturalaştırılabilmektedir.'},
@@ -61,11 +61,11 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
-    if (module === 'customer') {
+    if (module.startsWith('/customer')) {
       this.headerTitle = 'Müşteri';
       this.mainList = [];
     }
-    if (module === 'purchase-offer') {
+    if (module.startsWith('/purchase-offer')) {
       this.headerTitle = 'Alım Teklifi';
       this.mainList = [
         { key: 'Müşteri sekmesinde, \'Tedarikçi\' ve \'Tedarikçi-Müşteri\' tipindeki müşteriler görüntülenir.'},
@@ -76,7 +76,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
     }
-    if (module === 'purchase-order') {
+    if (module.startsWith('/purchase-order')) {
       this.headerTitle = 'Alım Siparişi';
       this.mainList = [
         { key: 'Teklif onaylandıktan sonra sipariş süreci başlar, sonraki adım faturalamadır.'},
@@ -85,7 +85,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
       ];
     }
-    if (module === 'purchaseInvoice') {
+    if (module.startsWith('/purchaseInvoice')) {
       this.headerTitle = 'Alım Faturası';
       this.mainList = [
         { key: 'Onaylanmış siparişler faturalaştırılabilmektedir.'},

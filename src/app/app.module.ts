@@ -52,6 +52,7 @@ import {CustomerCustomerDataFilterPipe} from './filters/customer-customer-data-f
 import { SortPipe } from './filters/sort.pipe';
 import { CampaignFilterPipe } from './filters/campaign-filter.pipe';
 import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
+import { PDFModuleComponent } from './partials/pdf-module/pdf-module.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +68,7 @@ import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
     ExcelImportComponent,
     ToastsComponent,
     InfoModuleComponent,
+    PDFModuleComponent,
     OrderSelectComponent,
 
     CustomerDataFilterPipe,
@@ -102,6 +104,6 @@ import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
     ToastService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent, PDFModuleComponent ]
 })
 export class AppModule { }

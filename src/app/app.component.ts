@@ -50,13 +50,10 @@ export class AppComponent implements OnInit {
   isForgotPassword: boolean;
   userDetails: any;
   companyDetails: any;
-  notificationCount = 0;
   showNotificationPanel = false;
-  actionCount = 0;
   showActionPanel = false;
-  reminderCount = 0;
+  // reminderCount = 0;
   showReminderPanel = false;
-  waitingWorksCount = 0;
   showWaitingWorksPanel = false;
   showProfilePanel = false;
   employeeDetail: any;
@@ -238,13 +235,12 @@ export class AppComponent implements OnInit {
   }
 
   populateNotificationList(): void {
+    this.notificationList = [];
     this.logService.getNotificationsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.notificationCount++;
           this.notificationList.push(item);
         } else if (item.actionType === 'removed') {
-          this.notificationCount--;
           this.notificationList.splice(this.notificationList.indexOf(item), 1);
         } else {
           // nothing
@@ -254,15 +250,14 @@ export class AppComponent implements OnInit {
   }
 
   populateActivityList(): void {
+    this.actionList = [];
     const date = new Date();
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7, 23, 59, 59);
     this.crmService.getMainItemsBetweenDates(getTodayStart(), endDate).subscribe(list => {
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
-          this.actionCount++;
           this.actionList.push(item);
         } else if (item.actionType === 'removed') {
-          this.actionCount--;
           this.actionList.splice(this.actionList.indexOf(item), 1);
         } else if (item.actionType === 'modified') {
           this.actionList[this.actionList.indexOf(item)] = item.data;
@@ -274,17 +269,16 @@ export class AppComponent implements OnInit {
   }
 
   populateReminderList(): void {
+    this.reminderList = [];
     this.remService.getMainItemsBetweenDates(getTodayStart(), getTomorrowEnd()).subscribe(list => {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
-          this.reminderCount++;
           this.reminderList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.reminderList.length; i++) {
             if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
-              this.reminderCount--;
               this.reminderList.splice(i, 1);
               break;
             }
@@ -308,13 +302,11 @@ export class AppComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
-          this.reminderCount++;
           this.reminderList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.reminderList.length; i++) {
             if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
-              this.reminderCount--;
               this.reminderList.splice(i, 1);
               break;
             }
@@ -335,13 +327,11 @@ export class AppComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
-          this.reminderCount++;
           this.reminderList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.reminderList.length; i++) {
             if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
-              this.reminderCount--;
               this.reminderList.splice(i, 1);
               break;
             }
@@ -362,13 +352,11 @@ export class AppComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
-          this.reminderCount++;
           this.reminderList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.reminderList.length; i++) {
             if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
-              this.reminderCount--;
               this.reminderList.splice(i, 1);
               break;
             }
@@ -389,13 +377,11 @@ export class AppComponent implements OnInit {
       list.forEach((data: any) => {
         const item = data.returnData as ReminderMainModel;
         if (item.actionType === 'added') {
-          this.reminderCount++;
           this.reminderList.push(item);
         }
         if (item.actionType === 'removed') {
           for (let i = 0; i < this.reminderList.length; i++) {
             if (item.data.primaryKey === this.reminderList[i].data.primaryKey) {
-              this.reminderCount--;
               this.reminderList.splice(i, 1);
               break;
             }
@@ -418,6 +404,7 @@ export class AppComponent implements OnInit {
   }
 
   populateWaitingWorks(): void {
+    this.waitingWorkList = [];
     this.piService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
       list.forEach((data: any) => {
@@ -429,11 +416,9 @@ export class AppComponent implements OnInit {
         workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
 
         if (item.actionType === 'added') {
-          this.waitingWorksCount++;
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorksCount--;
           this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
@@ -449,11 +434,9 @@ export class AppComponent implements OnInit {
         workData.log = item.data.receiptNo + ' fiş numaralı Satış Faturası onay bekliyor.';
 
         if (item.actionType === 'added') {
-          this.waitingWorksCount++;
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorksCount--;
           this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
@@ -469,11 +452,10 @@ export class AppComponent implements OnInit {
         workData.log = item.data.receiptNo + ' fiş numaralı Tahsilat onay bekliyor.';
 
         if (item.actionType === 'added') {
-          this.waitingWorksCount++;
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorksCount--;
+          //this.waitingWorksCount--;
           this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
@@ -489,11 +471,9 @@ export class AppComponent implements OnInit {
         workData.log = item.data.receiptNo + ' fiş numaralı Ödeme onay bekliyor.';
 
         if (item.actionType === 'added') {
-          this.waitingWorksCount++;
           this.waitingWorkList.push(workData);
         }
         if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorksCount--;
           this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
         }
       });
@@ -511,11 +491,9 @@ export class AppComponent implements OnInit {
           workData.log = item.data.receiptNo + ' fiş numaralı Satış Siparişi onay bekliyor.';
 
           if (item.actionType === 'added') {
-            this.waitingWorksCount++;
             this.waitingWorkList.push(workData);
           }
           if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-            this.waitingWorksCount--;
             this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
           }
         });
@@ -531,11 +509,9 @@ export class AppComponent implements OnInit {
           workData.log = item.data.receiptNo + ' fiş numaralı Alım Siparişi onay bekliyor.';
 
           if (item.actionType === 'added') {
-            this.waitingWorksCount++;
             this.waitingWorkList.push(workData);
           }
           if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-            this.waitingWorksCount--;
             this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
           }
         });

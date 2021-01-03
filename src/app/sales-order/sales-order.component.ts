@@ -22,6 +22,7 @@ import {DiscountListService} from '../services/discount-list.service';
 import {DefinitionService} from '../services/definition.service';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
+import { PDFModuleComponent } from '../partials/pdf-module/pdf-module.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -266,6 +267,17 @@ export class SalesOrderComponent implements OnInit {
   async btnShowInfoModule_Click(): Promise<void> {
     try {
       this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowPDFModule_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(PDFModuleComponent, {size: 'xl'});
+      modalRef.componentInstance.key = 'sales-order';
+      modalRef.componentInstance.data = this.selectedRecord;
+
     } catch (error) {
       await this.infoService.error(error);
     }

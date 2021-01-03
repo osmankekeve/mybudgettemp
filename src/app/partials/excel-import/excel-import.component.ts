@@ -187,10 +187,10 @@ export class ExcelImportComponent implements OnInit {
           'Telefon 2': '',
           'Posta Kodu': '',
           'Mail Adresi': '',
-          'Temsilci': '',
+          Temsilci: '',
           'Odeme Sekli': '',
           'Vade Sekli': '',
-          'Adres': ''
+          Adres: ''
         };
       }
     } catch (error) {
@@ -275,7 +275,7 @@ export class ExcelImportComponent implements OnInit {
         // save data
         this.listExcelData = (XLSX.utils.sheet_to_json(ws, {header: 1})) as any;
         this.listExcelDataKeys = Object.keys(this.listExcelData[0]);
-        this.excelRowCount = this.listExcelData.length -1 ;
+        this.excelRowCount = this.listExcelData.length - 1 ;
         const check = this.checkExcelImport();
         if (check != null) {
           this.infoService.error(check);
@@ -329,40 +329,35 @@ export class ExcelImportComponent implements OnInit {
                 info: 'Lütfen stok tipini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (!this.productTypeMap.has(productType)) {
+            } else if (!this.productTypeMap.has(productType)) {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen ürün tipini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (!this.unitMap.has(defaultUnitCode)) {
+            } else if (!this.unitMap.has(defaultUnitCode)) {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen ürünü birimini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (isWebProduct !== 'Evet' && isWebProduct !== 'Hayır') {
+            } else if (isWebProduct !== 'Evet' && isWebProduct !== 'Hayır') {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen web ürün durum bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
+            } else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
               errorList.push({
                 code: productCode,
                 name: productName,
                 info: 'Lütfen aktiflik durum bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else {
+            } else {
               this.transactionProcessCount ++;
               if (this.productMap.has(productCode)) {
                 const importRow = this.productMap.get(productCode);
@@ -379,7 +374,7 @@ export class ExcelImportComponent implements OnInit {
                 importRow.isActive = isActive === 'Aktif';
                 importRow.description = description;
                 await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));
-                //console.log('product updated :' + importRow.productCode);
+                // console.log('product updated :' + importRow.productCode);
 
               } else {
                 if (productCode === '') {
@@ -406,8 +401,8 @@ export class ExcelImportComponent implements OnInit {
                 importRow.isWebProduct = isWebProduct === 'Evet';
                 importRow.isActive = isActive === 'Aktif';
                 importRow.description = description;
-                //await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
-                //await this.sService.increaseProductNumber();
+                // await this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow));
+                // await this.sService.increaseProductNumber();
                 Promise.all([
                   this.db.collection(this.pService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow)),
                   this.sService.increaseProductNumber(),
@@ -421,11 +416,11 @@ export class ExcelImportComponent implements OnInit {
                         newData.data.unitPrimaryKey = recordUnit.primaryKey;
                         newData.data.unitValue = 1;
                         newData.data.productPrimaryKey = importRow.primaryKey;
-                        await this.db.collection('tblProductUnitMapping').doc(newData.data.primaryKey).set(Object.assign({}, newData.data))
+                        await this.db.collection('tblProductUnitMapping').doc(newData.data.primaryKey).set(Object.assign({}, newData.data));
                       }
                     }
                   });
-                //console.log('product imported :' + importRow.productCode);
+                // console.log('product imported :' + importRow.productCode);
               }
             }
           }
@@ -566,40 +561,35 @@ export class ExcelImportComponent implements OnInit {
                 info: 'Müşteri tipini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
+            } else if (isActive !== 'Aktif' && isActive !== 'Pasif') {
               errorList.push({
                 code: this.checkExcelCell(item[1]),
                 name: this.checkExcelCell(item[3]),
                 info: 'Lütfen aktiflik durum bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (!this.employeeMap.has(executive)) {
+            } else if (!this.employeeMap.has(executive)) {
               errorList.push({
                 code: this.checkExcelCell(item[1]),
                 name: this.checkExcelCell(item[3]),
                 info: 'Lütfen temsilci bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (!this.paymentMap.has(payment)) {
+            } else if (!this.paymentMap.has(payment)) {
               errorList.push({
                 code: this.checkExcelCell(item[1]),
                 name: this.checkExcelCell(item[3]),
                 info: 'Lütfen ödeme bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else if (!this.termMap.has(term)) {
+            } else if (!this.termMap.has(term)) {
               errorList.push({
                 code: this.checkExcelCell(item[1]),
                 name: this.checkExcelCell(item[3]),
                 info: 'Lütfen vade bilgisini doğru girdiğinizden emin olunuz.'
               });
 
-            }
-            else {
+            } else {
               this.transactionProcessCount ++;
               if (this.customerMap.has(customerCode)) {
                 const importRow = this.customerMap.get(customerCode);
@@ -636,15 +626,15 @@ export class ExcelImportComponent implements OnInit {
                 importRow.termKey = this.termMap.get(term);
                 importRow.paymentTypeKey = this.paymentMap.get(payment);
                 importRow.address = address;
-                await this.cusService.setItem(this.cusService.convertMainModel(importRow), importRow.primaryKey).then(async ()=> {
-                  await this.db.collection(this.cusService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow)).then(async ()=> {
+                await this.cusService.setItem(this.cusService.convertMainModel(importRow), importRow.primaryKey).then(async () => {
+                  await this.db.collection(this.cusService.tableName).doc(importRow.primaryKey).set(Object.assign({}, importRow)).then(async () => {
                     this.cusService.isCustomerHasAccount(importRow.primaryKey).then(result => {
                       if (!result) {
                         const accountData = this.caService.clearMainModel();
                         accountData.data.primaryKey = this.db.createId();
                         accountData.data.customerPrimaryKey = importRow.primaryKey;
                         accountData.data.name = importRow.name + ' ' + accountData.currencyTr + ' Hesabı';
-                        this.caService.setItem(accountData).then(()=> {
+                        this.caService.setItem(accountData).then(() => {
                           this.db.collection(this.cusService.tableName).doc(importRow.primaryKey)
                             .update(Object.assign({}, { defaultAccountPrimaryKey: accountData.data.primaryKey }));
                         });

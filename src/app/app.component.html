@@ -17,25 +17,25 @@
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showWaitingWorksPanel=true" title="Bekleyen İşlemler">
                 <img src="../../assets/images/notification.png" width="30px">
-                <span class="notification text-white">{{waitingWorksCount}}</span>
+                <span class="notification text-white">{{waitingWorkList?.length}}</span>
               </a>
             </li>
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
                 <i class="fa fa-2x fa-globe text-white mr-1"></i>
-                <span class="notification text-white">{{actionCount}}</span>
+                <span class="notification text-white">{{actionList?.length}}</span>
               </a>
             </li>
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
                 <i class="fa fa-2x fa-fw fa-bell text-white"></i>
-                <span class="notification text-white">{{notificationCount}}</span>
+                <span class="notification text-white">{{notificationList?.length}}</span>
               </a>
             </li>
             <li class="nav-item dropdown cursor-pointer">
               <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
                 <img src="../../assets/images/reminder.png" width="30px">
-                <span class="notification text-white">{{reminderCount}}</span>
+                <span class="notification text-white">{{reminderList?.length}}</span>
               </a>
             </li>
             <li class="nav-item dropdown cursor-pointer">
@@ -54,7 +54,7 @@
             <span>Bildirimler</span>
           </div>
           <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="notificationCount > 0; else elseBlock">
+            <div *ngIf="notificationList?.length > 0; else elseBlock">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light"
                      *ngFor="let item of notificationList; index as i;"
@@ -92,7 +92,7 @@
             <span>Etkinlikler</span>
           </div>
           <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="actionCount > 0; else elseBlock2">
+            <div *ngIf="notificationList?.length > 0; else elseBlock2">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light"
                      *ngFor="let item of actionList; index as i;"
@@ -122,7 +122,7 @@
             <span>Hatırlatıcı</span>
           </div>
           <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="reminderCount > 0; else elseBlock3">
+            <div *ngIf="reminderList?.length > 0; else elseBlock3">
               <div class="list-group">
                 <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
                      (click)="showReminder(item)"

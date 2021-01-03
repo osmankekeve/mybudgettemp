@@ -1,0 +1,130 @@
+﻿<div class="modal-header">
+  <h5 class="modal-title"><span class="font-weight-600">PDF Modül-{{headerTitle}}</span></h5>
+  <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
+</div>
+<!-- Modal body -->
+<div class="modal-body p-5" id="exportPDFPanel">
+  <div class="row mb-1">
+    <div class="col-sm-12 text-center">
+      <h4>SATIŞ TEKLİFİ FORMU</h4>
+    </div>
+  </div>
+  <div class="row align-items-center mb-1">
+    <div class="col-sm-6">
+      <img src='{{companyData.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
+    </div>
+    <div class="col-sm-6">
+      <div class="list-group">
+        <div class="list-group-item fs-14">
+          <div class="row">
+            <div class="col-sm-12 font-weight-600 text-red mb-1">SİPARİŞ BİLGİLERİ</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tipi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.orderTypeTr}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş No</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.receiptNo}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tarihi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.recordDate | date: 'yyyy.MM.dd'}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-1"> 
+    <div class="col-sm-6">
+      <div class="list-group">
+        <div class="list-group-item fs-14">
+          <div class="row">
+            <div class="col-sm-12 font-weight-600 text-red mb-1">SATICI BİLGİLERİ</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Şirket</div>
+            <div class="col-sm-9 text-secondary mb-1">Kekeve Kek Evi Ltd.Şti.</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Adres</div>
+            <div class="col-sm-9 text-secondary mb-1">Hürriyet Mah. Mülkiye Sokak Ekin Sitesi Kartal/İstanbul</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">İletişim</div>
+            <div class="col-sm-9 text-secondary mb-1">Telefon: 05393786560 Mail: osmankekeve@gmail.com</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">İlgili Kişi</div>
+            <div class="col-sm-9 text-secondary mb-1">Osman KEKEVE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="list-group">
+        <div class="list-group-item fs-14">
+          <div class="row">
+            <div class="col-sm-12 font-weight-600 text-red mb-1">MÜŞTERİ BİLGİLERİ</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Şirket</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.data.name}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Adres</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.data.address}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">İletişim</div>
+            <div class="col-sm-9 text-secondary mb-1">Telefon: {{selectedRecord.customer.data.phone1}} Mail: {{selectedRecord.customer.data.email}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">İlgili Kişi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.customer.data.officer}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-1">
+    <div class="col-sm-12">
+      <p>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Tarafınızdan istemiş olduğunuz ürünlere ait fiyat teklifimiz aşağıdaki gibidir. Firma bilgileriniz sistemimizde göründüğü şekildedir. 
+      Fiyatlarımızın uygun bulunacağını ümit eder, iyi çalışmalar dileriz.
+      </p>
+    </div>
+  </div>
+  <div class="row mb-1">
+    <div class="col-sm-12">
+      <div class="table-responsive mt-1">
+        <table class="table table-bordered">
+        <thead>
+          <tr class="table-row-class-11">
+          <th>Kod</th>
+          <th>Ürün</th>
+          <th>Miktar</th>
+          <th>Tutar</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr class="table-row-class-11" *ngFor="let item of selectedRecord.orderDetailList">
+          <td>{{item.product.data.productCode}}</td>
+          <td>{{item.product.data.productName}}</td>
+          <td>{{item.data.quantity}} {{item.unit.unitName}}</td>
+          <td><span class="float-right">{{item.totalPriceWithTaxFormatted}}</span></td>
+        </tr>
+        <tr class="table-row-class-11">
+          <td colspan="2"></td>
+          <td colspan="1">Ara Toplam</td>
+          <td><span class="float-right">{{selectedRecord.totalPriceFormatted}}</span></td>
+        </tr>
+        <tr class="table-row-class-11">
+          <td colspan="2"></td>
+          <td colspan="1">KDV</td>
+          <td><span class="float-right">{{selectedRecord.totalTaxAmountFormatted}}</span></td>
+        </tr>
+        <tr class="table-row-class-11">
+          <td colspan="2"></td>
+          <td colspan="1">Genel Toplam</td>
+          <td><span class="float-right">{{selectedRecord.totalPriceWithTaxFormatted}}</span></td>
+        </tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <div class="col-sm-2-5 float-right">
+    <div class="input-group">
+      <div class="input-group-prepend">
+          <span class="input-group-text secondary-icon-side">
+            <i class="fa fa-download"></i>
+          </span>
+      </div>
+      <button type="button" class="btn btn-sm btn-secondary form-control"
+              (click)="btnGeneratePDF_Click()">PDF Oluştur
+      </button>
+    </div>
+  </div>
+</div>

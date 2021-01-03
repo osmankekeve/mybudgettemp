@@ -128,7 +128,8 @@ export class CompanyComponent implements OnInit, OnDestroy {
               fileData.data.fileName = file.name;
               await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
               this.clearImageItems();
-              await this.finishSubProcess(null, 'Ürün resmi başarıyla güncellendi.');
+              sessionStorage.setItem('company', JSON.stringify(this.selectedRecord));
+              await this.finishSubProcess(null, 'Firma resmi başarıyla güncellendi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
