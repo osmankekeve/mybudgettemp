@@ -28,7 +28,6 @@ import {ProductUnitService} from '../services/product-unit.service';
 import {ProductDiscountService} from '../services/product-discount.service';
 import {ProductDiscountModel} from '../models/product-discount-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
-import {setOrderCalculation} from '../models/sales-order-model';
 import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
 import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
 import {ToastService} from '../services/toast.service';
@@ -87,7 +86,7 @@ export class CampaignComponent implements OnInit {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {

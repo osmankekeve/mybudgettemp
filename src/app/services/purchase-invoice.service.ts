@@ -90,8 +90,8 @@ export class PurchaseInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
-          trans.amountType = record.data.type === 'purchase' ? 'credit' : 'debit';
+          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
           trans.transactionType = 'purchaseInvoice';
           if (record.data.type === 'sales') {
@@ -127,8 +127,8 @@ export class PurchaseInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
-          trans.amountType = record.data.type === 'purchase' ? 'debit' : 'credit';
+          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
+          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'debit' : 'credit';
           trans.insertDate = record.data.insertDate;
           trans.transactionType = 'purchaseInvoice';
           if (record.data.type === 'sales') {
@@ -213,8 +213,8 @@ export class PurchaseInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
-          trans.amountType = record.data.type === 'purchase' ? 'credit' : 'debit';
+          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
+          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'credit' : 'debit';
           trans.insertDate = record.data.insertDate;
           trans.transactionType = 'purchaseInvoice';
           if (record.data.type === 'sales') {
@@ -251,8 +251,8 @@ export class PurchaseInvoiceService {
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
           trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
-          trans.amountType = record.data.type === 'purchase' ? 'debit' : 'credit';
+          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
+          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'debit' : 'credit';
           trans.insertDate = record.data.insertDate;
           trans.transactionType = 'purchaseInvoice';
           if (record.data.type === 'sales') {

@@ -49,14 +49,11 @@ export class CompanyService {
     return new Promise((resolve, reject) => {
       if (record.companyName.trim() === '') {
         reject('Lüfen firma adı giriniz.');
-      }
-      else if (record.companyOwner.trim() === '') {
+      } else if (record.companyOwner.trim() === '') {
         reject('Lüfen firma sahibi giriniz.');
-      }
-      else if (record.companyOwnerMailAddress.trim() === '') {
+      } else if (record.companyOwnerMailAddress.trim() === '') {
         reject('Lüfen firma sahibi mail giriniz.');
-      }
-      else {
+      } else {
         resolve(null);
       }
     });
@@ -98,7 +95,7 @@ export class CompanyService {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
-          let data = doc.data() as CompanyModel;
+          const data = doc.data() as CompanyModel;
           data.primaryKey = doc.id;
           resolve(Object.assign({data}));
         } else {

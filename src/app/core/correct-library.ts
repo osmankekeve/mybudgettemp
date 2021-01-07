@@ -200,6 +200,7 @@ export const getTransactionTypes = () => {
     ['cancelServicePurchaseInvoice', 'Alım Hizmet Faturası İptal'],
 
     ['payment', 'Ödeme'],
+    ['cancelPayment', 'Ödeme İptal'],
     ['accountVoucher', 'Cari Fiş'],
     ['cashDeskVoucher', 'Kasa Fişi'],
     ['buy-sale', 'Alış-Satış'],

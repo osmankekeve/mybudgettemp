@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AccountTransactionModel } from '../models/account-transaction-model';
-import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty } from '../core/correct-library';
+import { getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty, moneyFormat } from '../core/correct-library';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 @Component({
@@ -118,5 +118,29 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     this.onTransaction = false;
     this.infoService.error(error.message !== undefined ? error.message : error);
+  }
+
+  async btnSave_Click(): Promise<void> {
+    try {
+      await this.service.updateItem(this.selectedRecord.data)
+      .then(() => {
+        this.infoService.success('Kayıt başarıyla güncellendi.');
+      })
+      .catch((error) => {
+        this.infoService.error(error);
+      });
+    } catch (error) {
+      this.infoService.error(error);
+    }
+  }
+
+  format_amount($event): void {
+    this.selectedRecord.data.amount = getFloat(moneyFormat($event.target.value));
+  }
+
+  focus_amount(): void {
+    if (this.selectedRecord.data.amount === 0) {
+      this.selectedRecord.data.amount = null;
+    }
   }
 }

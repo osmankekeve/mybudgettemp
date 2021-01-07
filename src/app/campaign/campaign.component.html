@@ -393,8 +393,8 @@
       </div>
     </div>
   </div>
-  <div class="card-footer">
-    <div class="col-sm-2 float-right" *ngIf="!isNewPanelOpened">
+  <div class="card-footer" *ngIf="!isNewPanelOpened && (selectedRecord.data.type == 'normal' || (selectedRecord.data.type == 'packet' && selectedRecord.detailList?.length > 0))">
+    <div class="col-sm-2 float-right">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">

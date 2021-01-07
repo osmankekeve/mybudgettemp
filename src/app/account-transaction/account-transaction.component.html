@@ -62,6 +62,7 @@
             <thead>
               <tr class="table-row-class">
               <th>Fiş Numarası</th>
+              <th>Müşteri</th>
               <th>İşlem Tipi</th>
               <th>Alt İşlem Tipi</th>
               <th>Tutar Tipi</th>
@@ -77,6 +78,7 @@
                 <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                 <span>{{item.data.receiptNo}}</span>
               </td>
+              <td>{{item.parentData.name}}</td>
               <td>{{item.transactionTypeTr}}</td>
               <td>{{item.subTransactionTypeTr}}</td>
               <td>{{item.amountTypeTr}}</td>
@@ -110,9 +112,67 @@
     </div>
   </div>
   <div class="card-body work-area-3">
-    <pre [innerHTML]="jsonData"></pre>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-body">
+            <pre [innerHTML]="jsonData"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="amountType">Amount Type (debit-credit)</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="amountType" name="amountType" type="text"
+                       [(ngModel)]="selectedRecord.data.amountType">
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="transactionType">Transaction Type</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="transactionType" name="transactionType" type="text"
+                       [(ngModel)]="selectedRecord.data.transactionType">
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="transactionSubType">Transaction Sub Type</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="transactionSubType" name="transactionSubType" type="text"
+                       [(ngModel)]="selectedRecord.data.transactionSubType">
+              </div>
+              <div class="col-sm-6">
+                <label class="col-form-label float-left" for="amount">Amount</label>
+              </div>
+              <div class="col-sm-6">
+                <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
+                       (focus)="focus_amount()"
+                       (blur)="format_amount($event)"
+                       [(ngModel)]="selectedRecord.data.amount">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="card-footer">
+    <div class="col-sm-2 float-right">
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text success-icon-side">
+            <i class="fa fa-check"></i>
+          </span>
+        </div>
+        <button type="button" class="btn btn-sm btn-success form-control"
+                (click)="btnSave_Click()">Kaydet
+        </button>
+      </div>
+    </div>
       <div class="col-sm-3">
           <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
       </div>

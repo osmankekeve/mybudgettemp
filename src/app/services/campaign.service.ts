@@ -1,31 +1,13 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {ProfileService} from './profile.service';
 import {
-  currencyFormat,
   getCampaignType,
-  getCustomerTypes,
-  getDateAndTime,
-  getDateForExcel,
-  getDateTime,
-  getDateTimeForInput,
   getDateTimeForQueryFilter,
-  getDateTimeNow,
-  getFloat,
-  getOrderType,
-  getPaymentTypes,
-  getStatus,
-  getTerms,
-  getTodayEnd,
-  getTodayStart,
-  isNullOrEmpty
-} from '../core/correct-library';
+  getDateTimeNow} from '../core/correct-library';
 import {AccountTransactionService} from './account-transaction.service';
 import {PriceListService} from './price-list.service';
 import {DiscountListService} from './discount-list.service';
@@ -92,7 +74,7 @@ export class CampaignService {
 
   checkForSave(record: CampaignMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
-      await this.isCampaignCodeExist(record.data.code).then(result => {
+      await this.isCampaignCodeExist(record.data.code, record.data.primaryKey).then(result => {
         if (result) {
           reject('Kampanya kodu sistemde mevcut, lütfen farklı bir kod giriniz.');
         }
@@ -114,13 +96,17 @@ export class CampaignService {
   }
 
   checkForRemove(record: CampaignMainModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      await this.isUsedOnSalesOrder(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Kampanya satış teklifinde kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
 
   checkFields(model: CampaignModel): CampaignModel {
-    const cleanModel = this.clearSubModel();
 
     return model;
   }
@@ -159,7 +145,7 @@ export class CampaignService {
   }
 
   getItem(primaryKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as CampaignModel;
@@ -265,12 +251,12 @@ export class CampaignService {
     }
   })
 
-  isCampaignCodeExist = async (code: string):
+  isCampaignCodeExist = async (code: string, primaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limit(1).where('code', '==', code);
+        query = query.limit(1).where('code', '==', code).where('primaryKey', '!=', primaryKey);
         return query;
       }).get().subscribe(snapshot => {
         if (snapshot.size > 0) {
@@ -280,7 +266,26 @@ export class CampaignService {
         }
       });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({code: 401, message: error.message});
+    }
+  })
+
+  isUsedOnSalesOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('campaignPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({code: 401, message: error.message});
     }
   })
 }

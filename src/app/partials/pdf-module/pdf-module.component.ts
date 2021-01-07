@@ -47,7 +47,7 @@ export class PDFModuleComponent implements OnInit {
   btnGeneratePDF_Click() {
 
     const data = document.getElementById('exportPDFPanel');
-    html2canvas(data, {useCORS: true}).then(canvas => {
+    html2canvas(data).then(canvas => {
       const imgWidth = 208;
       const imgHeight = canvas.height * imgWidth / canvas.width;
       const contentDataURL = canvas.toDataURL('image/png');

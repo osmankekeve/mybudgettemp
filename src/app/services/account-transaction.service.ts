@@ -406,6 +406,7 @@ export class AccountTransactionService {
           returnData.actionType = 'added';
           returnData.iconUrl = getModuleIcons().get(data.transactionType);
           returnData.transactionTypeTr = getTransactionTypes().get(data.transactionType);
+          returnData.subTransactionTypeTr = getTransactionTypes().get(data.transactionSubType);
           returnData.remainingAmount = Math.abs(returnData.data.amount) - Math.abs(returnData.data.paidAmount);
           returnData.matchTr = this.getMatchTypeTr(returnData.remainingAmount);
 
