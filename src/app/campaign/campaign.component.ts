@@ -415,8 +415,12 @@ export class CampaignComponent implements OnInit {
   }
 
   showOrderDetail(record: any): void {
-    this.selectedDetail = record as CampaignDetailMainModel;
-    this.isNewPanelOpened = true;
+    if (this.selectedRecord.isAvaliableForNewDetail) {
+      this.selectedDetail = record as CampaignDetailMainModel;
+      this.isNewPanelOpened = true;
+    } else {
+      this.toastService.error('Kampanya satış teklifinde kullanıldığından düzenlenemez.');
+    }
   }
 
   async btnSelectProduct_Click(): Promise<void> {

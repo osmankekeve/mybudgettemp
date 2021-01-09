@@ -215,7 +215,7 @@
           <div class="row">
             <div class="col-sm-8">
               <h5 class="float-left mr-2">Kampanya Detayı</h5>
-              <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
+              <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle" *ngIf="selectedRecord.isAvaliableForNewDetail"
                       (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
               <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                       *ngIf="selectedRecord.detailList?.length > 0"

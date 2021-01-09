@@ -7,4 +7,5 @@ export class CampaignMainModel {
   typeTr?: string;
   platformTr?: string;
   detailList: Array<CampaignDetailMainModel>;
+  isAvaliableForNewDetail?: boolean;
 }

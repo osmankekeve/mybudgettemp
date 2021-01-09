@@ -140,15 +140,15 @@
                   </div>
                   <div class="row">
                     <div class="col-sm-4">
-                      <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
-                      <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
-                      <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
-                      <i class="fas fa-ban mr-2 text-danger float-right" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
-                      <i class="fas fa-ban mr-2 text-default float-right" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
-                      <i class="fab fa-buromobelexperte mr-2 text-secondary float-right" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
-                      <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
-                      <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
-                      <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
+                      <i class="fas fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
+                      <i class="far fa-thumbs-up mr-2 text-success" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
+                      <i class="far fa-thumbs-down mr-2 text-danger" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
+                      <i class="fas fa-ban mr-2 text-danger" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
+                      <i class="fas fa-ban mr-2 text-default" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
+                      <i class="fab fa-buromobelexperte mr-2 text-secondary" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
+                      <i class="far fa-check-circle mr-2 text-success" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
+                      <i class="fas fa-wifi mr-2 text-yellow" *ngIf="item.data.platform === 'web'" title="Web"></i>
+                      <i class="fas fa-mobile mr-2 text-purple" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
                     </div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2">{{item.statusTr}}</div>

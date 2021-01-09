@@ -334,7 +334,7 @@ export class CustomerComponent implements OnInit {
             },
           });
         });
-  
+
       const dateList2 = [];
       // #ffaa15, #bf4e6a
       this.salesInvoiceList = undefined;

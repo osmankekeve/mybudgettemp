@@ -102,6 +102,11 @@ export class CampaignService {
           reject('Kampanya satış teklifinde kullanıldığından silinemez.');
         }
       });
+      await this.isUsedOnSalesOrderDetail(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Kampanya satış teklif detayında kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -131,6 +136,7 @@ export class CampaignService {
     const returnData = new CampaignMainModel();
     returnData.data = this.clearSubModel();
     returnData.actionType = 'added';
+    returnData.isAvaliableForNewDetail = true;
     returnData.typeTr = getCampaignType().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     return returnData;
@@ -155,7 +161,13 @@ export class CampaignService {
           returnData.data = this.checkFields(data);
           returnData.typeTr = getCampaignType().get(returnData.data.type);
           returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
-
+          if (returnData.data.type === 'packet') {
+            await this.isUsedOnSalesOrder(primaryKey).then(result => {
+              if (result) {
+                returnData.isAvaliableForNewDetail = !result;
+              }
+            });
+          }
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -274,6 +286,25 @@ export class CampaignService {
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('campaignPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({code: 401, message: error.message});
+    }
+  })
+
+  isUsedOnSalesOrderDetail = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('campaignPrimaryKey', '==', primaryKey);
         return query;

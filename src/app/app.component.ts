@@ -158,11 +158,9 @@ export class AppComponent implements OnInit {
     try {
       if (this.emailInput === undefined || this.emailInput.trim() === '') {
         this.finishProcess('Lütfen sistem mail adresi giriniz.', null);
-      }
-      else if (this.passwordInput === undefined || this.passwordInput.trim() === '') {
+      } else if (this.passwordInput === undefined || this.passwordInput.trim() === '') {
         this.finishProcess('Lütfen sistem şifresi giriniz.', null);
-      }
-      else {
+      } else {
         this.authService.login(this.emailInput, this.passwordInput)
           .then(res => {
             if (res != null) {
@@ -541,6 +539,10 @@ export class AppComponent implements OnInit {
       } else {
         await this.authService.employeeLogin(this.employeeEmail, this.employeePassword)
           .then(result => {
+            this.service.getItem(this.authService.getUid()).then(async value => {
+              this.companyDetails = value.data as CompanyModel;
+              sessionStorage.setItem('company', JSON.stringify(this.companyDetails));
+            });
             this.isEmployeeLoggedIn();
             this.cookieService.set('loginTime', Date.now().toString());
             if (this.isEMAChecked) {
