@@ -13,6 +13,7 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
   employeeDetail: any;
   companyDetail: any;
   loginTime: any;
+  projectVersion: any;
 
   constructor( private authService: AuthenticationService,
                private cookieService: CookieService) {  }
@@ -27,7 +28,9 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
         this.loginTime = this.cookieService.get('loginTime');
       }
     }
-    this.companyDetail = JSON.parse(sessionStorage.getItem('company'))
+    this.companyDetail = JSON.parse(sessionStorage.getItem('company'));
+    const pjson = require('package.json');
+    this.projectVersion = pjson.version;
   }
 
   ngAfterViewInit() {

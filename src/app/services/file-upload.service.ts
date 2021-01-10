@@ -11,11 +11,8 @@ import {Observable, combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {CustomerModel} from '../models/customer-model';
 import {map, flatMap} from 'rxjs/operators';
-import {currencyFormat, getFileIcons, getStatus} from '../core/correct-library';
-import {CollectionMainModel} from '../models/collection-main-model';
+import {getFileIcons} from '../core/correct-library';
 import {FileMainModel} from '../models/file-main-model';
-import {CollectionModel} from '../models/collection-model';
-import {ProductDiscountModel} from '../models/product-discount-model';
 
 @Injectable({
   providedIn: 'root'
@@ -126,7 +123,7 @@ export class FileUploadService {
       uploadTask.on(storage.TaskEvent.STATE_CHANGED, (snapshot: storage.UploadTaskSnapshot) => {
         const snap = snapshot as firebase.storage.UploadTaskSnapshot;
         progress.percentage = Math.ceil(snap.bytesTransferred / snap.totalBytes * 100);
-      }, (error) => {
+      }, () => {
       }, () => {
       });
       resolve(uploadTask);

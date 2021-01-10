@@ -49,7 +49,7 @@ export class AppComponent implements OnInit {
   passwordInput: string;
   isForgotPassword: boolean;
   userDetails: any;
-  companyDetails: any;
+  companyDetail: any;
   showNotificationPanel = false;
   showActionPanel = false;
   // reminderCount = 0;
@@ -142,7 +142,7 @@ export class AppComponent implements OnInit {
       .then(res => {
         this.userDetails = undefined;
         this.employeeDetail = undefined;
-        this.companyDetails = undefined;
+        this.companyDetail = undefined;
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('employee');
         sessionStorage.removeItem('company');
@@ -165,8 +165,8 @@ export class AppComponent implements OnInit {
           .then(res => {
             if (res != null) {
               this.service.getItem(res.user.uid).then(async value => {
-                this.companyDetails = value.data as CompanyModel;
-                sessionStorage.setItem('company', JSON.stringify(this.companyDetails));
+                this.companyDetail = value.data as CompanyModel;
+                sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
               });
               this.isUserLoggedIn();
               this.populateSettings();
@@ -540,8 +540,8 @@ export class AppComponent implements OnInit {
         await this.authService.employeeLogin(this.employeeEmail, this.employeePassword)
           .then(result => {
             this.service.getItem(this.authService.getUid()).then(async value => {
-              this.companyDetails = value.data as CompanyModel;
-              sessionStorage.setItem('company', JSON.stringify(this.companyDetails));
+              this.companyDetail = value.data as CompanyModel;
+              sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
             });
             this.isEmployeeLoggedIn();
             this.cookieService.set('loginTime', Date.now().toString());

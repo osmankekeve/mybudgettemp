@@ -5,6 +5,49 @@ body {
   background-color: #eee !important;
 }
 
+@media (min-width: 576px) { /*xs*/
+  .main-logo {
+    width: 230px !important;
+  }
+}
+
+@media (min-width: 768px) { /*sm*/
+  .main-logo {
+    width: 230px !important;
+  }
+}
+
+@media (min-width: 992px) { /*md*/
+  .main-logo {
+    width: 230px !important;
+  }
+  
+}
+
+@media (min-width: 1200px) { /*lg*/
+  /*.main-logo {
+    width: 300px !important;
+  }*/
+  
+}
+
+@media (min-width: 1349px) { /*lg*/
+  .main-logo {
+    width: 300px !important;
+  }
+  
+}
+
+@media (min-width: 1920px) { /*xlg*/
+  .main-logo {
+    width: 300px !important;
+  }
+}
+
+.version {
+  color: #b8bfce;
+}
+
 .main-logo {
   background-color: unset !important;
   border: unset !important;

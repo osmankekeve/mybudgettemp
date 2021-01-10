@@ -5,17 +5,20 @@
         <a routerLink="/dashboard">My Budget Web</a>
       </div>
       <div class="sidebar-header">
-        <div class="user-pic">
+        <div class="user-pic" hidden>
           <img class="img-responsive img-rounded" src='{{employeeDetail.data.pathOfProfilePicture}}'
             alt="User picture">
         </div>
         <div class="user-info">
-          <span class="user-name font-weight-bold">{{companyDetail?.companyName}}</span>
-          <span class="user-name">{{employeeDetail.data.longName}}
+          <div class="d-inline mr-2 float-left">
+            <img src="../../assets/logo/mobile_app_icon.png" width="30px" title="Firma">
+          </div>
+          <span class="user-name font-weight-bold float-left" style="font-size: 19px;">{{companyDetail?.companyName}}</span>
+          <span class="user-name" hidden>{{employeeDetail.data.longName}}
             <strong hidden>Smith</strong>
           </span>
-          <span class="user-role">{{employeeDetail.typeTr}} {{loginTime | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
-          <span class="user-status">
+          <span class="user-role" hidden>{{employeeDetail.typeTr}} {{loginTime | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
+          <span class="user-status" hidden>
             <i class="fa fa-circle"></i>
             <span>Online</span>
           </span>
@@ -227,7 +230,7 @@
               </ul>
             </div>
           </li>
-          <li class="header-menu">
+          <li class="header-menu" hidden>
             <span>Extra</span>
           </li>
           <li class="sidebar-dropdown">
@@ -318,15 +321,16 @@
       </div>
       <!-- sidebar-menu  -->
     </div>
-    <div class="p-2 d-flex" style="border-top: 1px solid #3a3f48;">
+    <div class="p-2" style="border-top: 1px solid #3a3f48;">
       <div class="d-inline mr-2">
-        <img src="../../assets/logo/mobile_app_icon.png" width="30px" title="Mobi Uygulama">
+        <a [href]="" class="cursor-pointer" target="_blank" rel="noopener">
+          <img src="../../assets/logo/mobile_app_icon.png" width="30px" title="Mobil Uygulama">
+      </a>
       </div>
-      <div class="d-inline mr-2">
-        <img src="../../assets/logo/mobile_app_icon.png" width="30px" title="Mobi Uygulama">
-      </div>
-      <div class="d-inline mr-2">
-        <img src="../../assets/logo/mobile_app_icon.png" width="30px" title="Mobi Uygulama">
+    </div>
+    <div class="p-2" style="border-top: 1px solid #3a3f48;">
+      <div class="text-center">
+        <label class="version fs-13">Kekeve Web © Copyright 2020 v.{{projectVersion}}</label>
       </div>
     </div>
   </nav>

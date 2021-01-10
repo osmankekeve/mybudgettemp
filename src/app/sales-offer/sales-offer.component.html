@@ -148,8 +148,11 @@
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
                 (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Bilgiler"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Bilgiler"
                 (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="PDF Oluştur"
+                *ngIf="selectedRecord.orderDetailList?.length > 0"
+                (click)="btnShowPDFModule_Click()"><i class="far fa-file-pdf"></i></button>
       </div>
     </div>
   </div>

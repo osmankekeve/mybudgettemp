@@ -9,28 +9,8 @@
       <h4>SATIŞ TEKLİFİ FORMU</h4>
     </div>
   </div>
-  <div class="row align-items-center mb-1">
-    <div class="col-sm-6">
-      <img src='{{companyData.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
-    </div>
-    <div class="col-sm-6">
-      <div class="list-group">
-        <div class="list-group-item fs-14">
-          <div class="row">
-            <div class="col-sm-12 font-weight-600 text-red mb-1">SİPARİŞ BİLGİLERİ</div>
-            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tipi</div>
-            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.orderTypeTr}}</div>
-            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş No</div>
-            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.receiptNo}}</div>
-            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tarihi</div>
-            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.recordDate | date: 'yyyy.MM.dd'}}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row mb-1"> 
-    <div class="col-sm-6">
+  <div class="row mb-1">
+    <div class="col-sm-12">
       <div class="list-group">
         <div class="list-group-item fs-14">
           <div class="row">
@@ -43,6 +23,25 @@
             <div class="col-sm-9 text-secondary mb-1">Telefon: 05393786560 Mail: osmankekeve@gmail.com</div>
             <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">İlgili Kişi</div>
             <div class="col-sm-9 text-secondary mb-1">Osman KEKEVE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-1"> 
+    <div class="col-sm-6">
+      <div class="list-group">
+        <div class="list-group-item fs-14">
+          <div class="row">
+            <div class="col-sm-12 font-weight-600 text-red mb-1">SİPARİŞ BİLGİLERİ</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tipi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.orderTypeTr}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş No</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.receiptNo}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sipariş Tarihi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.data.recordDate | date: 'yyyy.MM.dd'}}</div>
+            <div class="col-sm-3 font-weight-600 text-dark-blue mb-1">Sevk Adresi</div>
+            <div class="col-sm-9 text-secondary mb-1">{{selectedRecord.deliveryAddressName}}</div>
           </div>
         </div>
       </div>

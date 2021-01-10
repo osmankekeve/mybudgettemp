@@ -1,9 +1,9 @@
-import {Component, OnInit, OnDestroy, AfterViewInit, Query} from '@angular/core';
-import {AngularFirestore, CollectionReference} from '@angular/fire/firestore';
+import {Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {SalesOrderService} from '../services/sales-order.service';
 import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
@@ -12,7 +12,6 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {
   currencyFormat,
-  getConvertedUnitValue,
   getDateForInput, getFirstDayOfMonthForInput,
   getFloat,
   getInputDataForInsert,
@@ -44,13 +43,10 @@ import {ToastService} from '../services/toast.service';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import { CampaignModel } from '../models/campaign-model';
 import { CampaignService } from '../services/campaign.service';
-import { mainModule } from 'process';
-import { setInvoiceCalculation } from '../models/purchase-invoice-model';
-import { SalesOrderDetailModel } from '../models/sales-order-detail-model';
 import { CampaignDetailService } from '../services/campaign-detail.service';
-import { CampaignDetailMainModel } from '../models/campaign-detail-main-model';
 import { CampaignDetailModel } from '../models/campaign-detail-model';
 import { ProductService } from '../services/product.service';
+import { PDFModuleComponent } from '../partials/pdf-module/pdf-module.component';
 
 @Component({
   selector: 'app-sales-offer',
@@ -413,7 +409,7 @@ export class SalesOfferComponent implements OnInit {
       this.onTransaction = true;
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
             for (const item of this.selectedRecord.orderDetailList) {
@@ -457,7 +453,7 @@ export class SalesOfferComponent implements OnInit {
         this.selectedRecord.data.approverPrimaryKey = this.authService.getEid();
         this.selectedRecord.data.approveDate = Date.now();
         Promise.all([this.service.checkForSave(this.selectedRecord)])
-          .then(async (values: any) => {
+          .then(async () => {
             for (const item of this.selectedRecord.orderDetailList) {
               item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
             }
@@ -485,7 +481,7 @@ export class SalesOfferComponent implements OnInit {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
@@ -544,6 +540,17 @@ export class SalesOfferComponent implements OnInit {
   async btnShowInfoModule_Click(): Promise<void> {
     try {
       this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowPDFModule_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(PDFModuleComponent, {size: 'xl'});
+      modalRef.componentInstance.key = 'sales-order';
+      modalRef.componentInstance.data = this.selectedRecord;
+
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -718,7 +725,7 @@ export class SalesOfferComponent implements OnInit {
     try {
       this.onTransaction = true;
       Promise.all([this.sodService.checkForSave(this.selectedDetail)])
-        .then(async (values: any) => {
+        .then(async () => {
           if (this.selectedDetail.data.primaryKey == null) {
             this.selectedDetail.data.primaryKey = this.db.createId();
             this.selectedRecord.orderDetailList.push(this.selectedDetail);

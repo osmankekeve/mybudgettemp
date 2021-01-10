@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {FileModel} from '../models/file-model';
 import {FileUploadService} from '../services/file-upload.service';
 import {FileMainModel} from '../models/file-main-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Component({
   selector: 'app-uploader',

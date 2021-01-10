@@ -38,12 +38,23 @@
                 <span class="notification text-white">{{reminderList?.length}}</span>
               </a>
             </li>
-            <li class="nav-item dropdown cursor-pointer">
-              <a class="nav-link" (click)="showProfilePanel=true" title="Profil">
-                <img src="../../assets/images/users.png" width="30px">
-              </a>
-            </li>
           </ul>
+          <div class="sidebar-wrapper">
+            <div class="sidebar-content">
+              <div class="sidebar-header">
+                <div class="user-pic">
+                  <img class="img-responsive img-rounded cursor-pointer" src='{{employeeDetail.data.pathOfProfilePicture}}'
+                    alt="User picture" (click)="showProfilePanel=true">
+                </div>
+                <div class="user-info">
+                  <span class="user-name">{{employeeDetail.data.longName}}
+                    <strong hidden>Smith</strong>
+                  </span>
+                  <span class="user-role">{{employeeDetail.typeTr}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
           <button type="button" class="btn btn-danger" (click)="logoutUser()">
             <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
           </button>

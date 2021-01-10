@@ -83,3 +83,53 @@
         z-index: 1001
     }
 }
+
+  /*--------------------sidebar-header----------------------*/
+
+  .sidebar-wrapper .sidebar-header {
+    padding-right: 10px;
+    overflow: hidden;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-pic {
+    float: left;
+    width: 50px;
+    padding: 2px;
+    border-radius: 12px;
+    overflow: hidden;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-pic img {
+    object-fit: cover;
+    height: 100%;
+    width: 39px;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-info {
+    float: left;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-info > span {
+    display: block;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-info .user-role {
+    font-size: 12px;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-info .user-status {
+    font-size: 11px;
+    margin-top: 4px;
+    color: #b8bfce;
+  }
+
+  .sidebar-wrapper .sidebar-header .user-info .user-status i {
+    font-size: 8px;
+    margin-right: 4px;
+    color: #5cb85c;
+  }

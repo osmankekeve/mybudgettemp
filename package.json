@@ -1,6 +1,6 @@
 {
   "name": "my-budget-web",
-  "version": "0.0.0",
+  "version": "21.09.01",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

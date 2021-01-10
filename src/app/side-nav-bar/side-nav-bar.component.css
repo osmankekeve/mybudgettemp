@@ -123,8 +123,8 @@
   /*----------------sidebar-content----------------*/
 
   .sidebar-content {
-    max-height: calc(100% - 50px);
-    height: calc(100% - 50px);
+    max-height: calc(100% - 100px);
+    height: calc(100% - 100px);
     overflow-y: auto;
     position: relative;
     scrollbar-width: thin;
