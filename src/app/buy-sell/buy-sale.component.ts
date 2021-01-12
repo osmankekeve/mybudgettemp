@@ -257,6 +257,14 @@ export class BuySaleComponent implements OnInit {
     }
   }
 
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();

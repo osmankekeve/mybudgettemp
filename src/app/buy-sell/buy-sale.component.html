@@ -27,11 +27,11 @@
         <div class="list-group-item bg-red text-light main-list-item">
           <div class="row">
             <div class="col-sm-2">Döviz Tipi</div>
-            <div class="col-sm-2">Personel</div>
             <div class="col-sm-2"><span class="float-right">Birim Tutar</span></div>
             <div class="col-sm-2"><span class="float-right">Birim Miktar</span></div>
             <div class="col-sm-2"><span class="float-right">Toplam</span></div>
             <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+            <div class="col-sm-2"><span class="float-right">Durum</span></div>
           </div>
         </div>
         <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
@@ -41,6 +41,14 @@
             <div class="col-sm-2">
               <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
               <span class="text-red font-weight-600 mr-2">{{item.currencyName}}</span>
+            </div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}} {{item.currencyName}}</span></div>
+            <div class="col-sm-2"><span class="float-right">{{item.totalAmountFormatted}}</span></div>
+            <div class="col-sm-2">
+              <span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
+            </div>
+            <div class="col-sm-2">
               <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
               <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
               <i class="far fa-thumbs-down mr-2 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
@@ -50,12 +58,6 @@
               <i class="far fa-check-circle mr-2 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
               <i class="fas fa-wifi mr-2 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
               <i class="fas fa-mobile mr-2 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
-            </div>
-            <div class="col-sm-2">{{item.employeeName}}</div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}} {{item.currencyName}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.totalAmountFormatted}}</span></div>
-            <div class="col-sm-2"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
             </div>
           </div>
         </div>
@@ -77,8 +79,10 @@
       <div class="col-sm-8">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
         <h4 class="card-title float-left mr-2">Alış&Satış Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
       </div>
       <div class="col-sm-4">
         <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>

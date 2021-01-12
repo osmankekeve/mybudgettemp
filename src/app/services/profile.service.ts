@@ -175,7 +175,7 @@ export class ProfileService {
             if (doc.exists) {
               const data = doc.data() as ProfileModel;
               data.primaryKey = doc.id;
-  
+
               const returnData = this.clearProfileMainModel();
               returnData.data = this.checkFields(data);
               returnData.typeTr = getUserTypes().get(returnData.data.type);
@@ -305,6 +305,28 @@ export class ProfileService {
     } catch (error) {
       console.error(error);
       reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+    }
+  })
+
+  isEmployeePasswordExist = async (primaryKey: string, password: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProfile', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('primaryKey', '==', primaryKey)
+          .where('password', '==', password);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({code: 401, message: error.message});
     }
   })
 

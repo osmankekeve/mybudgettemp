@@ -33,6 +33,11 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
     this.projectVersion = pjson.version;
   }
 
+  downloadMobileAPK() {
+    const FileSaver = require('file-saver');
+    FileSaver.saveAs('./assets/files/kekeve-ofis.apk', 'kekeve-ofis');
+  }
+
   ngAfterViewInit() {
 
     $('.sidebar-dropdown > a').click(function() {
@@ -55,6 +60,6 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
     $('#show-sidebar').click(function() {
       $('.page-wrapper').addClass('toggled');
     });
-    }
+  }
 
 }

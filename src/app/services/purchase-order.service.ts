@@ -72,24 +72,20 @@ export class PurchaseOrderService {
           }
           await this.logService.addTransactionLog(record, 'approved', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        }
-        else if (record.data.status === 'rejected') {
+        } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
-        }
-        else if (record.data.status === 'closed') {
+        } else if (record.data.status === 'closed') {
           for (const item of record.orderDetailList) {
             item.data.invoicedStatus = 'complete';
             await this.sodService.updateItem(item);
           }
           await this.logService.addTransactionLog(record, 'closed', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
-        }
-        else if (record.data.status === 'done') {
+        } else if (record.data.status === 'done') {
           await this.logService.addTransactionLog(record, 'done', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
-        }
-        else {
+        } else {
           await this.logService.addTransactionLog(record, 'update', 'purchaseOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }

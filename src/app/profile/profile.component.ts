@@ -9,6 +9,7 @@ import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
 import {ToastService} from '../services/toast.service';
+import { getString } from '../core/correct-library';
 
 @Component({
   selector: 'app-profile',
@@ -25,6 +26,11 @@ export class ProfileComponent implements OnInit {
   snapshot: Observable<any>;
   downloadURL: string;
   onTransaction = false;
+  securityFields = {
+    currentPassword: '',
+    newPassword: '',
+    newPasswordAgain: '',
+  };
 
   constructor(protected authService: AuthenticationService, protected storage: AngularFireStorage, protected fuService: FileUploadService,
               protected infoService: InformationService, protected service: ProfileService, protected db: AngularFirestore,
@@ -46,8 +52,7 @@ export class ProfileComponent implements OnInit {
             this.finishProcess(reason, null);
           });
       } else {
-        this.clearSelectedRecord();
-        this.selectedRecord = undefined;
+
       }
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
@@ -71,8 +76,41 @@ export class ProfileComponent implements OnInit {
         .catch((error) => {
           this.finishProcess(error, null);
         });
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
+  async btnSaveSecurity_Click(): Promise<void> {
+    try {
+      if (this.securityFields.newPassword.trim() !== '') {
+        this.onTransaction = true;
+
+        await this.service.isEmployeePasswordExist(this.selectedRecord.data.primaryKey, this.securityFields.currentPassword).then(async isExist => {
+          if (!isExist) {
+            this.finishProcess('Lütfen mevcut şifrenizi kontrol ediniz', null);
+          } else {
+            if (this.securityFields.newPassword.trim().length < 5) {
+              this.finishProcess('Şireniz 5 karakterden kısa olamaz', null);
+            } else if (this.securityFields.newPassword.trim() !== this.securityFields.newPasswordAgain.trim()) {
+              this.finishProcess('Yeni şifre ile doğrulama eşleşmemektedir', null);
+            } else {
+              this.selectedRecord.data.password = this.securityFields.newPassword.trim();
+              await this.service.updateItem(this.selectedRecord)
+              .then(() => {
+                sessionStorage.setItem('employee', JSON.stringify(this.selectedRecord));
+                this.finishProcess(null, 'Şifreniz başarıyla güncellendi.');
+              })
+              .catch((error) => {
+                this.finishProcess(error, null);
+              });
+            }
+          }
+        });
+
+    }
     } catch (err) {
-      await this.infoService.error(err);
+      await this.finishProcess(err, null);
     }
   }
 
@@ -136,21 +174,15 @@ export class ProfileComponent implements OnInit {
     this.openedPanel = panel;
   }
 
-  clearSelectedRecord(): void {
-
-  }
-
   async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
-      this.clearSelectedRecord();
-      this.selectedRecord = undefined;
     } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.toastService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }
@@ -167,4 +199,111 @@ export class ProfileComponent implements OnInit {
     }
     this.onTransaction = false;
   }
+
+  countContain(strPassword: string, strCheck: string): any {
+     // Declare variables
+     let nCount = 0;
+
+     for (let i = 0; i < strPassword.length; i ++) {
+         if (strCheck.indexOf(strPassword.charAt(i)) > -1) {
+                 nCount++;
+         }
+     }
+
+     return nCount;
+  }
+
+  passwordTextChanged(text: string): any {
+    const strUpperCase = 'ABCDEFGHIİJKLMNOÖPQRSŞTUÜVWXYZ';
+    const strLowerCase = 'abcdefghıijklmnoöpqrsştuüvwxyz';
+    const strNumber = '0123456789';
+    const strCharacters = '!@#$%^&*?_~';
+    const strPassword = text.trimLeft().trimRight();
+    // Reset combination count
+    let nScore = 0;
+
+    // Password length
+    // -- Less than 4 characters
+    if (strPassword.length > 0 && strPassword.length < 5) {
+        nScore += 5;
+    } else if (strPassword.length > 4 && strPassword.length < 8) {
+        nScore += 10;
+    } else if (strPassword.length > 7) {
+        nScore += 25;
+    }
+
+    // Letters
+    const nUpperCount = this.countContain(strPassword, strUpperCase);
+    const nLowerCount = this.countContain(strPassword, strLowerCase);
+    const nLowerUpperCount = nUpperCount + nLowerCount;
+    // -- Letters are all lower case
+    if (nUpperCount === 0 && nLowerCount !== 0) {
+        nScore += 10;
+    } else if (nUpperCount !== 0 && nLowerCount !== 0) {
+        nScore += 20;
+    }
+
+    // Numbers
+    const nNumberCount = this.countContain(strPassword, strNumber);
+    // -- 1 number
+    if (nNumberCount === 1) {
+        nScore += 10;
+    }
+    // -- 3 or more numbers
+    if (nNumberCount >= 3) {
+        nScore += 20;
+    }
+
+    // Characters
+    const nCharacterCount = this.countContain(strPassword, strCharacters);
+    // -- 1 character
+    if (nCharacterCount === 1) {
+      nScore += 10;
+    }
+    // -- More than 1 character
+    if (nCharacterCount > 1) {
+      nScore += 25;
+    }
+
+    // Bonus
+    // -- Letters and numbers
+    if (nNumberCount !== 0 && nLowerUpperCount !== 0) {
+      nScore += 2;
+    }
+    // -- Letters, numbers, and characters
+    if (nNumberCount !== 0 && nLowerUpperCount !== 0 && nCharacterCount !== 0) {
+      nScore += 3;
+    }
+    // -- Mixed case letters, numbers, and characters
+    if (nNumberCount !== 0 && nUpperCount !== 0 && nLowerCount !== 0 && nCharacterCount !== 0) {
+      nScore += 5;
+    }
+    let strText = '';
+    let strColor = '';
+    if (nScore >= 80) {
+      strText = 'Very Strong';
+      strColor = '#008000';
+    } else if (nScore >= 60) {
+      strText = 'Strong';
+      strColor = '#006000';
+    } else if (nScore >= 40) {
+      strText = 'Average';
+      strColor = '#e3cb00';
+    } else if (nScore >= 20) {
+      strText = 'Weak';
+      strColor = '#Fe3d1a';
+    } else {
+      strText = 'Very Weak';
+      strColor = '#e71a1a';
+    }
+    const ctlBar = document.getElementById('progress');
+    ctlBar.style.width = getString((nScore * 1.25 > 100) ? 100 : nScore * 1.25) + '%';
+    if (strPassword.length === 0) {
+      ctlBar.style.backgroundColor = '';
+    } else {
+      ctlBar.style.backgroundColor = strColor;
+    }
+    this.securityFields.newPassword = strPassword;
+  }
+
 }

@@ -358,8 +358,7 @@
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
           <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
-              <div class="col-sm-1">#</div>
-              <div class="col-sm-7">Dosya Adı</div>
+              <div class="col-sm-8">Dosya</div>
               <div class="col-sm-2">Boyut</div>
               <div class="col-sm-2"><span class="float-right">Tarih</span></div>
             </div>
@@ -368,7 +367,7 @@
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of filesList">
               <div class="row">
-                <div class="col-sm-5">
+                <div class="col-sm-8">
                   <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer mr-2"
                        (click)="btnRemoveFile_Click(item)">
                   <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">

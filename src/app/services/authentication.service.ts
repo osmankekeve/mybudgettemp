@@ -1,16 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { ProfileModel } from '../models/profile-model';
 import { ProfileMainModel } from '../models/profile-main-model';
-import { ProfileService } from './profile.service';
-import { LogService } from './log.service';
 import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
-import {CompanyModel} from '../models/company-model';
-import {PurchaseOrderService} from './purchase-order.service';
-import {CompanyService} from './company.service';
 
 @Injectable({
   providedIn: 'root'

@@ -311,7 +311,9 @@ export class CustomerService {
 
           Promise.all([
             this.eService.getItem(data.employeePrimaryKey, false),
-            this.eService.getItem(data.executivePrimary, false)
+            this.eService.getItem(data.executivePrimary, false),
+            this.defService.getItem(returnData.data.paymentTypeKey),
+            this.defService.getItem(returnData.data.termKey)
           ])
             .then((values: any) => {
               if (values[0] !== null) {
@@ -324,10 +326,17 @@ export class CustomerService {
               } else {
                 returnData.executive = this.eService.clearProfileModel();
               }
+              if (values[2] !== null) {
+                returnData.paymentTypeTr = values[2].returnData.data.custom1;
+              } else {
+                returnData.paymentTypeTr = '';
+              }
+              if (values[3] !== null) {
+                returnData.termTr = values[3].returnData.data.custom1;
+              } else {
+                returnData.termTr = '';
+              }
             });
-
-          returnData.paymentTypeTr = getString(this.paymentMap.get(returnData.data.paymentTypeKey));
-          returnData.termTr = getString(this.termMap.get(returnData.data.termKey));
           returnData.customerTypeTr = getString(getCustomerTypes().get(returnData.data.customerType));
           return Object.assign({returnData});
         })

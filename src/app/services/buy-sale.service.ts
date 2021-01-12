@@ -60,6 +60,7 @@ export class BuySaleService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'buy-sale';
+          trans.transactionSubType = 'buy-sale';
           trans.parentPrimaryKey = record.data.currencyPrimaryKey;
           trans.parentType = 'buy-sale-currency';
           trans.accountPrimaryKey = '-1';
