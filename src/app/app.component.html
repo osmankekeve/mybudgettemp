@@ -1,233 +1,234 @@
 
-<div *ngIf="userDetails && employeeDetail" class="mb-5  d-inline-block">
-  <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
-    <div class="container-fluid">
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
-              aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <a class="navbar-brand" href="#">
-        <img src="assets/logo/kekeve_web_logo_white.png" alt="My Budget Web" />
-      </a>
-      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-          <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
-            <li class="nav-item dropdown cursor-pointer">
-              <a class="nav-link" (click)="showWaitingWorksPanel=true" title="Bekleyen İşlemler">
-                <img src="../../assets/images/notification.png" width="30px">
-                <span class="notification text-white">{{waitingWorkList?.length}}</span>
-              </a>
-            </li>
-            <li class="nav-item dropdown cursor-pointer">
-              <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
-                <i class="fa fa-2x fa-globe text-white mr-1"></i>
-                <span class="notification text-white">{{actionList?.length}}</span>
-              </a>
-            </li>
-            <li class="nav-item dropdown cursor-pointer">
-              <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
-                <i class="fa fa-2x fa-fw fa-bell text-white"></i>
-                <span class="notification text-white">{{notificationList?.length}}</span>
-              </a>
-            </li>
-            <li class="nav-item dropdown cursor-pointer">
-              <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
-                <img src="../../assets/images/reminder.png" width="30px">
-                <span class="notification text-white">{{reminderList?.length}}</span>
-              </a>
-            </li>
-          </ul>
-          <div class="sidebar-wrapper">
-            <div class="sidebar-content">
-              <div class="sidebar-header">
-                <div class="user-pic">
-                  <img class="img-responsive img-rounded cursor-pointer" src='{{employeeDetail.data.pathOfProfilePicture}}'
-                    alt="User picture" (click)="showProfilePanel=true">
-                </div>
-                <div class="user-info">
-                  <span class="user-name">{{employeeDetail.data.longName}}
-                    <strong hidden>Smith</strong>
-                  </span>
-                  <span class="user-role">{{employeeDetail.typeTr}}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <button type="button" class="btn btn-danger" (click)="logoutUser()">
-            <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
-          </button>
-        </form>
-        <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
-          <div class="card-header bg-warning text-wight">
-            <i class="fa fa-fw fa-bell material-icons mr-1"></i>
-            <span>Bildirimler</span>
-          </div>
-          <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="notificationList?.length > 0; else elseBlock">
-              <div class="list-group">
-                <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of notificationList; index as i;"
-                     style="font-size: 85%">
-                  <div class="row">
-                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
-                       (click)="setNotificationToPassive(item)">
-                      <i class="fa fa-fw fa-times text-danger"></i>
-                    </a>
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["data"].log}}</div>
-                    <div class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item["data"]["insertDate"] | date: 'yyyy.MM.dd'}}</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock>
-              <div class="alert alert-danger" role="alert">
-                Bidiriminiz bulunmamaktadır.
-              </div>
-            </ng-template>
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="far fa-trash-alt mr-2"></i>Bildirimleri
-              Temizle
-            </button>
-            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
-                    (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
-            </button>
-          </div>
-        </div>
-        <div class="card notificationHeaderPanel" *ngIf="showActionPanel==true" (mouseleave)="showActionPanel=false">
-          <div class="card-header bg-warning text-wight">
-            <i class="fa fa-globe material-icons mr-1"></i>
-            <span>Etkinlikler</span>
-          </div>
-          <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="notificationList?.length > 0; else elseBlock2">
-              <div class="list-group">
-                <div class="list-group-item list-group-item-action list-group-item-light"
-                     *ngFor="let item of actionList; index as i;"
-                     style="font-size: 85%">
-                  <div class="row">
-                    <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
-                       (click)="setNotificationToPassive(item)">
-                      <i class="fa fa-fw fa-times text-danger"></i>
-                    </a>
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["customerName"]}}</div>
-                    <div class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item["data"].actionDate | date: 'yyyy.MM.dd'}}</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock2>
-              <div class="alert alert-danger" role="alert">
-                Etkinliğiniz bulunmamaktadır.
-              </div>
-            </ng-template>
-          </div>
-        </div>
-        <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true" (mouseleave)="showReminderPanel=false">
-          <div class="card-header bg-warning text-wight">
-            <i class="fa fa-globe material-icons mr-1"></i>
-            <span>Hatırlatıcı</span>
-          </div>
-          <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="reminderList?.length > 0; else elseBlock3">
-              <div class="list-group">
-                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                     (click)="showReminder(item)"
-                     *ngFor="let item of reminderList; index as i;"
-                     style="font-size: 85%">
-                  <div class="row">
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</div>
-                    <div class="col-sm-6"><small
-                      class="float-left font-weight-bold">{{item.employeeName}}</small></div>
-                    <div class="col-sm-6"><small
-                      class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock3>
-              <div class="alert alert-danger" role="alert">
-                Hatırlatıcı bulunmamaktadır.
-              </div>
-            </ng-template>
-          </div>
-        </div>
-        <div class="card notificationHeaderPanel" *ngIf="showProfilePanel==true" (mouseleave)="showProfilePanel=false">
-          <div class="card">
-            <div class="card-body bg-light">
-              <div class="list-group">
-                <a routerLink="/profile" class="list-group-item list-group-item-action list-group-item-light">
-                  <i class="fa fa-user-circle text-danger material-icons mr-1"></i> Profil
-                </a>
-                <a routerLink="/company" class="list-group-item list-group-item-action list-group-item-light">
-                  <i class="fa fa-building text-danger material-icons mr-1"></i> Firma
-                </a>
-                <a routerLink="/setting" class="list-group-item list-group-item-action list-group-item-light">
-                  <i class="fa fa-cogs text-danger material-icons mr-1"></i> Ayarlar
-                </a>
-              </div>
-            </div>
-            <div class="card-footer">
-              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="logoutUser()">
-                <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="card notificationHeaderPanel" *ngIf="showWaitingWorksPanel==true" (mouseleave)="showWaitingWorksPanel=false">
-          <div class="card-header bg-warning text-wight">
-            <i class="far fa-bell mr-1"></i>
-            <span>Bekleyen İşlemler</span>
-          </div>
-          <div class="card-body bg-light panelHeightControl">
-            <div *ngIf="waitingWorkList.length > 0; else elseBlock">
-              <div class="head-filter mb-1">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="fa fa-filter"></i>
-                                </span>
-                  </div>
-                  <input type="search" class="form-control filter-list-input" placeholder="İşlem Ara.." [(ngModel)]="searchWaitingWorksText">
-                </div>
-              </div>
-              <div class="list-group">
-                <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                     *ngFor="let item of waitingWorkList | filterWaitingWork: searchWaitingWorksText;" title="Kaydı Göster" style="font-size: 85%">
-                  <div class="row"
-                       (click)="showWaitingWorkRecord(item)">
-                    <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</div>
-                    <div class="col-sm-12"><small
-                      class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <ng-template #elseBlock>
-              <div class="alert alert-danger fs-15" role="alert">
-                Bekleyen işlem bulunmamaktadır.
-              </div>
-            </ng-template>
-          </div>
-          <div class="card-footer">
-            <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
-                    (click)="showWaitingWorksPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-</div>
+
 <div class="container-fluid mt-5">
   <app-alert></app-alert>
   <app-toasts></app-toasts>
 </div>
 <div class="container-fluid d-inline-block" *ngIf="userDetails && employeeDetail">
+  <div class="mb-5 d-inline-block">
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark" style="background-color: #31353D !important;">
+      <div class="container-fluid">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03"
+                aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="#">
+          <img src="assets/logo/kekeve_web_logo_white.png" alt="My Budget Web" />
+        </a>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+          <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <ul class="navbar-nav mr-3 mt-2 mt-lg-0">
+              <li class="nav-item dropdown cursor-pointer">
+                <a class="nav-link" (click)="showWaitingWorksPanel=true" title="Bekleyen İşlemler">
+                  <img src="../../assets/images/notification.png" width="30px">
+                  <span class="notification text-white">{{waitingWorkList?.length}}</span>
+                </a>
+              </li>
+              <li class="nav-item dropdown cursor-pointer">
+                <a class="nav-link" (click)="showActionPanel=true" title="Planlı Etkinlikler">
+                  <i class="fa fa-2x fa-globe text-white mr-1"></i>
+                  <span class="notification text-white">{{actionList?.length}}</span>
+                </a>
+              </li>
+              <li class="nav-item dropdown cursor-pointer">
+                <a class="nav-link" (click)="showNotificationPanel=true" title="Bildirimler">
+                  <i class="fa fa-2x fa-fw fa-bell text-white"></i>
+                  <span class="notification text-white">{{notificationList?.length}}</span>
+                </a>
+              </li>
+              <li class="nav-item dropdown cursor-pointer">
+                <a class="nav-link" (click)="showReminderPanel=true" title="Hatırlatıcı">
+                  <img src="../../assets/images/reminder.png" width="30px">
+                  <span class="notification text-white">{{reminderList?.length}}</span>
+                </a>
+              </li>
+            </ul>
+            <div class="sidebar-wrapper">
+              <div class="sidebar-content">
+                <div class="sidebar-header">
+                  <div class="user-pic">
+                    <img class="img-responsive img-rounded cursor-pointer" src='{{employeeDetail.data.pathOfProfilePicture}}'
+                      alt="User picture" (click)="showProfilePanel=true">
+                  </div>
+                  <div class="user-info">
+                    <span class="user-name">{{employeeDetail.data.longName}}
+                      <strong hidden>Smith</strong>
+                    </span>
+                    <span class="user-role">{{employeeDetail.typeTr}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="btn btn-danger" (click)="logoutUser()">
+              <i class="fa fa-sign-out text-white material-icons mr-1"></i> Çıkış
+            </button>
+          </form>
+          <div class="card notificationHeaderPanel" *ngIf="showNotificationPanel==true" (mouseleave)="showNotificationPanel=false">
+            <div class="card-header bg-warning text-wight">
+              <i class="fa fa-fw fa-bell material-icons mr-1"></i>
+              <span>Bildirimler</span>
+            </div>
+            <div class="card-body bg-light panelHeightControl">
+              <div *ngIf="notificationList?.length > 0; else elseBlock">
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-action list-group-item-light"
+                       *ngFor="let item of notificationList; index as i;"
+                       style="font-size: 85%">
+                    <div class="row">
+                      <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
+                         (click)="setNotificationToPassive(item)">
+                        <i class="fa fa-fw fa-times text-danger"></i>
+                      </a>
+                      <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["data"].log}}</div>
+                      <div class="col-sm-12"><small
+                        class="float-right font-weight-bold">{{item["data"]["insertDate"] | date: 'yyyy.MM.dd'}}</small></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="alert alert-danger" role="alert">
+                  Bidiriminiz bulunmamaktadır.
+                </div>
+              </ng-template>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-left"><i class="far fa-trash-alt mr-2"></i>Bildirimleri
+                Temizle
+              </button>
+              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
+                      (click)="showNotificationPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
+              </button>
+            </div>
+          </div>
+          <div class="card notificationHeaderPanel" *ngIf="showActionPanel==true" (mouseleave)="showActionPanel=false">
+            <div class="card-header bg-warning text-wight">
+              <i class="fa fa-globe material-icons mr-1"></i>
+              <span>Etkinlikler</span>
+            </div>
+            <div class="card-body bg-light panelHeightControl">
+              <div *ngIf="notificationList?.length > 0; else elseBlock2">
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-action list-group-item-light"
+                       *ngFor="let item of actionList; index as i;"
+                       style="font-size: 85%">
+                    <div class="row">
+                      <a class="cursor-pointer" style="right: 3px; top: 0px; position:absolute"
+                         (click)="setNotificationToPassive(item)">
+                        <i class="fa fa-fw fa-times text-danger"></i>
+                      </a>
+                      <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["customerName"]}}</div>
+                      <div class="col-sm-12"><small
+                        class="float-right font-weight-bold">{{item["data"].actionDate | date: 'yyyy.MM.dd'}}</small></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock2>
+                <div class="alert alert-danger" role="alert">
+                  Etkinliğiniz bulunmamaktadır.
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="card notificationHeaderPanel" *ngIf="showReminderPanel==true" (mouseleave)="showReminderPanel=false">
+            <div class="card-header bg-warning text-wight">
+              <i class="fa fa-globe material-icons mr-1"></i>
+              <span>Hatırlatıcı</span>
+            </div>
+            <div class="card-body bg-light panelHeightControl">
+              <div *ngIf="reminderList?.length > 0; else elseBlock3">
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                       (click)="showReminder(item)"
+                       *ngFor="let item of reminderList; index as i;"
+                       style="font-size: 85%">
+                    <div class="row">
+                      <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.data.description}}</div>
+                      <div class="col-sm-6"><small
+                        class="float-left font-weight-bold">{{item.employeeName}}</small></div>
+                      <div class="col-sm-6"><small
+                        class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock3>
+                <div class="alert alert-danger" role="alert">
+                  Hatırlatıcı bulunmamaktadır.
+                </div>
+              </ng-template>
+            </div>
+          </div>
+          <div class="card notificationHeaderPanel" *ngIf="showProfilePanel==true" (mouseleave)="showProfilePanel=false">
+            <div class="card">
+              <div class="card-body bg-light">
+                <div class="list-group">
+                  <a routerLink="/profile" class="list-group-item list-group-item-action list-group-item-light">
+                    <i class="fa fa-user-circle text-danger material-icons mr-1"></i> Profil
+                  </a>
+                  <a routerLink="/company" class="list-group-item list-group-item-action list-group-item-light">
+                    <i class="fa fa-building text-danger material-icons mr-1"></i> Firma
+                  </a>
+                  <a routerLink="/setting" class="list-group-item list-group-item-action list-group-item-light">
+                    <i class="fa fa-cogs text-danger material-icons mr-1"></i> Ayarlar
+                  </a>
+                </div>
+              </div>
+              <div class="card-footer">
+                <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right" (click)="logoutUser()">
+                  <i class="fa fa-sign-out material-icons mr-1"></i> Çıkış
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card notificationHeaderPanel" *ngIf="showWaitingWorksPanel==true" (mouseleave)="showWaitingWorksPanel=false">
+            <div class="card-header bg-warning text-wight">
+              <i class="far fa-bell mr-1"></i>
+              <span>Bekleyen İşlemler</span>
+            </div>
+            <div class="card-body bg-light panelHeightControl">
+              <div *ngIf="waitingWorkList.length > 0; else elseBlock">
+                <div class="head-filter mb-1">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                                  <span class="input-group-text">
+                                      <i class="fa fa-filter"></i>
+                                  </span>
+                    </div>
+                    <input type="search" class="form-control filter-list-input" placeholder="İşlem Ara.." [(ngModel)]="searchWaitingWorksText">
+                  </div>
+                </div>
+                <div class="list-group">
+                  <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
+                       *ngFor="let item of waitingWorkList | filterWaitingWork: searchWaitingWorksText;" title="Kaydı Göster" style="font-size: 85%">
+                    <div class="row"
+                         (click)="showWaitingWorkRecord(item)">
+                      <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</div>
+                      <div class="col-sm-12"><small
+                        class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="alert alert-danger fs-15" role="alert">
+                  Bekleyen işlem bulunmamaktadır.
+                </div>
+              </ng-template>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
+                      (click)="showWaitingWorksPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </div>
   <div class="row">
     <div class="col-sm-3 col-sm-2-5 pt-2">
       <aside>
@@ -243,11 +244,9 @@
   </div>
 </div>
 <div class="container-fluid pt-2 login-work-area" *ngIf="!userDetails">
-  <div class="row">
-    <div class="col-sm-9">
-    </div>
-    <div class="col-sm-3">
-      <div class="card" style="border-radius: 25px;max-width: 350px;">
+  <div class="row justify-content-center">
+    <div class="col-sm-3 align-self-center">
+      <div class="card" style="border-radius: 25px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
             <img src="assets/logo/kekeve_web_logo_black.png" class="img-thumbnail main-logo" alt="My Budget Web" />
@@ -279,16 +278,13 @@
     </div>
   </div>
   <div class="navbar fixed-bottom navbar-expand-lg navbar-dark bg-dark">
-    <div class="w-100 text-center text-white">KEKEVE Web & Mobile Developing © Copyright 2020</div>
+    <div class="w-100 text-center text-white fs-14">KEKEVE Web & Mobile Developing © Copyright 2020</div>
   </div>
 </div>
 <div class="container-fluid pt-2 login-work-area" *ngIf="userDetails && !employeeDetail">
-  <div class="row">
-    <div class="col-sm-9">
-
-    </div>
-    <div class="col-sm-3">
-      <div class="card" style="border-radius: 25px;max-width: 350px;">
+  <div class="row justify-content-center">
+    <div class="col-sm-3 align-self-center">
+      <div class="card" style="border-radius: 25px;">
         <div class="card-header" style="border-radius: 25px 25px 0 0;">
           <div class="text-center">
             <img src="assets/logo/kekeve_web_logo_black.png" alt="My Budget Web" class="img-thumbnail main-logo" />
@@ -326,7 +322,7 @@
     </div>
   </div>
   <div class="navbar fixed-bottom navbar-expand-lg navbar-dark bg-dark">
-    <div class="w-100 text-center text-white">KEKEVE Web & Mobile Developing © Copyright 2020</div>
+    <div class="w-100 text-center text-white fs-14">KEKEVE Web & Mobile Developing © Copyright 2020</div>
   </div>
 </div>
 

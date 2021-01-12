@@ -65,7 +65,11 @@ export class AuthenticationService {
 
   public getEid(): string {
     const user = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
-    return user.data.primaryKey;
+    if (user) {
+      return user.data.primaryKey;
+    } else {
+      return '-1';
+    }
   }
 
   checkFields(model: ProfileModel): ProfileModel {

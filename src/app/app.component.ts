@@ -83,6 +83,7 @@ export class AppComponent implements OnInit {
       } else {
         sessionStorage.setItem('user', null);
         sessionStorage.setItem('company', null);
+        sessionStorage.setItem('employee', null);
       }
     });
   }
