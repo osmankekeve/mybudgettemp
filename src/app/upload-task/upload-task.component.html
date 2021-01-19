@@ -5,7 +5,7 @@
 
 <div *ngIf="snapshot | async as snap">
 
-  {{ snap.bytesTransferred }} of {{ snap.totalBytes }}
+  {{snap.bytesTransferred/1024 | number:'1.2-2'}} KB of {{snap.totalBytes/1024 | number:'1.2-2'}} KB
 
   <div *ngIf="downloadURL as url" style="border-bottom: thin solid #6c757d; margin: 5px 0 5px 0; padding: 10px 0 10px 0">
     <div class="row">

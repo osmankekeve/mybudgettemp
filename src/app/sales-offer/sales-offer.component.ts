@@ -220,7 +220,7 @@ export class SalesOfferComponent implements OnInit {
   populatePacketCampaignList(): void {
     const list = Array<boolean>();
     list.push(true);
-    Promise.all([this.campService.getAvaliableCampaignsAsPromise('packet')])
+    Promise.all([this.campService.getAvaliableCampaignsAsPromise('packet', this.selectedRecord.data.primaryKey === null)])
       .then((values: any) => {
       this.packetCampaignList = [];
       if (values[0] !== null) {
@@ -389,6 +389,7 @@ export class SalesOfferComponent implements OnInit {
     try {
       this.clearSelectedRecord();
       this.selectedRecord.orderDetailList = [];
+      this.packetCampaignList = [];
       const receiptNoData = await this.sService.getOrderCode();
       if (receiptNoData !== null) {
         this.selectedRecord.data.receiptNo = receiptNoData;

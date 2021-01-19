@@ -24,7 +24,7 @@
               <div class="row">
                 <div class="col-sm-2"><span class="text-bold text-dark">{{i+1}})</span></div>
                 <div class="col-sm-6">{{item.data.fileName}}</div>
-                <div class="col-sm-2">{{item.data.size}} Byte</div>
+                <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
                 <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
               </div>
             </div>

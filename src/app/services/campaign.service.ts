@@ -234,7 +234,7 @@ export class CampaignService {
     return this.mainList$;
   }
 
-  getAvaliableCampaignsAsPromise = async (type: string):
+  getAvaliableCampaignsAsPromise = async (type: string, isForNewRecord: boolean):
     Promise<Array<CampaignModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<CampaignModel>();
@@ -248,9 +248,13 @@ export class CampaignService {
         snapshot.forEach(doc => {
           const data = doc.data() as CampaignModel;
           data.primaryKey = doc.id;
-          const dataDateNow = getDateTimeNow();
-          if (((getDateTimeForQueryFilter(data.beginDate) <= getDateTimeForQueryFilter(dataDateNow)))
-          && ((getDateTimeForQueryFilter(data.finishDate) >= getDateTimeForQueryFilter(dataDateNow)))) {
+          if (isForNewRecord) {
+            const dataDateNow = getDateTimeNow();
+            if (((getDateTimeForQueryFilter(data.beginDate) <= getDateTimeForQueryFilter(dataDateNow)))
+            && ((getDateTimeForQueryFilter(data.finishDate) >= getDateTimeForQueryFilter(dataDateNow)))) {
+              list.push(data);
+            }
+          } else {
             list.push(data);
           }
         });

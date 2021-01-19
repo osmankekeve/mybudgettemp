@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FileUploadService} from '../services/file-upload.service';
 import {FileMainModel} from '../models/file-main-model';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-uploader',
@@ -8,7 +9,7 @@ import {FileMainModel} from '../models/file-main-model';
   styleUrls: ['./uploader.component.css']
 })
 export class UploaderComponent implements OnInit {
-  constructor( public service: FileUploadService) { }
+  constructor( public service: FileUploadService, public toastService: ToastService) { }
   mainList: Array<FileMainModel>;
 
   ngOnInit() {
@@ -45,4 +46,14 @@ export class UploaderComponent implements OnInit {
     }, 1000);
   }
 
+  async btnRemoveFile_Click(item: FileMainModel): Promise<void> {
+    try {
+      await this.service.removeItem(item).then(async () => {
+        this.toastService.success('Dosya başarıyla kaldırıldı.');
+
+      });
+        } catch (error) {
+          this.toastService.error(error);
+    }
+  }
 }

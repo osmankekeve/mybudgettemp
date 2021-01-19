@@ -164,13 +164,13 @@ export class ProductComponent implements OnInit, OnDestroy {
 
     const dateList = [];
     const priceList = [];
-    //#22223B, #4A4E69
+    // #22223B, #4A4E69
     Promise.all([this.service.getProductPurchasePrices(this.selectedRecord.data.primaryKey)])
       .then((values: any) => {
         if (values[0] !== null) {
           const returnData = values[0] as Array<PurchaseInvoiceDetailModel>;
           returnData.forEach((item) => {
-            dateList.push(item.quantity.toString() + " Miktar");
+            dateList.push(item.quantity.toString() + ' Miktar');
             priceList.push(item.price);
           });
         }

@@ -1,24 +1,10 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
-import {CollectionModel} from '../models/collection-model';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {SettingService} from './setting.service';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {ProfileService} from './profile.service';
-import {currencyFormat, getCustomerTypes, getPaymentTypes, getStatus, getTerms, isNullOrEmpty} from '../core/correct-library';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
-import {ActionService} from './action.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountMatchModel} from '../models/account-match-model';
-import {CustomerMainModel} from '../models/customer-main-model';
-import {BuySaleCurrencyMainModel} from '../models/buy-sale-currency-main-model';
-import {BuySaleCurrencyModel} from '../models/buy-sale-currency-model';
 
 @Injectable({
   providedIn: 'root'
@@ -49,26 +35,26 @@ export class AccountMatchService {
   async updateItem(record: AccountMatchModel) {
     return await this.db.collection(this.tableName).doc(record.primaryKey)
       .update(Object.assign({}, record))
-      .then(async value => {
+      .then(async () => {
         await this.logService.addTransactionLog(record, 'update', 'account-match');
       });
   }
 
   async setItem(record: AccountMatchModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record))
-      .then(async value => {
+      .then(async () => {
         await this.logService.addTransactionLog(record, 'insert', 'account-match');
       });
   }
 
-  checkForSave(record: AccountMatchModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+  checkForSave(): Promise<string> {
+    return new Promise((resolve) => {
       resolve(null);
     });
   }
 
-  checkForRemove(record: AccountMatchModel): Promise<string> {
-    return new Promise((resolve, reject) => {
+  checkForRemove(): Promise<string> {
+    return new Promise((resolve) => {
       resolve(null);
     });
   }
@@ -116,7 +102,7 @@ export class AccountMatchService {
   }
 
   getItem(primaryKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
           const data = doc.data() as AccountMatchModel;

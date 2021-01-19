@@ -1,29 +1,34 @@
-<div class="card">
+<div class="card work-area">
   <div class="card-header">
-    <h5>Dosya Yükleme</h5>
+    <img src="../../assets/images/file-upload.png" class="float-left mr-2" width="30px" alt="">
+    <h4>Dosya Yükleme</h4>
   </div>
-  <div class="card-body">
+  <div class="card-body work-area-11">
     <div class="row">
+      <div class="col-sm-6">
+        <app-dropzone></app-dropzone>
+      </div>
       <div class="col-sm-6">
         <div *ngIf="mainList != undefined; else elseBlock2">
           <div class="list-group mb-2" *ngIf="mainList.length > 0; else elseBlock">
             <div class="list-group-item bg-success text-light main-list-item">
               <div class="row">
-                <div class="col-sm-2">#</div>
-                <div class="col-sm-7">Dosya Adı</div>
-                <div class="col-sm-3">Boyut</div>
+                <div class="col-sm-9">Dosya Adı</div>
+                <div class="col-sm-3"><span class="float-right">Boyut</span></div>
               </div>
             </div>
             <div class="list-group-item list-group-item-action main-list-item"
                  *ngFor="let item of mainList; index as i;">
               <div class="row">
-                <div class="col-sm-2">
-                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener">
+                <div class="col-sm-9">
+                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer mr-2"
+                       (click)="btnRemoveFile_Click(item)">
+                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="cursor-pointer mr-2">
                     <img [src]="item.fileIcon" width="24px">
                   </a>
+                  {{item.data.fileName}}
                 </div>
-                <div class="col-sm-7">{{item.data.fileName}}</div>
-                <div class="col-sm-3">{{item.data.size}} Byte</div>
+                <div class="col-sm-3"><span class="float-right">{{item?.data?.size/1024 | number:'1.2-2'}} KB</span></div>
               </div>
             </div>
           </div>
@@ -36,9 +41,6 @@
         <ng-template #elseBlock2>
           <div class="loader"></div>
         </ng-template>
-      </div>
-      <div class="col-sm-6">
-        <app-dropzone></app-dropzone>
       </div>
     </div>
   </div>
