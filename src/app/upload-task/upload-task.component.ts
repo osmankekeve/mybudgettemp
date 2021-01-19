@@ -7,6 +7,7 @@ import { FileUploadConfig } from '../../file-upload.config';
 import { FileUploadService } from '../services/file-upload.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { HttpClient } from '@angular/common/http';
+import { getFileIcons } from '../core/correct-library';
 
 @Component({
   selector: 'app-upload-task',
@@ -64,6 +65,9 @@ export class UploadTaskComponent implements OnInit {
           fileData.data.parentType = this.recordData.componentKey;
           fileData.data.parentPrimaryKey = this.recordData.primaryKey;
         }
+        const lastDot = fileData.data.fileName.lastIndexOf('.');
+        const ext = fileData.data.fileName.substring(lastDot + 1);
+        fileData.fileIcon = getFileIcons().get(ext);
 
         await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
       }),

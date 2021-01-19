@@ -10,11 +10,11 @@
   <div *ngIf="downloadURL as url" style="border-bottom: thin solid #6c757d; margin: 5px 0 5px 0; padding: 10px 0 10px 0">
     <div class="row">
       <div class="col-sm-2">
-        <img [src]="url" width="50px"><br>
+        <img [src]="url" class="img-thumbnail"><br>
       </div>
       <div class="col-sm-10">
         <div>
-          <a [href]="url" target="_blank" rel="noopener">İndir!</a>
+          <a [href]="url" target="_blank" rel="noopener">{{file.name}}</a>
         </div>
         <div class="row">
           <div class="col-sm-4">
