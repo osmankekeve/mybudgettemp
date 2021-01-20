@@ -1,41 +1,18 @@
-<div *ngIf="percentage | async as pct">
-  <progress [value]="pct" max="100"></progress>
-  {{ pct | number }}%
-</div>
-
-<div *ngIf="snapshot | async as snap">
-
-  {{snap.bytesTransferred/1024 | number:'1.2-2'}} KB of {{snap.totalBytes/1024 | number:'1.2-2'}} KB
-
-  <div *ngIf="downloadURL as url" style="border-bottom: thin solid #6c757d; margin: 5px 0 5px 0; padding: 10px 0 10px 0">
-    <div class="row">
-      <div class="col-sm-2">
-        <img [src]="url" class="img-thumbnail"><br>
+<div class="card mb-1">
+  <div class="card-body">    
+  <div class="row">
+    <div class="col-sm-12">
+      <img [src]="fileIcon" width="24px" class="mr-2">
+      <a [href]="downloadURL" target="_blank" rel="noopener">{{file.name}}</a>
+    </div>
+    <div class="col-sm-12">
+      <div *ngIf="snapshot | async as snap" class="mr-2 float-left">
+        {{snap.bytesTransferred/1024 | number:'1.2-2'}} KB of {{snap.totalBytes/1024 | number:'1.2-2'}} KB
       </div>
-      <div class="col-sm-10">
-        <div>
-          <a [href]="url" target="_blank" rel="noopener">{{file.name}}</a>
-        </div>
-        <div class="row">
-          <div class="col-sm-4">
-            <button class="btn btn-sm btn-danger btn-block" type="button"
-                    (click)="task.cancel()"
-                    [disabled]="!isActive(snap)">İptal</button>
-          </div>
-          <div class="col-sm-4">
-            <button class="btn btn-sm btn-warning btn-block" type="button"
-                    (click)="task.pause()"
-                    [disabled]="!isActive(snap)">Duraklat</button>
-
-          </div>
-          <div class="col-sm-4">
-            <button class="btn btn-sm btn-success btn-block" type="button"
-                    (click)="task.resume()"
-                    [disabled]="!(snap?.state === 'paused')">Devam Et</button>
-          </div>
-        </div>
+      <div *ngIf="percentage | async as pct" class="mr-2 float-left">
+        <progress [value]="pct" max="100"></progress> {{ pct | number }}%
       </div>
     </div>
   </div>
-
+  </div>
 </div>

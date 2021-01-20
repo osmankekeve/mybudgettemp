@@ -32,9 +32,8 @@ export class FileUploadService {
   }
 
   async removeItem(record: FileMainModel) {
-    this.storageRef.storage.ref(record.data.path).delete().then(() => {
-      return this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
-    });
+    this.storageRef.storage.ref(record.data.path).delete();
+    return this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
   }
 
   async updateItem(record: FileMainModel) {

@@ -768,7 +768,7 @@ export class CustomerComponent implements OnInit {
             }
             list.forEach((data: any) => {
               const item = data.returnData as FileMainModel;
-              if (item.actionType === 'added') {
+              if (item.actionType === 'added' && this.filesList.indexOf(item) < 0) {
                 this.filesList.push(item);
               }
               if (item.actionType === 'removed') {

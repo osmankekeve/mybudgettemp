@@ -21,6 +21,7 @@ export class UploadTaskComponent implements OnInit {
   percentage: Observable<number>;
   snapshot: Observable<any>;
   downloadURL: string;
+  fileIcon: string;
 
   constructor(private storage: AngularFireStorage, public db: AngularFirestore,
               private httpClient: HttpClient,
@@ -31,13 +32,10 @@ export class UploadTaskComponent implements OnInit {
   }
 
   startUpload() {
-    //const endpoint = '../../assets/files';
-    //const formData: FormData = new FormData();
-    //formData.append('fileKey', this.file, this.file.name);
-    //this.httpClient.post(endpoint, formData);
+    this.fileIcon = '../../assets/images/file-upload.png';
 
     // The storage path
-    const path = FileUploadConfig.pathOfFiles + Date.now() + this.file.name;
+    const path = FileUploadConfig.pathOfFiles + this.file.name + '_' + Date.now();
 
     // Reference to storage bucket
     const ref = this.storage.ref(path);
@@ -67,7 +65,7 @@ export class UploadTaskComponent implements OnInit {
         }
         const lastDot = fileData.data.fileName.lastIndexOf('.');
         const ext = fileData.data.fileName.substring(lastDot + 1);
-        fileData.fileIcon = getFileIcons().get(ext);
+        this.fileIcon = getFileIcons().get(ext);
 
         await this.db.collection('tblFiles').doc(fileData.data.primaryKey).set(Object.assign({}, fileData.data));
       }),
