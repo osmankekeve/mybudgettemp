@@ -246,7 +246,11 @@ export class CustomerComponent implements OnInit {
           }
         }
         if (item.data.transactionType === 'purchaseInvoice') {
-          this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+          if (item.data.transactionSubType.startsWith('cancel')) {
+            this.purchaseInvoiceAmount -= getFloat(Math.abs(item.data.amount));
+          } else {
+            this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+          }
         }
         if (item.data.transactionType === 'payment') {
           if (item.data.transactionSubType.startsWith('cancel')) {
@@ -258,7 +262,7 @@ export class CustomerComponent implements OnInit {
         if (item.data.transactionType === 'accountVoucher') {
           this.voucherAmount += getFloat(Math.abs(item.data.amount));
         }
-        this.totalAmount += getFloat(item.data.amount);
+        //this.totalAmount += getFloat(item.data.amount);
       });
     });
 

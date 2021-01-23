@@ -11,7 +11,7 @@ import { AuthenticationService } from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {CustomerMainModel} from '../models/customer-main-model';
-import {currencyFormat, getCustomerTypes, getPaymentTypes, getProductTypes, getString, getTerms} from '../core/correct-library';
+import {currencyFormat, getCustomerTypes, getPaymentTypes, getProductTypes, getString, getStringCorrected, getTerms} from '../core/correct-library';
 import {SettingService} from './setting.service';
 import 'rxjs-compat/add/observable/of';
 import 'rxjs-compat/add/operator/combineLatest';
@@ -312,8 +312,8 @@ export class CustomerService {
           Promise.all([
             this.eService.getItem(data.employeePrimaryKey, false),
             this.eService.getItem(data.executivePrimary, false),
-            this.defService.getItem(returnData.data.paymentTypeKey),
-            this.defService.getItem(returnData.data.termKey)
+            this.defService.getItem(getStringCorrected(returnData.data.paymentTypeKey, '-1')),
+            this.defService.getItem(getStringCorrected(returnData.data.termKey, '-1'))
           ])
             .then((values: any) => {
               if (values[0] !== null) {

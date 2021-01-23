@@ -26,7 +26,7 @@ export const getString = (value: any) => {
 };
 
 export const getStringCorrected = (value: any, returnValue: any) => {
-  if (value === undefined || value === null) {
+  if (value === undefined || value === null || value === '') {
     return returnValue;
   }
   if (String(value)) {
