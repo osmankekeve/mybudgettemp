@@ -16,6 +16,7 @@ import {CustomerRelationMainModel} from '../models/customer-relation-main-model'
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {ToastService} from '../services/toast.service';
 import {GlobalUploadService} from '../services/global-upload.service';
+import { fail } from 'assert';
 
 @Component({
   selector: 'app-crm',
@@ -25,6 +26,7 @@ import {GlobalUploadService} from '../services/global-upload.service';
 export class CRMComponent implements OnInit {
   mainList: Array<CustomerRelationMainModel>;
   selectedRecord: CustomerRelationMainModel;
+  transactionList: Array<any>;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
   encryptSecretKey: string = getEncryptionKey();
@@ -46,7 +48,6 @@ export class CRMComponent implements OnInit {
   ngOnInit() {
     this.clearMainFiler();
     this.populateList();
-    this.generateCharts();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -109,89 +110,97 @@ export class CRMComponent implements OnInit {
         }
       });
     });
+
     setTimeout (() => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
+      this.generateCharts();
     }, 1000);
   }
 
   populateCharts(): void {
-    const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-    const chart1DataValues = [0 , 0 , 0, 0 , 0 , 0];
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
-      .then((values: any) => {
-        if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<CustomerRelationMainModel>;
-          returnData.forEach(item => {
-            if (item.data.relationType === 'meeting') {
-              chart1DataValues[0] += 1;
-            }
-            if (item.data.relationType === 'mailSending') {
-              chart1DataValues[1] += 1;
-            }
-            if (item.data.relationType === 'faxSending') {
-              chart1DataValues[2] += 1;
-            }
-            if (item.data.relationType === 'phoneCall') {
-              chart1DataValues[3] += 1;
-            }
-            if (item.data.relationType === 'visit') {
-              chart1DataValues[4] += 1;
-            }
-            if (item.data.relationType === 'travel') {
-              chart1DataValues[5] += 1;
-            }
-          });
-        }
-      }).finally(() => {
-      this.chart1 = new Chart('chart1', {
-        type: 'horizontalBar', // bar, pie, doughnut, horizontalBar
-        data: {
-          labels: ['Toplantı', 'Mail Gönderim', 'Fax Gönderim', 'Telefon Görüşmesi', 'Ziyaret', 'Seyahat'],
-          datasets: [{
-            label: '# of Votes',
-            data: chart1DataValues,
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)',
-            ],
-            borderColor: [
-              'rgba(255,99,132,1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)',
-            ],
-            borderWidth: 1
-          }]
-        },
-        options: {
-          title: {
-            text: 'Etkinlik Chart',
-            display: true
-          },
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true
+    const chart1 = document.getElementById('chart1');
+    if (chart1) {
+      this.transactionList = undefined;
+      const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
+      const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
+        .then((values: any) => {
+          if (values[0] !== null) {
+            this.transactionList = [0 , 0 , 0, 0 , 0 , 0];
+            const returnData = values[0] as Array<CustomerRelationMainModel>;
+            returnData.forEach(item => {
+              if (item.data.relationType === 'meeting') {
+                this.transactionList[0] += 1;
               }
-            }]
+              if (item.data.relationType === 'mailSending') {
+                this.transactionList[1] += 1;
+              }
+              if (item.data.relationType === 'faxSending') {
+                this.transactionList[2] += 1;
+              }
+              if (item.data.relationType === 'phoneCall') {
+                this.transactionList[3] += 1;
+              }
+              if (item.data.relationType === 'visit') {
+                this.transactionList[4] += 1;
+              }
+              if (item.data.relationType === 'travel') {
+                this.transactionList[5] += 1;
+              }
+            });
           }
-        }
+        }).finally(() => {
+        this.chart1 = new Chart('chart1', {
+          type: 'horizontalBar', // bar, pie, doughnut, horizontalBar
+          data: {
+            labels: ['Toplantı', 'Mail Gönderim', 'Fax Gönderim', 'Telefon Görüşmesi', 'Ziyaret', 'Seyahat'],
+            datasets: [{
+              label: '# of Votes',
+              data: this.transactionList,
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)',
+              ],
+              borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)',
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            title: {
+              text: 'Etkinlik Chart',
+              display: true
+            },
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
       });
-    });
+
+    }
   }
 
   generateCharts(): void {
-    this.populateCharts();
+    setTimeout (() => { this.populateCharts(); }, 500);
   }
 
   showSelectedRecord(record: any): void {
@@ -215,7 +224,7 @@ export class CRMComponent implements OnInit {
           this.selectedRecord.data.actionDate = date.getTime();
           await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
             .then(() => {
-              this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
+              this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
             })
             .catch((error) => {
               this.finishProcess(error, null);

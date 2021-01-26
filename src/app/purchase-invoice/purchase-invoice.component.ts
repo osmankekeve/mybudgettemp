@@ -266,7 +266,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     const creatingData = new Map();
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(todayStart, endDate, this.filterStatus)])
       .then((values: any) => {
-        if (values[0] !== undefined || values[0] !== null) {
+        if (values[0] !== null) {
           this.transactionList = values[0] as Array<PurchaseInvoiceMainModel>;
           this.transactionList.forEach(item => {
             if (creatingData.has(item.customer.data.name)) {

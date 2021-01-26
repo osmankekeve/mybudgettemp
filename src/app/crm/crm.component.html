@@ -67,14 +67,10 @@
     <div *ngIf="mainList != undefined; else elseBlock2">
       <div class="row" *ngIf="mainList.length > 0; else elseBlock">
         <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="card">
-                <div class="card-body">
-                  <div class="loader" *ngIf="mainList == undefined"></div>
-                  <canvas id="chart1"></canvas>
-                </div>
-              </div>
+          <div class="card">
+            <div class="card-body">
+              <div class="loader" *ngIf="transactionList == undefined"></div>
+              <canvas id="chart1"></canvas>
             </div>
           </div>
         </div>

@@ -53,6 +53,7 @@ import { SortPipe } from './filters/sort.pipe';
 import { CampaignFilterPipe } from './filters/campaign-filter.pipe';
 import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
 import { PDFModuleComponent } from './partials/pdf-module/pdf-module.component';
+import { AccountTransactionFilterPipe } from './filters/account-transaction-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -87,6 +88,7 @@ import { PDFModuleComponent } from './partials/pdf-module/pdf-module.component';
     SortPipe,
     CampaignFilterPipe,
     WaitingWorkFilterPipe,
+    AccountTransactionFilterPipe,
 
     DropzoneDirective,
     ],
