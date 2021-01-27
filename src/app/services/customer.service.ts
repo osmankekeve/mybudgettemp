@@ -89,7 +89,18 @@ export class CustomerService {
 
   async removeItem(record: CustomerMainModel) {
     await this.logService.addTransactionLog(record, 'delete', 'customer');
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey)
+      .delete()
+      .then(async () => {
+        await this.db.collection('tblDeliveryAddress', ref => {
+          let query: CollectionReference | Query = ref;
+          query = query
+            .where('customerPrimaryKey', '==', record.data.primaryKey);
+          return query;
+        }).get().subscribe(snapshot => {
+          snapshot.forEach(async doc => { await doc.ref.delete(); });
+        });
+      });
   }
 
   async updateItem(record: CustomerMainModel) {

@@ -85,34 +85,29 @@ export class CustomerAccountService {
 
   checkForRemove(record: CustomerAccountMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
-      await this.isUsedOnCustomer(record.data.primaryKey).then(result => {
-        if (result) {
-          reject('Müşteride kullanıldığından silinemez.');
-        }
-      });
       await this.isUsedOnSalesInvoice(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Satış faturasında kullanıldığından silinemez.');
+          reject('Hesap satış faturasında kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnPurchaseInvoice(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Alım faturasında kullanıldığından silinemez.');
+          reject('Hesap alım faturasında kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnCollection(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Tahsilatta kullanıldığından silinemez.');
+          reject('Hesap tahsilatta kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnPayment(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ödemede kullanıldığından silinemez.');
+          reject('Hesap ödemede kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnAccountVoucher(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Cari fişte kullanıldığından silinemez.');
+          reject('Hesap cari fişte kullanıldığından silinemez.');
         }
       });
       resolve(null);

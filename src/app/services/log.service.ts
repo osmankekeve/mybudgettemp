@@ -113,7 +113,7 @@ export class LogService {
 
     } else if (systemModule === 'product-unit') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.data.name + ' isimli Ürün Birimi ';
+      item.log = record.data.unitName + ' isimli Ürün Birimi ';
 
     } else if (systemModule === 'product-price') {
       item.parentPrimaryKey = record.data.primaryKey;

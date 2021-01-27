@@ -16,6 +16,7 @@ import {ProductUnitMappingService} from '../services/product-unit-mapping.servic
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-product-unit',
@@ -36,7 +37,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   constructor(public authService: AuthenticationService, public service: ProductUnitService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
-              protected pumService: ProductUnitMappingService, public modalService: NgbModal) {
+              protected pumService: ProductUnitMappingService, public modalService: NgbModal, protected toastService: ToastService) {
   }
 
   ngOnInit() {
@@ -55,7 +56,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
         this.service.getItem(primaryKey)
           .then(item => {
@@ -371,7 +372,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       if (returnMainList) {
         this.clearSelectedRecord();
