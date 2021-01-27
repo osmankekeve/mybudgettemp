@@ -93,7 +93,7 @@ export class LogService {
 
     } else if (systemModule === 'customerTarget') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customerName + ' müşteriye Hedef ';
+      item.log = record.customerName + ' Müşteriye Hedef ';
 
     } else if (systemModule === 'mail') {
       item.parentPrimaryKey = record.data.primaryKey;
@@ -101,7 +101,7 @@ export class LogService {
 
     } else if (systemModule === 'customer-account') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.customer.data.name + ' hesap ';
+      item.log = record.data.name ;
 
     } else if (systemModule === 'customer') {
       item.parentPrimaryKey = record.data.primaryKey;
@@ -141,7 +141,7 @@ export class LogService {
 
     } else if (systemModule === 'campaign') {
       item.parentPrimaryKey = record.data.primaryKey;
-      item.log = record.data.code + ' kodlu kampanya ';
+      item.log = record.data.code + ' kodlu Kampanya ';
 
     } else {
       item.log = ' bilinmeyen modül ';
