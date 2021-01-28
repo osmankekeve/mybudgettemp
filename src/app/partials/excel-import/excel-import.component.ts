@@ -635,8 +635,7 @@ export class ExcelImportComponent implements OnInit {
                         accountData.data.customerPrimaryKey = importRow.primaryKey;
                         accountData.data.name = importRow.name + ' ' + accountData.currencyTr + ' Hesabı';
                         this.caService.setItem(accountData).then(() => {
-                          this.db.collection(this.cusService.tableName).doc(importRow.primaryKey)
-                            .update(Object.assign({}, { defaultAccountPrimaryKey: accountData.data.primaryKey }));
+                          this.db.collection(this.cusService.tableName).doc(importRow.primaryKey).update(Object.assign({}, { defaultAccountPrimaryKey: accountData.data.primaryKey }));
                         });
                       }
                     });
