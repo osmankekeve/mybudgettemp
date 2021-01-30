@@ -283,7 +283,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
       const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductPrice.product;
-      modalRef.componentInstance.productTypes = list;
+      modalRef.componentInstance.productStockTypes = list;
       modalRef.result.then((result: any) => {
         if (result) {
           this.selectedProductPrice.product = result;

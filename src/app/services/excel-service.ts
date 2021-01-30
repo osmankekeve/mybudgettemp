@@ -251,6 +251,7 @@ export class ExcelService {
       list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
+          'Product Type': data.productTypeTr,
           'Stock Type': data.stockTypeTr,
           Code: data.data.productCode,
           'Base Code': data.data.productBaseCode,

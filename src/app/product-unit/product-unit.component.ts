@@ -307,7 +307,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   async btnSelectProduct_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(ProductSelectComponent);
+      const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedMapping.product;
       modalRef.result.then((result: any) => {
         if (result) {

@@ -14,6 +14,7 @@ export class ProductSelectComponent implements OnInit {
 
   @Input() public product: ProductMainModel;
   @Input() public productTypes: Array<string>;
+  @Input() public productStockTypes: Array<string>;
   @Output() passEntry: EventEmitter<any> = new EventEmitter();
   productList: Array<ProductMainModel>;
   searchText: '';
@@ -26,24 +27,22 @@ export class ProductSelectComponent implements OnInit {
     if (this.product === null) {
       this.product = this.pService.clearMainModel();
     }
-    if (this.productTypes == null) {
-      this.productTypes = [];
-      this.productTypes.push('normal');
-      this.productTypes.push('promotion');
-      this.productTypes.push('service');
+    if (this.productStockTypes == null) {
+      this.productStockTypes = ['normal', 'promotion', 'service'];
     }
     const module = this.route.url.replace('/', '');
-    Promise.all([this.pService.getProductsForSelection(this.productTypes)]).then((values: any) => {
+    Promise.all([this.pService.getProductsForSelection(this.productStockTypes)]).then((values: any) => {
       this.productList = [];
       if (values[0] !== null) {
         const returnData = values[0] as Array<ProductMainModel>;
+        console.log(returnData);
         returnData.forEach(value => {
           if (module === 'sales-offer') {
-            if (value.data.productType == 'sale' || value.data.productType == 'buy-sale') {
+            if (value.data.productType === 'sale' || value.data.productType === 'buy-sale') {
               this.productList.push(value);
             }
           } else if (module === 'purchase-offer') {
-            if (value.data.productType == 'buy' || value.data.productType == 'buy-sale') {
+            if (value.data.productType === 'buy' || value.data.productType === 'buy-sale') {
               this.productList.push(value);
             }
           } else {

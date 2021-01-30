@@ -698,7 +698,7 @@ export class SalesOfferComponent implements OnInit {
 
         const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
         modalRef.componentInstance.product = this.selectedDetail.product;
-        modalRef.componentInstance.productTypes = list;
+        modalRef.componentInstance.productStockTypes = list;
         modalRef.result.then((result: any) => {
           if (result) {
             this.selectedDetail.product = result;

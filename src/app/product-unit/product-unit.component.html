@@ -223,8 +223,9 @@
                     <input class="form-control form-control-sm" name="productName" id="productName"
                            [(ngModel)]="selectedMapping.product.data.productName" disabled>
                     <div class="input-group-append">
-                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
-                        class="far fa-arrow-alt-circle-right"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
+                      [disabled]="selectedMapping.data.primaryKey!=undefined">
+                        <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
