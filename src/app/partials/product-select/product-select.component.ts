@@ -27,11 +27,14 @@ export class ProductSelectComponent implements OnInit {
     if (this.product === null) {
       this.product = this.pService.clearMainModel();
     }
-    if (this.productStockTypes == null) {
+    if (this.productStockTypes == null || this.productStockTypes.length === 0) {
       this.productStockTypes = ['normal', 'promotion', 'service'];
     }
+    if (this.productTypes == null || this.productTypes.length === 0) {
+      this.productTypes = ['buy', 'sale', 'buy-sale'];
+    }
     const module = this.route.url.replace('/', '');
-    Promise.all([this.pService.getProductsForSelection(this.productStockTypes)]).then((values: any) => {
+    Promise.all([this.pService.getProductsForSelection(this.productStockTypes, this.productTypes)]).then((values: any) => {
       this.productList = [];
       if (values[0] !== null) {
         const returnData = values[0] as Array<ProductMainModel>;

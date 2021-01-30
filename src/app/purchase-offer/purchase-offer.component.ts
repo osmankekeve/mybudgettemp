@@ -575,12 +575,9 @@ export class PurchaseOfferComponent implements OnInit {
       } else if (this.selectedRecord.data.priceListPrimaryKey === '-1') {
         await this.infoService.error('Lütfen iskonto listesi seçiniz.');
       } else {
-        const list = Array<string>();
-        list.push(this.productType);
-
         const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
         modalRef.componentInstance.product = this.selectedDetail.product;
-        modalRef.componentInstance.productStockTypes = list;
+        modalRef.componentInstance.productStockTypes = [this.productType];
         modalRef.result.then((result: any) => {
           if (result) {
             this.selectedDetail = this.sodService.clearMainModel();

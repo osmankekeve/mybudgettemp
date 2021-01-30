@@ -277,13 +277,24 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   async btnSelectProduct_Click(): Promise<void> {
     try {
-      const list = Array<string>();
-      list.push('normal');
-      list.push('service');
 
       const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductPrice.product;
-      modalRef.componentInstance.productStockTypes = list;
+      modalRef.componentInstance.productStockTypes = ['normal', 'service'];
+      switch(this.selectedRecord.data.type) {
+        case 'sales': {
+          modalRef.componentInstance.productTypes = ['sale', 'buy-sale'];
+           break;
+        }
+        case 'purchase': {
+          modalRef.componentInstance.productTypes = ['buy', 'buy-sale'];
+           break;
+        }
+        default: {
+          modalRef.componentInstance.productTypes = [];
+           break;
+        }
+      }
       modalRef.result.then((result: any) => {
         if (result) {
           this.selectedProductPrice.product = result;

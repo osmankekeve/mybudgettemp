@@ -221,7 +221,7 @@ export class ProductService {
     return this.mainList$;
   }
 
-  getProductsForSelection = async (stockTypes: Array<string>):
+  getProductsForSelection = async (stockTypes: Array<string>, productTypes: Array<string>):
     Promise<Array<ProductMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<ProductMainModel>();
@@ -231,6 +231,9 @@ export class ProductService {
           .where('userPrimaryKey', '==', this.authService.getUid());
         if (stockTypes !== null) {
           query = query.where('stockType', 'in', stockTypes);
+        }
+        if (productTypes !== null) {
+          query = query.where('productType', 'in', productTypes);
         }
         return query;
       }).get()
