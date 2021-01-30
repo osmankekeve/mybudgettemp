@@ -277,7 +277,7 @@ export class BuySaleService {
 
     } catch (error) {
       console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 

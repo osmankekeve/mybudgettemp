@@ -42,7 +42,7 @@ export class ProductService {
   async removeItem(record: ProductMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
-        await this.removeProductUnitMappings(record.data.primaryKey)
+        await this.removeProductUnitMappings(record.data.primaryKey);
         this.actService.removeActions(this.tableName, record.data.primaryKey);
         await this.logService.addTransactionLog(record, 'delete', 'product');
       });
@@ -232,21 +232,26 @@ export class ProductService {
         if (stockTypes !== null) {
           query = query.where('stockType', 'in', stockTypes);
         }
-        if (productTypes !== null) {
-          query = query.where('productType', 'in', productTypes);
-        }
         return query;
       }).get()
         .subscribe(snapshot => {
           snapshot.forEach(doc => {
             const data = doc.data() as ProductModel;
             data.primaryKey = doc.id;
-            list.push(this.convertMainModel(data));
+            if (productTypes !== null) {
+              if (productTypes.indexOf(data.productType) > -1) {
+                list.push(this.convertMainModel(data));
+              } else {
+                // nothing
+              }
+            } else {
+              list.push(this.convertMainModel(data));
+            }
           });
           resolve(list);
         });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -265,7 +270,7 @@ export class ProductService {
         }
       });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -284,7 +289,7 @@ export class ProductService {
         }
       });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -303,7 +308,7 @@ export class ProductService {
         }
       });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -322,7 +327,7 @@ export class ProductService {
         }
       });
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -342,7 +347,7 @@ export class ProductService {
       resolve();
 
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 
@@ -366,7 +371,7 @@ export class ProductService {
       });
 
     } catch (error) {
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 

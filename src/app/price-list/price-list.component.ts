@@ -1,5 +1,5 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
@@ -21,13 +21,14 @@ import {ProductPriceService} from '../services/product-price.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-price-list',
   templateUrl: './price-list.component.html',
   styleUrls: ['./price-list.component.css']
 })
-export class PriceListComponent implements OnInit, OnDestroy {
+export class PriceListComponent implements OnInit {
   mainList: Array<PriceListMainModel>;
   selectedRecord: PriceListMainModel;
   selectedProductPrice: ProductPriceMainModel;
@@ -42,7 +43,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
   isNewPricePanelOpened = false;
 
   constructor(protected authService: AuthenticationService, protected service: PriceListService, protected infoService: InformationService,
-              protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService,
+              protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService, protected toastService: ToastService,
               protected db: AngularFirestore, protected ppService: ProductPriceService, public modalService: NgbModal) {
   }
 
@@ -56,33 +57,9 @@ export class PriceListComponent implements OnInit, OnDestroy {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.showSelectedRecord(paramItem.returnData);
+        this.mainListItem_Click(paramItem.returnData);
       }
     }
-  }
-
-  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      if (isReload) {
-        this.service.getItem(primaryKey)
-          .then(item => {
-            this.showSelectedRecord(item.returnData);
-          })
-          .catch(reason => {
-            this.finishProcess(reason, null, true);
-          });
-      } else {
-        this.clearSelectedRecord();
-        this.selectedRecord = undefined;
-      }
-    } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
-  }
-
-  ngOnDestroy(): void {
   }
 
   populateList(): void {
@@ -118,11 +95,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
     });
   }
 
-  showSelectedRecord(record: any): void {
-    this.selectedRecord = record as PriceListMainModel;
-    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
-    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
-    this.isNewPricePanelOpened = false;
+  populateDetailList(): void {
 
     this.productsOnList = undefined;
     this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
@@ -161,6 +134,18 @@ export class PriceListComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  showSelectedRecord(): void {
+    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
+    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
+    this.isNewPricePanelOpened = false;
+  }
+
+  mainListItem_Click(record: any): void {
+    this.selectedRecord = record as PriceListMainModel;
+    this.showSelectedRecord();
+    this.populateDetailList();
+  }
+
   async btnReturnList_Click(): Promise<void> {
     try {
       await this.finishProcess(null, null, true);
@@ -189,7 +174,8 @@ export class PriceListComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
+                this.finishProcess(null, 'Kayıt başarıyla kaydedildi.', false);
+                this.populateDetailList();
               })
               .catch((error) => {
                 this.finishProcess(error, null, true);
@@ -197,7 +183,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
+                this.finishProcess(null, 'Kayıt başarıyla güncellendi.', false);
               })
               .catch((error) => {
                 this.finishProcess(error, null, true);
@@ -242,7 +228,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       if (returnMainList) {
         this.clearSelectedRecord();
@@ -281,18 +267,18 @@ export class PriceListComponent implements OnInit, OnDestroy {
       const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductPrice.product;
       modalRef.componentInstance.productStockTypes = ['normal', 'service'];
-      switch(this.selectedRecord.data.type) {
+      switch (this.selectedRecord.data.type) {
         case 'sales': {
           modalRef.componentInstance.productTypes = ['sale', 'buy-sale'];
-           break;
+          break;
         }
         case 'purchase': {
           modalRef.componentInstance.productTypes = ['buy', 'buy-sale'];
-           break;
+          break;
         }
         default: {
           modalRef.componentInstance.productTypes = [];
-           break;
+          break;
         }
       }
       modalRef.result.then((result: any) => {
@@ -396,7 +382,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
       if (this.mainList.length > 0) {
         this.excelService.exportToExcel(this.mainList, 'price-list');
       } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+        this.toastService.info('Aktarılacak kayıt bulunamadı.');
       }
     } catch (error) {
       await this.infoService.error(error);
@@ -433,6 +419,14 @@ export class PriceListComponent implements OnInit, OnDestroy {
   async btnSubShowJsonData_Click(): Promise<void> {
     try {
       await this.infoService.showJsonData(JSON.stringify(this.selectedProductPrice, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
     } catch (error) {
       await this.infoService.error(error);
     }

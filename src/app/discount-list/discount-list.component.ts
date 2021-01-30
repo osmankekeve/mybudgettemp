@@ -21,6 +21,7 @@ import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductDiscountService} from '../services/product-discount.service';
 import {DiscountListService} from '../services/discount-list.service';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-discount-list',
@@ -44,7 +45,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
   constructor(protected authService: AuthenticationService, protected service: DiscountListService,
               protected infoService: InformationService, protected route: Router, protected router: ActivatedRoute,
               protected excelService: ExcelService, protected db: AngularFirestore, protected ppService: ProductDiscountService,
-              public modalService: NgbModal) {
+              public modalService: NgbModal, protected toastService: ToastService) {
   }
 
   ngOnInit() {
@@ -57,30 +58,9 @@ export class DiscountListComponent implements OnInit, OnDestroy {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.showSelectedRecord(paramItem.returnData);
+        this.mainListItem_Click(paramItem.returnData);
       }
     }
-  }
-
-  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
-    if (error === null) {
-      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      if (isReload) {
-        this.service.getItem(primaryKey)
-          .then(item => {
-            this.showSelectedRecord(item.returnData);
-          })
-          .catch(reason => {
-            this.finishProcess(reason, null, true);
-          });
-      } else {
-        this.clearSelectedRecord();
-        this.selectedRecord = undefined;
-      }
-    } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   ngOnDestroy(): void {
@@ -119,12 +99,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     });
   }
 
-  showSelectedRecord(record: any): void {
-    this.selectedRecord = record as DiscountListMainModel;
-    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
-    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
-    this.isNewDiscountPanelOpened = false;
-
+  populateDetailList(): void {
     this.productsOnList = undefined;
     this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
       if (this.productsOnList === undefined) {
@@ -162,6 +137,18 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  showSelectedRecord(): void {
+    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
+    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
+    this.isNewDiscountPanelOpened = false;
+  }
+
+  mainListItem_Click(record: any): void {
+    this.selectedRecord = record as DiscountListMainModel;
+    this.showSelectedRecord();
+    this.populateDetailList();
+  }
+
   async btnReturnList_Click(): Promise<void> {
     try {
       await this.finishProcess(null, null, true);
@@ -190,7 +177,8 @@ export class DiscountListComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
+                this.finishProcess(null, 'Kayıt başarıyla kaydedildi.', false);
+                this.populateDetailList();
               })
               .catch((error) => {
                 this.finishProcess(error, null, true);
@@ -198,7 +186,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
+                this.finishProcess(null, 'Kayıt başarıyla güncellendi.', false);
               })
               .catch((error) => {
                 this.finishProcess(error, null, true);
@@ -243,7 +231,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       if (returnMainList) {
         this.clearSelectedRecord();
@@ -280,6 +268,20 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     try {
       const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
       modalRef.componentInstance.product = this.selectedProductDiscount.product;
+      switch (this.selectedRecord.data.type) {
+        case 'sales': {
+          modalRef.componentInstance.productTypes = ['sale', 'buy-sale'];
+          break;
+        }
+        case 'purchase': {
+          modalRef.componentInstance.productTypes = ['buy', 'buy-sale'];
+          break;
+        }
+        default: {
+          modalRef.componentInstance.productTypes = [];
+          break;
+        }
+      }
       modalRef.result.then((result: any) => {
         if (result) {
           this.selectedProductDiscount.product = result;
@@ -373,7 +375,7 @@ export class DiscountListComponent implements OnInit, OnDestroy {
       if (this.mainList.length > 0) {
         this.excelService.exportToExcel(this.mainList, 'discount-list');
       } else {
-        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+        this.toastService.info('Aktarılacak kayıt bulunamadı.');
       }
     } catch (error) {
       await this.infoService.error(error);

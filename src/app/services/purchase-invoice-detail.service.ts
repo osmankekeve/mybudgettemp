@@ -37,7 +37,7 @@ export class PurchaseInvoiceDetailService {
 
   async setItem(record: PurchaseInvoiceDetailMainModel, primaryKey: string) {
     await this.removeItem(record);
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async ()=> {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async () => {
       this.db.collection('tblPurchaseOrderDetail').doc(record.data.orderDetailPrimaryKey).get().toPromise()
         .then(async doc => {
           if (record.invoiceStatus === 'approved') {
@@ -51,8 +51,7 @@ export class PurchaseInvoiceDetailService {
             if (orderInvoicedQuantity + newInvoiceQuantity === orderQuantity) {
               resultQuantity = orderQuantity;
               resultStatus = 'complete';
-            }
-            else {
+            } else {
               resultQuantity = orderInvoicedQuantity + newInvoiceQuantity;
             }
             await doc.ref.update( { invoicedQuantity: resultQuantity, invoicedStatus: resultStatus });
@@ -221,7 +220,7 @@ export class PurchaseInvoiceDetailService {
 
     } catch (error) {
       console.error(error);
-      reject({code: 401, message: 'You do not have permission or there is a problem about permissions!'});
+      reject({message: 'Error: ' + error});
     }
   })
 

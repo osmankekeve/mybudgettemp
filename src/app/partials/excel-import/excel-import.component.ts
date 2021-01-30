@@ -122,7 +122,7 @@ export class ExcelImportComponent implements OnInit {
           'Birim Değeri': ''
         };
 
-        const a = await this.pService.getProductsForSelection(null);
+        const a = await this.pService.getProductsForSelection(null, null);
         a.forEach(item => {
           this.productMap.set(item.data.productCode, item.data);
         });
@@ -139,7 +139,7 @@ export class ExcelImportComponent implements OnInit {
           'Ürün Fiyatı': ''
         };
 
-        const a = await this.pService.getProductsForSelection(null);
+        const a = await this.pService.getProductsForSelection(null, null);
         a.forEach(item => {
           this.productMap.set(item.data.productCode, item.data);
         });
@@ -157,7 +157,7 @@ export class ExcelImportComponent implements OnInit {
           'İskonto 2': ''
         };
 
-        const a = await this.pService.getProductsForSelection(null);
+        const a = await this.pService.getProductsForSelection(null, null);
         a.forEach(item => {
           this.productMap.set(item.data.productCode, item.data);
         });
@@ -208,7 +208,7 @@ export class ExcelImportComponent implements OnInit {
 
       if (this.module === 'product') {
 
-        const a = await this.pService.getProductsForSelection(null);
+        const a = await this.pService.getProductsForSelection(null, null);
         a.forEach(item => {
           this.productMap.set(item.data.productCode, item.data);
         });

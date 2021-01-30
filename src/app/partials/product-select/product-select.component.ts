@@ -38,7 +38,6 @@ export class ProductSelectComponent implements OnInit {
       this.productList = [];
       if (values[0] !== null) {
         const returnData = values[0] as Array<ProductMainModel>;
-        console.log(returnData);
         returnData.forEach(value => {
           if (module === 'sales-offer') {
             if (value.data.productType === 'sale' || value.data.productType === 'buy-sale') {

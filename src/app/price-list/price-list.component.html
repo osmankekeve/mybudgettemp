@@ -34,7 +34,7 @@
           </thead>
           <tbody>
           <tr class="cursor-pointer table-row-class"
-              (click)="showSelectedRecord(item)"
+              (click)="mainListItem_Click(item)"
               *ngFor="let item of mainList | filterList: searchText; index as i;">
             <td>
               <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
@@ -67,6 +67,8 @@
         <h4 class="card-title float-left mr-2">Fiyat Listesi Detayı</h4>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                        (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
       </div>
     </div>
   </div>
@@ -281,7 +283,7 @@
             </form>
           </div>
           <div class="card-footer">
-            <div class="col-sm-3 float-right">
+            <div class="float-right">
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text success-icon-side">
@@ -295,7 +297,7 @@
                 </button>
               </div>
             </div>
-            <div class="col-sm-3 float-left" *ngIf="selectedProductPrice.data.primaryKey!=undefined">
+            <div class="float-left" *ngIf="selectedProductPrice.data.primaryKey!=undefined">
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text danger-icon-side">
