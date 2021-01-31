@@ -33,7 +33,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr class="cursor-pointer table-row-class"
+          <tr class="cursor-pointer table-row-class" title="Kaydı Görüntüle"
               (click)="mainListItem_Click(item)"
               *ngFor="let item of mainList | filterList: searchText; index as i;">
             <td>
@@ -251,6 +251,8 @@
             <h5 class="float-left mr-2">Ürün Detay</h5>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                     (click)="btnOpenList_Click()"><i class="fa fa-arrow-left"></i></button>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                            (click)="btnSubShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
           </div>
           <div class="card-body work-area-2">
             <form (ngSubmit)="btnSaveProduct_Click()" class="was-validated" #f2="ngForm">
@@ -263,7 +265,8 @@
                     <input class="form-control form-control-sm" name="productName" id="productName"
                            [(ngModel)]="selectedProductDiscount.product.data.productName" disabled>
                     <div class="input-group-append">
-                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
+                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
+                      [disabled]="selectedProductDiscount.data.primaryKey!=undefined"><i
                         class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>

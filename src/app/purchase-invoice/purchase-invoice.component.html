@@ -126,8 +126,8 @@
                 </div>
               </div>
               <div class="work-area-6">
-                <div class="list-group-item list-group-item-action main-list-item cursor-pointer" title="Kaydı Göster"
-                     (click)="showSelectedRecord(item)"
+                <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+                     (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
                      *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-12">
@@ -195,7 +195,7 @@
               </thead>
               <tbody>
               <tr class="cursor-pointer table-row-class"
-                  (click)="showSelectedRecord(item)"
+                  (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
                   *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                 <td>
                   <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>

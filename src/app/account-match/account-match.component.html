@@ -35,7 +35,7 @@
               </div>
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                     (click)="showSelectedRecord(item)"
+                     (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
                      [ngClass]="{'bg-yellow': item.data.primaryKey === selectedRecord?.data.primaryKey}"
                      *ngFor="let item of mainList | filterCustomerAccount: searchText; index as i;">
                   <div class="row">

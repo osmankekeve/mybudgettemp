@@ -374,6 +374,33 @@ export class ExcelService {
         });
       });
     }
+    if (record === 'product-prices') {
+      fileName = 'product_price';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Product Code': data.product.data.productCode,
+          'Product Name': data.product.data.productName,
+          'Product Stock Type': data.product.stockTypeTr,
+          'Product Type': data.product.productTypeTr,
+          'Product Price': data.priceFormatted,
+        });
+      });
+    }
+    if (record === 'product-discount') {
+      fileName = 'product_discount';
+      list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Product Code': data.product.data.productCode,
+          'Product Name': data.product.data.productName,
+          'Product Stock Type': data.product.stockTypeTr,
+          'Product Type': data.product.productTypeTr,
+          'Discount 1': '%' + data.data.discount1.toString(),
+          'Discount 2': '%' + data.data.discount2.toString(),
+        });
+      });
+    }
 
     this.exportAsExcelFile(excelList, fileName);
 

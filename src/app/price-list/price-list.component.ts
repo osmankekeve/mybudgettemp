@@ -379,8 +379,8 @@ export class PriceListComponent implements OnInit {
 
   async btnExportToExcel_Click(): Promise<void> {
     try {
-      if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'price-list');
+      if (this.productsOnList.length > 0) {
+        this.excelService.exportToExcel(this.productsOnList, 'product-prices');
       } else {
         this.toastService.info('Aktarılacak kayıt bulunamadı.');
       }

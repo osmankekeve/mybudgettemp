@@ -76,7 +76,7 @@
         </thead>
         <tbody>
         <tr class="cursor-pointer table-row-class"
-            (click)="showSelectedRecord(item)"
+            (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
             *ngFor="let item of mainList | filterCampaign: searchText; index as i;">
           <td>
             <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>

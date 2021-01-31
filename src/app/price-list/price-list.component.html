@@ -34,7 +34,7 @@
           </thead>
           <tbody>
           <tr class="cursor-pointer table-row-class"
-              (click)="mainListItem_Click(item)"
+              (click)="mainListItem_Click(item)" title="Kaydı Görüntüle"
               *ngFor="let item of mainList | filterList: searchText; index as i;">
             <td>
               <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
@@ -265,7 +265,8 @@
                     <input class="form-control form-control-sm" name="productName" id="productName"
                            [(ngModel)]="selectedProductPrice.product.data.productName" disabled>
                     <div class="input-group-append">
-                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
+                      <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
+                      [disabled]="selectedProductPrice.data.primaryKey!=undefined"><i
                         class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>

@@ -28,7 +28,7 @@ import { ToastService } from '../services/toast.service';
   templateUrl: './discount-list.component.html',
   styleUrls: ['./discount-list.component.css']
 })
-export class DiscountListComponent implements OnInit, OnDestroy {
+export class DiscountListComponent implements OnInit {
   mainList: Array<DiscountListMainModel>;
   selectedRecord: DiscountListMainModel;
   selectedProductDiscount: ProductDiscountMainModel;
@@ -61,9 +61,6 @@ export class DiscountListComponent implements OnInit, OnDestroy {
         this.mainListItem_Click(paramItem.returnData);
       }
     }
-  }
-
-  ngOnDestroy(): void {
   }
 
   populateList(): void {
@@ -372,8 +369,8 @@ export class DiscountListComponent implements OnInit, OnDestroy {
 
   async btnExportToExcel_Click(): Promise<void> {
     try {
-      if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.mainList, 'discount-list');
+      if (this.productsOnList.length > 0) {
+        this.excelService.exportToExcel(this.productsOnList, 'product-discount');
       } else {
         this.toastService.info('Aktarılacak kayıt bulunamadı.');
       }
@@ -404,6 +401,14 @@ export class DiscountListComponent implements OnInit, OnDestroy {
       });
       await this.finishProcess(null, 'Ürün iskontoları başarıyla kaldırıldı.', false);
 
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSubShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedProductDiscount, null, 2));
     } catch (error) {
       await this.infoService.error(error);
     }
