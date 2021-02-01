@@ -53,6 +53,16 @@ export class PriceListService {
 
   checkForRemove(record: PriceListMainModel): Promise<string> {
     return new Promise(async (resolve, reject) => {
+      await this.isUsedOnSalesOrder(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Satış siparişinde kullanıldığından silinemez.');
+        }
+      });
+      await this.isUsedOnPurchaseOrder(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Alım siparişinde kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -157,6 +167,44 @@ export class PriceListService {
     } catch (error) {
       console.error(error);
       reject({message: 'Error: ' + error});
+    }
+  })
+
+  isUsedOnSalesOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblSalesOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('priceListPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({code: 401, message: error.message});
+    }
+  })
+
+  isUsedOnPurchaseOrder = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('priceListPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({code: 401, message: error.message});
     }
   })
 }

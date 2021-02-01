@@ -54,6 +54,8 @@ import { CampaignFilterPipe } from './filters/campaign-filter.pipe';
 import { WaitingWorkFilterPipe } from './filters/waiting-work-filter.pipe';
 import { PDFModuleComponent } from './partials/pdf-module/pdf-module.component';
 import { AccountTransactionFilterPipe } from './filters/account-transaction-filter.pipe';
+import { AreYouSureComponent } from './partials/are-you-sure/are-you-sure.component';
+import { AreYouSureDirective } from './services/are-you-sure.directive';
 
 @NgModule({
   declarations: [
@@ -71,6 +73,7 @@ import { AccountTransactionFilterPipe } from './filters/account-transaction-filt
     InfoModuleComponent,
     PDFModuleComponent,
     OrderSelectComponent,
+    AreYouSureComponent,
 
     CustomerDataFilterPipe,
     CustomerFilterPipe,
@@ -91,6 +94,7 @@ import { AccountTransactionFilterPipe } from './filters/account-transaction-filt
     AccountTransactionFilterPipe,
 
     DropzoneDirective,
+    AreYouSureDirective
     ],
   imports: [
     NgbModule, BrowserModule, FormsModule, AppRoutingModule, HttpClientModule,
@@ -106,6 +110,6 @@ import { AccountTransactionFilterPipe } from './filters/account-transaction-filt
     ToastService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent, PDFModuleComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent, PDFModuleComponent, AreYouSureComponent ]
 })
 export class AppModule { }

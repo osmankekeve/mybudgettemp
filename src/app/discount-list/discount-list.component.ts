@@ -104,7 +104,7 @@ export class DiscountListComponent implements OnInit {
       }
       list.forEach((data: any) => {
         const item = data.returnData as ProductDiscountMainModel;
-        if (item.actionType === 'added') {
+        if (item.actionType === 'added' && this.productsOnList.indexOf(item) < 1) {
           this.productsOnList.push(item);
         }
         if (item.actionType === 'removed') {

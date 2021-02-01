@@ -173,9 +173,10 @@
         <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
       </span>
             </div>
-            <button type="button" class="btn btn-sm btn-danger form-control"
+            <button type="button" class="btn btn-sm btn-danger form-control" 
+                    appAreYouSure
                     [disabled]="onTransaction"
-                    (click)="btnRemove_Click()">Kaldır
+                    (then)="btnRemove_Click()">Kaldır
             </button>
           </div>
         </div>
@@ -207,7 +208,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body work-area-2">
+      <div class="card-body work-area-1">
 
         <div *ngIf="productsOnList != undefined; else elseBlock2">
           <div class="table-responsive work-area-11" *ngIf="productsOnList.length > 0; else elseBlock">

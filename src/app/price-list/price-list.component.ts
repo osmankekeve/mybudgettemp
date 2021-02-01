@@ -22,6 +22,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ProductSelectComponent} from '../partials/product-select/product-select.component';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import { ToastService } from '../services/toast.service';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
   selector: 'app-price-list',
@@ -96,7 +97,6 @@ export class PriceListComponent implements OnInit {
   }
 
   populateDetailList(): void {
-
     this.productsOnList = undefined;
     this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
       if (this.productsOnList === undefined) {
@@ -104,7 +104,7 @@ export class PriceListComponent implements OnInit {
       }
       list.forEach((data: any) => {
         const item = data.returnData as ProductPriceMainModel;
-        if (item.actionType === 'added') {
+        if (item.actionType === 'added' && this.productsOnList.indexOf(item) < 1) {
           this.productsOnList.push(item);
         }
         if (item.actionType === 'removed') {
