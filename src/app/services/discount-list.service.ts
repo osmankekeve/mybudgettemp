@@ -63,6 +63,11 @@ export class DiscountListService {
           reject('Alım siparişinde kullanıldığından silinemez.');
         }
       });
+      await this.isUsedOnCampaign(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Kampanyada kullanıldığından silinemez.');
+        }
+      });
       resolve(null);
     });
   }
@@ -193,6 +198,25 @@ export class DiscountListService {
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblPurchaseOrder', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('discountListPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({code: 401, message: error.message});
+    }
+  })
+
+  isUsedOnCampaign = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCampaign', ref => {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('discountListPrimaryKey', '==', primaryKey);
         return query;

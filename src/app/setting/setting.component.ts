@@ -396,28 +396,23 @@ export class SettingComponent implements OnInit {
     } else if (module === 'collection') {
       data.key = 'collectionChart1Visibility';
       data.valueBool = this.collection.chart1Visibility;
-    }
-    else if (module === 'purchaseInvoice') {
+    } else if (module === 'purchaseInvoice') {
       data.key = 'purchaseChart1Visibility';
       data.valueBool = this.purchaseInvoice.chart1Visibility;
-    }
-    else if (module === 'payment') {
+    } else if (module === 'payment') {
       data.key = 'paymentChart1Visibility';
       data.valueBool = this.payment.chart1Visibility;
-    }
-    else if (module === 'accountVoucher') {
+    } else if (module === 'accountVoucher') {
       data.key = 'accountChart1Visibility';
       data.valueBool = this.accountVoucher.chart1Visibility;
-    }
-    else if (module === 'cashDeskVoucher') {
+    } else if (module === 'cashDeskVoucher') {
       data.key = 'cashDeskChart1Visibility';
       data.valueBool = this.cashDeskVoucher.chart1Visibility;
-    }
-    else {
+    } else {
       // nothing
     }
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Grafik 1 için seçim işlemi tamamlandı', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Grafik 1 için seçim işlemi tamamlandı', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -426,32 +421,26 @@ export class SettingComponent implements OnInit {
     if (module === 'salesInvoice') {
       data.key = 'salesChart2Visibility';
       data.valueBool = this.salesInvoice.chart2Visibility;
-    }
-    else if (module === 'collection') {
+    } else if (module === 'collection') {
       data.key = 'collectionChart2Visibility';
       data.valueBool = this.collection.chart2Visibility;
-    }
-    else if (module === 'purchaseInvoice') {
+    } else if (module === 'purchaseInvoice') {
       data.key = 'purchaseChart2Visibility';
       data.valueBool = this.purchaseInvoice.chart2Visibility;
-    }
-    else if (module === 'payment') {
+    } else if (module === 'payment') {
       data.key = 'paymentChart2Visibility';
       data.valueBool = this.payment.chart2Visibility;
-    }
-    else if (module === 'accountVoucher') {
+    } else if (module === 'accountVoucher') {
       data.key = 'accountChart2Visibility';
       data.valueBool = this.accountVoucher.chart2Visibility;
-    }
-    else if (module === 'cashDeskVoucher') {
+    } else if (module === 'cashDeskVoucher') {
       data.key = 'cashDeskChart2Visibility';
       data.valueBool = this.cashDeskVoucher.chart2Visibility;
-    }
-    else {
+    } else {
       // nothing
     }
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Grafik 2 için seçim işlemi tamamlandı', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Grafik 2 için seçim işlemi tamamlandı', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -459,8 +448,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultCurrencyCode';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan döviz tipi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan döviz tipi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -468,8 +457,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultUnitCode';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan birim tipi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan birim tipi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -477,8 +466,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultStoragePrimaryKey';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan depo güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan depo güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -486,8 +475,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultPriceListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan fiyat listesi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan fiyat listesi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -495,8 +484,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultDiscountListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan iskonto listesi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan iskonto listesi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -504,8 +493,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultPurchasePriceListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan alım fiyat listesi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan alım fiyat listesi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
@@ -513,8 +502,8 @@ export class SettingComponent implements OnInit {
     const data = this.service.cleanModel();
     data.key = 'defaultPurchaseDiscountListPrimaryKey';
     data.value = value;
-    await this.service.setItem(data).then(()=> {
-      this.toastService.success('Varsayılan alım iskonto listesi güncellendi', true)
+    await this.service.setItem(data).then(() => {
+      this.toastService.success('Varsayılan alım iskonto listesi güncellendi', true);
     }).catch(err => this.toastService.error(err, true));
   }
 
