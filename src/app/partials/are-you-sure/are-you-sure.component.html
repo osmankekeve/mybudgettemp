@@ -1,13 +1,22 @@
-﻿<div class="modal-header">
+﻿<div class="modal-header bg-danger text-white" hidden>
     <h5 class="modal-title" id="modal-title">{{ title }}</h5>
-    <button type="button" class="close" aria-describedby="modal-title" (click)="modal.dismiss('cross')">
+    <button type="button" class="close text-white" aria-describedby="modal-title" (click)="modal.dismiss('cross')">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
 <div class="modal-body">
-    <p [innerHTML]="details"></p>
+    <button type="button" class="close text-secondary" aria-describedby="modal-title" (click)="modal.dismiss('cross')">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <div class="text-center">
+        <div class="d-inline-block">
+            <img src="../../assets/info/warning.png" class="float-left mr-2" width="72px" alt="">
+        </div>
+    </div>
+    <div class="text-center" [innerHTML]="details"></div>
 </div>
 <div class="modal-footer">
-    <button type="button" class="btn btn-sm btn-primary" ngbAutofocus (click)="modal.dismiss('cancel')">İptal</button>
-    <button type="button" class="btn btn-sm btn-danger" (click)="modal.close('ok')">Tamam</button>
+    <button type="button" class="btn btn-sm btn btn-outline-danger" ngbAutofocus (click)="modal.dismiss('cancel')" hidden>Hayır, İptal Et</button>
+    <button type="button" class="btn btn-sm btn btn-outline-danger" (click)="modal.dismiss('cancel')">Hayır, İptal Et</button>
+    <button type="button" class="btn btn-sm btn-danger" (click)="modal.close('ok')">Evet, Devam Et</button>
 </div>

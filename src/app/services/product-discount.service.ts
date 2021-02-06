@@ -13,7 +13,7 @@ import {ProductDiscountMainModel} from '../models/product-discount-main-model';
 import {ProductDiscountModel} from '../models/product-discount-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductPriceModel} from '../models/product-price-model';
-import {currencyFormat} from '../core/correct-library';
+import {currencyFormat, getStringCorrected} from '../core/correct-library';
 
 @Injectable({
   providedIn: 'root'
@@ -162,7 +162,7 @@ export class ProductDiscountService {
         returnData.data = this.checkFields(data);
         returnData.actionType = change.type;
 
-        return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
+        return this.db.collection('tblProduct').doc(getStringCorrected(data.productPrimaryKey, '-1')).valueChanges()
           .pipe(map((product: ProductModel) => {
             returnData.product = this.pService.convertMainModel(product);
             return Object.assign({returnData});

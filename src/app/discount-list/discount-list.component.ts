@@ -103,8 +103,9 @@ export class DiscountListComponent implements OnInit {
         this.productsOnList = [];
       }
       list.forEach((data: any) => {
+        console.log(data);
         const item = data.returnData as ProductDiscountMainModel;
-        if (item.actionType === 'added' && this.productsOnList.indexOf(item) < 1) {
+        if (item.actionType === 'added' && this.productsOnList.indexOf(item) < 0) {
           this.productsOnList.push(item);
         }
         if (item.actionType === 'removed') {
@@ -201,23 +202,19 @@ export class DiscountListComponent implements OnInit {
   async btnRemove_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      if (this.productsOnList.length > 0) {
-        await this.finishProcess('Listeye bağlı ürünler olduğundan silinemez', null, true);
-      } else {
-        Promise.all([this.service.checkForRemove(this.selectedRecord)])
-          .then(async (values: any) => {
-            await this.service.removeItem(this.selectedRecord)
-              .then(() => {
-                this.finishProcess(null, 'Liste başarıyla kaldırıldı.', true);
-              })
-              .catch((error) => {
-                this.finishProcess(error, null, true);
-              });
-          })
-          .catch((error) => {
-            this.finishProcess(error, null, true);
-          });
-      }
+      Promise.all([this.service.checkForRemove(this.selectedRecord)])
+        .then(async () => {
+          await this.service.removeItem(this.selectedRecord)
+            .then(() => {
+              this.finishProcess(null, 'Liste başarıyla kaldırıldı.', true);
+            })
+            .catch((error) => {
+              this.finishProcess(error, null, true);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, true);
+        });
     } catch (error) {
       await this.finishProcess(error, null, true);
     }
@@ -396,9 +393,12 @@ export class DiscountListComponent implements OnInit {
   async btnRemoveAllProducts_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      this.productsOnList.forEach(item => {
-        this.db.firestore.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
-      });
+      await this.ppService.getProductsForListDetail(this.selectedRecord.data.primaryKey)
+            .then((list) => {
+              list.forEach(async item => {
+                await this.db.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
+              });
+            });
       await this.finishProcess(null, 'Ürün iskontoları başarıyla kaldırıldı.', false);
 
     } catch (error) {

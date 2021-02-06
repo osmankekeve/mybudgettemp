@@ -11,7 +11,7 @@ import {ActionService} from './action.service';
 import {ProductPriceModel} from '../models/product-price-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductModel} from '../models/product-model';
-import {currencyFormat, getEducation, getGenders, getProductTypes, getStatus, getUserTypes} from '../core/correct-library';
+import {currencyFormat, getEducation, getGenders, getProductTypes, getStatus, getStringCorrected, getUserTypes} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
 import {ProductDiscountModel} from '../models/product-discount-model';
@@ -152,7 +152,7 @@ export class ProductPriceService {
         returnData.actionType = change.type;
         returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
 
-        return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
+        return this.db.collection('tblProduct').doc(getStringCorrected(data.productPrimaryKey, '-1')).valueChanges()
           .pipe(map((product: ProductModel) => {
             returnData.product = this.pService.convertMainModel(product);
             return Object.assign({returnData});

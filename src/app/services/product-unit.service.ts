@@ -8,6 +8,9 @@ import {ProfileService} from './profile.service';
 import {ActionService} from './action.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
+import { ProductUnitMappingService } from './product-unit-mapping.service';
+import { ProductUnitMappingMainModel } from '../models/product-unit-mapping-main-model';
+import { ProductUnitMappingModel } from '../models/product-unit-mapping-model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,6 +35,12 @@ export class ProductUnitService {
   async removeItem(record: ProductUnitMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
+        await this.getUnitProductsAsync(record.data.primaryKey)
+            .then((list) => {
+              list.forEach(async item => {
+                await this.db.collection('tblProductUnitMapping').doc(item.primaryKey).delete();
+              });
+            });
         await this.logService.addTransactionLog(record, 'delete', 'product-unit');
       });
   }
@@ -173,6 +182,31 @@ export class ProductUnitService {
           let data = doc.data() as ProductUnitModel;
           data.primaryKey = doc.id;
           data = this.checkFields(data);
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  getUnitProductsAsync = async (unitPrimaryKey: string):
+    Promise<Array<ProductUnitMappingModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductUnitMappingModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('unitPrimaryKey', '==', unitPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(doc => {
+          const data = doc.data() as ProductUnitMappingModel;
+          data.primaryKey = doc.id;
           list.push(data);
         });
         resolve(list);

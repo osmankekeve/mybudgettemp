@@ -49,30 +49,9 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.showSelectedRecord(paramItem.returnData);
+        this.mainListItem_Click(paramItem.returnData);
       }
     }
-  }
-
-  async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
-    if (error === null) {
-      this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
-      if (isReload) {
-        this.service.getItem(primaryKey)
-          .then(item => {
-            this.showSelectedRecord(item.returnData);
-          })
-          .catch(reason => {
-            this.finishProcess(reason, null, true);
-          });
-      } else {
-        this.clearSelectedRecord();
-        this.selectedRecord = undefined;
-      }
-    } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
-    }
-    this.onTransaction = false;
   }
 
   ngOnDestroy(): void {
@@ -111,9 +90,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     });
   }
 
-  showSelectedRecord(record: any): void {
-    this.selectedRecord = record as ProductUnitMainModel;
-
+  populateDetailList(): void {
     this.unitMappingList = undefined;
     this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).subscribe(list => {
       if (this.unitMappingList === undefined) {
@@ -121,7 +98,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
       }
       list.forEach((data: any) => {
         const item = data.returnData as ProductUnitMappingMainModel;
-        if (item.actionType === 'added') {
+        if (item.actionType === 'added' && this.unitMappingList.indexOf(item) < 0) {
           this.unitMappingList.push(item);
         }
         if (item.actionType === 'removed') {
@@ -151,9 +128,14 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  showSelectedProduct(record: any): void {
-    this.selectedMapping = record as ProductUnitMappingMainModel;
-    this.isNewPanelOpened = true;
+  showSelectedRecord(): void {
+    this.isNewPanelOpened = false;
+  }
+
+  mainListItem_Click(record: any): void {
+    this.selectedRecord = record as ProductUnitMainModel;
+    this.showSelectedRecord();
+    this.populateDetailList();
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -182,7 +164,8 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = this.db.createId();
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla kaydedildi.');
+                this.finishProcess(null, 'Kayıt başarıyla kaydedildi.', false);
+                this.populateDetailList();
               })
               .catch((error) => {
                 this.finishProcess(error, null, false);
@@ -190,7 +173,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
           } else {
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
-                this.generateModule(true, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla güncellendi.');
+                this.finishProcess(null, 'Kayıt başarıyla güncellendi.', false);
               })
               .catch((error) => {
                 this.finishProcess(error, null, false);
@@ -224,6 +207,11 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     } catch (error) {
       await this.finishProcess(error, null, false);
     }
+  }
+
+  showSelectedProduct(record: any): void {
+    this.selectedMapping = record as ProductUnitMappingMainModel;
+    this.isNewPanelOpened = true;
   }
 
   async btnNewProduct_Click(): Promise<void> {

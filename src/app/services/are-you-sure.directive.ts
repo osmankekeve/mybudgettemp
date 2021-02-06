@@ -26,9 +26,9 @@ export class AreYouSureDirective implements OnInit {
                 comp.title = this.title ? this.title : 'Emin misiniz?';
                 comp.details = this.details ? this.details : `<strong>
 <span class="text-primary">"${this.recordName}"</span> Kaydı silmek istediğinize emin misiniz?</strong>
-<p>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
+<div>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
 <br/>
-<span class="text-danger">Bu işlem geri alınamaz.</span></p>`;
+<span class="text-danger">Bu işlem geri alınamaz.</span></div>`;
             } else if (this.replaceValue && this.getValue && this.details) {
                 comp.title = this.title ? this.title : 'Emin misiniz?';
                 comp.details = this.details.replace(this.replaceValue, this.getValue());
@@ -36,15 +36,15 @@ export class AreYouSureDirective implements OnInit {
                 comp.title = this.title ? this.title : 'Emin misiniz?';
                 comp.details = this.details ? this.details : `<strong>
 <span class="text-primary">"${this.getValue()}"</span> Kaydı silmek istediğinize emin misiniz?</strong>
-<p>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
+<div>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
 <br/>
-<span class="text-danger">Bu işlem geri alınamaz.</span></p>`;
+<span class="text-danger">Bu işlem geri alınamaz.</span></div>`;
             } else {
                 comp.title = this.title ? this.title : 'Emin misiniz?';
                 comp.details = this.details ? this.details : `
-<p>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
+<div>Bu kayıtla ilişkili tüm bilgiler kalıcı olarak silinecektir.
 <br/>
-<span class="text-danger">Bu işlem geri alınamaz.</span></p>`;
+<span class="text-danger">Bu işlem geri alınamaz.</span></div>`;
             }
             activeModal.result
                 .then((result: any) => {

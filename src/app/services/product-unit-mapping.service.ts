@@ -204,39 +204,6 @@ export class ProductUnitMappingService {
     return this.mainList$;
   }
 
-  getProductMappingItemsAsync = async (productPrimaryKey: string):
-    Promise<Array<ProductUnitMappingMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<ProductUnitMappingMainModel>();
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid())
-          .where('productPrimaryKey', '==', productPrimaryKey);
-        return query;
-      })
-        .get().subscribe(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data() as ProductUnitMappingModel;
-          data.primaryKey = doc.id;
-
-          const returnData = new ProductUnitMappingMainModel();
-          returnData.data = this.checkFields(data);
-
-          return this.db.collection('tblProductUnit').doc(data.unitPrimaryKey).valueChanges()
-            .pipe(map((unit: ProductUnitModel) => {
-              returnData.unit = unit;
-              list.push(returnData);
-            }));
-        });
-        resolve(list);
-      });
-
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
-
   getUnitProductsAsync = async (unitPrimaryKey: string):
     Promise<Array<ProductUnitMappingMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {

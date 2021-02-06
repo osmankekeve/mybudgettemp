@@ -30,7 +30,14 @@ export class DiscountListService {
   }
 
   async removeItem(record: DiscountListMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete();
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete().then(async () => {
+      await this.ppService.getProductsForListDetail(record.data.primaryKey)
+            .then((list) => {
+              list.forEach(async item => {
+                await this.db.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
+              });
+            });
+    });
   }
 
   async updateItem(record: DiscountListMainModel) {
