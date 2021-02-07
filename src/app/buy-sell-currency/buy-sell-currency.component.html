@@ -91,7 +91,7 @@
         </form>
       </div>
       <div class="card-footer">
-        <div class="col-sm-3 float-right">
+        <div class="float-right">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text success-icon-side">
@@ -105,7 +105,7 @@
             </button>
           </div>
         </div>
-        <div class="col-sm-3 float-left"
+        <div class="float-left"
           *ngIf="selectedRecord.data.primaryKey!=undefined">
           <div class="input-group">
             <div class="input-group-prepend">
@@ -130,28 +130,34 @@
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
       </div>
-      <div class="card-body" *ngIf="transactionList!= undefined; else elseBlock">
-        <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock2">
-          <div class="list-group-item bg-red text-light main-list-item">
-            <div class="row">
-              <div class="col-sm-2">Döviz Cinsi</div>
-              <div class="col-sm-2"><span class="float-right">Birim Tutar</span></div>
-              <div class="col-sm-2"><span class="float-right">Birim Miktar</span></div>
-              <div class="col-sm-3"><span class="float-right">Toplam</span></div>
-              <div class="col-sm-3"><span class="float-right">Tarih</span></div>
-            </div>
-          </div>
-          <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-               (click)="showTransactionRecord(item)"
-               *ngFor="let item of transactionList;">
-            <div class="row">
-              <div class="col-sm-2"><i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>{{item.currencyName}}</div>
-              <div class="col-sm-2"><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></div>
-              <div class="col-sm-2"><span class="float-right">{{item.data.unitValue}}</span></div>
-              <div class="col-sm-3"><span class="float-right">{{item.totalAmountFormatted}}</span></div>
-              <div class="col-sm-3"><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span>
-              </div>
-            </div>
+      <div class="card-body work-area-1">
+        <div *ngIf="transactionList != undefined; else elseBlock2">
+          <div class="table-responsive work-area-11" *ngIf="transactionList.length > 0; else elseBlock">
+            <table class="table table-bordered table-striped table-hover">
+              <thead>
+              <tr class="table-row-class">
+                <th>Döviz</th>
+                <th><span class="float-right">Tutar</span></th>
+                <th><span class="float-right">Miktar</span></th>
+                <th><span class="float-right">Toplam</span></th>
+                <th><span class="float-right">Tarih</span></th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr class="cursor-pointer table-row-class"
+                  (click)="showTransactionRecord(item)" title="Kaydı Göster"
+                  *ngFor="let item of transactionList | filterProductSub: productSearchText; index as i;">
+                <td>
+                  <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
+                  <span class="text-red font-weight-600 mr-1">{{item.currencyName}}</span>
+                </td>
+                <td><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></td>
+                <td><span class="float-right">{{item.data.unitValue}}</span></td>
+                <td><span class="float-right">{{item.totalAmountFormatted}}</span></td>
+                <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
+              </tr>
+              </tbody>
+            </table>
           </div>
           <ng-template #elseBlock>
             <div class="card bg-red text-white">
@@ -160,14 +166,9 @@
           </ng-template>
         </div>
         <ng-template #elseBlock2>
-          <div class="card bg-red text-white">
-            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-          </div>
+          <div class="loader"></div>
         </ng-template>
       </div>
-      <ng-template #elseBlock>
-        <div class="loader"></div>
-      </ng-template>
     </div>
   </div>
 </div>

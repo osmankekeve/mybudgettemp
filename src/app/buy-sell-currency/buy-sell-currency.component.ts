@@ -3,13 +3,15 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ExcelService} from '../services/excel-service';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BuySaleCurrencyMainModel} from '../models/buy-sale-currency-main-model';
 import {BuySaleCurrencyService} from '../services/buy-sale-currency.service';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import {BuySaleService} from '../services/buy-sale.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
+import * as CryptoJS from 'crypto-js';
+import { getEncryptionKey } from '../core/correct-library';
 
 @Component({
   selector: 'app-buy-sell-currency',
@@ -22,15 +24,24 @@ export class BuySellCurrencyComponent implements OnInit {
   selectedRecord: BuySaleCurrencyMainModel;
   searchText: '';
   onTransaction = false;
+  encryptSecretKey: string = getEncryptionKey();
 
   constructor(public authService: AuthenticationService, public service: BuySaleCurrencyService, public globService: GlobalService,
               public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router, public bsService: BuySaleService) {
+              public route: Router, public bsService: BuySaleService, protected router: ActivatedRoute) {
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.populateList();
     this.selectedRecord = undefined;
+
+    if (this.router.snapshot.paramMap.get('paramItem') !== null) {
+      const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
+      const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+      if (paramItem) {
+        await this.showSelectedRecord(paramItem);
+      }
+    }
   }
 
   populateList(): void {
@@ -159,7 +170,7 @@ export class BuySellCurrencyComponent implements OnInit {
     const r = new RouterModel();
     r.nextModule = 'buy-sale';
     r.nextModulePrimaryKey = item.data.primaryKey;
-    r.previousModule = 'buy-sale';
+    r.previousModule = 'buy-sell-currency';
     r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
     await this.globService.showTransactionRecord(r);
   }
