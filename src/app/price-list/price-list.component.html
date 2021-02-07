@@ -73,13 +73,13 @@
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Aktar"
                     *ngIf="selectedRecord.data.primaryKey != null"
                     (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
+            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Excel'e Aktar"
                     *ngIf="productsOnList?.length > 0"
                     (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
           </div>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body work-area-3">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
           <div class="form-row form-inline">
             <div class="col-sm-3">
@@ -181,7 +181,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6 pl-0">
+  <div class="col-sm-6 pl-md-0">
     <div class="card work-area" *ngIf="!isNewPricePanelOpened">
       <div class="card-header bg-gray-gradient">
         <div class="row">
