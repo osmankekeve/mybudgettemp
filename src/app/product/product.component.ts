@@ -332,6 +332,18 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnRemoveAllUnitMappings_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.unitMappingList.forEach(item => {
+        this.pumService.removeItem(item);
+      });
+      await this.finishSubProcess(null, 'Birimler başarıyla kaldırıldı');
+    } catch (error) {
+      await this.finishProcess(error, null);
+    }
+  }
+
   async btnShowMainFiler_Click(): Promise<void> {
     try {
       if (this.isMainFilterOpened === true) {
@@ -391,7 +403,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       const modalRef = this.modalService.open(ExcelImportComponent, {size: 'lg'});
       modalRef.result.then((result: any) => {
         if (result) {
-          console.log(result);
+          // console.log(result);
         }
       }, () => {});
     } catch (error) {
@@ -467,19 +479,6 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   populateUnitMappings(): void {
     this.unitMappingList = undefined;
-    /*Promise.all([this.pumService.getProductMappingItemsAsync(this.selectedRecord.data.primaryKey)])
-      .then((values: any) => {
-        if (values[0] !== null) {
-          if (this.unitMappingList === undefined) {
-            this.unitMappingList = [];
-          }
-          const returnData = values[0] as Array<ProductUnitMappingMainModel>;
-          console.log(returnData);
-          returnData.forEach(record => {
-            this.unitMappingList.push(record);
-          });
-        }
-      });*/
 
     this.pumService.getProductMainItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       if (this.unitMappingList === undefined) {
@@ -487,7 +486,8 @@ export class ProductComponent implements OnInit, OnDestroy {
       }
       list.forEach((data: any) => {
         const item = data.returnData as ProductUnitMappingMainModel;
-        if (item.actionType === 'added') {
+        if (item.actionType === 'added' && this.unitMappingList.indexOf(item) < 0) {
+          item.product = this.selectedRecord;
           this.unitMappingList.push(item);
         }
         if (item.actionType === 'removed') {

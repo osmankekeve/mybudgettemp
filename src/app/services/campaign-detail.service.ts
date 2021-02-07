@@ -4,19 +4,15 @@ import {Observable} from 'rxjs/Observable';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ActionService} from './action.service';
-import {SalesOrderDetailMainModel, setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
 import {ProductService} from './product.service';
 import {ProductMainModel} from '../models/product-main-model';
 import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
 import {ProductUnitService} from './product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {SalesInvoiceDetailMainModel} from '../models/sales-invoice-detail-main-model';
-import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
 import { CampaignDetailModel } from '../models/campaign-detail-model';
 import { CampaignDetailMainModel, setCampaignDetailCalculation } from '../models/campaign-detail-main-model';
 import { ProductModel } from '../models/product-model';
 import { combineLatest, flatMap, map } from 'rxjs/operators';
-import { ProductPriceModel } from '../models/product-price-model';
 
 @Injectable({
   providedIn: 'root'

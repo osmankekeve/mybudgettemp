@@ -374,6 +374,8 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
+    this.isNewPanelOpened = false;
+    this.unitMappingList = [];
   }
 
   clearSelectedProductRecord(): void {

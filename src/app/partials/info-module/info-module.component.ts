@@ -28,8 +28,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Ürün; \'Fiyat Listesi\' nde, \'İskonto Listesi\' nde, \'Sipariş\' te kullanılırsa silinemez.'},
         { key: 'Otomatik ürün kodu için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
-    }
-    if (module.startsWith('/sales-offer')) {
+    } else if (module.startsWith('/sales-offer')) {
       this.headerTitle = 'Satış Teklifi';
       this.mainList = [
         { key: 'Müşteri sekmesinde, \'Müşteri\' ve \'Tedarikçi-Müşteri\' tipindeki müşteriler görüntülenir.'},
@@ -40,8 +39,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Teklif silinirse, detayı ile birlikte tüm bilgileri kaldırılır.'},
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
-    }
-    if (module.startsWith('/sales-order')) {
+    } else if (module.startsWith('/sales-order')) {
       this.headerTitle = 'Satış Siparişi';
       this.mainList = [
         { key: 'Teklif onaylandıktan sonra sipariş süreci başlar, sonraki adım faturalamadır.'},
@@ -49,8 +47,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Faturası kesilen sipariş, Teklife geri gönderilemez.'},
         { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
       ];
-    }
-    if (module.startsWith('/sales-invoice')) {
+    } else if (module.startsWith('/sales-invoice')) {
       this.headerTitle = 'Satış Faturası';
       this.mainList = [
         { key: 'Onaylanmış siparişler faturalaştırılabilmektedir.'},
@@ -60,12 +57,10 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Tüm kalemleri faturalaştırılan siparişler diğer işlemlere kapatılır.'},
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
-    }
-    if (module.startsWith('/customer')) {
+    } else if (module.startsWith('/customer')) {
       this.headerTitle = 'Müşteri';
       this.mainList = [];
-    }
-    if (module.startsWith('/purchase-offer')) {
+    } else if (module.startsWith('/purchase-offer')) {
       this.headerTitle = 'Alım Teklifi';
       this.mainList = [
         { key: 'Müşteri sekmesinde, \'Tedarikçi\' ve \'Tedarikçi-Müşteri\' tipindeki müşteriler görüntülenir.'},
@@ -75,8 +70,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Teklif silinirse, detayı ile birlikte tüm bilgileri kaldırılır.'},
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
-    }
-    if (module.startsWith('/purchase-order')) {
+    } else if (module.startsWith('/purchase-order')) {
       this.headerTitle = 'Alım Siparişi';
       this.mainList = [
         { key: 'Teklif onaylandıktan sonra sipariş süreci başlar, sonraki adım faturalamadır.'},
@@ -84,8 +78,7 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Faturası kesilen sipariş, Teklife geri gönderilemez.'},
         { key: 'Parçalı fatura işlemi yapıldı ise, açık kalan kalemler \'Siparişi Kapat\' tuşu ile kapatılabilir, Teklife geri gönderilemez.'}
       ];
-    }
-    if (module.startsWith('/purchaseInvoice')) {
+    } else if (module.startsWith('/purchaseInvoice')) {
       this.headerTitle = 'Alım Faturası';
       this.mainList = [
         { key: 'Onaylanmış siparişler faturalaştırılabilmektedir.'},
@@ -95,6 +88,15 @@ export class InfoModuleComponent implements OnInit {
         { key: 'Tüm kalemleri faturalaştırılan siparişler diğer işlemlere kapatılır.'},
         { key: 'Otomatik fiş numarası için ayarlar bölümünden gerekli seçimler yapılmalıdır.'},
       ];
+    } else if (module.startsWith('/campaign')) {
+      this.headerTitle = 'Kampanya';
+      this.mainList = [
+        { key: 'Kampanya kodu tekil olmalıdır.'},
+        { key: 'Kampanya tipi, \'Paket Kampanya\' seçilirse ürün detayı girilmesi gerekmektedir.'},
+        { key: 'Fiyat ve İskonto Listeleri varsayılan değerleri göstermektedir. Detayda istenilir ise düzenlenebilirler.'},
+      ];
+    }  else {
+      this.headerTitle = 'Tamamlanmadı';
     }
   }
 }

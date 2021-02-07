@@ -41,9 +41,9 @@ export class BuySaleComponent implements OnInit {
   isRecordHasTransaction = false;
   encryptSecretKey: string = getEncryptionKey();
 
-  constructor(public authService: AuthenticationService, public service: BuySaleService, public globService: GlobalService,
-              public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router, protected cdService: CashDeskService, protected cscService: BuySaleCurrencyService,
+  constructor(protected authService: AuthenticationService, protected service: BuySaleService, protected globService: GlobalService,
+              protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
+              protected route: Router, protected cdService: CashDeskService, protected cscService: BuySaleCurrencyService,
               protected atService: AccountTransactionService, protected router: ActivatedRoute) {
   }
 

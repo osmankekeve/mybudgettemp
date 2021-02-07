@@ -74,22 +74,22 @@ export class ProductUnitService {
     return new Promise(async (resolve, reject) => {
       await this.isUnitUsedOnProduct(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Birim ürün kartında olduğundan silinemez.');
-        }
-      });
-      await this.isUnitUsedOnProductMapping(record.data.primaryKey).then(result => {
-        if (result) {
-          reject('Birim ürün birim bağlantısında kullanıldığından silinemez.');
+          reject('Birim, ürün kartında olduğundan silinemez.');
         }
       });
       await this.isUsedOnSalesOrderDetail(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün satış teklifinde kullanıldığından silinemez.');
+          reject('Birim, satış teklifinde kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnPurchaseOrderDetail(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün alim teklifinde kullanıldığından silinemez.');
+          reject('Birim, alim teklifinde kullanıldığından silinemez.');
+        }
+      });
+      await this.isUsedOnPacketCampaignDetail(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Birim, paket kampanyada kullanıldığından silinemez.');
         }
       });
       resolve(null);
@@ -284,6 +284,27 @@ export class ProductUnitService {
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       this.db.collection('tblPurchaseOrderDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('unitPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  isUsedOnPacketCampaignDetail = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCampaignDetail', ref => {
         let query: CollectionReference | Query = ref;
         query = query.limit(1)
           .where('unitPrimaryKey', '==', primaryKey);

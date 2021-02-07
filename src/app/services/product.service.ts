@@ -90,22 +90,27 @@ export class ProductService {
     return new Promise(async (resolve, reject) => {
       await this.isUsedOnPriceList(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün fiyat listesine bağlı olduğundan silinemez.');
+          reject('Ürün, fiyat listesine bağlı olduğundan silinemez.');
         }
       });
       await this.isUsedOnDiscountList(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün iskonto listesine bağlı olduğundan silinemez.');
+          reject('Ürün, iskonto listesine bağlı olduğundan silinemez.');
         }
       });
       await this.isUsedOnSalesOrderDetail(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün satış teklifinde kullanıldığından silinemez.');
+          reject('Ürün, satış teklifinde kullanıldığından silinemez.');
         }
       });
       await this.isUsedOnPurchaseOrderDetail(record.data.primaryKey).then(result => {
         if (result) {
-          reject('Ürün alim teklifinde kullanıldığından silinemez.');
+          reject('Ürün, alim teklifinde kullanıldığından silinemez.');
+        }
+      });
+      await this.isUsedOnPacketCampaignDetail(record.data.primaryKey).then(result => {
+        if (result) {
+          reject('Ürün, Paket kampanyada kullanıldığından silinemez.');
         }
       });
       resolve(null);
@@ -327,6 +332,27 @@ export class ProductService {
         }
       });
     } catch (error) {
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  isUsedOnPacketCampaignDetail = async (primaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblCampaignDetail', ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1)
+          .where('productPrimaryKey', '==', primaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      console.error(error);
       reject({message: 'Error: ' + error});
     }
   })

@@ -6,15 +6,10 @@ import {ExcelService} from '../services/excel-service';
 import {Router} from '@angular/router';
 import {BuySaleCurrencyMainModel} from '../models/buy-sale-currency-main-model';
 import {BuySaleCurrencyService} from '../services/buy-sale-currency.service';
-import {Observable} from 'rxjs';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import {BuySaleService} from '../services/buy-sale.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
-import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
-import {getFloat} from '../core/correct-library';
-import {Chart} from 'chart.js';
 
 @Component({
   selector: 'app-buy-sell-currency',
@@ -77,21 +72,20 @@ export class BuySellCurrencyComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.transactionList = undefined;
     this.selectedRecord = record as BuySaleCurrencyMainModel;
-    if (this.selectedRecord.data.primaryKey != null) {
-      Promise.all([this.bsService.getCurrencyTransactions(this.selectedRecord.data.primaryKey)]).then((values: any) => {
-          if (values[0] !== undefined || values[0] !== null) {
-            const returnData = values[0] as Array<BuySaleMainModel>;
-            this.transactionList = [];
-            returnData.forEach((item: any) => {
-              this.transactionList.push(item);
-            });
-          }
-        }).finally(() => {
-          if (this.transactionList === undefined) {this.transactionList = []; }
+    Promise.all([this.bsService.getCurrencyTransactions(this.selectedRecord.data.primaryKey)]).then((values: any) => {
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<BuySaleMainModel>;
+          this.transactionList = [];
+          returnData.forEach((item: any) => {
+            this.transactionList.push(item);
+          });
+        }
       });
-    } else {
-      this.transactionList = [];
-    }
+    setTimeout(() => {
+      if (this.transactionList === undefined) {
+        this.transactionList = [];
+      }
+    }, 1000);
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -121,9 +115,6 @@ export class BuySellCurrencyComponent implements OnInit {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           } else {
             await this.service.updateItem(this.selectedRecord)
@@ -132,9 +123,6 @@ export class BuySellCurrencyComponent implements OnInit {
               })
               .catch((error) => {
                 this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
               });
           }
         })
@@ -157,9 +145,6 @@ export class BuySellCurrencyComponent implements OnInit {
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {
@@ -172,8 +157,8 @@ export class BuySellCurrencyComponent implements OnInit {
 
   async showTransactionRecord(item: any): Promise<void> {
     const r = new RouterModel();
-    r.nextModule = 'buy-sale-transaction';
-    r.nextModulePrimaryKey = item.returnData.data.primaryKey;
+    r.nextModule = 'buy-sale';
+    r.nextModulePrimaryKey = item.data.primaryKey;
     r.previousModule = 'buy-sale';
     r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
     await this.globService.showTransactionRecord(r);

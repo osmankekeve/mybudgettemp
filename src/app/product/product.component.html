@@ -309,6 +309,9 @@
                         [disabled]="onTransaction || !f.valid"
                         (click)="btnCreateUnitMappings_Click()"><i
                   class="fa fa-creative-commons"></i></button>
+                <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Tüm Eşleşmeyi Kaldır"
+                        [disabled]="onTransaction || !f.valid"
+                        (click)="btnRemoveAllUnitMappings_Click()"><i class="fa fa-remove"></i></button>
               </div>
               <div class="card-body" *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock2">
                 <div *ngIf="unitMappingList != undefined; else elseBlock3">
@@ -323,7 +326,7 @@
                          *ngFor="let item of unitMappingList;">
                       <div class="row">
                         <div class="col-sm-8 text-red"><i
-                          class="far fa-arrow-alt-circle-right mr-2"></i>{{item.unit.unitName}}</div>
+                          class="far fa-arrow-alt-circle-right mr-2"></i>{{item.unit?.unitName}}</div>
                         <div class="col-sm-4"><span class="float-right">{{item.data.unitValue}}</span></div>
                       </div>
                     </div>
