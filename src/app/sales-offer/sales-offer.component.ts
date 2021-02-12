@@ -105,13 +105,7 @@ export class SalesOfferComponent implements OnInit {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
-        this.service.getItem(primaryKey)
-          .then(item => {
-            this.showSelectedRecord(item.returnData);
-          })
-          .catch(reason => {
-            this.finishProcess(reason, null);
-          });
+        this.showSelectedRecord(this.selectedRecord);
       } else {
         this.clearSelectedRecord();
         this.selectedRecord = undefined;

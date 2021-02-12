@@ -101,13 +101,7 @@ export class PurchaseOfferComponent implements OnInit {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
       if (isReload) {
-        this.service.getItem(primaryKey)
-          .then(item => {
-            this.showSelectedRecord(item.returnData);
-          })
-          .catch(reason => {
-            this.finishProcess(reason, null);
-          });
+        this.showSelectedRecord(this.selectedRecord);
       } else {
         this.clearSelectedRecord();
         this.selectedRecord = undefined;
@@ -417,7 +411,7 @@ export class PurchaseOfferComponent implements OnInit {
         this.selectedRecord.data.approverPrimaryKey = this.authService.getEid();
         this.selectedRecord.data.approveDate = Date.now();
         Promise.all([this.service.checkForSave(this.selectedRecord)])
-          .then(async (values: any) => {
+          .then(async () => {
             for (const item of this.selectedRecord.orderDetailList) {
               item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
             }
@@ -445,16 +439,13 @@ export class PurchaseOfferComponent implements OnInit {
     try {
       this.onTransaction = true;
       Promise.all([this.service.checkForRemove(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.removeItem(this.selectedRecord)
             .then(() => {
               this.finishProcess(null, 'Kayıt başarıyla kaldırıldı.');
             })
             .catch((error) => {
               this.finishProcess(error, null);
-            })
-            .finally(() => {
-              this.finishFinally();
             });
         })
         .catch((error) => {

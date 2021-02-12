@@ -504,6 +504,8 @@ export class SalesInvoiceComponent implements OnInit {
 
   async btnReturnList_Click(): Promise<void> {
     try {
+      this.clearSelectedRecord();
+      this.clearSelectedDetail();
       const previousModule = this.router.snapshot.paramMap.get('previousModule');
       const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
 

@@ -693,7 +693,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
       this.selectedRecord.data.approveDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
               this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
@@ -717,7 +717,7 @@ export class PurchaseInvoiceComponent implements OnInit {
       this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
       this.selectedRecord.data.approveDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           await this.service.updateItem(this.selectedRecord)
             .then(() => {
               this.generateModule(false, this.selectedRecord.data.primaryKey, null, 'Kayıt başarıyla reddedildi.');
