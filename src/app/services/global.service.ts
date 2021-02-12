@@ -18,6 +18,7 @@ import {BuySaleService} from './buy-sale.service';
 import {SalesOrderService} from './sales-order.service';
 import {PurchaseOrderService} from './purchase-order.service';
 import { ProductService } from './product.service';
+import { BuySaleCurrencyService } from './buy-sale-currency.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +31,8 @@ export class GlobalService {
               protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
               protected avService: AccountVoucherService, protected payService: PaymentService, protected proService: ProductService,
               protected atService: AccountTransactionService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
-              protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService) {
+              protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService,
+              protected bscService: BuySaleCurrencyService) {
 
   }
 
@@ -142,57 +144,67 @@ export class GlobalService {
           }]);
         });
       }
-      if (previousModule === 'customer-target') {
+      else if (previousModule === 'customer-target') {
         await this.ctService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'cash-desk') {
+      else if (previousModule === 'cash-desk') {
         await this.cdService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'customer-account') {
+      else if (previousModule === 'customer-account') {
         await this.caService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'sales-invoice') {
+      else if (previousModule === 'sales-invoice') {
         await this.siService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'sales-order') {
+      else if (previousModule === 'sales-order') {
         await this.soService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'purchaseInvoice') {
+      else if (previousModule === 'purchaseInvoice') {
         await this.piService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'purchase-order') {
+      else if (previousModule === 'purchase-order') {
         await this.poService.getItem(previousModulePrimaryKey).then(async (item) => {
           await this.route.navigate([previousModule, {
             paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
           }]);
         });
       }
-      if (previousModule === 'dashboard') {
+      else if (previousModule === 'dashboard') {
         await this.route.navigate([previousModule]);
+      }
+      else if (previousModule === 'buy-sell-currency') {
+        await this.bscService.getItem(previousModulePrimaryKey).then(async (item) => {
+          await this.route.navigate([previousModule, {
+            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+          }]);
+        });
+      }
+      else {
+
       }
     }
   }
