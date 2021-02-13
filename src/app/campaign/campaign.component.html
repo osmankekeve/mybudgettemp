@@ -394,7 +394,7 @@
     </div>
   </div>
   <div class="card-footer" *ngIf="!isNewPanelOpened && (selectedRecord.data.type == 'normal' || (selectedRecord.data.type == 'packet' && selectedRecord.detailList?.length > 0))">
-    <div class="col-sm-2 float-right">
+    <div class="btn-action float-right">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -408,7 +408,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
+    <div class="btn-action float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
