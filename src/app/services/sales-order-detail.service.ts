@@ -182,31 +182,20 @@ export class SalesOrderDetailService {
     }
   })
 
-  getMainItemsWithOrderPrimaryKeyArray = async (orderPrimaryKey: Array<string>):
-    Promise<Array<SalesInvoiceDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+  getItemsWithOrderPrimaryKey = async (orderPrimaryKey: string):
+    Promise<Array<SalesOrderDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<SalesInvoiceDetailMainModel>();
+      const list = Array<SalesOrderDetailModel>();
       this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
-          .where('orderPrimaryKey', 'in', orderPrimaryKey);
+          .where('orderPrimaryKey', '==', orderPrimaryKey);
         return query;
       })
         .get().subscribe(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as SalesOrderDetailModel;
-          data.primaryKey = doc.id;
-
-          const returnData = new SalesOrderDetailMainModel();
-          returnData.data = this.checkFields(data);
-
-          const p = await this.pService.getItem(data.productPrimaryKey);
-          returnData.product = p.returnData;
-
-          const pu = await this.puService.getItem(data.unitPrimaryKey);
-          returnData.unit = pu.returnData.data;
-
-          list.push(this.sid.convertToSalesInvoiceDetail(returnData));
+          list.push(data);
         });
         resolve(list);
       });

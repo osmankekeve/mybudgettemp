@@ -175,4 +175,28 @@ export class PurchaseOrderDetailService {
       reject({message: 'Error: ' + error});
     }
   })
+
+  getItemsWithOrderPrimaryKey = async (orderPrimaryKey: string):
+    Promise<Array<PurchaseOrderDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<PurchaseOrderDetailModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('orderPrimaryKey', '==', orderPrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as SalesOrderDetailModel;
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
 }

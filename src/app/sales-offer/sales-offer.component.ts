@@ -667,7 +667,7 @@ export class SalesOfferComponent implements OnInit {
     this.onTransaction = false;
   }
 
-  showOrderDetail(record: any): void {
+  showOrderDetail(record: any, index: any): void {
     this.selectedDetail = record as SalesOrderDetailMainModel;
     if (this.selectedDetail.data.campaignPrimaryKey !== '-1'
     && this.selectedDetail.data.campaignPrimaryKey === this.selectedRecord.data.campaignPrimaryKey) {
@@ -675,6 +675,7 @@ export class SalesOfferComponent implements OnInit {
       this.clearSelectedDetail();
     } else if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.isNewPanelOpened = true;
+      this.itemIndex = index;
     } else {
       this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);
       this.clearSelectedDetail();

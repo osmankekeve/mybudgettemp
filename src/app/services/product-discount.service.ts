@@ -173,7 +173,6 @@ export class ProductDiscountService {
   }
 
   getProductsForListDetail = async (discountListPrimaryKey: string):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<ProductDiscountMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<ProductDiscountMainModel>();

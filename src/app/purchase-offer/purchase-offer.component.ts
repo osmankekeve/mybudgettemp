@@ -71,6 +71,7 @@ export class PurchaseOfferComponent implements OnInit {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
+  itemIndex = -1;
 
   priceLists: Array<PriceListModel>;
   discountLists: Array<DiscountListModel>;
@@ -309,7 +310,7 @@ export class PurchaseOfferComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.clearSelectedProductRecord();
+    this.clearSelectedDetail();
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as PurchaseOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
@@ -550,10 +551,11 @@ export class PurchaseOfferComponent implements OnInit {
   }
 
 
-  showOrderDetail(record: any): void {
+  showOrderDetail(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.selectedDetail = record as PurchaseOrderDetailMainModel;
       this.isNewPanelOpened = true;
+      this.itemIndex = index;
     } else {
       this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);
     }
@@ -597,22 +599,19 @@ export class PurchaseOfferComponent implements OnInit {
     try {
       this.onTransaction = true;
       Promise.all([this.sodService.checkForSave(this.selectedDetail)])
-        .then(async (values: any) => {
+        .then(async () => {
           if (this.selectedDetail.data.primaryKey == null) {
             this.selectedDetail.data.primaryKey = this.db.createId();
             this.selectedRecord.orderDetailList.push(this.selectedDetail);
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
+            await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
           } else {
-            for (let i = 0; i < this.selectedRecord.orderDetailList.length; i++) {
-              if (this.selectedDetail.data.primaryKey === this.selectedRecord.orderDetailList[i].data.primaryKey) {
-                this.selectedRecord.orderDetailList[i] = this.selectedDetail;
-                setOrderDetailCalculation(this.selectedDetail);
-                setOrderCalculation(this.selectedRecord);
-              }
-            }
+            this.selectedRecord.orderDetailList[this.itemIndex] = this.selectedDetail;
+            setOrderDetailCalculation(this.selectedDetail);
+            setOrderCalculation(this.selectedRecord);
+            await this.finishSubProcess(null, 'Ürün başarıyla düzenlendi');
           }
-          await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
         })
         .catch((error) => {
           this.finishProcess(error, null);
@@ -625,8 +624,9 @@ export class PurchaseOfferComponent implements OnInit {
 
   async btnRemoveProductDetail_Click(): Promise<void> {
     try {
-
+      this.selectedRecord.orderDetailList.splice(this.itemIndex, 1);
       setOrderCalculation(this.selectedRecord);
+      this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -634,7 +634,7 @@ export class PurchaseOfferComponent implements OnInit {
 
   async btnReturnOrderDetailList_Click(): Promise<void> {
     try {
-      this.clearSelectedProductRecord();
+      this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -658,9 +658,10 @@ export class PurchaseOfferComponent implements OnInit {
     this.filter.filterStatus = '-1';
   }
 
-  clearSelectedProductRecord(): void {
+  clearSelectedDetail(): void {
     this.isNewPanelOpened = false;
     this.selectedDetail = undefined;
+    this.itemIndex = -1;
   }
 
   format_price($event): void {
@@ -681,7 +682,7 @@ export class PurchaseOfferComponent implements OnInit {
     if (error === null) {
       if (info !== null) {
         this.toastService.success(info, true);
-        this.clearSelectedProductRecord();
+        this.clearSelectedDetail();
       }
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
