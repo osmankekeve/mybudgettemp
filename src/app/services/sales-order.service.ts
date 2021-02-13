@@ -71,8 +71,13 @@ export class SalesOrderService {
           for (const item of record.orderDetailList) {
             await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
           }
-          await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+          if (record.data.status === 'approved') {
+            await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
+            this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+          } else {
+            await this.logService.addTransactionLog(record, 'update', 'salesOrder');
+            this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+          }
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');

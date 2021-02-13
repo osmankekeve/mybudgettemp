@@ -445,7 +445,7 @@
     </div>
   </div>
   <div class="card-footer">
-    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
+    <div class="btn-action mr-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -459,7 +459,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-right"
+    <div class="btn-action mr-2 float-right"
          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
@@ -474,7 +474,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left"
+    <div class="btn-action mr-2 float-left"
          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
@@ -489,7 +489,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left"
+    <div class="btn-action mr-2 float-left"
          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
@@ -504,7 +504,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left"
+    <div class="btn-action mr-2 float-left"
          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
       <div class="input-group">
         <div class="input-group-prepend">

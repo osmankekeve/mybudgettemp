@@ -799,6 +799,7 @@ export class SalesInvoiceComponent implements OnInit {
   showDetailRecord(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.selectedDetailRecord = record as SalesInvoiceDetailMainModel;
+      this.itemIndex = index;
     } else {
       this.toastService.warning('Onaylı fatura detayı güncellenemez', true);
     }
@@ -834,7 +835,6 @@ export class SalesInvoiceComponent implements OnInit {
     try {
       this.invoiceDetailList.splice(this.itemIndex, 1);
       setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
-      this.toastService.success('Fatura detayı başarıyla kaldırıldı', true);
       this.setOrderCountInfo();
       this.clearSelectedDetail();
     } catch (error) {
