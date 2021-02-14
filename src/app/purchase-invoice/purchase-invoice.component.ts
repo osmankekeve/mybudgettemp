@@ -953,7 +953,6 @@ export class PurchaseInvoiceComponent implements OnInit {
     try {
       this.invoiceDetailList.splice(this.itemIndex, 1);
       setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
-      this.toastService.success('Fatura detayı başarıyla kaldırıldı', true);
       this.setOrderCountInfo();
       this.clearSelectedDetail();
     } catch (error) {
@@ -1024,9 +1023,6 @@ export class PurchaseInvoiceComponent implements OnInit {
     this.selectedDetailRecord = undefined;
     this.itemIndex = -1;
   }
-
-
-
 
   async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası

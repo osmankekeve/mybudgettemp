@@ -418,8 +418,8 @@
             </form>
           </div>
           <div class="col-sm-12">
-            <div class="card">
-              <div class="card-header bg-gray-gradient">
+            <div class="card" *ngIf="!selectedDetailRecord">
+              <div class="card-header">
                 <div class="row">
                   <div class="col-sm-9">
                     <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
@@ -427,13 +427,6 @@
                     <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                             *ngIf="selectedRecord.data.primaryKey!=undefined && invoiceDetailList?.length > 0"
                             (click)="btnDetailExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
-                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
-                            *ngIf="selectedDetailRecord"
-                            (click)="btnShowJsonDataDetail_Click()"><i class="fa fa-jsfiddle"></i></button>
-                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                            *ngIf="selectedDetailRecord"
-                            (click)="btnReturnInvoiceList_Click()"><i class="fa fa-arrow-left"></i></button>
-                    <div class="loader-small float-right" *ngIf="invoiceDetailList?.length === 0"></div>
                   </div>
                   <div class="col-sm-3 head-filter">
                     <div class="input-group input-group-round">
@@ -447,7 +440,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body" *ngIf="!selectedDetailRecord">
+              <div class="card-body">
                 <div class="row">
                   <div class="col-sm-9">
                     <div *ngIf="invoiceDetailList != undefined; else elseBlock3">
@@ -615,7 +608,28 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body" *ngIf="selectedDetailRecord">
+
+            </div>
+            <div class="card" *ngIf="selectedDetailRecord">
+              <div class="card-header bg-gray-gradient">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
+                    <h4 class="float-left mr-2">Fatura Ürün Detayı</h4>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
+                            *ngIf="selectedDetailRecord"
+                            (click)="btnShowJsonDataDetail_Click()"><i class="fa fa-jsfiddle"></i></button>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
+                            *ngIf="selectedDetailRecord"
+                            (click)="btnReturnInvoiceList_Click()"><i class="fa fa-arrow-left"></i></button>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-right" title="Ürün Kaydet"
+                            (click)="btnSaveDetail_Click()"><i class="far fa-save"></i></button>
+                    <button class="btn btn-sm btn-round btn-outline-secondary float-right mr-2" title="Ürün Kaldır"
+                             (click)="btnRemoveDetail_Click()"><i class="fa fa-remove"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
                 <div class="row fs-13">
                   <div class="col-sm-12">
                     <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
@@ -700,36 +714,6 @@
                         <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.totalPriceWithTax | currency:'₺'}}</label>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-footer" *ngIf="selectedDetailRecord">
-                <div class="btn-action float-right">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text success-icon-side">
-                        <i class="fa fa-check" *ngIf="!onTransaction"></i>
-                        <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-                      </span>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-success form-control"
-                            [disabled]="onTransaction"
-                            (click)="btnSaveDetail_Click()">Ürün Kaydet
-                    </button>
-                  </div>
-                </div>
-                <div class="btn-action float-left">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-          <span class="input-group-text danger-icon-side">
-            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
-                    </div>
-                    <button type="button" class="btn btn-sm btn-danger form-control"
-                            [disabled]="onTransaction"
-                            (click)="btnRemoveDetail_Click()">Ürün Kaldır
-                    </button>
                   </div>
                 </div>
               </div>
