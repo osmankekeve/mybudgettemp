@@ -224,4 +224,29 @@ export class PurchaseInvoiceDetailService {
     }
   })
 
+  getItemsWithInvoicePrimaryKey = async (invoicePrimaryKey: string):
+    Promise<Array<PurchaseInvoiceDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<PurchaseInvoiceDetailModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('invoicePrimaryKey', '==', invoicePrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as PurchaseInvoiceDetailModel;
+          data.primaryKey = doc.id;
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
 }

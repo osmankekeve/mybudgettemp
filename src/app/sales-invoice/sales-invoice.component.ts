@@ -535,7 +535,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.selectedRecord.data.insertDate = Date.now();
       setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           this.onTransaction = true;
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
@@ -797,11 +797,16 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   showDetailRecord(record: any, index: any): void {
+    const a = record as SalesInvoiceDetailMainModel;
     if (this.selectedRecord.data.status === 'waitingForApprove') {
-      this.selectedDetailRecord = record as SalesInvoiceDetailMainModel;
-      this.itemIndex = index;
+      if (a.data.campaignPrimaryKey === '-1') {
+        this.selectedDetailRecord = a;
+        this.itemIndex = index;
+      } else {
+        this.toastService.warning('Kampanyalı fatura detayı düzenlenemez', true);
+      }
     } else {
-      this.toastService.warning('Onaylı fatura detayı güncellenemez', true);
+      this.toastService.warning('Onaylı fatura detayı düzenlenemez', true);
     }
   }
 
@@ -818,7 +823,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.onTransaction = true;
       setInvoiceDetailCalculation(this.selectedDetailRecord);
       Promise.all([this.sidService.checkForSave(this.selectedDetailRecord)])
-        .then(async (values: any) => {
+        .then(async () => {
           this.invoiceDetailList[this.itemIndex] = this.selectedDetailRecord;
           setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
           await this.finishSubProcess(null, 'Fatura detayı başarıyla güncellendi');
@@ -869,40 +874,6 @@ export class SalesInvoiceComponent implements OnInit {
     this.itemIndex = -1;
   }
 
-
-  async btnCreateAccounts_Click(): Promise<void> {
-    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
-      .then((values: any) => {
-        if ((values[0] !== undefined || values[0] !== null)) {
-          const returnData = values[0] as Array<SalesInvoiceMainModel>;
-          returnData.forEach(doc => {
-            doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
-            this.service.updateItem(doc).then(() => {
-              this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
-                list.forEach((item) => {
-                  const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
-                  this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));
-                  console.log('recordKey: ' + item.id);
-                });
-              });
-            });
-          });
-        }
-      });*/
-
-    /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
-      .then((values: any) => {
-        if ((values[0] !== undefined || values[0] !== null)) {
-          const returnData = values[0] as Array<SalesInvoiceMainModel>;
-          returnData.forEach(doc => {
-            doc.data.status = 'approved';
-            doc.data.platform = 'web';
-            this.service.updateItem(doc).then(() => {console.log(doc); });
-          });
-        }
-      });*/
-  }
 
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('salesInvoice')

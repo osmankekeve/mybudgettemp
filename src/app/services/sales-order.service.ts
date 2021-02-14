@@ -70,15 +70,16 @@ export class SalesOrderService {
             }).finally(async () => {
               for (const item of record.orderDetailList) {
                   await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
-                }
-              if (record.data.status === 'approved') {
-                  await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
-                  this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-                } else {
-                  await this.logService.addTransactionLog(record, 'update', 'salesOrder');
-                  this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
-                }
+              }
             });
+        }
+
+        if (record.data.status === 'waitingForApprove') {
+          await this.logService.addTransactionLog(record, 'update', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+        } else if (record.data.status === 'approved') {
+          await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
@@ -102,26 +103,42 @@ export class SalesOrderService {
   async setItem(record: SalesOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
-        await this.sodService.getItemsWithOrderPrimaryKey(record.data.primaryKey)
-          .then((list) => {
-            list.forEach(async item => {
-              await this.db.collection(this.sodService.tableName).doc(item.primaryKey).delete();
+        if (record.data.status === 'approved' || record.data.status === 'waitingForApprove') {
+          await this.sodService.getItemsWithOrderPrimaryKey(record.data.primaryKey)
+            .then((list) => {
+              list.forEach(async item => {
+                await this.db.collection(this.sodService.tableName).doc(item.primaryKey).delete();
+              });
+            }).finally(async () => {
+              for (const item of record.orderDetailList) {
+                  await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+              }
             });
-          }).finally(async () => {
-            for (const item of record.orderDetailList) {
-                await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
-            }
-            await this.sService.increaseOrderNumber();
-            await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
-            this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-            if (record.data.status === 'approved') {
-              await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
-            } else if (record.data.status === 'rejected') {
-              await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
-            } else {
-              // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
-            }
-          });
+        }
+
+        if (record.data.status === 'waitingForApprove') {
+          await this.logService.addTransactionLog(record, 'update', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+        } else if (record.data.status === 'approved') {
+          await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
+        } else if (record.data.status === 'rejected') {
+          await this.logService.addTransactionLog(record, 'rejected', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
+        } else if (record.data.status === 'closed') {
+          for (const item of record.orderDetailList) {
+            item.data.invoicedStatus = 'complete';
+            await this.sodService.updateItem(item);
+          }
+          await this.logService.addTransactionLog(record, 'closed', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Kapatma');
+        } else if (record.data.status === 'done') {
+          await this.logService.addTransactionLog(record, 'done', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İşlem Bitimi');
+        } else {
+          await this.logService.addTransactionLog(record, 'update', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
+        }
       });
   }
 

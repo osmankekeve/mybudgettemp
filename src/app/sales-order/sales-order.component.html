@@ -210,7 +210,6 @@
               <div class="col-sm-9">
                 <img src="../../assets/images/sales_invoice.png" width="30px" alt="" class="float-left mr-2">
                 <h5 class="float-left mr-2">Sipariş Detayı</h5>
-                <div class="loader-small float-right mr-2" *ngIf="selectedRecord.orderDetailList?.length === 0"></div>
                 <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                         *ngIf="selectedRecord.orderDetailList?.length > 0"
                         (click)="btnDetailExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>

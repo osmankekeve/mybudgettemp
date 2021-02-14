@@ -65,24 +65,24 @@ export class SalesInvoiceService {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
-          // varsa mevcut kayitlar silinir
-          this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
+          await this.sidService.getItemsWithInvoicePrimaryKey(record.data.primaryKey)
+          .then((list) => {
             list.forEach(async item => {
-              await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
+              await this.db.collection(this.sidService.tableName).doc(item.primaryKey).delete();
             });
+          }).finally(async () => {
+            for (const item of record.invoiceDetailList) {
+              item.data.invoicePrimaryKey = record.data.primaryKey;
+              item.invoiceStatus = record.data.status;
+              await this.sidService.setItem(item, item.data.primaryKey);
+            }
           });
-          // faturadaki yeni kayitlar insert edilir
-          for (const item of record.invoiceDetailList) {
-            item.data.invoicePrimaryKey = record.data.primaryKey;
-            item.invoiceStatus = record.data.status;
-            await this.sidService.setItem(item, item.data.primaryKey);
-          }
         }
-
-        await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
-        await this.sService.increaseSalesInvoiceNumber();
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-        if (record.data.status === 'approved') {
+        if (record.data.status === 'waitingForApprove') {
+          await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
+          await this.sService.increaseSalesInvoiceNumber();
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
+        } else if (record.data.status === 'approved') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = record.data.primaryKey;
           trans.receiptNo = record.data.receiptNo;
@@ -192,20 +192,23 @@ export class SalesInvoiceService {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
       .then(async () => {
         if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
-          // varsa mevcut kayitlar silinir
-          this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
-              list.forEach(async item => {
-                await this.db.collection(this.sidService.tableName).doc(item.data.primaryKey).delete();
-              });
+          await this.sidService.getItemsWithInvoicePrimaryKey(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.sidService.tableName).doc(item.primaryKey).delete();
             });
-          // faturadaki yeni kayitlar insert edilir
-          for (const item of record.invoiceDetailList) {
-            item.data.invoicePrimaryKey = record.data.primaryKey;
-            item.invoiceStatus = record.data.status;
-            await this.sidService.setItem(item, item.data.primaryKey);
-          }
+          }).finally(async () => {
+            for (const item of record.invoiceDetailList) {
+              item.data.invoicePrimaryKey = record.data.primaryKey;
+              item.invoiceStatus = record.data.status;
+              await this.sidService.setItem(item, item.data.primaryKey);
+            }
+          });
         }
-        if (record.data.status === 'approved') {
+        if (record.data.status === 'waitingForApprove') {
+          await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+        } else if (record.data.status === 'approved') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = record.data.primaryKey;
           trans.receiptNo = record.data.receiptNo;

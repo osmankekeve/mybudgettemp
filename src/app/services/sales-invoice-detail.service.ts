@@ -226,4 +226,28 @@ export class SalesInvoiceDetailService {
     }
   })
 
+  getItemsWithInvoicePrimaryKey = async (invoicePrimaryKey: string):
+    Promise<Array<SalesInvoiceDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<SalesInvoiceDetailModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('invoicePrimaryKey', '==', invoicePrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as SalesInvoiceDetailModel;
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
 }
