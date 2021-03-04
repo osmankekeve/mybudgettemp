@@ -1,0 +1,114 @@
+<div class="row">
+  <div class="col-sm-4">
+	  <div class="card work-area">
+		  <div class="card-header">
+			  <div class="d-flex">
+				<div class="pt-1 pb-1 pr-1 flex-grow-1">
+					<img src='{{mainProfileRecord.data.pathOfProfilePicture}}' width="30px">
+					{{mainProfileRecord.data.longName}}
+				</div>
+				<div class="pt-1 pb-1 pr-1">
+					<button class="btn btn-sm btn-round btn-outline-secondary" title="Yeni Sohbet" (click)="btnShowNewChat_Click()">
+					<i class="far fa-comment-alt"></i>
+					</button>
+				</div>
+				<div class="pt-1 pb-1">
+					<button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler">
+					<i class="fas fa-ellipsis-v"></i>
+					</button>
+				</div>
+			</div>
+			<div class="w-100 head-filter">
+				<div class="input-group input-group-round">
+				  <div class="input-group-prepend">
+					<span class="input-group-text">
+						<i class="fas fa-search"></i>
+					</span>
+				  </div>
+				  <input type="search" class="form-control filter-list-input" placeholder="Ara.." [(ngModel)]="searchText">
+				</div>
+			</div>
+		  </div>
+		  <div class="card-body p-0" *ngIf="isNewChatOpened">
+			<div *ngIf="profileList != undefined; else elseBlock2">
+				<div *ngIf="profileList.length > 0; else elseBlock">
+					<div class="chat_list" *ngFor="let item of profileList | filterProfile: searchText; index as i;" 
+						[ngClass]="{'bg-yellow': item.data.primaryKey === selectedProfileModel?.data.primaryKey}"
+						(click)="showSelectedProfileInfo(item)">
+						<div class="chat_people">
+						<div class="chat_img"> <img src="../../assets/images/users.png" alt="sunil"> </div>
+						<div class="chat_ib">
+							<h5>{{item.data.longName}} <span class="chat_date">{{item.typeTr}}</span></h5>
+							<p>Test, which is a new approach to have all solutions</p>
+						</div>
+						</div>
+					</div>
+				</div>
+				<ng-template #elseBlock>
+				  <div class="card bg-red text-white m-4">
+					<div class="card-body">Görüntülenecek veri bulunamadı.</div>
+				  </div>
+				</ng-template>
+			</div>
+			<ng-template #elseBlock2>
+			  <div class="loader"></div>
+			</ng-template>
+		  </div>
+		  <div class="card-body p-0" *ngIf="!isNewChatOpened">
+			<div *ngIf="chatChannelList != undefined; else elseBlock3">
+				<div *ngIf="chatChannelList.length > 0; else elseBlock4">
+					<div class="chat_list" *ngFor="let item of chatChannelList; index as i;"
+					[ngClass]="{'bg-yellow': item.data.primaryKey === selectedChatChannelModel?.data.primaryKey}"
+					(click)="showSelectedChatChannelInfo(item)">
+						<div class="chat_people">
+						<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+						<div class="chat_ib">
+							<h5>{{item.opposideProfile.data.longName}} <span class="chat_date">{{item.opposideProfile.typeTr}}</span></h5>
+							<p>Test, which is a new approach to have all solutions</p>
+						</div>
+						</div>
+					</div>
+				</div>
+				<ng-template #elseBlock4>
+				  <div class="card bg-red text-white m-4">
+					<div class="card-body">Görüntülenecek veri bulunamadı.</div>
+				  </div>
+				</ng-template>
+			</div>
+			<ng-template #elseBlock3>
+			  <div class="loader"></div>
+			</ng-template>
+		  </div>
+	  </div>
+  </div>
+  <div class="col-sm-8">
+	<div class="card work-area" *ngIf="selectedChatChannelModel">
+		<div class="card-header">
+		  <h4>Mesajlaşma- {{selectedProfileModel}}</h4>
+		</div>
+		<div class="card-body">
+			
+		</div>
+		<div class="card-footer">
+			<div class="input-group">
+				<textarea class="form-control type_msg" placeholder="Type your message..."></textarea>
+				<div class="input-group-append">
+				  <button class="btn btn-success" type="submit">Gönder</button>
+				</div>
+			  </div>
+		</div>
+	</div>
+	<div class="card work-area" *ngIf="!selectedChatChannelModel">
+		<div class="card-body">
+			<div class="text-center">
+				<h3 class="font-weight-400">KEKEVE WEB</h3>
+				<h4 class="font-weight-400">Sistem İçi İletişim Paneli</h4>
+			</div>
+			<div class="d-flex justify-content-center" *ngIf="selectedProfileModel">
+				<button type="button" class="btn btn-light" (click)="btnStarChatChannel_Click()">İletişime Geç
+				</button>
+			</div>
+		</div>
+	</div>
+  </div>
+</div>

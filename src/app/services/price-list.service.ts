@@ -26,11 +26,14 @@ export class PriceListService {
   }
 
   async addItem(record: PriceListMainModel) {
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'insert', 'price-list');
+    });
   }
 
   async removeItem(record: PriceListMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete().then(async () => {
+      await this.logService.addTransactionLog(record, 'delete', 'price-list');
       await this.ppService.getProductsForListDetail(record.data.primaryKey)
             .then((list) => {
               list.forEach(async item => {
@@ -41,11 +44,15 @@ export class PriceListService {
   }
 
   async updateItem(record: PriceListMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'update', 'price-list');
+    });
   }
 
   async setItem(record: PriceListMainModel, primaryKey: string) {
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'insert', 'price-list');
+    });
   }
 
   checkForSave(record: PriceListMainModel): Promise<string> {

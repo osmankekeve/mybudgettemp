@@ -8,7 +8,6 @@ import { ProfileModel } from '../models/profile-model';
 import { CustomerModel } from '../models/customer-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {getEducation, getGenders, getStatus, getUserTypes, isNullOrEmpty} from '../core/correct-library';
-import {CustomerMainModel} from '../models/customer-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -128,6 +127,16 @@ export class ProfileService {
     returnData.data = this.clearProfileModel();
     returnData.typeTr = getUserTypes().get(returnData.data.type);
     returnData.actionType = 'added';
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    return returnData;
+  }
+
+  convertMainModel(model: ProfileModel): ProfileMainModel {
+    const returnData = this.clearProfileMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.typeTr = getUserTypes().get(returnData.data.type);
+    returnData.genderTr = getGenders().get(returnData.data.gender);
+    returnData.educationStatusTr = getEducation().get(returnData.data.educationStatus);
     returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
     return returnData;
   }

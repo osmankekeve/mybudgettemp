@@ -78,7 +78,7 @@
     </div>
   </div>
   <div class="card-body">
-    <form (ngSubmit)="btnSave_Click()" class="was-validated">
+    <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
       <div class="form-inline">
         <div class="col-sm-3">
           <label class="col-form-label float-left" for="longName">Adı/Soyadı</label>
@@ -159,12 +159,12 @@
           </span>
       </div>
       <button type="button" class="btn btn-success btn-sm form-control"
-              [disabled]="onTransaction"
+              [disabled]="onTransaction || !f.valid"
               (click)="btnSave_Click()">Kaydet
       </button>
     </div>
   </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined" hidden>
+    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">

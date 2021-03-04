@@ -26,11 +26,14 @@ export class DiscountListService {
   }
 
   async addItem(record: DiscountListMainModel) {
-    return await this.listCollection.add(Object.assign({}, record.data));
+    return await this.listCollection.add(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'insert', 'discount-list');
+    });
   }
 
   async removeItem(record: DiscountListMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete().then(async () => {
+      await this.logService.addTransactionLog(record, 'delete', 'discount-list');
       await this.ppService.getProductsForListDetail(record.data.primaryKey)
             .then((list) => {
               list.forEach(async item => {
@@ -41,7 +44,9 @@ export class DiscountListService {
   }
 
   async updateItem(record: DiscountListMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data));
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'insert', 'discount-list');
+    });
   }
 
   async setItem(record: DiscountListMainModel, primaryKey: string) {

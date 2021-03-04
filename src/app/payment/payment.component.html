@@ -442,7 +442,7 @@
     </div>
   </div>
   <div class="card-footer">
-    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
+    <div class="btn-action float-right mr-2" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -456,7 +456,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="btn-action float-right mr-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -470,7 +470,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="btn-action float-left mr-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -484,7 +484,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+    <div class="btn-action float-left mr-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -498,7 +498,7 @@
         </button>
       </div>
     </div>
-    <div class="col-sm-2 float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
+    <div class="btn-action float-left mr-2" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">

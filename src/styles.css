@@ -114,6 +114,10 @@ body {
   width: auto !important;
 }
 
+.font-weight-400 {
+  font-weight: 400 !important
+}
+
 .font-weight-500 {
   font-weight: 500 !important
 }

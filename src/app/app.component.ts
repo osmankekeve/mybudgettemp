@@ -53,6 +53,7 @@ export class AppComponent implements OnInit {
   showNotificationPanel = false;
   showActionPanel = false;
   // reminderCount = 0;
+  showModulesPanel = false;
   showReminderPanel = false;
   showWaitingWorksPanel = false;
   showProfilePanel = false;

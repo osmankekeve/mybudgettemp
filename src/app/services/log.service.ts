@@ -143,6 +143,14 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.code + ' kodlu Kampanya';
 
+    } else if (systemModule === 'price-list') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.listName + ' isimli Fiyat Listesi';
+
+    } else if (systemModule === 'discount-list') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.listName + ' isimli iskonto Listesi';
+
     } else {
       item.log = ' bilinmeyen modül ';
     }
@@ -242,7 +250,7 @@ export class LogService {
     return this.mainList$;
   }
 
-  getNotificationsBetweenDates(startDate: Date, endDate: Date): Observable<LogModel[]> {
+  getNotificationsBetweenDates_remove(startDate: Date, endDate: Date): Observable<LogModel[]> {
     this.listCollection = this.db.collection('tblProfile').doc(this.authService.getEid()).collection(this.tableName,
       ref => ref.orderBy('insertDate')
         .where('isActive', '==', true)
@@ -257,6 +265,25 @@ export class LogService {
         }));
       });
     }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
+  }
+
+  getNotificationsBetweenDates(startDate: Date, endDate: Date): Observable<LogModel[]> {
+    // left join siz
+    this.listCollection = this.db.collection('tblProfile').doc(this.authService.getEid()).collection(this.tableName,
+      ref => ref.orderBy('insertDate')
+        .where('isActive', '==', true)
+        .where('type', '==', 'notification')
+        .startAt(startDate.getTime()).endAt(endDate.getTime()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(
+      map(changes =>
+        changes.map(c => {
+          const data = c.payload.doc.data() as LogModel;
+          data.primaryKey = c.payload.doc.id;
+          return Object.assign({data, actionType: c.type});
+        })
+      )
+    );
     return this.mainList$;
   }
 

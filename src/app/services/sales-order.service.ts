@@ -73,7 +73,8 @@ export class SalesOrderService {
               }
             });
         }
-
+      })
+      .finally(async () => {
         if (record.data.status === 'waitingForApprove') {
           await this.logService.addTransactionLog(record, 'update', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
@@ -115,10 +116,11 @@ export class SalesOrderService {
               }
             });
         }
-
+      })
+      .finally(async () => {
         if (record.data.status === 'waitingForApprove') {
-          await this.logService.addTransactionLog(record, 'update', 'salesOrder');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+          await this.logService.addTransactionLog(record, 'insert', 'salesOrder');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         } else if (record.data.status === 'approved') {
           await this.logService.addTransactionLog(record, 'approved', 'salesOrder');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');

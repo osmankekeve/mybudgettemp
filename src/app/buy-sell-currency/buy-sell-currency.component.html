@@ -146,7 +146,7 @@
               <tbody>
               <tr class="cursor-pointer table-row-class"
                   (click)="showTransactionRecord(item)" title="Kaydı Göster"
-                  *ngFor="let item of transactionList | filterProductSub: productSearchText; index as i;">
+                  *ngFor="let item of transactionList;">
                 <td>
                   <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                   <span class="text-red font-weight-600 mr-1">{{item.currencyName}}</span>

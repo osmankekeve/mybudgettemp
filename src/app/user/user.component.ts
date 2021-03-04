@@ -97,37 +97,31 @@ export class UserComponent implements OnInit, OnDestroy {
   async btnSave_Click(): Promise<void> {
     try {
       this.onTransaction = true;
-      Promise.all([this.service.checkForSave(this.selectedRecord)])
-        .then(async (values: any) => {
-          if (this.selectedRecord.data.primaryKey === null) {
-            this.selectedRecord.data.primaryKey = '';
-            this.selectedRecord.data.birthDate = getInputDataForInsert(this.birthDate);
-            await this.service.addItem(this.selectedRecord)
-              .then(() => {
-                this.finishProcess(null, 'Kullanıcı başarıyla kaydedildi.');
-              })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
-              });
-          } else {
-            await this.service.updateItem(this.selectedRecord)
-              .then(() => {
-                this.finishProcess(null, 'Kullanıcı başarıyla güncellendi.');
-              })
-              .catch((error) => {
-                this.finishProcess(error, null);
-              })
-              .finally(() => {
-                this.finishFinally();
-              });
-          }
-        })
-        .catch((error) => {
-          this.finishProcess(error, null);
-        });
+      if (this.selectedRecord.data.primaryKey === null) {
+        this.selectedRecord.data.primaryKey = '';
+        this.selectedRecord.data.birthDate = getInputDataForInsert(this.birthDate);
+        await this.service.addItem(this.selectedRecord)
+          .then(() => {
+            this.finishProcess(null, 'Kullanıcı başarıyla kaydedildi.');
+          })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          })
+          .finally(() => {
+            this.finishFinally();
+          });
+      } else {
+        await this.service.updateItem(this.selectedRecord)
+          .then(() => {
+            this.finishProcess(null, 'Kullanıcı başarıyla güncellendi.');
+          })
+          .catch((error) => {
+            this.finishProcess(error, null);
+          })
+          .finally(() => {
+            this.finishFinally();
+          });
+      }
     } catch (error) {
       this.finishProcess(error, null);
     }
