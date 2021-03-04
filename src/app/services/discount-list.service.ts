@@ -45,12 +45,14 @@ export class DiscountListService {
 
   async updateItem(record: DiscountListMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data)).then(async () => {
-      await this.logService.addTransactionLog(record, 'insert', 'discount-list');
+      await this.logService.addTransactionLog(record, 'update', 'discount-list');
     });
   }
 
   async setItem(record: DiscountListMainModel, primaryKey: string) {
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data));
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async () => {
+      await this.logService.addTransactionLog(record, 'insert', 'discount-list');
+    });
   }
 
   checkForSave(record: DiscountListMainModel): Promise<string> {
