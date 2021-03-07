@@ -1,13 +1,18 @@
+import { MessageModel } from './../models/message-model';
+import { MessageMainModel } from './../models/message-main-model';
 import { MessageService } from './../services/message.service';
 import { ChatChanelMainModel } from './../models/chat-channel-main-model';
 import { ProfileMainModel } from './../models/profile-main-model';
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import { ToastService } from '../services/toast.service';
 import { ProfileService } from '../services/profile.service';
 import { ChatChannelService } from '../services/chat-channel.service';
+import { Observable, Subscription } from 'rxjs';
+import { ProfileModel } from '../models/profile-model';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-messaging',
@@ -19,6 +24,7 @@ export class MessagingComponent implements OnInit {
   constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected toastService: ToastService,
               protected db: AngularFirestore, protected profileService: ProfileService, protected service: ChatChannelService, protected mService: MessageService) {
   }
+  mainList: Array<MessageMainModel>;
   profileList: Array<ProfileMainModel>;
   chatChannelList: Array<ChatChanelMainModel>;
   mainProfileRecord: ProfileMainModel;
@@ -26,6 +32,7 @@ export class MessagingComponent implements OnInit {
   isNewChatOpened = false;
   selectedChatChannelModel: ChatChanelMainModel;
   selectedProfileModel: ProfileMainModel;
+  messageText: '';
 
   ngOnInit() {
     this.mainProfileRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
@@ -97,6 +104,7 @@ export class MessagingComponent implements OnInit {
         this.profileList = [];
       }
     }, 2000);
+    // this.selectedChatChannelModel = new ChatChanelMainModel();
   }
 
   btnShowNewChat_Click(): void {
@@ -122,7 +130,7 @@ export class MessagingComponent implements OnInit {
       firstMessage.message = 'Bugün';
       firstMessage.profilePrimaryKey = 's-1'; // system-1
 
-      await this.db.collection('tblChatChannel').doc(c1.data.primaryKey).set(Object.assign({}, firstMessage));
+      await this.db.collection('tblChatChannel').doc(c1.data.primaryKey).collection('messages').doc(firstMessage.primaryKey).set(Object.assign({}, firstMessage));
       await this.db.collection('tblProfile').doc(c1.data.profilePrimaryKey).collection('tblChatChannelList').doc(c1.data.primaryKey).set(Object.assign({}, c1.data));
       await this.db.collection('tblProfile').doc(c2.data.profilePrimaryKey).collection('tblChatChannelList').doc(c2.data.primaryKey).set(Object.assign({}, c2.data));
 
@@ -150,6 +158,25 @@ export class MessagingComponent implements OnInit {
     }
   }
 
+  async btnSendMessage_Click(): Promise<void> {
+    try {
+
+      const message = this.mService.clearModel();
+      message.primaryKey = this.db.createId();
+      message.message = this.messageText.trimLeft().trimRight();
+      message.profilePrimaryKey = this.mainProfileRecord.data.primaryKey;
+      this.db.collection('tblChatChannel')
+      .doc(this.selectedChatChannelModel.data.primaryKey)
+      .collection('messages')
+      .doc(message.primaryKey)
+      .set(Object.assign({}, message));
+      this.messageText = '';
+
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   showSelectedProfileInfo(record: any): void {
     this.selectedChatChannelModel = undefined;
     if (this.selectedProfileModel && this.selectedProfileModel.data.primaryKey === record.data.primaryKey) {
@@ -160,6 +187,7 @@ export class MessagingComponent implements OnInit {
   }
 
   showSelectedChatChannelInfo(record: any): void {
+    this.mainList = undefined;
     this.selectedProfileModel = undefined;
     if (this.selectedChatChannelModel && this.selectedChatChannelModel.data.primaryKey === record.data.primaryKey) {
       this.selectedChatChannelModel = undefined;
@@ -172,5 +200,27 @@ export class MessagingComponent implements OnInit {
 
   populateChannelDetails(): void {
 
+    this.mainList = [];
+    this.db.collection('tblChatChannel')
+    .doc(this.selectedChatChannelModel.data.primaryKey).collection('messages')
+    .stateChanges().subscribe(list => {
+      list.forEach(async change => {
+
+        const data = change.payload.doc.data() as MessageModel;
+        data.primaryKey = change.payload.doc.id;
+
+        const returnData = this.mService.clearMainModel();
+        returnData.data = this.mService.checkFields(data);
+        returnData.actionType = change.type;
+
+        const a = await this.profileService.getItem(returnData.data.profilePrimaryKey, false);
+        returnData.profile = a === null ? this.profileService.clearProfileMainModel() : a.returnData;
+        this.mainList.push(returnData);
+        console.log(returnData);
+
+      });
+    });
+
   }
+
 }

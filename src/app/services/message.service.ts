@@ -1,4 +1,4 @@
-import { ProfileModel } from '../models/profile-model';
+import { ProfileModel } from './../models/profile-model';
 import { ProfileService } from './profile.service';
 import { ChatChanelModel } from '../models/chat-channel-model';
 import { Injectable } from '@angular/core';
@@ -60,5 +60,27 @@ export class MessageService {
     returnData.profile = this.profileService.clearProfileMainModel();
     returnData.actionType = 'added';
     return returnData;
+  }
+
+  getMainItems(): Observable<MessageMainModel[]> {
+    this.listCollection = this.db.collection(this.tableName,
+      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
+        const data = change.payload.doc.data() as MessageModel;
+        data.primaryKey = change.payload.doc.id;
+
+        const returnData = this.clearMainModel();
+        returnData.data = this.checkFields(data);
+        returnData.actionType = change.type;
+
+        return this.db.collection('tblprofile').doc(data.profilePrimaryKey).valueChanges()
+          .pipe(map((profile: ProfileModel) => {
+            returnData.profile = profile !== undefined ? this.profileService.convertMainModel(profile) : undefined;
+            return Object.assign({returnData});
+          }));
+      });
+    }), flatMap(feeds => combineLatest(feeds)));
+    return this.mainList$;
   }
 }

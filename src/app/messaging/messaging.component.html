@@ -1,3 +1,4 @@
+
 <div class="row">
   <div class="col-sm-4">
 	  <div class="card work-area">
@@ -36,7 +37,7 @@
 						[ngClass]="{'bg-yellow': item.data.primaryKey === selectedProfileModel?.data.primaryKey}"
 						(click)="showSelectedProfileInfo(item)">
 						<div class="chat_people">
-						<div class="chat_img"> <img src="../../assets/images/users.png" alt="sunil"> </div>
+						<div class="chat_img"> <img src={{item.data.pathOfProfilePicture}} alt="sunil"> </div>
 						<div class="chat_ib">
 							<h5>{{item.data.longName}} <span class="chat_date">{{item.typeTr}}</span></h5>
 							<p>Test, which is a new approach to have all solutions</p>
@@ -61,7 +62,7 @@
 					[ngClass]="{'bg-yellow': item.data.primaryKey === selectedChatChannelModel?.data.primaryKey}"
 					(click)="showSelectedChatChannelInfo(item)">
 						<div class="chat_people">
-						<div class="chat_img"> <img src="https://ptetutorials.com/images/user-profile.png" alt="sunil"> </div>
+						<div class="chat_img"> <img src={{item.opposideProfile.data.pathOfProfilePicture}} alt="sunil"> </div>
 						<div class="chat_ib">
 							<h5>{{item.opposideProfile.data.longName}} <span class="chat_date">{{item.opposideProfile.typeTr}}</span></h5>
 							<p>Test, which is a new approach to have all solutions</p>
@@ -84,18 +85,124 @@
   <div class="col-sm-8">
 	<div class="card work-area" *ngIf="selectedChatChannelModel">
 		<div class="card-header">
-		  <h4>Mesajlaşma- {{selectedProfileModel}}</h4>
+			<div class="contact-profile">
+				<img src={{selectedChatChannelModel.opposideProfile.data.pathOfProfilePicture}} alt={{selectedChatChannelModel.opposideProfile.data.longName}} />
+				<label class="mb-0">{{selectedChatChannelModel.opposideProfile.data.longName}}</label>
+				<div class="social-media">
+					<i class="fa fa-facebook" aria-hidden="true"></i>
+					<i class="fa fa-twitter" aria-hidden="true"></i>
+					<i class="fa fa-instagram" aria-hidden="true"></i>
+				</div>
+			</div>
 		</div>
-		<div class="card-body">
-			
+		<div class="card-body work-area-2" style="background-color: #E6EAEA">
+			<div class="chat-container" id="messages">
+				<ul class="chat-box" *ngFor="let item of mainList;">
+					<li *ngIf="item.data?.profilePrimaryKey === 's-1'; else elseBlock">
+						<div class="d-flex justify-content-center">
+							<div class="card py-2 px-4" style="border-radius: 25px;">{{item.data?.message}}</div>
+						</div>
+					</li>
+					
+					<ng-template #elseBlock>
+						<li class="chat-right mb-2" *ngIf="item.data.profilePrimaryKey === mainProfileRecord.data.primaryKey">
+							<div class="chat-hour">{{item.data.insertDate | date: 'hh.mm.ss'}} <span class="fa fa-check-circle"></span></div>
+							<div class="chat-text">{{item.data.message}}</div>
+							<div class="chat-avatar">
+								<img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
+								<div class="chat-name">{{item.profile.data.longName}}</div>
+							</div>
+						</li>
+						<li class="chat-left mb-2" *ngIf="item.data.profilePrimaryKey !== mainProfileRecord.data.primaryKey">
+							<div class="chat-avatar">
+								<img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
+								<div class="chat-name">{{item.profile.data.longName}}</div>
+							</div>
+							<div class="chat-text">{{item.data.message}}</div>
+							<div class="chat-hour">{{item.data.insertDate | date: 'hh.mm.ss'}} <span class="fa fa-check-circle"></span></div>
+						</li>
+					</ng-template>
+				</ul>
+				<ul class="chat-box" hidden>
+					<li class="chat-left mb-2">
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							<div class="chat-name">Russell</div>
+						</div>
+						<div class="chat-text">Are we meeting today?
+							<br>Project has been already finished and I have results to show you.</div>
+						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					</li>
+					<li class="chat-right mb-2">
+						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						<div class="chat-text">Well I am not sure.
+							<br>I have results to show you.</div>
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar5.png" alt="Retail Admin">
+							<div class="chat-name">Joyse</div>
+						</div>
+					</li>
+					<li class="chat-left mb-2">
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							<div class="chat-name">Russell</div>
+						</div>
+						<div class="chat-text">The rest of the team is not here yet.
+							<br>Maybe in an hour or so?</div>
+						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					</li>
+					<li class="chat-right mb-2">
+						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						<div class="chat-text">Have you faced any problems at the last phase of the project?</div>
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
+							<div class="chat-name">Jin</div>
+						</div>
+					</li>
+					<li class="chat-left mb-2">
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							<div class="chat-name">Russell</div>
+						</div>
+						<div class="chat-text">Actually everything was fine.
+							<br>I'm very excited to show this to our team.</div>
+						<div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
+					</li>
+					<li class="chat-left mb-2">
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							<div class="chat-name">Russell</div>
+						</div>
+						<div class="chat-text">The rest of the team is not here yet.
+							<br>Maybe in an hour or so?</div>
+						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					</li>
+					<li class="chat-right mb-2">
+						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						<div class="chat-text">Have you faced any problems at the last phase of the project?</div>
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
+							<div class="chat-name">Jin</div>
+						</div>
+					</li>
+					<li class="chat-left mb-2">
+						<div class="chat-avatar">
+							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							<div class="chat-name">Russell</div>
+						</div>
+						<div class="chat-text">Actually everything was fine.
+							<br>I'm very excited to show this to our team.</div>
+						<div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
+					</li>
+				</ul>
+			</div>
 		</div>
 		<div class="card-footer">
-			<div class="input-group">
-				<textarea class="form-control type_msg" placeholder="Type your message..."></textarea>
-				<div class="input-group-append">
-				  <button class="btn btn-success" type="submit">Gönder</button>
-				</div>
-			  </div>
+			<div class="form-group mt-2 mb-0">
+				<textarea class="form-control float-left" rows="1" placeholder="Write your message..." style="width: 83%;"
+				[(ngModel)]="messageText"></textarea>
+				<button type="button" class="btn btn-success float-right" style="width: 15%;" (click)="btnSendMessage_Click()">Gönder</button>
+			</div>
 		</div>
 	</div>
 	<div class="card work-area" *ngIf="!selectedChatChannelModel">

@@ -88,7 +88,7 @@ export class ProfileService {
     if (model.password === undefined) { model.password = cleanModel.password; }
     if (model.type === undefined) { model.type = cleanModel.type; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
-    if (model.pathOfProfilePicture === undefined || model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
+    if (model.pathOfProfilePicture === '' || model.pathOfProfilePicture === undefined) { model.pathOfProfilePicture = cleanModel.pathOfProfilePicture; }
     if (model.isActive === undefined) { model.isActive = cleanModel.isActive; }
     if (model.birthDate === undefined) { model.birthDate = cleanModel.birthDate; }
     if (model.cityName === undefined) { model.cityName = cleanModel.cityName; }
