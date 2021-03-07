@@ -10,9 +10,6 @@ import {AuthenticationService} from '../services/authentication.service';
 import { ToastService } from '../services/toast.service';
 import { ProfileService } from '../services/profile.service';
 import { ChatChannelService } from '../services/chat-channel.service';
-import { Observable, Subscription } from 'rxjs';
-import { ProfileModel } from '../models/profile-model';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-messaging',
@@ -177,6 +174,20 @@ export class MessagingComponent implements OnInit {
     }
   }
 
+  async btnCleanChat_Click(): Promise<void> {
+    try {
+      this.db.collection('tblChatChannel')
+      .doc(this.selectedChatChannelModel.data.primaryKey)
+      .collection('messages').get().toPromise().then((snapshot) => {
+        snapshot.forEach(async doc => {
+          doc.ref.delete();
+        });
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   showSelectedProfileInfo(record: any): void {
     this.selectedChatChannelModel = undefined;
     if (this.selectedProfileModel && this.selectedProfileModel.data.primaryKey === record.data.primaryKey) {
@@ -205,18 +216,33 @@ export class MessagingComponent implements OnInit {
     .doc(this.selectedChatChannelModel.data.primaryKey).collection('messages')
     .stateChanges().subscribe(list => {
       list.forEach(async change => {
-
         const data = change.payload.doc.data() as MessageModel;
-        data.primaryKey = change.payload.doc.id;
+        if (change.type === 'added') {
+          data.primaryKey = change.payload.doc.id;
 
-        const returnData = this.mService.clearMainModel();
-        returnData.data = this.mService.checkFields(data);
-        returnData.actionType = change.type;
+          const returnData = this.mService.clearMainModel();
+          returnData.data = this.mService.checkFields(data);
+          returnData.actionType = change.type;
 
-        const a = await this.profileService.getItem(returnData.data.profilePrimaryKey, false);
-        returnData.profile = a === null ? this.profileService.clearProfileMainModel() : a.returnData;
-        this.mainList.push(returnData);
-        console.log(returnData);
+          const a = await this.profileService.getItem(returnData.data.profilePrimaryKey, false);
+          returnData.profile = a === null ? this.profileService.clearProfileMainModel() : a.returnData;
+          if (this.mainList.indexOf(returnData) < 0) {
+            console.log(this.mainList.indexOf(returnData));
+            console.log(returnData);
+            this.mainList.push(returnData);
+            this.mainList.sort((a, b) => {
+              return new Date(a.data.insertDate).getTime() - new Date(b.data.insertDate).getTime();
+            });
+          }
+        }
+        if (change.type === 'removed') {
+          for (let i = 0; i < this.mainList.length; i++) {
+            if (data.primaryKey === this.mainList[i].data.primaryKey) {
+              this.mainList.splice(i, 1);
+              break;
+            }
+          }
+        }
 
       });
     });
