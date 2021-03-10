@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {CashDeskModel} from '../models/cash-desk-model';
 import {AuthenticationService} from './authentication.service';
@@ -10,7 +10,6 @@ import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
 import {ProfileService} from './profile.service';
 import {AccountTransactionModel} from '../models/account-transaction-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -150,7 +149,7 @@ export class CashDeskService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

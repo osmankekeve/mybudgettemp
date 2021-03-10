@@ -1,20 +1,16 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {CustomerModel} from '../models/customer-model';
 import {MailModel} from '../models/mail-model';
-import {PaymentModel} from '../models/payment-model';
-import {PaymentMainModel} from '../models/payment-main-model';
-import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {MailMainModel} from '../models/mail-main-model';
 import {getCashDeskVoucherType, getMailParents, getString, isNullOrEmpty} from '../core/correct-library';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {ProfileModel} from '../models/profile-model';
-import {CollectionMainModel} from '../models/collection-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -139,7 +135,7 @@ export class MailService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -175,7 +171,7 @@ export class MailService {
             }));
         }
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -206,7 +202,7 @@ export class MailService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

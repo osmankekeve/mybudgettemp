@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { LogService } from './log.service';
@@ -11,7 +11,6 @@ import {ProfileService} from './profile.service';
 import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {ContactUsModel} from '../models/contact-us-model';
 import {ProfileModel} from '../models/profile-model';
-import {VisitMainModel} from '../models/visit-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -104,7 +103,7 @@ export class ContactUsService {
           returnData.employeeName = profile !== undefined ? profile.longName : 'Belirlenemeyen Müşteri Kaydı';
           return Object.assign({returnData}); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -126,7 +125,7 @@ export class ContactUsService {
             returnData.employeeName = profile !== undefined ? profile.longName : 'Belirlenemeyen Müşteri Kaydı';
             return Object.assign({returnData}); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

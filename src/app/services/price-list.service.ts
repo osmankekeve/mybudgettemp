@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';

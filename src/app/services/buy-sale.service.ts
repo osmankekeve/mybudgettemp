@@ -1,20 +1,14 @@
 import { Injectable } from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
 import {BuySaleModel} from '../models/buy-sale-model';
 import {currencyFormat, getBuySaleType, getStatus} from '../core/correct-library';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CustomerModel} from '../models/customer-model';
 import {BuySaleCurrencyModel} from '../models/buy-sale-currency-model';
-import {PaymentModel} from '../models/payment-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {combineLatest} from 'rxjs';
-import {ProfileModel} from '../models/profile-model';
 import {ProfileService} from './profile.service';
-import {AccountTransactionModel} from '../models/account-transaction-model';
 import {BuySaleCurrencyService} from './buy-sale-currency.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -245,7 +239,7 @@ export class BuySaleService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

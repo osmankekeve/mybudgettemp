@@ -12,7 +12,7 @@ import {ProductUnitModel} from '../models/product-unit-model';
 import { CampaignDetailModel } from '../models/campaign-detail-model';
 import { CampaignDetailMainModel, setCampaignDetailCalculation } from '../models/campaign-detail-main-model';
 import { ProductModel } from '../models/product-model';
-import { combineLatest, flatMap, map } from 'rxjs/operators';
+import { combineLatest, map, mergeMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -193,7 +193,7 @@ export class CampaignDetailService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 }

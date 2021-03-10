@@ -13,8 +13,7 @@ import {
   currencyFormat, getInvoiceType
 } from '../core/correct-library';
 import {CustomerService} from './customer.service';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
+import {map} from 'rxjs/operators';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
 import {CashDeskService} from './cash-desk.service';
 

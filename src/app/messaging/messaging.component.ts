@@ -1,26 +1,30 @@
+import { getDateTimeNow } from './../core/correct-library';
 import { MessageModel } from './../models/message-model';
 import { MessageMainModel } from './../models/message-main-model';
 import { MessageService } from './../services/message.service';
 import { ChatChanelMainModel } from './../models/chat-channel-main-model';
 import { ProfileMainModel } from './../models/profile-main-model';
-import { Component, OnInit} from '@angular/core';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {InformationService} from '../services/information.service';
-import {AuthenticationService} from '../services/authentication.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AngularFirestore, CollectionReference } from '@angular/fire/firestore';
+import { InformationService } from '../services/information.service';
+import { AuthenticationService } from '../services/authentication.service';
 import { ToastService } from '../services/toast.service';
 import { ProfileService } from '../services/profile.service';
 import { ChatChannelService } from '../services/chat-channel.service';
+import { Subscription } from 'rxjs';
+import { Query} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-messaging',
   templateUrl: './messaging.component.html',
   styleUrls: ['./messaging.component.css']
 })
-export class MessagingComponent implements OnInit {
+export class MessagingComponent implements OnInit, OnDestroy {
 
   constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected toastService: ToastService,
               protected db: AngularFirestore, protected profileService: ProfileService, protected service: ChatChannelService, protected mService: MessageService) {
   }
+  mainList$: Subscription;
   mainList: Array<MessageMainModel>;
   profileList: Array<ProfileMainModel>;
   chatChannelList: Array<ChatChanelMainModel>;
@@ -62,6 +66,19 @@ export class MessagingComponent implements OnInit {
         }
       });
     });
+
+    /*this.service.getMainItems().subscribe({
+      next: (result: any) => {
+        console.log(result);
+      },
+      error: (err: any) => {
+        console.log(err);
+      },
+      complete: () => {
+        console.log('complete');
+      }
+    });*/
+
     setTimeout(() => {
       if (this.chatChannelList === undefined) {
         this.chatChannelList = [];
@@ -104,12 +121,20 @@ export class MessagingComponent implements OnInit {
     // this.selectedChatChannelModel = new ChatChanelMainModel();
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+
+  }
+
   btnShowNewChat_Click(): void {
     this.isNewChatOpened = this.isNewChatOpened !== true;
   }
 
   async btnStarChatChannel_Click(): Promise<void> {
     try {
+      // TODO: eger ilgili kisiye ait channel varsa olusturma
       const c1 = this.service.clearMainModel();
       const c2 = this.service.clearMainModel();
 
@@ -135,21 +160,6 @@ export class MessagingComponent implements OnInit {
       this.selectedChatChannelModel = c1;
       await this.toastService.success('Bağlantı oluşturuldu');
 
-
-
-      /*Promise.all([
-        await this.db.collection('tblChatChannel').doc(c1.data.primaryKey).set(Object.assign({}, firstMessage)),
-        await this.db.collection('tblProfile').doc(c1.data.profilePrimaryKey).collection('tblChatChannelList').doc(c1.data.primaryKey).set(Object.assign({}, c1.data)),
-        await this.db.collection('tblProfile').doc(c2.data.profilePrimaryKey).collection('tblChatChannelList').doc(c2.data.primaryKey).set(Object.assign({}, c2.data))
-      ])
-        .then(async () => {
-          this.isNewChatOpened = true;
-          this.selectedChatChannelModel = c1;
-          await this.toastService.success('Bağlantı oluşturuldu');
-        })
-        .catch(async (error) => {
-          await this.infoService.error(error);
-        });*/
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -188,22 +198,61 @@ export class MessagingComponent implements OnInit {
     }
   }
 
+  async btnCleanMessages_Click(): Promise<void> {
+    try {
+      this.selectedChatChannelModel.data.clearDate = getDateTimeNow();
+      this.db.collection('tblProfile').doc(this.selectedChatChannelModel.data.profilePrimaryKey)
+      .collection('tblChatChannelList').doc(this.selectedChatChannelModel.data.primaryKey)
+      .update(Object.assign({}, this.selectedChatChannelModel.data));
+      this.mainList = [];
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedChatChannelModel, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExitChat_Click(): Promise<void> {
+    try {
+      this.selectedChatChannelModel = undefined;
+      this.mainList = undefined;
+      this.ngOnDestroy();
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   showSelectedProfileInfo(record: any): void {
+    const selectedOppositeProfile = record as ProfileMainModel;
     this.selectedChatChannelModel = undefined;
     if (this.selectedProfileModel && this.selectedProfileModel.data.primaryKey === record.data.primaryKey) {
       this.selectedProfileModel = undefined;
     } else {
+      this.chatChannelList.forEach((item) => {
+        if (item.data.oppositeProfilePrimaryKey === selectedOppositeProfile.data.primaryKey) {
+          this.showSelectedChatChannelInfo(item);
+          return;
+        }
+      });
       this.selectedProfileModel = record as ProfileMainModel;
     }
   }
 
   showSelectedChatChannelInfo(record: any): void {
+    this.ngOnDestroy();
     this.mainList = undefined;
     this.selectedProfileModel = undefined;
     if (this.selectedChatChannelModel && this.selectedChatChannelModel.data.primaryKey === record.data.primaryKey) {
       this.selectedChatChannelModel = undefined;
 
     } else {
+      this.isNewChatOpened = false;
       this.selectedChatChannelModel = record as ChatChanelMainModel;
       this.populateChannelDetails();
     }
@@ -212,8 +261,15 @@ export class MessagingComponent implements OnInit {
   populateChannelDetails(): void {
 
     this.mainList = [];
-    this.db.collection('tblChatChannel')
-    .doc(this.selectedChatChannelModel.data.primaryKey).collection('messages')
+    this.mainList$ = this.db.collection('tblChatChannel')
+    .doc(this.selectedChatChannelModel.data.primaryKey).collection('messages',
+    ref => {
+      let query: CollectionReference | Query = ref;
+      if (this.selectedChatChannelModel.data.clearDate !== null) {
+        query = query.orderBy('insertDate').startAt(this.selectedChatChannelModel.data.clearDate);
+      }
+      return query;
+    })
     .stateChanges().subscribe(list => {
       list.forEach(async change => {
         const data = change.payload.doc.data() as MessageModel;
@@ -227,8 +283,6 @@ export class MessagingComponent implements OnInit {
           const a = await this.profileService.getItem(returnData.data.profilePrimaryKey, false);
           returnData.profile = a === null ? this.profileService.clearProfileMainModel() : a.returnData;
           if (this.mainList.indexOf(returnData) < 0) {
-            console.log(this.mainList.indexOf(returnData));
-            console.log(returnData);
             this.mainList.push(returnData);
             this.mainList.sort((a, b) => {
               return new Date(a.data.insertDate).getTime() - new Date(b.data.insertDate).getTime();
@@ -246,7 +300,34 @@ export class MessagingComponent implements OnInit {
 
       });
     });
+    setTimeout(() => {
+      this.addWellcomeMessageToList();
+    }, 500);
 
   }
 
+  addWellcomeMessageToList(): void {
+    const firstMessage = this.mService.clearModel();
+    firstMessage.primaryKey = this.db.createId();
+    firstMessage.message = 'Hoşgeldiniz';
+    firstMessage.profilePrimaryKey = 's-1'; // system-1
+
+    const returnData = this.mService.clearMainModel();
+    returnData.data = this.mService.checkFields(firstMessage);
+    returnData.actionType = 'added';
+
+    this.mainList.push(returnData);
+  }
+
+  sendFixMessage(messageText: string): void {
+    const message = this.mService.clearModel();
+    message.primaryKey = this.db.createId();
+    message.message = messageText.trimLeft().trimRight();
+    message.profilePrimaryKey = this.mainProfileRecord.data.primaryKey;
+    this.db.collection('tblChatChannel')
+    .doc(this.selectedChatChannelModel.data.primaryKey)
+    .collection('messages')
+    .doc(message.primaryKey)
+    .set(Object.assign({}, message));
+  }
 }

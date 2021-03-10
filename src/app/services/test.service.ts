@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
-import { SalesInvoiceModel } from '../models/sales-invoice-model';
+import { map, mergeMap } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
 import { CustomerService } from './customer.service';
 

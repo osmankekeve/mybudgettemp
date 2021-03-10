@@ -3,7 +3,7 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import {Observable} from 'rxjs/Observable';
 import {PurchaseInvoiceModel} from '../models/purchase-invoice-model';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
@@ -19,7 +19,6 @@ import {PurchaseInvoiceDetailService} from './purchase-invoice-detail.service';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {PurchaseOrderService} from './purchase-order.service';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
-import { PurchaseOrderMainModel } from '../models/purchase-order-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -479,7 +478,7 @@ export class PurchaseInvoiceService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -516,7 +515,7 @@ export class PurchaseInvoiceService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

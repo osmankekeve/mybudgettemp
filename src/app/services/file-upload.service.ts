@@ -10,7 +10,7 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import {Observable, combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {getFileIcons} from '../core/correct-library';
 import {FileMainModel} from '../models/file-main-model';
 
@@ -163,7 +163,7 @@ export class FileUploadService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -190,7 +190,7 @@ export class FileUploadService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

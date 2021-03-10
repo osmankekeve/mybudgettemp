@@ -8,17 +8,12 @@
 					<img src='{{mainProfileRecord.data.pathOfProfilePicture}}' width="30px">
 					{{mainProfileRecord.data.longName}}
 				</div>
-				<div class="pt-1 pb-1 pr-1" *ngIf="selectedChatChannelModel">
-					<button class="btn btn-sm btn-round btn-outline-secondary" title="Sohbeti Temizle" (click)="btnCleanChat_Click()">
-					<i class="fa fa-remove"></i>
-					</button>
-				</div>
 				<div class="pt-1 pb-1 pr-1">
 					<button class="btn btn-sm btn-round btn-outline-secondary" title="Yeni Sohbet" (click)="btnShowNewChat_Click()">
 					<i class="far fa-comment-alt"></i>
 					</button>
 				</div>
-				<div class="pt-1 pb-1">
+				<div class="pt-1 pb-1 pr-1">
 					<button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler">
 					<i class="fas fa-ellipsis-v"></i>
 					</button>
@@ -102,25 +97,37 @@
 							<i class="fa fa-twitter" aria-hidden="true"></i>
 							<i class="fa fa-instagram" aria-hidden="true"></i>
 						</div>
+						<button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler" data-toggle="dropdown">
+							<i class="fas fa-ellipsis-v"></i>
+						</button>
+						<div class="dropdown-menu">
+							<a class="dropdown-item cursor-pointer fs-13" (click)="btnShowJsonData_Click()">Json Göster</a>
+							<a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanChat_Click()">Sohbeti Temizle</a>
+							<a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanMessages_Click()">Mesajları Temizle</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item cursor-pointer fs-13" (click)="btnExitChat_Click()">Çıkış</a>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="card-body work-area-2" style="background-color: #E6EAEA">
+		<div class="card-body work-area-11" style="background-color: #E6EAEA">
 			<div class="chat-container" id="messages">
 				<ul class="chat-box" *ngFor="let item of mainList;">
-					<li *ngIf="item.data?.profilePrimaryKey === 's-1'; else elseBlock">
+					<li  class="mb-4" *ngIf="item.data?.profilePrimaryKey === 's-1'; else elseBlock">
 						<div class="d-flex justify-content-center">
 							<div class="card py-2 px-4" style="border-radius: 25px;">{{item.data?.message}}</div>
 						</div>
 					</li>
 					<ng-template #elseBlock>
 						<li class="chat-right mb-4" *ngIf="item.data.profilePrimaryKey === mainProfileRecord.data.primaryKey">
-							<div class="chat-hour">{{item.data.insertDate | date: 'hh.mm.ss'}} <span class="fa fa-check-circle"></span></div>
 							<div class="chat-text">
 								<small class="font-weight-bold">{{item.profile.data.longName}}</small>
 								<br/>
 								<span>{{item.data.message}}</span>
+								<br/>
+								<div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
+								<small class="float-left ml-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
 							</div>
 							<div class="chat-avatar">
 								<img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
@@ -134,8 +141,10 @@
 								<small class="font-weight-bold">{{item.profile.data.longName}}</small>
 								<br/>
 								<span>{{item.data.message}}</span>
+								<br/>
+								<div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
+								<small class="float-right mr-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
 							</div>
-							<div class="chat-hour">{{item.data.insertDate | date: 'hh.mm.ss'}} <span class="fa fa-check-circle"></span></div>
 						</li>
 					</ng-template>
 				</ul>
@@ -214,9 +223,21 @@
 			</div>
 		</div>
 		<div class="card-footer">
+			<div class="input-group mt-2 mb-0 float-left" style="width: 83%;">
+				<div class="input-group-prepend">
+					<button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
+					Mesajlar
+					</button>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" (click)="sendFixMessage('Merhaba!')">Merhaba!</a>
+						<a class="dropdown-item" (click)="sendFixMessage('Toplantıdayım!')">Toplantıdayım!</a>
+						<a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, konu nedir?')">Şu an müsait değilim, konu nedir?</a>
+						<a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, birazdan geri dönüş yapıcam?')">Şu an müsait değilim, birazdan geri dönüş yapıcam?</a>
+					</div>
+				</div>
+				<input type="text" class="form-control" placeholder="Write your message.." [(ngModel)]="messageText">
+			</div>
 			<div class="form-group mt-2 mb-0">
-				<textarea class="form-control float-left" rows="1" placeholder="Write your message..." style="width: 83%;"
-				[(ngModel)]="messageText"></textarea>
 				<button type="button" class="btn btn-success float-right" style="width: 15%;" (click)="btnSendMessage_Click()">Gönder</button>
 			</div>
 		</div>

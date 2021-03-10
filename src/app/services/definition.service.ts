@@ -1,15 +1,11 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
-import {currencyFormat, getProductTypes} from '../core/correct-library';
-import {ProductModel} from '../models/product-model';
-import {ProductMainModel} from '../models/product-main-model';
 import {DefinitionModel} from '../models/definition-model';
 import {DefinitionMainModel} from '../models/definition-main-model';
-import {DiscountListModel} from '../models/discount-list-model';
 
 @Injectable({
   providedIn: 'root'

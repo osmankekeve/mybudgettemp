@@ -1,8 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ActionService} from './action.service';
@@ -13,7 +11,6 @@ import {ProductMainModel} from '../models/product-main-model';
 import {currencyFormat, getPaymentTypes, getTerms} from '../core/correct-library';
 import {ProductUnitService} from './product-unit.service';
 import {ProductUnitModel} from '../models/product-unit-model';
-import {SalesInvoiceDetailMainModel} from '../models/sales-invoice-detail-main-model';
 import {SalesInvoiceDetailService} from './sales-invoice-detail.service';
 
 @Injectable({

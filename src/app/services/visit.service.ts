@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
@@ -10,7 +10,6 @@ import {VisitModel} from '../models/visit-model';
 import {ProfileService} from './profile.service';
 import {VisitMainModel} from '../models/visit-main-model';
 import {CustomerService} from './customer.service';
-import {SalesInvoiceModel} from '../models/sales-invoice-model';
 
 @Injectable({
   providedIn: 'root'
@@ -149,7 +148,7 @@ export class VisitService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -175,7 +174,7 @@ export class VisitService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

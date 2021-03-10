@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { CustomerModel } from '../models/customer-model';
@@ -169,7 +169,7 @@ export class CustomerTargetService {
           returnData.customer = this.cusService.convertMainModel(customer);
           return Object.assign({ returnData }); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -196,7 +196,7 @@ export class CustomerTargetService {
 
           return Object.assign({ returnData }); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

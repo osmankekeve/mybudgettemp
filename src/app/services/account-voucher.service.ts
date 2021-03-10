@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { CustomerModel } from '../models/customer-model';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import { AuthenticationService } from './authentication.service';
 import { AccountVoucherModel } from '../models/account-voucher-model';
@@ -264,7 +264,7 @@ export class AccountVoucherService {
           returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
           return Object.assign({returnData}); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -297,7 +297,7 @@ export class AccountVoucherService {
           returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
           return Object.assign({returnData}); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

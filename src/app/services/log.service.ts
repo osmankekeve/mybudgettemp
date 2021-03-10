@@ -4,9 +4,8 @@ import {AuthenticationService} from './authentication.service';
 import {LogModel} from '../models/log-model';
 import {Observable, combineLatest} from 'rxjs';
 import {CustomerModel} from '../models/customer-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {ProfileService} from './profile.service';
-import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileMainModel} from '../models/profile-main-model';
 
 @Injectable({
@@ -229,7 +228,7 @@ export class LogService {
             return Object.assign({data, actionType: change.type});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -246,7 +245,7 @@ export class LogService {
             return Object.assign({data, actionType: change.type});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -264,7 +263,7 @@ export class LogService {
           return Object.assign({data, actionType: change.type});
         }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

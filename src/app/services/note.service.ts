@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
 import { NoteModel } from '../models/note-model';
 import { NoteMainModel } from '../models/note-main-model';

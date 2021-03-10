@@ -1,15 +1,13 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {ProfileService} from './profile.service';
 import {ActionService} from './action.service';
 import {ProductUnitMainModel} from '../models/product-unit-main-model';
 import {ProductUnitModel} from '../models/product-unit-model';
-import { ProductUnitMappingService } from './product-unit-mapping.service';
-import { ProductUnitMappingMainModel } from '../models/product-unit-mapping-main-model';
 import { ProductUnitMappingModel } from '../models/product-unit-mapping-model';
 
 @Injectable({

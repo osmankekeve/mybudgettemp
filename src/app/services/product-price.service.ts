@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {AuthenticationService} from './authentication.service';
 import {LogService} from './log.service';
 import {SettingService} from './setting.service';
@@ -11,12 +11,9 @@ import {ActionService} from './action.service';
 import {ProductPriceModel} from '../models/product-price-model';
 import {ProductPriceMainModel} from '../models/product-price-main-model';
 import {ProductModel} from '../models/product-model';
-import {currencyFormat, getEducation, getGenders, getProductTypes, getStatus, getStringCorrected, getUserTypes} from '../core/correct-library';
+import {currencyFormat, getStringCorrected} from '../core/correct-library';
 import {combineLatest} from 'rxjs';
 import {ProductService} from './product.service';
-import {ProductDiscountModel} from '../models/product-discount-model';
-import {ProfileModel} from '../models/profile-model';
-import {ProductMainModel} from '../models/product-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -158,7 +155,7 @@ export class ProductPriceService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
@@ -182,7 +179,7 @@ export class ProductPriceService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 

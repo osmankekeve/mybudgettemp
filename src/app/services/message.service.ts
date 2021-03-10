@@ -1,13 +1,11 @@
 import { ProfileModel } from './../models/profile-model';
 import { ProfileService } from './profile.service';
-import { ChatChanelModel } from '../models/chat-channel-model';
 import { Injectable } from '@angular/core';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { AuthenticationService } from './authentication.service';
-import { ChatChanelMainModel } from '../models/chat-channel-main-model';
 import { MessageMainModel } from '../models/message-main-model';
 import { MessageModel } from '../models/message-model';
 
@@ -80,7 +78,7 @@ export class MessageService {
             return Object.assign({returnData});
           }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 }

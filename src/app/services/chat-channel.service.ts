@@ -2,9 +2,9 @@ import { ProfileModel } from './../models/profile-model';
 import { ProfileService } from './profile.service';
 import { ChatChanelModel } from './../models/chat-channel-model';
 import { Injectable } from '@angular/core';
-import { map, flatMap } from 'rxjs/operators';
+import { map, mergeMap } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
-import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
+import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import { Observable } from 'rxjs/Observable';
 import { AuthenticationService } from './authentication.service';
 import { ChatChanelMainModel } from '../models/chat-channel-main-model';
@@ -84,8 +84,27 @@ export class ChatChannelService {
           returnData.opposideProfile = this.profileService.convertMainModel(profile);
           return Object.assign({ returnData }); }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
+
+  isProfileHasChannel = async (profilePrimaryKey: string, oppositeProfilePrimaryKey: string):
+    Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      this.db.collection('tblProfile').doc(profilePrimaryKey).collection(this.profileChannelTableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.limit(1).where('oppositeProfilePrimaryKey', '==', oppositeProfilePrimaryKey);
+        return query;
+      }).get().subscribe(snapshot => {
+        if (snapshot.size > 0) {
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      });
+    } catch (error) {
+      reject({message: 'Error: ' + error});
+    }
+  })
 
 }

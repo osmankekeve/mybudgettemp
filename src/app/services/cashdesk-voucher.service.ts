@@ -3,7 +3,7 @@ import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query
 import {Observable} from 'rxjs/Observable';
 import {AuthenticationService} from './authentication.service';
 import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
-import {map, flatMap} from 'rxjs/operators';
+import {map, mergeMap} from 'rxjs/operators';
 import {combineLatest} from 'rxjs';
 import {CashDeskModel} from '../models/cash-desk-model';
 import {LogService} from './log.service';
@@ -325,7 +325,7 @@ export class CashDeskVoucherService {
           return Object.assign({returnData});
         }));
       });
-    }), flatMap(feeds => combineLatest(feeds)));
+    }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
