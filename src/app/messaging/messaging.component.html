@@ -1,258 +1,258 @@
 
 <div class="row">
-  <div class="col-sm-4">
-	  <div class="card work-area">
+	<div class="col-sm-4">
+		<div class="card work-area">
+			<div class="card-header">
+				<div class="d-flex">
+				  <div class="pt-1 pb-1 pr-1 flex-grow-1">
+					  <img src='{{mainProfileRecord.data.pathOfProfilePicture}}' width="30px">
+					  {{mainProfileRecord.data.longName}}
+				  </div>
+				  <div class="pt-1 pb-1 pr-1">
+					  <button class="btn btn-sm btn-round btn-outline-secondary" title="Yeni Sohbet" (click)="btnShowNewChat_Click()">
+					  <i class="far fa-comment-alt"></i>
+					  </button>
+				  </div>
+				  <div class="pt-1 pb-1 pr-1">
+					  <button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler">
+					  <i class="fas fa-ellipsis-v"></i>
+					  </button>
+				  </div>
+			  </div>
+			  <div class="w-100 head-filter">
+				  <div class="input-group input-group-round">
+					<div class="input-group-prepend">
+					  <span class="input-group-text">
+						  <i class="fas fa-search"></i>
+					  </span>
+					</div>
+					<input type="search" class="form-control filter-list-input" placeholder="Ara.." [(ngModel)]="searchText">
+				  </div>
+			  </div>
+			</div>
+			<div class="card-body p-0" *ngIf="isNewChatOpened">
+			  <div *ngIf="profileList != undefined; else elseBlock2">
+				  <div *ngIf="profileList.length > 0; else elseBlock">
+					  <div class="chat_list" *ngFor="let item of profileList | filterProfile: searchText; index as i;" 
+						  [ngClass]="{'bg-yellow': item.data.primaryKey === selectedProfileModel?.data.primaryKey}"
+						  (click)="showSelectedProfileInfo(item)">
+						  <div class="chat_people">
+						  <div class="chat_img"> <img src={{item.data.pathOfProfilePicture}} alt="sunil"> </div>
+						  <div class="chat_ib">
+							  <h5>{{item.data.longName}} <span class="chat_date">{{item.typeTr}}</span></h5>
+							  <p>Test, which is a new approach to have all solutions</p>
+						  </div>
+						  </div>
+					  </div>
+				  </div>
+				  <ng-template #elseBlock>
+					<div class="card bg-red text-white m-4">
+					  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+					</div>
+				  </ng-template>
+			  </div>
+			  <ng-template #elseBlock2>
+				<div class="loader"></div>
+			  </ng-template>
+			</div>
+			<div class="card-body p-0" *ngIf="!isNewChatOpened">
+			  <div *ngIf="chatChannelList != undefined; else elseBlock3">
+				  <div *ngIf="chatChannelList.length > 0; else elseBlock4">
+					  <div class="chat_list" *ngFor="let item of chatChannelList; index as i;"
+					  [ngClass]="{'bg-yellow': item.data.primaryKey === selectedChatChannelModel?.data.primaryKey}"
+					  (click)="showSelectedChatChannelInfo(item)">
+						  <div class="chat_people">
+						  <div class="chat_img"> <img src={{item.opposideProfile.data.pathOfProfilePicture}} alt="sunil"> </div>
+						  <div class="chat_ib">
+							  <h5>{{item.opposideProfile.data.longName}} <span class="chat_date">{{item.opposideProfile.typeTr}}</span></h5>
+							  <p>Test, which is a new approach to have all solutions</p>
+						  </div>
+						  </div>
+					  </div>
+				  </div>
+				  <ng-template #elseBlock4>
+					<div class="card bg-red text-white m-4">
+					  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+					</div>
+				  </ng-template>
+			  </div>
+			  <ng-template #elseBlock3>
+				<div class="loader"></div>
+			  </ng-template>
+			</div>
+		</div>
+	</div>
+	<div class="col-sm-8">
+	  <div class="card work-area" *ngIf="selectedChatChannelModel">
 		  <div class="card-header">
-			  <div class="d-flex">
-				<div class="pt-1 pb-1 pr-1 flex-grow-1">
-					<img src='{{mainProfileRecord.data.pathOfProfilePicture}}' width="30px">
-					{{mainProfileRecord.data.longName}}
-				</div>
-				<div class="pt-1 pb-1 pr-1">
-					<button class="btn btn-sm btn-round btn-outline-secondary" title="Yeni Sohbet" (click)="btnShowNewChat_Click()">
-					<i class="far fa-comment-alt"></i>
-					</button>
-				</div>
-				<div class="pt-1 pb-1 pr-1">
-					<button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler">
-					<i class="fas fa-ellipsis-v"></i>
-					</button>
-				</div>
-			</div>
-			<div class="w-100 head-filter">
-				<div class="input-group input-group-round">
+			  <div class="contact-profile">
+				  <div class="d-flex justify-content-between">
+					  <div class="d-flex align-items-center">
+						  <img src={{selectedChatChannelModel.opposideProfile.data.pathOfProfilePicture}} alt={{selectedChatChannelModel.opposideProfile.data.longName}} />
+						  <label class="mb-0">{{selectedChatChannelModel.opposideProfile.data.longName}}</label>
+					  </div>
+					  <div class="d-flex align-items-center">
+						  <div class="social-media">
+							  <i class="fa fa-facebook" aria-hidden="true"></i>
+							  <i class="fa fa-twitter" aria-hidden="true"></i>
+							  <i class="fa fa-instagram" aria-hidden="true"></i>
+						  </div>
+						  <button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler" data-toggle="dropdown">
+							  <i class="fas fa-ellipsis-v"></i>
+						  </button>
+						  <div class="dropdown-menu">
+							  <a class="dropdown-item cursor-pointer fs-13" (click)="btnShowJsonData_Click()">Json Göster</a>
+							  <a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanChat_Click()">Sohbeti Temizle</a>
+							  <a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanMessages_Click()">Mesajları Temizle</a>
+							  <div class="dropdown-divider"></div>
+							  <a class="dropdown-item cursor-pointer fs-13" (click)="btnExitChat_Click()">Çıkış</a>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+		  </div>
+		  <div class="card-body work-area-11" style="background-color: #E6EAEA">
+			  <div class="chat-container" id="messages">
+				  <ul class="chat-box" *ngFor="let item of mainList;">
+					  <li  class="mb-4" *ngIf="item.data?.profilePrimaryKey === 's-1'; else elseBlock">
+						  <div class="d-flex justify-content-center">
+							  <div class="card py-2 px-4" style="border-radius: 25px;">{{item.data?.message}}</div>
+						  </div>
+					  </li>
+					  <ng-template #elseBlock>
+						  <li class="chat-right mb-4" *ngIf="item.data.profilePrimaryKey === mainProfileRecord.data.primaryKey">
+							  <div class="chat-text">
+								  <small class="font-weight-bold">{{item.profile.data.longName}}</small>
+								  <br/>
+								  <span>{{item.data.message}}</span>
+								  <br/>
+								  <div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
+								  <small class="float-left ml-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
+							  </div>
+							  <div class="chat-avatar">
+								  <img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
+							  </div>
+						  </li>
+						  <li class="chat-left mb-4" *ngIf="item.data.profilePrimaryKey !== mainProfileRecord.data.primaryKey">
+							  <div class="chat-avatar">
+								  <img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
+							  </div>
+							  <div class="chat-text">
+								  <small class="font-weight-bold">{{item.profile.data.longName}}</small>
+								  <br/>
+								  <span>{{item.data.message}}</span>
+								  <br/>
+								  <div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
+								  <small class="float-right mr-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
+							  </div>
+						  </li>
+					  </ng-template>
+				  </ul>
+				  <ul class="chat-box" hidden>
+					  <li class="chat-left mb-2">
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							  <div class="chat-name">Russell</div>
+						  </div>
+						  <div class="chat-text">Are we meeting today?
+							  <br>Project has been already finished and I have results to show you.</div>
+						  <div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					  </li>
+					  <li class="chat-right mb-2">
+						  <div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						  <div class="chat-text">Well I am not sure.
+							  <br>I have results to show you.</div>
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar5.png" alt="Retail Admin">
+							  <div class="chat-name">Joyse</div>
+						  </div>
+					  </li>
+					  <li class="chat-left mb-2">
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							  <div class="chat-name">Russell</div>
+						  </div>
+						  <div class="chat-text">The rest of the team is not here yet.
+							  <br>Maybe in an hour or so?</div>
+						  <div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					  </li>
+					  <li class="chat-right mb-2">
+						  <div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						  <div class="chat-text">Have you faced any problems at the last phase of the project?</div>
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
+							  <div class="chat-name">Jin</div>
+						  </div>
+					  </li>
+					  <li class="chat-left mb-2">
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							  <div class="chat-name">Russell</div>
+						  </div>
+						  <div class="chat-text">Actually everything was fine.
+							  <br>I'm very excited to show this to our team.</div>
+						  <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
+					  </li>
+					  <li class="chat-left mb-2">
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							  <div class="chat-name">Russell</div>
+						  </div>
+						  <div class="chat-text">The rest of the team is not here yet.
+							  <br>Maybe in an hour or so?</div>
+						  <div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
+					  </li>
+					  <li class="chat-right mb-2">
+						  <div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
+						  <div class="chat-text">Have you faced any problems at the last phase of the project?</div>
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
+							  <div class="chat-name">Jin</div>
+						  </div>
+					  </li>
+					  <li class="chat-left mb-2">
+						  <div class="chat-avatar">
+							  <img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
+							  <div class="chat-name">Russell</div>
+						  </div>
+						  <div class="chat-text">Actually everything was fine.
+							  <br>I'm very excited to show this to our team.</div>
+						  <div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
+					  </li>
+				  </ul>
+			  </div>
+		  </div>
+		  <div class="card-footer">
+			  <div class="input-group mt-2 mb-0 float-left" style="width: 83%;">
 				  <div class="input-group-prepend">
-					<span class="input-group-text">
-						<i class="fas fa-search"></i>
-					</span>
+					  <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
+					  Mesajlar
+					  </button>
+					  <div class="dropdown-menu">
+						  <a class="dropdown-item" (click)="sendFixMessage('Merhaba!')">Merhaba!</a>
+						  <a class="dropdown-item" (click)="sendFixMessage('Toplantıdayım!')">Toplantıdayım!</a>
+						  <a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, konu nedir?')">Şu an müsait değilim, konu nedir?</a>
+						  <a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, birazdan geri dönüş yapıcam?')">Şu an müsait değilim, birazdan geri dönüş yapıcam?</a>
+					  </div>
 				  </div>
-				  <input type="search" class="form-control filter-list-input" placeholder="Ara.." [(ngModel)]="searchText">
-				</div>
-			</div>
-		  </div>
-		  <div class="card-body p-0" *ngIf="isNewChatOpened">
-			<div *ngIf="profileList != undefined; else elseBlock2">
-				<div *ngIf="profileList.length > 0; else elseBlock">
-					<div class="chat_list" *ngFor="let item of profileList | filterProfile: searchText; index as i;" 
-						[ngClass]="{'bg-yellow': item.data.primaryKey === selectedProfileModel?.data.primaryKey}"
-						(click)="showSelectedProfileInfo(item)">
-						<div class="chat_people">
-						<div class="chat_img"> <img src={{item.data.pathOfProfilePicture}} alt="sunil"> </div>
-						<div class="chat_ib">
-							<h5>{{item.data.longName}} <span class="chat_date">{{item.typeTr}}</span></h5>
-							<p>Test, which is a new approach to have all solutions</p>
-						</div>
-						</div>
-					</div>
-				</div>
-				<ng-template #elseBlock>
-				  <div class="card bg-red text-white m-4">
-					<div class="card-body">Görüntülenecek veri bulunamadı.</div>
-				  </div>
-				</ng-template>
-			</div>
-			<ng-template #elseBlock2>
-			  <div class="loader"></div>
-			</ng-template>
-		  </div>
-		  <div class="card-body p-0" *ngIf="!isNewChatOpened">
-			<div *ngIf="chatChannelList != undefined; else elseBlock3">
-				<div *ngIf="chatChannelList.length > 0; else elseBlock4">
-					<div class="chat_list" *ngFor="let item of chatChannelList; index as i;"
-					[ngClass]="{'bg-yellow': item.data.primaryKey === selectedChatChannelModel?.data.primaryKey}"
-					(click)="showSelectedChatChannelInfo(item)">
-						<div class="chat_people">
-						<div class="chat_img"> <img src={{item.opposideProfile.data.pathOfProfilePicture}} alt="sunil"> </div>
-						<div class="chat_ib">
-							<h5>{{item.opposideProfile.data.longName}} <span class="chat_date">{{item.opposideProfile.typeTr}}</span></h5>
-							<p>Test, which is a new approach to have all solutions</p>
-						</div>
-						</div>
-					</div>
-				</div>
-				<ng-template #elseBlock4>
-				  <div class="card bg-red text-white m-4">
-					<div class="card-body">Görüntülenecek veri bulunamadı.</div>
-				  </div>
-				</ng-template>
-			</div>
-			<ng-template #elseBlock3>
-			  <div class="loader"></div>
-			</ng-template>
+				  <input type="text" class="form-control" placeholder="Write your message.." [(ngModel)]="messageText">
+			  </div>
+			  <div class="form-group mt-2 mb-0">
+				  <button type="button" class="btn btn-success float-right" style="width: 15%;" (click)="btnSendMessage_Click()">Gönder</button>
+			  </div>
 		  </div>
 	  </div>
-  </div>
-  <div class="col-sm-8">
-	<div class="card work-area" *ngIf="selectedChatChannelModel">
-		<div class="card-header">
-			<div class="contact-profile">
-				<div class="d-flex justify-content-between">
-					<div class="d-flex align-items-center">
-						<img src={{selectedChatChannelModel.opposideProfile.data.pathOfProfilePicture}} alt={{selectedChatChannelModel.opposideProfile.data.longName}} />
-						<label class="mb-0">{{selectedChatChannelModel.opposideProfile.data.longName}}</label>
-					</div>
-					<div class="d-flex align-items-center">
-						<div class="social-media">
-							<i class="fa fa-facebook" aria-hidden="true"></i>
-							<i class="fa fa-twitter" aria-hidden="true"></i>
-							<i class="fa fa-instagram" aria-hidden="true"></i>
-						</div>
-						<button class="btn btn-sm btn-round btn-outline-secondary" title="Seçenekler" data-toggle="dropdown">
-							<i class="fas fa-ellipsis-v"></i>
-						</button>
-						<div class="dropdown-menu">
-							<a class="dropdown-item cursor-pointer fs-13" (click)="btnShowJsonData_Click()">Json Göster</a>
-							<a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanChat_Click()">Sohbeti Temizle</a>
-							<a class="dropdown-item cursor-pointer fs-13" (click)="btnCleanMessages_Click()">Mesajları Temizle</a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item cursor-pointer fs-13" (click)="btnExitChat_Click()">Çıkış</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="card-body work-area-11" style="background-color: #E6EAEA">
-			<div class="chat-container" id="messages">
-				<ul class="chat-box" *ngFor="let item of mainList;">
-					<li  class="mb-4" *ngIf="item.data?.profilePrimaryKey === 's-1'; else elseBlock">
-						<div class="d-flex justify-content-center">
-							<div class="card py-2 px-4" style="border-radius: 25px;">{{item.data?.message}}</div>
-						</div>
-					</li>
-					<ng-template #elseBlock>
-						<li class="chat-right mb-4" *ngIf="item.data.profilePrimaryKey === mainProfileRecord.data.primaryKey">
-							<div class="chat-text">
-								<small class="font-weight-bold">{{item.profile.data.longName}}</small>
-								<br/>
-								<span>{{item.data.message}}</span>
-								<br/>
-								<div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
-								<small class="float-left ml-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
-							</div>
-							<div class="chat-avatar">
-								<img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
-							</div>
-						</li>
-						<li class="chat-left mb-4" *ngIf="item.data.profilePrimaryKey !== mainProfileRecord.data.primaryKey">
-							<div class="chat-avatar">
-								<img src={{item.profile.data.pathOfProfilePicture}} alt={{item.profile.data.longName}}>
-							</div>
-							<div class="chat-text">
-								<small class="font-weight-bold">{{item.profile.data.longName}}</small>
-								<br/>
-								<span>{{item.data.message}}</span>
-								<br/>
-								<div style="border-bottom: 1px solid #ced4da" class="mx-n3 my-1"></div>
-								<small class="float-right mr-n2">{{item.data.insertDate | date: 'HH:mm'}}</small>
-							</div>
-						</li>
-					</ng-template>
-				</ul>
-				<ul class="chat-box" hidden>
-					<li class="chat-left mb-2">
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-							<div class="chat-name">Russell</div>
-						</div>
-						<div class="chat-text">Are we meeting today?
-							<br>Project has been already finished and I have results to show you.</div>
-						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
-					</li>
-					<li class="chat-right mb-2">
-						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
-						<div class="chat-text">Well I am not sure.
-							<br>I have results to show you.</div>
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar5.png" alt="Retail Admin">
-							<div class="chat-name">Joyse</div>
-						</div>
-					</li>
-					<li class="chat-left mb-2">
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-							<div class="chat-name">Russell</div>
-						</div>
-						<div class="chat-text">The rest of the team is not here yet.
-							<br>Maybe in an hour or so?</div>
-						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
-					</li>
-					<li class="chat-right mb-2">
-						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
-						<div class="chat-text">Have you faced any problems at the last phase of the project?</div>
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
-							<div class="chat-name">Jin</div>
-						</div>
-					</li>
-					<li class="chat-left mb-2">
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-							<div class="chat-name">Russell</div>
-						</div>
-						<div class="chat-text">Actually everything was fine.
-							<br>I'm very excited to show this to our team.</div>
-						<div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
-					</li>
-					<li class="chat-left mb-2">
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-							<div class="chat-name">Russell</div>
-						</div>
-						<div class="chat-text">The rest of the team is not here yet.
-							<br>Maybe in an hour or so?</div>
-						<div class="chat-hour">08:57 <span class="fa fa-check-circle"></span></div>
-					</li>
-					<li class="chat-right mb-2">
-						<div class="chat-hour">08:59 <span class="fa fa-check-circle"></span></div>
-						<div class="chat-text">Have you faced any problems at the last phase of the project?</div>
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar4.png" alt="Retail Admin">
-							<div class="chat-name">Jin</div>
-						</div>
-					</li>
-					<li class="chat-left mb-2">
-						<div class="chat-avatar">
-							<img src="https://www.bootdey.com/img/Content/avatar/avatar3.png" alt="Retail Admin">
-							<div class="chat-name">Russell</div>
-						</div>
-						<div class="chat-text">Actually everything was fine.
-							<br>I'm very excited to show this to our team.</div>
-						<div class="chat-hour">07:00 <span class="fa fa-check-circle"></span></div>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<div class="card-footer">
-			<div class="input-group mt-2 mb-0 float-left" style="width: 83%;">
-				<div class="input-group-prepend">
-					<button type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown">
-					Mesajlar
-					</button>
-					<div class="dropdown-menu">
-						<a class="dropdown-item" (click)="sendFixMessage('Merhaba!')">Merhaba!</a>
-						<a class="dropdown-item" (click)="sendFixMessage('Toplantıdayım!')">Toplantıdayım!</a>
-						<a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, konu nedir?')">Şu an müsait değilim, konu nedir?</a>
-						<a class="dropdown-item" (click)="sendFixMessage('Şu an müsait değilim, birazdan geri dönüş yapıcam?')">Şu an müsait değilim, birazdan geri dönüş yapıcam?</a>
-					</div>
-				</div>
-				<input type="text" class="form-control" placeholder="Write your message.." [(ngModel)]="messageText">
-			</div>
-			<div class="form-group mt-2 mb-0">
-				<button type="button" class="btn btn-success float-right" style="width: 15%;" (click)="btnSendMessage_Click()">Gönder</button>
-			</div>
-		</div>
-	</div>
-	<div class="card work-area" *ngIf="!selectedChatChannelModel">
-		<div class="card-body">
-			<div class="text-center">
-				<h3 class="font-weight-400">KEKEVE WEB</h3>
-				<h4 class="font-weight-400">Sistem İçi İletişim Paneli</h4>
-			</div>
-			<div class="d-flex justify-content-center" *ngIf="selectedProfileModel">
-				<button type="button" class="btn btn-light" (click)="btnStarChatChannel_Click()">İletişime Geç
-				</button>
-			</div>
-		</div>
+	  <div class="card work-area" *ngIf="!selectedChatChannelModel">
+		  <div class="card-body">
+			  <div class="text-center">
+				  <h3 class="font-weight-400">KEKEVE WEB</h3>
+				  <h4 class="font-weight-400">Sistem İçi İletişim Paneli</h4>
+			  </div>
+			  <div class="d-flex justify-content-center" *ngIf="selectedProfileModel">
+				  <button type="button" class="btn btn-light" (click)="btnStarChatChannel_Click()">İletişime Geç
+				  </button>
+			  </div>
+		  </div>
+	  </div>
 	</div>
   </div>
-</div>
