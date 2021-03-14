@@ -1,0 +1,153 @@
+<div class="card">
+  <div class="card-header">
+    <div class="row">
+      <div class="col-sm-4">
+        <img src="../../assets/images/dashboard.png" width="30px" class="float-left mr-1">
+        <h5 class="card-title">Satış Pano</h5>
+      </div>
+    </div>
+  </div>
+  <div class="card-body bg-body dashboard-work-area">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="card-body">
+                <canvas id="barChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div id="panel-navigator">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/sales_invoice.png" width="30px">
+                      </div>
+                      <p class="card-category">Satış Faturası</p>
+                      <h5 class="card-title">{{siAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div  class="stats text-center">Son 24 Saatlik Onaylı İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12 mt-1">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-danger card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/collection.png" width="30px">
+                      </div>
+                      <p class="card-category">Tahsilat</p>
+                      <h5 class="card-title">{{colAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div  class="stats text-center">Son 24 Saatlik Onaylı İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-12 mt-1">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                        <img src="../../assets/images/account_voucher.png" width="30px">
+                      </div>
+                      <p class="card-category">Hesap Fişi</p>
+                      <h5 class="card-title">{{avAmount | currency:'₺'}}</h5>
+                    </div>
+                    <div class="card-footer">
+                      <div  class="stats text-center">Son 24 Saatlik Onaylı İşlemler</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="row">
+                <a class="col-sm-6" routerLink="/sales-offer" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/sales_invoice.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Satış Teklifi</div>
+                    </div>
+                  </div>
+                </a>
+                <a class="col-sm-6" routerLink="/sales-order" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/sales_invoice.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Satış Siparişi</div>
+                    </div>
+                  </div>
+                </a>
+                <a class="col-sm-6 mt-1" routerLink="/sales-invoice" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/sales_invoice.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Satış Faturası</div>
+                    </div>
+                  </div>
+                </a>
+                <a class="col-sm-6 mt-1" routerLink="/collection" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/collection.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Tahsilat</div>
+                    </div>
+                  </div>
+                </a>
+                <a class="col-sm-6 mt-1" routerLink="/account-voucher" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/account_voucher.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Cari Fiş</div>
+                    </div>
+                  </div>
+                </a>
+                <a class="col-sm-6 mt-1" routerLink="/campaign" routerLinkActive="active" title="Modülü Aç">
+                  <div class="card card-stats bg-white">
+                    <div class="card-header card-header-warning card-header-icon d-flex justify-content-center">
+                      <div class="card-icon">
+                        <img src="../../assets/images/account_voucher.png" width="30px">
+                      </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                      <div  class="stats text-center">Kampanya</div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -133,3 +133,20 @@
     margin-right: 4px;
     color: #5cb85c;
   }
+
+  .module-shortcut {
+    border-radius: 25px;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    cursor: pointer;
+  }
+
+  .module-shortcut a {
+    color:#818896;
+    text-decoration: none;
+  }
+
+  .module-shortcut:hover {
+    border-color: #c4c4c4;
+  }

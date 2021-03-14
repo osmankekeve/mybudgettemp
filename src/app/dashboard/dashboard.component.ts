@@ -15,6 +15,7 @@ import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
+import { CustomerRelationMainModel } from '../models/customer-relation-main-model';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,7 +24,7 @@ import {GlobalService} from '../services/global.service';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   BarChart: any;
-  actionList: Array<CustomerRelationModel> = [];
+  actionList: Array<CustomerRelationMainModel> = [];
   todoList: Array<TodoListMainModel> = [];
   purchaseInvoiceAmount: any = 0;
   siAmount: any = 0;
@@ -248,12 +249,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.crmService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
       this.actionList = [];
       list.forEach((item: any) => {
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        } else if (item.actionType === 'removed') {
-          this.actionList.splice(this.actionList.indexOf(item), 1);
-        } else if (item.actionType === 'modified') {
-          this.actionList[this.actionList.indexOf(item)] = item.data;
+        const data = item.returnData;
+        console.log(data);
+        if (data.actionType === 'added') {
+          this.actionList.push(data);
+        } else if (data.actionType === 'removed') {
+          this.actionList.splice(this.actionList.indexOf(data), 1);
+        } else if (data.actionType === 'modified') {
+          this.actionList[this.actionList.indexOf(data)] = data;
         } else {
           // nothing
         }

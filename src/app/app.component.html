@@ -236,12 +236,47 @@
               <span>Modüller</span>
             </div>
             <div class="card-body bg-light panelHeightControl">
-              Osman
-            </div>
-            <div class="card-footer">
-              <button class="btn btn-sm btn-outline-secondary my-2 my-sm-0 float-right"
-                      (click)="showModulesPanel=false"><i class="fa fa-times-circle mr-2"></i>Kapat
-              </button>
+              <div class="d-block">
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/dashboard" routerLinkActive="active">
+                    <img src="../../assets/images/dashboard.png" width="30px" alt=""> Pano</a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/customer-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/customers.png"> Müşteri Modülü 
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/sales-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/sales_invoice.png"> Satış Modülü 
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/purchase-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/purchase_invoice.png"> Alım Modülü 
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/account-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/customer_account.png"> Hesaplar Modülü 
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/product-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/product-list.png"> Ürünler Modülü 
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/definition-dashboard" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/report_icon_2.png"> Tanımlar
+                  </a>
+                </div>
+                <div class="p-2 mb-1 fs-14 module-shortcut">
+                  <a routerLink="/reports" routerLinkActive="active">
+                    <img width="30px" src="../../assets/images/report_icon.png"> Raporlar
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -50,6 +50,12 @@ import {PurchaseOrderComponent} from './purchase-order/purchase-order.component'
 import {CompanyComponent} from './company/company.component';
 import { CampaignComponent } from './campaign/campaign.component';
 import { MessagingComponent } from './messaging/messaging.component';
+import { DashboardCustomerComponent } from './dashboard-customer/dashboard-customer.component';
+import { DashboardSalesComponent } from './dashboard-sales/dashboard-sales.component';
+import { DashboardPurchaseComponent } from './dashboard-purchase/dashboard-purchase.component';
+import { DashboardAccountComponent } from './dashboard-account/dashboard-account.component';
+import { DashboardProductComponent } from './dashboard-product/dashboard-product.component';
+import { DashboardDefinitionComponent } from './dashboard-definition/dashboard-definition.component';
 
 
 const routes: Routes = [
@@ -108,6 +114,12 @@ const routes: Routes = [
   {path: 'company', component: CompanyComponent, pathMatch: 'full'},
   {path: 'campaign', component: CampaignComponent, pathMatch: 'full'},
   {path: 'messaging', component: MessagingComponent, pathMatch: 'full'},
+  {path: 'customer-dashboard', component: DashboardCustomerComponent, pathMatch: 'full'},
+  {path: 'sales-dashboard', component: DashboardSalesComponent, pathMatch: 'full'},
+  {path: 'purchase-dashboard', component: DashboardPurchaseComponent, pathMatch: 'full'},
+  {path: 'account-dashboard', component: DashboardAccountComponent, pathMatch: 'full'},
+  {path: 'product-dashboard', component: DashboardProductComponent, pathMatch: 'full'},
+  {path: 'definition-dashboard', component: DashboardDefinitionComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -125,7 +137,8 @@ export const routingComponents = [
   SettingComponent, UserComponent, ReminderComponent, FileUploadComponent, VisitComponent, CustomerTargetComponent, ProductComponent,
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
   ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent, SalesOrderComponent, SalesOfferComponent,
-  PurchaseOfferComponent, PurchaseOrderComponent, CompanyComponent, CampaignComponent, MessagingComponent
+  PurchaseOfferComponent, PurchaseOrderComponent, CompanyComponent, CampaignComponent, MessagingComponent, DashboardCustomerComponent, DashboardSalesComponent,
+  DashboardPurchaseComponent, DashboardAccountComponent, DashboardProductComponent, DashboardDefinitionComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.
