@@ -119,6 +119,7 @@ export class PurchaseInvoiceDetailService {
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
+    returnData.maxQuantity = returnData.data.quantity;
     returnData.invoiceStatus = ''; // waitingForApprove, approved, rejected
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -129,6 +130,7 @@ export class PurchaseInvoiceDetailService {
   convertMainModel(model: PurchaseInvoiceDetailModel): PurchaseInvoiceDetailMainModel {
     const returnData = this.clearMainModel();
     returnData.data = this.checkFields(model);
+    returnData.maxQuantity = returnData.data.quantity;
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -153,6 +155,7 @@ export class PurchaseInvoiceDetailService {
     data.data.taxRate = orderItem.data.taxRate;
     data.data.unitPrimaryKey = orderItem.data.unitPrimaryKey;
     data.data.unitValue = orderItem.data.unitValue;
+    data.maxQuantity = data.data.quantity;
     data.product = orderItem.product;
     data.unit = orderItem.unit;
     setInvoiceDetailCalculation(data);

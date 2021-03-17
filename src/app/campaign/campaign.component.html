@@ -345,6 +345,7 @@
           <div class="row">
             <div class="col-sm-1">
               <select class="form-control form-control-sm w-100" id="productType" name="productType"
+                      [disabled]="selectedDetail.data.primaryKey!=undefined"
                       [(ngModel)]="productType">
                 <option value="normal">Normal Ürün</option>
                 <option value="promotion">Promosyon Ürün</option>
@@ -356,8 +357,9 @@
                 <input class="form-control form-control-sm" name="productName" id="productName"
                        [(ngModel)]="selectedDetail.product.data.productName" disabled>
                 <div class="input-group-append">
-                  <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
-                    class="far fa-arrow-alt-circle-right"></i></button>
+                  <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
+                    [disabled]="selectedDetail.data.primaryKey!=undefined">
+                    <i class="far fa-arrow-alt-circle-right"></i></button>
                 </div>
               </div>
             </div>
@@ -368,21 +370,22 @@
                      [(ngModel)]="selectedDetail.priceFormatted">
             </div>
             <div class="col-sm-1">
-              <input class="form-control form-control-sm w-100" id="discount1" name="discount1" type="number"
+              <input class="form-control form-control-sm w-100" id="discount1" name="discount1" type="number" min="0"
                      [(ngModel)]="selectedDetail.data.discount1">
             </div>
             <div class="col-sm-1">
-              <input class="form-control form-control-sm w-100" id="discount2" name="discount2" type="number"
+              <input class="form-control form-control-sm w-100" id="discount2" name="discount2" type="number" min="0"
                      [(ngModel)]="selectedDetail.data.discount2">
             </div>
             <div class="col-sm-1">
-              <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number"
+              <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0"
                      [(ngModel)]="selectedDetail.data.quantity">
             </div>
             <div class="col-sm-2">
               <select class="form-control form-control-sm w-100" id="unitPrimaryKey" name="unitPrimaryKey"
                       (change)="onChangeUnit($event.target['value'])"
-                      [(ngModel)]="selectedDetail.data.unitPrimaryKey">
+                      [(ngModel)]="selectedDetail.data.unitPrimaryKey"
+                      [disabled]="selectedDetail.data.primaryKey!=undefined">
                 <option value="-1">Seçilmedi</option>
                 <option value={{item.primaryKey}} *ngFor="let item of unitList">{{item.unitName}}</option>
               </select>

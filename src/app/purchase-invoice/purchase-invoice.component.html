@@ -674,7 +674,7 @@
                         <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
                       </div>
                       <div class="col-sm-6">
-                        <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number"
+                        <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0" max="{{selectedDetailRecord.maxQuantity}}"
                                [(ngModel)]="selectedDetailRecord.data.quantity">
                       </div>
                       <div class="col-sm-6">

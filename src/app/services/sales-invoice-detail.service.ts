@@ -34,7 +34,7 @@ export class SalesInvoiceDetailService {
 
   async setItem(record: SalesInvoiceDetailMainModel, primaryKey: string) {
     await this.removeItem(record);
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async ()=> {
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async () => {
       this.db.collection('tblSalesOrderDetail').doc(record.data.orderDetailPrimaryKey).get().toPromise()
         .then(async doc => {
           if (record.invoiceStatus === 'approved') {
@@ -44,12 +44,11 @@ export class SalesInvoiceDetailService {
             const orderInvoicedQuantity = doc.data().invoicedQuantity;
             const newInvoiceQuantity = record.data.quantity;
             let resultQuantity = 0;
-            let resultStatus ='short';
+            let resultStatus = 'short';
             if (orderInvoicedQuantity + newInvoiceQuantity === orderQuantity) {
               resultQuantity = orderQuantity;
               resultStatus = 'complete';
-            }
-            else {
+            } else {
               resultQuantity = orderInvoicedQuantity + newInvoiceQuantity;
             }
             await doc.ref.update( { invoicedQuantity: resultQuantity, invoicedStatus: resultStatus });
@@ -118,6 +117,7 @@ export class SalesInvoiceDetailService {
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
+    returnData.maxQuantity = returnData.data.quantity;
     returnData.invoiceStatus = ''; // waitingForApprove, approved, rejected
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
@@ -128,6 +128,7 @@ export class SalesInvoiceDetailService {
   convertMainModel(model: SalesInvoiceDetailModel): SalesInvoiceDetailMainModel {
     const returnData = this.clearMainModel();
     returnData.data = this.checkFields(model);
+    returnData.maxQuantity = returnData.data.quantity;
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);
@@ -153,6 +154,7 @@ export class SalesInvoiceDetailService {
     data.data.campaignPrimaryKey = orderItem.data.campaignPrimaryKey;
     data.data.unitPrimaryKey = orderItem.data.unitPrimaryKey;
     data.data.unitValue = orderItem.data.unitValue;
+    data.maxQuantity = data.data.quantity;
     data.product = orderItem.product;
     data.unit = orderItem.unit;
     setInvoiceDetailCalculation(data);

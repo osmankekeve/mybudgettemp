@@ -156,9 +156,8 @@ export class MessagingComponent implements OnInit, OnDestroy {
       await this.db.collection('tblProfile').doc(c1.data.profilePrimaryKey).collection('tblChatChannelList').doc(c1.data.primaryKey).set(Object.assign({}, c1.data));
       await this.db.collection('tblProfile').doc(c2.data.profilePrimaryKey).collection('tblChatChannelList').doc(c2.data.primaryKey).set(Object.assign({}, c2.data));
 
-      this.isNewChatOpened = true;
-      this.selectedChatChannelModel = c1;
-      await this.toastService.success('Bağlantı oluşturuldu');
+      this.showSelectedChatChannelInfo(c1);
+      this.toastService.success('Bağlantı oluşturuldu');
 
     } catch (error) {
       await this.infoService.error(error);
@@ -229,13 +228,12 @@ export class MessagingComponent implements OnInit, OnDestroy {
   }
 
   showSelectedProfileInfo(record: any): void {
-    const selectedOppositeProfile = record as ProfileMainModel;
     this.selectedChatChannelModel = undefined;
     if (this.selectedProfileModel && this.selectedProfileModel.data.primaryKey === record.data.primaryKey) {
       this.selectedProfileModel = undefined;
     } else {
       this.chatChannelList.forEach((item) => {
-        if (item.data.oppositeProfilePrimaryKey === selectedOppositeProfile.data.primaryKey) {
+        if (item.data.oppositeProfilePrimaryKey === record.data.primaryKey) {
           this.showSelectedChatChannelInfo(item);
           return;
         }

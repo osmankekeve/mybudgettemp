@@ -14,6 +14,7 @@ export class PurchaseInvoiceDetailMainModel {
   totalTaxAmountFormatted?: string;
   actionType?: string;
   invoiceStatus?: string;
+  maxQuantity?: number;
 }
 
 export const setInvoiceDetailCalculation = (record: PurchaseInvoiceDetailMainModel): void => {

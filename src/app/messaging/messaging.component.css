@@ -147,6 +147,7 @@ body{margin-top:20px;}
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     border-radius: 30px;
+    border: 1px solid #c4c4c4;
 }
 
 .chat-container li .chat-avatar {

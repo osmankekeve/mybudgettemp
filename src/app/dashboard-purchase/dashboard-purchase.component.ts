@@ -30,8 +30,6 @@ export class DashboardPurchaseComponent implements OnInit, OnDestroy {
     const date = new Date();
     const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    let piAmount = 0;
-    let payAmount = 0;
     Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
       .then((values: any) => {
         if (values[0] !== null) {
@@ -41,25 +39,25 @@ export class DashboardPurchaseComponent implements OnInit, OnDestroy {
               if (item.data.transactionSubType === 'purchaseInvoice'
               || item.data.transactionSubType === 'servicePurchaseInvoice'
               || item.data.transactionSubType === 'cancelReturnPurchaseInvoice') {
-                piAmount += getFloat(Math.abs(item.data.amount));
+                this.piAmount += getFloat(Math.abs(item.data.amount));
             } else if (item.data.transactionSubType === 'cancelPurchaseInvoice'
               || item.data.transactionSubType === 'cancelServicePurchaseInvoice'
               || item.data.transactionSubType === 'returnPurchaseInvoice') {
-                piAmount -= getFloat(Math.abs(item.data.amount));
+                this.piAmount -= getFloat(Math.abs(item.data.amount));
             } else {
 
             }
               if (item.data.transactionSubType.startsWith('cancel')) {
-                piAmount -= getFloat(Math.abs(item.data.amount));
+                this.piAmount -= getFloat(Math.abs(item.data.amount));
               } else {
-                piAmount += getFloat(Math.abs(item.data.amount));
+                this.piAmount += getFloat(Math.abs(item.data.amount));
               }
             }
             if (item.data.transactionType === 'payment') {
               if (item.data.transactionSubType.startsWith('cancel')) {
-                payAmount -= getFloat(Math.abs(item.data.amount));
+                this.payAmount -= getFloat(Math.abs(item.data.amount));
               } else {
-                payAmount += getFloat(Math.abs(item.data.amount));
+                this.payAmount += getFloat(Math.abs(item.data.amount));
               }
             }
           });
@@ -72,7 +70,7 @@ export class DashboardPurchaseComponent implements OnInit, OnDestroy {
             labels: ['Alım Faturası', 'Ödeme'],
             datasets: [{
               label: '# of Votes',
-              data: [piAmount, payAmount],
+              data: [this.piAmount, this.payAmount],
               backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',

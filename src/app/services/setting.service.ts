@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
 import {AuthenticationService} from './authentication.service';
-import {NoteModel} from '../models/note-model';
 import {SettingModel} from '../models/setting-model';
 import {getNumber, getString, padLeft} from '../core/correct-library';
 

@@ -28,13 +28,9 @@ export class DashboardSalesComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
 
-
     const date = new Date();
     const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
     const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    let siAmount2 = 0;
-    let colAmount2 = 0;
-    let avAmount2 = 0;
     Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
       .then((values: any) => {
         if (values[0] !== null) {
@@ -44,24 +40,24 @@ export class DashboardSalesComponent implements OnInit, OnDestroy {
               if (item.data.transactionSubType === 'salesInvoice'
                 || item.data.transactionSubType === 'serviceSalesInvoice'
                 || item.data.transactionSubType === 'cancelReturnSalesInvoice') {
-                siAmount2 += getFloat(Math.abs(item.data.amount));
+                this.siAmount += getFloat(Math.abs(item.data.amount));
               } else if (item.data.transactionSubType === 'cancelSalesInvoice'
                 || item.data.transactionSubType === 'cancelServiceSalesInvoice'
                 || item.data.transactionSubType === 'returnSalesInvoice') {
-                siAmount2 -= getFloat(Math.abs(item.data.amount));
+                  this.siAmount -= getFloat(Math.abs(item.data.amount));
               } else {
 
               }
             }
             if (item.data.transactionType === 'collection') {
               if (item.data.transactionSubType.startsWith('cancel')) {
-                colAmount2 -= getFloat(Math.abs(item.data.amount));
+                this.colAmount -= getFloat(Math.abs(item.data.amount));
               } else {
-                colAmount2 += getFloat(Math.abs(item.data.amount));
+                this.colAmount += getFloat(Math.abs(item.data.amount));
               }
             }
             if (item.data.transactionType === 'accountVoucher') {
-              avAmount2 += getFloat(Math.abs(item.data.amount));
+              this.avAmount += getFloat(Math.abs(item.data.amount));
             }
           });
         }
@@ -73,7 +69,7 @@ export class DashboardSalesComponent implements OnInit, OnDestroy {
             labels: ['Satış Faturası', 'Tahsilat', 'Hesap Fişi'],
             datasets: [{
               label: '# of Votes',
-              data: [siAmount2, colAmount2, avAmount2],
+              data: [this.siAmount, this.colAmount, this.avAmount],
               backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
