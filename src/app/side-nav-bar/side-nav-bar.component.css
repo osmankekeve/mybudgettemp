@@ -102,7 +102,7 @@
   /*----------------sidebar-wrapper----------------*/
 
   .sidebar-wrapper {
-    height: calc(100vh - 101px);
+    height: calc(100vh - 78px);
     width: 100%;
     /*position: fixed;*/
     position: absolute;

@@ -261,19 +261,19 @@ body {
 }
 
 .work-area {
-  height: calc(100vh - 123px);
+  height: calc(100vh - 92px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-2 {
-  max-height: calc(100vh - 276px);
+  max-height: calc(100vh - 245px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-3 {
-  max-height: calc(100vh - 211px);
+  max-height: calc(100vh - 170px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -285,7 +285,7 @@ body {
 }
 
 .dashboard-work-area {
-  height: calc(100vh - 186px);
+  height: calc(100vh - 155px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -297,7 +297,7 @@ body {
 }
 
 .work-area-4 {
-  max-height: calc(100vh - 341px);
+  max-height: calc(100vh - 310px);
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -309,49 +309,43 @@ body {
 }
 
 .work-area-5 {
-  max-height: calc(100vh - 326px);
+  max-height: calc(100vh - 295px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-6 {
-  max-height: calc(100vh - 261px);
+  max-height: calc(100vh - 230px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-7 {
-  max-height: calc(100vh - 371px);
+  max-height: calc(100vh - 340px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-8 {
-  max-height: calc(100vh - 715px);
+  max-height: calc(100vh - 686px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-9 {
-  max-height: calc(100vh - 545px);
+  max-height: calc(100vh - 514px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-10 {
-  max-height: calc(100vh - 595px);
+  max-height: calc(100vh - 564px);
   overflow: auto;
   scrollbar-width: thin;
 }
 
 .work-area-11 {
-  max-height: calc(100vh - 250px);
-  overflow: auto;
-  scrollbar-width: thin;
-}
-
-.work-area-11 {
-  max-height: calc(100vh - 225px);
+  max-height: calc(100vh - 195px);
   overflow: auto;
   scrollbar-width: thin;
 }
