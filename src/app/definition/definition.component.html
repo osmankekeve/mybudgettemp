@@ -1,58 +1,92 @@
-<div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">{{module.header}}</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="{{module.newTitle}}"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/report_icon.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">{{module.header}}</h5>
+        </div>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
+            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Ara.." [(ngModel)]="searchText">
+          </div>
+        </div>
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button-full" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> {{module.newTitle}}
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <tr class="table-row-class">
-            <th>Key</th>
-            <th>Değer</th>
-            <th>Aktif Mi?</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="cursor-pointer table-row-class"
-              (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
-              *ngFor="let item of mainList | filterNote: searchText; index as i;">
-            <td>
-              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600 mr-1">{{item.data.key}}</span>
-            </td>
-            <td>{{item.data.custom1}}</td>
-            <td>{{item.isActiveTr}}</td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="main-list" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list-item" *ngFor="let item of mainList | filterDefinition: searchText; index as i;">
+          <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showSelectedRecord(item)">
+            <i class="fas fa-file-alt fa-2x text-danger"></i>
+          </div>
+          <div class="content">
+            <div class="row-1">
+              <div class="w-100">
+                <span class="text-red font-weight-600 mr-1" title="Kayıt Kodu">{{item.data.key}}</span>
+                <span class="font-weight-600" title="Kayıt Tanım">{{item.data.custom1}}</span>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="w-100">
+                <span class="badge badge-warning" title="Aktiflik Durumu">{{item.isActiveTr}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-red text-white">
+        <div class="card bg-red text-white m-3">
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
     </div>
     <ng-template #elseBlock2>
-      <div class="loader"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
     </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">{{module.detailHeader}}</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <img src="../../assets/images/report_icon.png" width="30px" alt="" class="float-left mr-2">
+        <h5 class="card-title float-left mr-2">{{module.detailHeader}} > 
+          <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+          <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+        </h5>
+      </div>
+      <div class="head-filter">
+        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
+        </button>
+      </div>
+      <div class="head-filter">
+        <div class="dropdown">
+          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
+              <i class="fa fa-jsfiddle text-secondary"></i> Json Göster
+            </a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
+              <i class="fa fa-info-circle text-secondary"></i> Bilgiler
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

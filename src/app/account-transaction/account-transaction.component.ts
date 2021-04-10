@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
-import { AccountTransactionModel } from '../models/account-transaction-model';
 import { getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty, moneyFormat } from '../core/correct-library';
 import { AccountTransactionService } from '../services/account-transaction.service';
 import {AccountTransactionMainModel} from '../models/account-transaction-main-model';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-account-transaction',
   templateUrl: './account-transaction.component.html',
@@ -13,17 +14,17 @@ import {AccountTransactionMainModel} from '../models/account-transaction-main-mo
 export class AccountTransactionComponent implements OnInit, OnDestroy {
   mainList: Array<AccountTransactionMainModel>;
   selectedRecord: AccountTransactionMainModel;
-  isMainFilterOpened = false;
-  filterBeginDate: any;
-  filterFinishDate: any;
   searchText: '';
   jsonData: any;
   onTransaction = false;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+  };
 
-  constructor(public infoService: InformationService, public service: AccountTransactionService, public db: AngularFirestore) { }
+  constructor(public infoService: InformationService, public service: AccountTransactionService, public db: AngularFirestore, protected modalService: NgbModal) { }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
   }
 
@@ -33,8 +34,8 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     this.service.getMainItems(beginDate, finishDate, null, null).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -85,32 +86,24 @@ export class AccountTransactionComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
-    this.clearMainFiler();
-  }
-
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
   btnReturnList_Click(): void {
     this.selectedRecord = undefined;
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
   }
 
   finishProcessAndError(error: any): void {

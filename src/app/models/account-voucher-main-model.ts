@@ -9,5 +9,6 @@ export class AccountVoucherMainModel {
   actionType?: string;
   statusTr?: string;
   platformTr?: string;
+  typeTr?: string;
   amountFormatted?: string;
 }

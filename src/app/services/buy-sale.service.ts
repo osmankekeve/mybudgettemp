@@ -243,13 +243,16 @@ export class BuySaleService {
     return this.mainList$;
   }
 
-  getCurrencyTransactions = async (currencyPrimaryKey: string):
+  getCurrencyTransactions = async (currencyPrimaryKey: string, startDate: Date, endDate: Date):
     Promise<Array<BuySaleMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<BuySaleMainModel>();
       this.db.collection(this.tableName, ref =>
-        ref.where('userPrimaryKey', '==', this.authService.getUid())
-          .where('currencyPrimaryKey', '==', currencyPrimaryKey))
+        ref.orderBy('insertDate')
+        .where('userPrimaryKey', '==', this.authService.getUid())
+        .where('currencyPrimaryKey', '==', currencyPrimaryKey)
+        .startAt(startDate.getTime())
+        .endAt(endDate.getTime()))
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as BuySaleModel;

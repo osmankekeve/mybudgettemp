@@ -88,7 +88,7 @@
                       </a>
                       <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["data"].log}}</div>
                       <div class="col-sm-12"><small
-                        class="float-right font-weight-bold">{{item["data"]["insertDate"] | date: 'yyyy.MM.dd'}}</small></div>
+                        class="float-right font-weight-bold">{{item["data"]["insertDate"] | date: 'yyyy-MM-dd'}}</small></div>
                     </div>
                   </div>
                 </div>
@@ -126,7 +126,7 @@
                       </a>
                       <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item["customerName"]}}</div>
                       <div class="col-sm-12"><small
-                        class="float-right font-weight-bold">{{item["data"].actionDate | date: 'yyyy.MM.dd'}}</small></div>
+                        class="float-right font-weight-bold">{{item["data"].actionDate | date: 'yyyy-MM-dd'}}</small></div>
                     </div>
                   </div>
                 </div>
@@ -155,7 +155,7 @@
                       <div class="col-sm-6"><small
                         class="float-left font-weight-bold">{{item.employeeName}}</small></div>
                       <div class="col-sm-6"><small
-                        class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy.MM.dd'}}</small></div>
+                        class="float-right font-weight-bold">{{item.data.reminderDate | date: 'yyyy-MM-dd'}}</small></div>
                     </div>
                   </div>
                 </div>
@@ -213,7 +213,7 @@
                          (click)="showWaitingWorkRecord(item)">
                       <div class="col-sm-12 word-wrap" style="font-size: 85%">{{item.log}}</div>
                       <div class="col-sm-12"><small
-                        class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy.MM.dd'}}</small></div>
+                        class="float-right font-weight-bold">{{item.insertDate | date: 'yyyy-MM-dd'}}</small></div>
                     </div>
                   </div>
                 </div>

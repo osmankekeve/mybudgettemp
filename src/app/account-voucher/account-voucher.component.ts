@@ -26,32 +26,36 @@ import {GlobalService} from '../services/global.service';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {ToastService} from '../services/toast.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { Subscription } from 'rxjs';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-account-voucher',
   templateUrl: './account-voucher.component.html',
   styleUrls: ['./account-voucher.component.css']
 })
-export class AccountVoucherComponent implements OnInit {
+export class AccountVoucherComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<AccountVoucherMainModel>;
-  customerList$: Observable<CustomerModel[]>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<AccountVoucherMainModel>;
   selectedRecord: AccountVoucherMainModel;
   isRecordHasTransaction = false;
-  isMainFilterOpened = false;
-  recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
   searchText = '';
-
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterStatus: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
   totalValues = {
     amount: 0
   };
+  recordDate: any;
   chart1: any;
   chart2: any;
   onTransaction = false;
@@ -66,9 +70,7 @@ export class AccountVoucherComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
-    this.cashDeskList$ = this.cdService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
     this.generateCharts();
     this.populateList();
@@ -79,6 +81,12 @@ export class AccountVoucherComponent implements OnInit {
       if (paramItem) {
         this.showSelectedRecord(paramItem);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -106,9 +114,9 @@ export class AccountVoucherComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, this.filterStatus)
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, this.filter.filterStatus)
       .subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -182,7 +190,7 @@ export class AccountVoucherComponent implements OnInit {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<AccountVoucherMainModel>;
@@ -486,23 +494,29 @@ export class AccountVoucherComponent implements OnInit {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+          this.generateCharts();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
   }
 
-  async btnMainFilter_Click(): Promise<void> {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
-      this.generateCharts();
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -586,12 +600,6 @@ export class AccountVoucherComponent implements OnInit {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterStatus = '-1';
   }
 
   clearSelectedRecord(): void {

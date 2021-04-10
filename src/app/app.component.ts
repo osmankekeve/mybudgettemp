@@ -1,36 +1,37 @@
-import {Component, OnInit} from '@angular/core';
-import {AuthenticationService} from './services/authentication.service';
-import {LogModel} from './models/log-model';
-import {LogService} from './services/log.service';
-import {InformationService} from './services/information.service';
-import {CustomerRelationService} from './services/crm.service';
-import {CustomerRelationModel} from './models/customer-relation-model';
-import {getBool, getFloat, getString, getTodayEnd, getTodayStart, getTomorrowEnd} from './core/correct-library';
-import {ReminderService} from './services/reminder.service';
-import {Router} from '@angular/router';
-import {CookieService} from 'ngx-cookie-service';
-import {AccountTransactionService} from './services/account-transaction.service';
-import {SettingService} from './services/setting.service';
-import {PurchaseInvoiceMainModel} from './models/purchase-invoice-main-model';
-import {PurchaseInvoiceService} from './services/purchase-invoice.service';
-import {WaitingWorkModel} from './models/waiting-work-model';
-import {SalesInvoiceService} from './services/sales-invoice.service';
-import {CollectionService} from './services/collection.service';
-import {PaymentService} from './services/payment.service';
-import {GlobalService} from './services/global.service';
-import {CollectionMainModel} from './models/collection-main-model';
-import {SalesInvoiceMainModel} from './models/sales-invoice-main-model';
-import {PaymentMainModel} from './models/payment-main-model';
-import {RouterModel} from './models/router-model';
-import {ReminderMainModel} from './models/reminder-main-model';
-import {AngularFireAuth} from '@angular/fire/auth';
-import {SalesOrderService} from './services/sales-order.service';
-import {SalesOrderMainModel} from './models/sales-order-main-model';
-import {PurchaseOrderService} from './services/purchase-order.service';
-import {PurchaseOrderMainModel} from './models/purchase-order-main-model';
-import {CompanyModel} from './models/company-model';
-import {CompanyService} from './services/company.service';
-import {AngularFirestore} from '@angular/fire/firestore';
+import { Component, OnInit } from '@angular/core';
+import { AuthenticationService } from './services/authentication.service';
+import { LogModel } from './models/log-model';
+import { LogService } from './services/log.service';
+import { InformationService } from './services/information.service';
+import { CustomerRelationService } from './services/crm.service';
+import { CustomerRelationModel } from './models/customer-relation-model';
+import { getBool, getFloat, getString, getTodayEnd, getTodayStart, getTomorrowEnd } from './core/correct-library';
+import { ReminderService } from './services/reminder.service';
+import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import { AccountTransactionService } from './services/account-transaction.service';
+import { SettingService } from './services/setting.service';
+import { PurchaseInvoiceMainModel } from './models/purchase-invoice-main-model';
+import { PurchaseInvoiceService } from './services/purchase-invoice.service';
+import { WaitingWorkModel } from './models/waiting-work-model';
+import { SalesInvoiceService } from './services/sales-invoice.service';
+import { CollectionService } from './services/collection.service';
+import { PaymentService } from './services/payment.service';
+import { GlobalService } from './services/global.service';
+import { CollectionMainModel } from './models/collection-main-model';
+import { SalesInvoiceMainModel } from './models/sales-invoice-main-model';
+import { PaymentMainModel } from './models/payment-main-model';
+import { RouterModel } from './models/router-model';
+import { ReminderMainModel } from './models/reminder-main-model';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { SalesOrderService } from './services/sales-order.service';
+import { SalesOrderMainModel } from './models/sales-order-main-model';
+import { PurchaseOrderService } from './services/purchase-order.service';
+import { PurchaseOrderMainModel } from './models/purchase-order-main-model';
+import { CompanyModel } from './models/company-model';
+import { CompanyService } from './services/company.service';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { RefrasherService } from './services/refrasher.service';
 
 @Component({
   selector: 'app-root',
@@ -73,7 +74,7 @@ export class AppComponent implements OnInit {
     private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
     private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth,
-    protected soService: SalesOrderService,  protected poService: PurchaseOrderService, protected service: CompanyService
+    protected soService: SalesOrderService, protected poService: PurchaseOrderService, protected service: CompanyService, protected refService: RefrasherService
   ) {
     this.selectedVal = 'login';
     this.isForgotPassword = false;
@@ -117,6 +118,11 @@ export class AppComponent implements OnInit {
     if (!this.userDetails) {
       this.employeeDetail = undefined;
     } else {
+      this.service.getItem(this.userDetails.uid).then(async value => {
+        this.companyDetail = value.data as CompanyModel;
+        this.refService.sendCompanyUpdate(this.companyDetail);
+        sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
+      });
       this.isEmployeeLoggedIn();
       this.populateReminderList();
       this.populateActivityList();
@@ -166,10 +172,6 @@ export class AppComponent implements OnInit {
         this.authService.login(this.emailInput, this.passwordInput)
           .then(res => {
             if (res != null) {
-              this.service.getItem(res.user.uid).then(async value => {
-                this.companyDetail = value.data as CompanyModel;
-                sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
-              });
               this.isUserLoggedIn();
               this.populateSettings();
               if (this.isCMAChecked) {
@@ -407,80 +409,80 @@ export class AppComponent implements OnInit {
     this.waitingWorkList = [];
     this.piService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
-        const workData = new WaitingWorkModel();
-        workData.transactionType = 'purchaseInvoice';
-        workData.transactionPrimaryKey = item.data.primaryKey;
-        workData.insertDate = item.data.insertDate;
-        workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
+        list.forEach((data: any) => {
+          const item = data.returnData as PurchaseInvoiceMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'purchaseInvoice';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Alım Faturası onay bekliyor.';
 
-        if (item.actionType === 'added') {
-          this.waitingWorkList.push(workData);
-        }
-        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
-        }
+          if (item.actionType === 'added') {
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
       });
-    });
     this.siService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as SalesInvoiceMainModel;
-        const workData = new WaitingWorkModel();
-        workData.transactionType = 'salesInvoice';
-        workData.transactionPrimaryKey = item.data.primaryKey;
-        workData.insertDate = item.data.insertDate;
-        workData.log = item.data.receiptNo + ' fiş numaralı Satış Faturası onay bekliyor.';
+        list.forEach((data: any) => {
+          const item = data.returnData as SalesInvoiceMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'salesInvoice';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Satış Faturası onay bekliyor.';
 
-        if (item.actionType === 'added') {
-          this.waitingWorkList.push(workData);
-        }
-        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
-        }
+          if (item.actionType === 'added') {
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
       });
-    });
     this.colService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as CollectionMainModel;
-        const workData = new WaitingWorkModel();
-        workData.transactionType = 'collection';
-        workData.transactionPrimaryKey = item.data.primaryKey;
-        workData.insertDate = item.data.insertDate;
-        workData.log = item.data.receiptNo + ' fiş numaralı Tahsilat onay bekliyor.';
+        list.forEach((data: any) => {
+          const item = data.returnData as CollectionMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'collection';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Tahsilat onay bekliyor.';
 
-        if (item.actionType === 'added') {
-          this.waitingWorkList.push(workData);
-        }
-        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          //this.waitingWorksCount--;
-          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
-        }
+          if (item.actionType === 'added') {
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            //this.waitingWorksCount--;
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
       });
-    });
     this.payService.getMainItemsBetweenDatesWithCustomer(null, null, null, 'waitingForApprove')
       .subscribe(list => {
-      list.forEach((data: any) => {
-        const item = data.returnData as PaymentMainModel;
-        const workData = new WaitingWorkModel();
-        workData.transactionType = 'payment';
-        workData.transactionPrimaryKey = item.data.primaryKey;
-        workData.insertDate = item.data.insertDate;
-        workData.log = item.data.receiptNo + ' fiş numaralı Ödeme onay bekliyor.';
+        list.forEach((data: any) => {
+          const item = data.returnData as PaymentMainModel;
+          const workData = new WaitingWorkModel();
+          workData.transactionType = 'payment';
+          workData.transactionPrimaryKey = item.data.primaryKey;
+          workData.insertDate = item.data.insertDate;
+          workData.log = item.data.receiptNo + ' fiş numaralı Ödeme onay bekliyor.';
 
-        if (item.actionType === 'added') {
-          this.waitingWorkList.push(workData);
-        }
-        if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-          this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
-        }
+          if (item.actionType === 'added') {
+            this.waitingWorkList.push(workData);
+          }
+          if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
+            this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
+          }
+        });
       });
-    });
     const type = [];
     type.push('waitingForApprove');
-    this.soService.getMainItemsBetweenDates(null, null,  type)
+    this.soService.getMainItemsBetweenDates(null, null, type)
       .subscribe(list => {
         list.forEach((data: any) => {
           const item = data.returnData as SalesOrderMainModel;
@@ -498,7 +500,7 @@ export class AppComponent implements OnInit {
           }
         });
       });
-    this.poService.getMainItemsBetweenDates(null, null,  type)
+    this.poService.getMainItemsBetweenDates(null, null, type)
       .subscribe(list => {
         list.forEach((data: any) => {
           const item = data.returnData as PurchaseOrderMainModel;
@@ -541,10 +543,6 @@ export class AppComponent implements OnInit {
       } else {
         await this.authService.employeeLogin(this.employeeEmail, this.employeePassword)
           .then(result => {
-            this.service.getItem(this.authService.getUid()).then(async value => {
-              this.companyDetail = value.data as CompanyModel;
-              sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
-            });
             this.isEmployeeLoggedIn();
             this.cookieService.set('loginTime', Date.now().toString());
             if (this.isEMAChecked) {
@@ -561,7 +559,7 @@ export class AppComponent implements OnInit {
               'Web Sistem girişi başarılı.',
               this.authService.getEid());
             this.finishProcess(null, 'Giriş başarılı. Sisteme yönlendiriliyorsunuz.');
-        })
+          })
           .catch((error) => {
             this.finishProcess(error, null);
           })
@@ -575,7 +573,7 @@ export class AppComponent implements OnInit {
   }
 
   async showReminder(item: any): Promise<void> {
-    await this.router.navigate(['reminder', {primaryKey: item.data.primaryKey}]);
+    await this.router.navigate(['reminder', { primaryKey: item.data.primaryKey }]);
   }
 
   async showWaitingWorkRecord(item: any): Promise<void> {

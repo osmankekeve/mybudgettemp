@@ -38,15 +38,20 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {ToastService} from '../services/toast.service';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { CashDeskModel } from '../models/cash-desk-model';
 
 @Component({
   selector: 'app-collection',
   templateUrl: './collection.component.html',
   styleUrls: ['./collection.component.css']
 })
-export class CollectionComponent implements OnInit {
+export class CollectionComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CollectionMainModel>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<CollectionMainModel>;
   actionList: Array<ActionMainModel>;
@@ -56,18 +61,18 @@ export class CollectionComponent implements OnInit {
   isRecordHasTransaction = false;
   isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
-  recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
   searchText: '';
-
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterCustomerCode: any;
-  filterStatus: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
   totalValues = {
     amount: 0
   };
+  recordDate: any;
   chart1: any;
   chart2: any;
   onTransaction = false;
@@ -83,8 +88,7 @@ export class CollectionComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.clearMainFiler();
-    this.cashDeskList$ = this.cdService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
     this.populateCustomers();
     this.generateCharts();
@@ -116,6 +120,12 @@ export class CollectionComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
@@ -143,9 +153,9 @@ export class CollectionComponent implements OnInit {
     this.totalValues = {
       amount: 0
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
       .subscribe(list => {
         if (this.mainList === undefined) {
           this.mainList = [];
@@ -215,7 +225,7 @@ export class CollectionComponent implements OnInit {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<CollectionMainModel>;
@@ -424,19 +434,21 @@ export class CollectionComponent implements OnInit {
     this.populateActions();
   }
 
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
-  }
-
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
-      this.generateCharts();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+          this.generateCharts();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -647,6 +659,14 @@ export class CollectionComponent implements OnInit {
     }
   }
 
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async btnCreateAccounts_Click(): Promise<void> {
     /*Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null)])
       .then((values: any) => {
@@ -736,13 +756,6 @@ export class CollectionComponent implements OnInit {
     this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterCustomerCode = '-1';
-    this.filterStatus = '-1';
   }
 
   format_amount($event): void {

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
@@ -8,13 +8,17 @@ import {DefinitionService} from '../services/definition.service';
 import {DefinitionMainModel} from '../models/definition-main-model';
 import {GlobalUploadService} from '../services/global-upload.service';
 import {ToastService} from '../services/toast.service';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-definition',
   templateUrl: './definition.component.html',
   styleUrls: ['./definition.component.css']
 })
-export class DefinitionComponent implements OnInit {
+export class DefinitionComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<DefinitionMainModel>;
   selectedRecord: DefinitionMainModel;
   searchText = '';
@@ -38,19 +42,94 @@ export class DefinitionComponent implements OnInit {
   };
 
   constructor(public authService: AuthenticationService, public service: DefinitionService, public atService: AccountTransactionService,
-              public infoService: InformationService, public db: AngularFirestore, public route: Router, protected toastService: ToastService ) {
+              public infoService: InformationService, public db: AngularFirestore, public route: Router, protected toastService: ToastService,
+              protected modalService: NgbModal ) {
   }
 
   ngOnInit() {
     this.definitionTypeKey = this.route.url.replace('/', '');
-    this.generateTitles();
+    if (this.definitionTypeKey === 'storage') {
+      this.module = {
+        header: 'Depo',
+        detailHeader: 'Depo',
+        newTitle: 'Yeni Depo Oluştur',
+        isShowKey: true,
+        isKeyShowCustom1: true,
+        isKeyShowCustom2: false,
+        isKeyShowCustom3: false,
+        isKeyShowCustomDouble: false,
+        isKeyShowCustomBool: false,
+        isKeyShowCustom1Tr: 'Depo Adı',
+        isKeyShowCustom2Tr: '',
+        isKeyShowCustom3Tr: '',
+        isKeyShowCustomDoubleTr: '',
+        isKeyShowCustomBoolTr: ''
+      };
+    } else if (this.definitionTypeKey === 'term') {
+      this.module = {
+        header: 'Vade',
+        detailHeader: 'Vade',
+        newTitle: 'Yeni Vade Oluştur',
+        isShowKey: true,
+        isKeyShowCustom1: true,
+        isKeyShowCustom2: false,
+        isKeyShowCustom3: false,
+        isKeyShowCustomDouble: false,
+        isKeyShowCustomBool: false,
+        isKeyShowCustom1Tr: 'Vade Adı',
+        isKeyShowCustom2Tr: 'Vade Gün Sayıları',
+        isKeyShowCustom3Tr: '',
+        isKeyShowCustomDoubleTr: '',
+        isKeyShowCustomBoolTr: ''
+      };
+    }  else if (this.definitionTypeKey === 'payment-type') {
+      this.module = {
+        header: 'Ödeme Tipi',
+        detailHeader: 'Ödeme Tipi',
+        newTitle: 'Yeni Ödeme Tipi Oluştur',
+        isShowKey: true,
+        isKeyShowCustom1: true,
+        isKeyShowCustom2: false,
+        isKeyShowCustom3: false,
+        isKeyShowCustomDouble: false,
+        isKeyShowCustomBool: false,
+        isKeyShowCustom1Tr: 'Ödeme Tipi Adı',
+        isKeyShowCustom2Tr: '',
+        isKeyShowCustom3Tr: '',
+        isKeyShowCustomDoubleTr: '',
+        isKeyShowCustomBoolTr: ''
+      };
+    } else {
+      this.module = {
+        header: '',
+        detailHeader: '',
+        newTitle: '',
+        isShowKey: false,
+        isKeyShowCustom1: false,
+        isKeyShowCustom2: false,
+        isKeyShowCustom3: false,
+        isKeyShowCustomDouble: false,
+        isKeyShowCustomBool: false,
+        isKeyShowCustom1Tr: '',
+        isKeyShowCustom2Tr: '',
+        isKeyShowCustom3Tr: '',
+        isKeyShowCustomDoubleTr: '',
+        isKeyShowCustomBoolTr: ''
+      };
+    }
     this.populateList();
     this.selectedRecord = undefined;
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems(this.definitionTypeKey).subscribe(list => {
+    this.mainList$ = this.service.getMainItems(this.definitionTypeKey).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -164,6 +243,22 @@ export class DefinitionComponent implements OnInit {
     }
   }
 
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
   }
@@ -185,78 +280,6 @@ export class DefinitionComponent implements OnInit {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
-  }
-
-  generateTitles(): void {
-    if (this.definitionTypeKey === 'storage') {
-      this.module = {
-        header: 'Depo',
-        detailHeader: 'Depo Detay',
-        newTitle: 'Yeni Depo',
-        isShowKey: true,
-        isKeyShowCustom1: true,
-        isKeyShowCustom2: false,
-        isKeyShowCustom3: false,
-        isKeyShowCustomDouble: false,
-        isKeyShowCustomBool: false,
-        isKeyShowCustom1Tr: 'Depo Adı',
-        isKeyShowCustom2Tr: '',
-        isKeyShowCustom3Tr: '',
-        isKeyShowCustomDoubleTr: '',
-        isKeyShowCustomBoolTr: ''
-      };
-    } else if (this.definitionTypeKey === 'term') {
-      this.module = {
-        header: 'Vade Listesi',
-        detailHeader: 'Vade Detay',
-        newTitle: 'Yeni Vade',
-        isShowKey: true,
-        isKeyShowCustom1: true,
-        isKeyShowCustom2: false,
-        isKeyShowCustom3: false,
-        isKeyShowCustomDouble: false,
-        isKeyShowCustomBool: false,
-        isKeyShowCustom1Tr: 'Vade Adı',
-        isKeyShowCustom2Tr: 'Vade Gün Sayıları',
-        isKeyShowCustom3Tr: '',
-        isKeyShowCustomDoubleTr: '',
-        isKeyShowCustomBoolTr: ''
-      };
-    }  else if (this.definitionTypeKey === 'payment-type') {
-      this.module = {
-        header: 'Ödeme Tipi Listesi',
-        detailHeader: 'Ödeme Tipi Detay',
-        newTitle: 'Yeni Ödeme Tipi',
-        isShowKey: true,
-        isKeyShowCustom1: true,
-        isKeyShowCustom2: false,
-        isKeyShowCustom3: false,
-        isKeyShowCustomDouble: false,
-        isKeyShowCustomBool: false,
-        isKeyShowCustom1Tr: 'Ödeme Tipi Adı',
-        isKeyShowCustom2Tr: '',
-        isKeyShowCustom3Tr: '',
-        isKeyShowCustomDoubleTr: '',
-        isKeyShowCustomBoolTr: ''
-      };
-    } else {
-      this.module = {
-        header: '',
-        detailHeader: '',
-        newTitle: '',
-        isShowKey: false,
-        isKeyShowCustom1: false,
-        isKeyShowCustom2: false,
-        isKeyShowCustom3: false,
-        isKeyShowCustomDouble: false,
-        isKeyShowCustomBool: false,
-        isKeyShowCustom1Tr: '',
-        isKeyShowCustom2Tr: '',
-        isKeyShowCustom3Tr: '',
-        isKeyShowCustomDoubleTr: '',
-        isKeyShowCustomBoolTr: ''
-      };
-    }
   }
 
 }

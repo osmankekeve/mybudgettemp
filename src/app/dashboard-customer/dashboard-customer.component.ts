@@ -4,7 +4,7 @@ import {AccountTransactionService} from '../services/account-transaction.service
 import {CustomerRelationService} from '../services/crm.service';
 import {CustomerRelationModel} from '../models/customer-relation-model';
 import {Router} from '@angular/router';
-import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey} from '../core/correct-library';
+import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, getDateForInput} from '../core/correct-library';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -13,6 +13,10 @@ import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
 import {GlobalService} from '../services/global.service';
 import { CustomerRelationMainModel } from '../models/customer-relation-main-model';
+import { Subscription } from 'rxjs';
+import * as Chart from 'chart.js';
+import { AccountTransactionMainModel } from '../models/account-transaction-main-model';
+import { Utility } from 'src/utilitys.config';
 
 @Component({
   selector: 'app-dashboard-customer',
@@ -20,6 +24,8 @@ import { CustomerRelationMainModel } from '../models/customer-relation-main-mode
   styleUrls: ['./dashboard-customer.component.css']
 })
 export class DashboardCustomerComponent implements OnInit, OnDestroy {
+  LineChart: any;
+  chartList$: Subscription;
   actionList: Array<CustomerRelationMainModel> = [];
   todoList: Array<TodoListMainModel> = [];
   visitList: Array<VisitMainModel> = [];
@@ -34,9 +40,123 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
     this.populateActivityList();
     this.populateVisitList();
     this.populateTodoList();
+
+    const date = new Date();
+    const beginOfYear = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+    const monthToday = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+
+    this.LineChart = new Chart('lineChart', {
+      type: 'line', // bar, pie, doughnut
+      data: {
+        labels: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
+        datasets: [
+          {
+            label: 'Satış Faturası',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            borderWidth: 1,
+            fill: false,
+            borderColor: Utility.Chart_Colors.red,
+            backgroundColor: Utility.Chart_Colors.red,
+            pointBackgroundColor: Utility.Chart_Colors.red,
+            pointBorderColor: Utility.Chart_Colors.red,
+            pointHoverBackgroundColor: Utility.Chart_Colors.red,
+            pointHoverBorderColor: Utility.Chart_Colors.red
+          },
+          {
+          label: 'Tahsilat',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          borderWidth: 1,
+          fill: false,
+          borderColor: Utility.Chart_Colors.yellow,
+          backgroundColor: Utility.Chart_Colors.yellow,
+          pointBackgroundColor: Utility.Chart_Colors.yellow,
+          pointBorderColor: Utility.Chart_Colors.yellow,
+          pointHoverBackgroundColor: Utility.Chart_Colors.yellow,
+          pointHoverBorderColor: Utility.Chart_Colors.yellow
+          },
+          {
+            label: 'Alım Faturası',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            borderWidth: 1,
+            fill: false,
+            borderColor: Utility.Chart_Colors.blue,
+            backgroundColor: Utility.Chart_Colors.blue,
+            pointBackgroundColor: Utility.Chart_Colors.blue,
+            pointBorderColor: Utility.Chart_Colors.blue,
+            pointHoverBackgroundColor: Utility.Chart_Colors.blue,
+            pointHoverBorderColor: Utility.Chart_Colors.blue
+          },
+          {
+            label: 'Ödeme',
+            data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            borderWidth: 1,
+            fill: false,
+            borderColor: Utility.Chart_Colors.purple,
+            backgroundColor: Utility.Chart_Colors.purple,
+            pointBackgroundColor: Utility.Chart_Colors.purple,
+            pointBorderColor: Utility.Chart_Colors.purple,
+            pointHoverBackgroundColor: Utility.Chart_Colors.purple,
+            pointHoverBorderColor: Utility.Chart_Colors.purple
+          }
+      ]
+      },
+      options: {
+        title: {
+          text: 'Ay Bazlı Müşteri Sayıları',
+          display: true
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              callback: (value, index, values) => {
+                return Number(value);
+              }
+            }
+          }]
+        },
+        tooltips: {
+          callbacks: {
+            label(tooltipItem, data) {
+              return Number(tooltipItem.yLabel).toString() + ' ' + 'Adet Kayıt';
+            }
+          }
+        }
+      }
+    });
+    this.chartList$ = this.atService.getMainItems(beginOfYear, monthToday, null, null).subscribe(list => {
+      list.forEach((data: any) => {
+            const item = data.returnData as AccountTransactionMainModel;
+            if (item.data.transactionType === 'salesInvoice') {
+              if (item.data.transactionSubType === 'salesInvoice' || item.data.transactionSubType === 'serviceSalesInvoice') {
+                  this.LineChart.data.datasets[0].data[getDateForInput(item.data.insertDate).month - 1] += 1;
+              }
+            }
+            if (item.data.transactionType === 'collection') {
+              if (!item.data.transactionSubType.startsWith('cancel')) {
+                this.LineChart.data.datasets[1].data[getDateForInput(item.data.insertDate).month - 1] += 1;
+              }
+            }
+            if (item.data.transactionType === 'purchaseInvoice') {
+              if (item.data.transactionSubType === 'purchaseInvoice'
+              || item.data.transactionSubType === 'servicePurchaseInvoice') {
+                this.LineChart.data.datasets[2].data[getDateForInput(item.data.insertDate).month - 1] += 1;
+            }
+            }
+            if (item.data.transactionType === 'payment') {
+              if (!item.data.transactionSubType.startsWith('cancel')) {
+                this.LineChart.data.datasets[3].data[getDateForInput(item.data.insertDate).month - 1] += 1;
+              }
+            }
+            this.LineChart.update();
+      });
+    });
   }
 
   ngOnDestroy(): void {
+    if (this.chartList$ !== undefined) {
+      this.chartList$.unsubscribe();
+    }
   }
 
   populateActivityList(): void {
@@ -153,3 +273,4 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
     }
   }
 }
+

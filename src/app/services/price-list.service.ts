@@ -59,7 +59,9 @@ export class PriceListService {
     return new Promise((resolve, reject) => {
       if (record.data.listName === '' ) {
         reject('Lütfen liste adı giriniz.');
-      } else {
+      } else if (record.data.type === '-1' ) {
+        reject('Lütfen liste tipi seçiniz.');
+      }  else {
         resolve(null);
       }
     });

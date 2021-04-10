@@ -115,6 +115,15 @@ export const getTomorrowEnd = () => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 23, 59, 59);
 };
 
+export const getLastDay = (year: number, month: number) => {
+  const date = new Date();
+  if (isNullOrEmpty(year) || isNullOrEmpty(month)) {
+    return new Date(date.getFullYear(), date.getMonth() , 0, 0, 0, 0).getDate();
+  } else {
+    return getDateTime(year, month , 0, 0, 0, 0).getDate();
+  }
+};
+
 export const getBeginOfYear = (year: number) => {
   const date = new Date();
   if (isNullOrEmpty(year)) {
@@ -130,6 +139,24 @@ export const getEndOfYear = (year: number) => {
     return new Date(date.getFullYear(), 12, 31, 23, 59, 59);
   } else {
     return new Date(year, 12, 31, 23, 59, 59);
+  }
+};
+
+export const getBeginOfMonth = (year: number, month: number) => {
+  const date = new Date();
+  if (isNullOrEmpty(year) || isNullOrEmpty(month)) {
+    return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+  } else {
+    return getDateTime(year, month, 1, 0, 0, 0);
+  }
+};
+
+export const getEndOfMonth = (year: number, month: number) => {
+  const date = new Date();
+  if (isNullOrEmpty(year) || isNullOrEmpty(month)) {
+    return new Date(date.getFullYear(), date.getMonth(), getLastDay(date.getFullYear(), date.getMonth()), 0, 0, 0);
+  } else {
+    return getDateTime(year, month, getLastDay(year, month), 0, 0, 0);
   }
 };
 
@@ -219,7 +246,7 @@ export const getRelationTypes = () => {
 };
 
 export const getPaymentTypes = () => {
-  return new Map([['cash', 'Nakit'], ['creditCard', 'Kredi Kartı'], ['transfer', 'Havale'], ['cheque', 'Çek'], ['-1', 'Seçilmedi']]);
+  return new Map([['cash', 'Nakit'], ['creditCard', 'Kredi Kartı'], ['transfer', 'Havale'], ['cheque', 'Çek'], ['pNote', 'Senet'], ['-1', 'Seçilmedi']]);
 };
 
 export const getCurrencyTypes = () => {
@@ -258,6 +285,10 @@ export const getCashDeskVoucherType = () => {
 export const getStatus = () => {
   return new Map([['waitingForApprove', 'Onay Bekleniyor'], ['approved', 'Onaylandı'], ['rejected', 'Reddedildi'],
     ['closed', 'Kapatıldı'], ['done', 'Tamamlandı'], ['portion', 'Parçalı Faturalama'], ['canceled', 'İptal Edildi']]);
+};
+
+export const getAccountVoucherType = () => {
+  return new Map([['debitVoucher', 'Borçlandırma'], ['creditVoucher', 'Alacaklandırma']]);
 };
 
 export const getOrderType = () => {

@@ -17,6 +17,8 @@ import {ProductSelectComponent} from '../partials/product-select/product-select.
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import { ToastService } from '../services/toast.service';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-unit',
@@ -24,6 +26,7 @@ import { ToastService } from '../services/toast.service';
   styleUrls: ['./product-unit.component.css']
 })
 export class ProductUnitComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<ProductUnitMainModel>;
   collection: AngularFirestoreCollection<ProductUnitModel>;
   unitMappingList: Array<ProductUnitMappingMainModel>;
@@ -54,12 +57,15 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -337,6 +343,22 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
     } catch (error) {
       await this.infoService.error(error);
     }

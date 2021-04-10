@@ -9,12 +9,7 @@ import { CustomerTargetModel } from '../models/customer-target-model';
 import { CustomerTargetMainModel } from '../models/customer-target-main-model';
 import { LogService } from './log.service';
 import {getTodayForInput, getMonths, currencyFormat, getNumber, getFloat, getString} from '../core/correct-library';
-import {CashdeskVoucherModel} from '../models/cashdesk-voucher-model';
-import {PaymentModel} from '../models/payment-model';
-import {PaymentMainModel} from '../models/payment-main-model';
-import {SettingService} from './setting.service';
 import {CustomerService} from './customer.service';
-import {CustomerRelationMainModel} from '../models/customer-relation-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,7 +47,7 @@ export class CustomerTargetService {
 
   async getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as CustomerTargetModel;
           data.primaryKey = doc.id;
@@ -65,13 +60,8 @@ export class CustomerTargetService {
           returnData.finishMonthTr = this.months.get(returnData.data.finishMonth.toString());
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
 
-          Promise.all([this.cusService.getItem(returnData.data.customerCode)])
-            .then((values: any) => {
-              if (values[0] !== undefined || values[0] !== null) {
-                const customer = values[0] as CustomerModel;
-                returnData.customer = this.cusService.convertMainModel(customer);
-              }
-            });
+          const d1 = await this.cusService.getItem(returnData.data.customerCode);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
 
           resolve(Object.assign({returnData}));
         } else {

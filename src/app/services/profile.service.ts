@@ -148,6 +148,16 @@ export class ProfileService {
     return this.mainList2$;
   }
 
+  getAllItems(): Observable<ProfileModel[]> {
+    this.listCollection = this.db.collection<ProfileModel>(this.tableName,
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        return query;
+      });
+    return this.listCollection.valueChanges({ idField : 'primaryKey'});
+  }
+
   getMainItems(): Observable<ProfileMainModel[]> {
     this.listCollection = this.db.collection<ProfileModel>(this.tableName,
     ref => ref.where('userPrimaryKey', '==', this.authService.getUid()).orderBy('longName', 'asc'));

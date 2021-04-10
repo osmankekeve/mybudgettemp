@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getPaymentTypes, getStatus, getString, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -260,6 +260,7 @@ export class PaymentService {
     returnData.actionType = 'added';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getPaymentTypes().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     return returnData;
   }
@@ -277,6 +278,8 @@ export class PaymentService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+          returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
           const d1 = await this.cusService.getItem(returnData.data.customerCode);
           returnData.customer = this.cusService.convertMainModel(d1.data);
 
@@ -304,6 +307,8 @@ export class PaymentService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+          returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
           return Object.assign({returnData});
         })
       )
@@ -326,6 +331,8 @@ export class PaymentService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+        returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -366,6 +373,8 @@ export class PaymentService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+        returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -408,6 +417,8 @@ export class PaymentService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+        returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -448,6 +459,8 @@ export class PaymentService {
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+          returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
 
           list.push(returnData);
         });

@@ -11,7 +11,10 @@ import {GlobalService} from '../services/global.service';
 import {BuySaleService} from '../services/buy-sale.service';
 import {BuySaleMainModel} from '../models/buy-sale-main-model';
 import * as CryptoJS from 'crypto-js';
-import { getEncryptionKey } from '../core/correct-library';
+import { getEncryptionKey, getFirstDayOfMonthForInput, getTodayForInput } from '../core/correct-library';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-buy-sell-currency',
@@ -25,10 +28,14 @@ export class BuySellCurrencyComponent implements OnInit {
   searchText: '';
   onTransaction = false;
   encryptSecretKey: string = getEncryptionKey();
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+  };
 
   constructor(public authService: AuthenticationService, public service: BuySaleCurrencyService, public globService: GlobalService,
               public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router, public bsService: BuySaleService, protected router: ActivatedRoute) {
+              public route: Router, public bsService: BuySaleService, protected router: ActivatedRoute, protected modalService: NgbModal) {
   }
 
   async ngOnInit() {
@@ -81,9 +88,15 @@ export class BuySellCurrencyComponent implements OnInit {
   }
 
   showSelectedRecord(record: any): void {
-    this.transactionList = undefined;
     this.selectedRecord = record as BuySaleCurrencyMainModel;
-    Promise.all([this.bsService.getCurrencyTransactions(this.selectedRecord.data.primaryKey)]).then((values: any) => {
+    this.populateTransactions();
+  }
+
+  populateTransactions(): void {
+    this.transactionList = undefined;
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    Promise.all([this.bsService.getCurrencyTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)]).then((values: any) => {
         if (values[0] !== null) {
           const returnData = values[0] as Array<BuySaleMainModel>;
           this.transactionList = [];
@@ -176,10 +189,53 @@ export class BuySellCurrencyComponent implements OnInit {
   }
 
   async btnExportToExcel_Click(): Promise<void> {
-    if (this.transactionList.length > 0) {
-      this.excelService.exportToExcel(this.transactionList, 'buy-sell-currency-transactions');
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'currency');
     } else {
       await this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async btnExportToExcelTransaction_Click(): Promise<void> {
+    try {
+      if (this.transactionList.length > 0) {
+        this.excelService.exportToExcel(this.transactionList, 'buy-sell-currency-transactions');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.populateTransactions();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -208,3 +264,4 @@ export class BuySellCurrencyComponent implements OnInit {
   }
 
 }
+

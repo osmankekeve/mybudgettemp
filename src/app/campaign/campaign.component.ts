@@ -36,13 +36,16 @@ import { CampaignMainModel } from '../models/campaign-main-model';
 import { CampaignDetailMainModel, setCampaignDetailCalculation } from '../models/campaign-detail-main-model';
 import { CampaignService } from '../services/campaign.service';
 import { CampaignDetailService } from '../services/campaign-detail.service';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-campaign',
   templateUrl: './campaign.component.html',
   styleUrls: ['./campaign.component.css']
 })
-export class CampaignComponent implements OnInit {
+export class CampaignComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CampaignMainModel>;
   selectedRecord: CampaignMainModel;
   selectedDetail: CampaignDetailMainModel;
@@ -56,7 +59,6 @@ export class CampaignComponent implements OnInit {
   filter = {
     filterBeginDate: getFirstDayOfMonthForInput(),
     filterFinishDate: getTodayForInput(),
-    filterStatus: '-1',
   };
   recordBeginDate: any;
   recordFinishDate: any;
@@ -78,10 +80,15 @@ export class CampaignComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.selectedRecord = undefined;
     this.selectedDetail = undefined;
     this.populateList();
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
@@ -107,16 +114,9 @@ export class CampaignComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const type = [];
-    if (this.filter.filterStatus === '-1') {
-      type.push('waitingForApprove');
-      type.push('rejected');
-    } else {
-      type.push(this.filter.filterStatus);
-    }
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -383,9 +383,20 @@ export class CampaignComponent implements OnInit {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   clearSelectedRecord(): void {
@@ -511,12 +522,6 @@ export class CampaignComponent implements OnInit {
       this.selectedDetail.data.defaultPrice = getFloat((this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue).toFixed(2));
       setCampaignDetailCalculation(this.selectedDetail);
     });
-  }
-
-  clearMainFiler(): void {
-    this.filter.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filter.filterFinishDate = getTodayForInput();
-    this.filter.filterStatus = '-1';
   }
 
   clearSelectedProductRecord(): void {

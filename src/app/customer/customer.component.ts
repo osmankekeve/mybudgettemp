@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {CustomerService} from '../../app/services/customer.service';
@@ -17,7 +17,7 @@ import {FileUploadService} from '../services/file-upload.service';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import {Router, ActivatedRoute} from '@angular/router';
-import { currencyFormat, getDateForInput, getEncryptionKey, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat } from '../core/correct-library';
+import { currencyFormat, getEncryptionKey, getFloat, getInputDataForInsert, getTodayForInput, moneyFormat } from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
 import 'rxjs/add/operator/filter';
 import {CustomerTargetMainModel} from '../models/customer-target-main-model';
@@ -25,11 +25,7 @@ import {CustomerTargetService} from '../services/customer-target.service';
 import {SettingService} from '../services/setting.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {CollectionMainModel} from '../models/collection-main-model';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {MailMainModel} from '../models/mail-main-model';
 import {MailService} from '../services/mail.service';
 import {ReportService} from '../services/report.service';
 import {ProfileMainModel} from '../models/profile-main-model';
@@ -51,6 +47,12 @@ import {AccountTransactionMainModel} from '../models/account-transaction-main-mo
 import { PurchaseInvoiceModel } from '../models/purchase-invoice-model';
 import * as Chart from 'chart.js';
 import { ToastService } from '../services/toast.service';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { PaymentMainModel } from '../models/payment-main-model';
+import { MailMainModel } from '../models/mail-main-model';
+import { ProfileModel } from '../models/profile-model';
 
 @Component({
   selector: 'app-customer',
@@ -58,7 +60,8 @@ import { ToastService } from '../services/toast.service';
   styleUrls: ['./customer.component.css']
 })
 
-export class CustomerComponent implements OnInit {
+export class CustomerComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CustomerMainModel>;
   selectedCustomer: CustomerMainModel;
   newCollection: CollectionMainModel;
@@ -77,8 +80,8 @@ export class CustomerComponent implements OnInit {
   openedPanel: string;
   searchText: any;
   transactionList$: Observable<AccountTransactionModel[]>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
-  executiveList$: Observable<ProfileMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
+  executiveList$: Observable<ProfileModel[]>;
   transactionList: Array<AccountTransactionMainModel>;
   deliveryAddressList: Array<DeliveryAddressMainModel>;
   totalValues = 0;
@@ -90,10 +93,11 @@ export class CustomerComponent implements OnInit {
   termList: Array<DefinitionModel>;
   paymentList: Array<DefinitionModel>;
   encryptSecretKey: string = getEncryptionKey();
-  isMainFilterOpened = false;
-  isActive = true;
   recordDate: any;
   onTransaction = false;
+  filter = {
+    isActive: true,
+  };
 
   buyingChart: any;
   purchaseInvoiceList: any;
@@ -117,8 +121,8 @@ export class CustomerComponent implements OnInit {
     this.populateCustomerList();
     this.populateTermList();
     this.populatePaymentTypeList();
-    this.cashDeskList$ = this.cdService.getMainItems();
-    this.executiveList$ = this.proService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
+    this.executiveList$ = this.proService.getAllItems();
     this.selectedCustomer = undefined;
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
       const bytes = await CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
@@ -126,6 +130,12 @@ export class CustomerComponent implements OnInit {
       if (paramItem) {
         this.showSelectedCustomer(paramItem);
       }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -158,7 +168,7 @@ export class CustomerComponent implements OnInit {
   populateCustomerList(): void {
     this.openedPanel = 'dashboard';
     this.mainList = undefined;
-    this.service.getMainItems(this.isActive).subscribe(list => {
+    this.mainList$ = this.service.getMainItems(this.filter.isActive).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -687,14 +697,6 @@ export class CustomerComponent implements OnInit {
     }
   }
 
-  btnMainFilter_Click(): void {
-    try {
-      this.populateCustomerList();
-    } catch (error) {
-      this.infoService.error(error);
-    }
-  }
-
   async btnFix_Click(): Promise<void> {
     this.service.getMainItems(null).subscribe(list => {
       if (this.mainList === undefined) {
@@ -710,12 +712,14 @@ export class CustomerComponent implements OnInit {
 
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
-      }
-      this.clearMainFiler();
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.isActive = result.isActive;
+          this.ngOnDestroy();
+          this.populateCustomerList();
+        }
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -877,10 +881,6 @@ export class CustomerComponent implements OnInit {
     } catch (error) {
       this.infoService.error(error);
     }
-  }
-
-  clearMainFiler(): void {
-    this.isActive = true;
   }
 
   clearSelectedCustomer(): void {

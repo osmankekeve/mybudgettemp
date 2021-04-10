@@ -1,128 +1,104 @@
-<div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/product-list.png" class="float-left mr-2" width="30px" alt="">
-        <h4 class="card-title float-left mr-2">Ürün Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Ürün"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Aktar"
-                (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
-      </div>
-      <div class="col-sm-4 head-filter">
-        <div class="input-group input-group-round">
-          <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
-          </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="searchText">
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Ürünler</h5>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="card mb-2" *ngIf="isMainFilterOpened">
-      <div class="card-header">Filtreler</div>
-      <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Aktif Durumu</label>
-          </div>
-          <div class="col-sm-3">
-            <select class="form-control form-control-sm w-100"
-                    [(ngModel)]="filter.isActive">
-              <option [ngValue]="true">Aktif</option>
-              <option [ngValue]="false">Pasif</option>
-            </select>
-          </div>
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Ürün Tipi</label>
-          </div>
-          <div class="col-sm-3">
-            <select class="form-control form-control-sm w-100"
-                    [(ngModel)]="filter.stockType">
-              <option value="-1">Hepsi</option>
-              <option value="normal">Normal Ürün</option>
-              <option value="promotion">Promosyon Ürün</option>
-              <option value="service">Hizmet Ürün</option>
-            </select>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
+            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="searchText">
           </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <div class="row">
-          <div class="col-sm-2">
-            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> Yeni Ürün Oluştur
+          </button>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
             </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnShowMainFiler_Click()">Geniş Filtre</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()">Excel'e Aktar</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnExcelImport_Click()">Ürün Aktar</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <tr class="table-row-class">
-            <th>Ürün Adı</th>
-            <th>Stok Tipi</th>
-            <th>Ürün Tipi</th>
-            <th>KDV %</th>
-            <th>Ötv Tutarı</th>
-            <th>Barkod 1</th>
-            <th>Barkod 2</th>
-            <th>Aktif Mi?</th>
-            <th>Web Ürün Mü?</th>
-          </tr>
-          </thead>
-          <tbody>
-            <tr class="cursor-pointer table-row-class"
-                (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
-                *ngFor="let item of mainList | filterProduct: searchText; index as i;">
-              <td>
-                <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-                <span class="text-red font-weight-600 mr-1">{{item.data.productCode}}</span>
-                <span class="font-weight-600">{{item.data.productName}}</span>
-              </td>
-              <td>{{item.stockTypeTr}}</td>
-              <td>{{item.productTypeTr}}</td>
-              <td>{{item.data.taxRate}}</td>
-              <td>{{item.sctAmountFormatted}}</td>
-              <td>{{item.data.barcode1}}</td>
-              <td>{{item.data.barcode2}}</td>
-              <td>{{item.isActiveTr}}</td>
-              <td>{{item.isWebProductTr}}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list">
+          <div class="main-list-item" (click)="showSelectedRecord(item)"
+          *ngFor="let item of mainList | filterProduct: searchText; index as i;">
+            <div class="icon cursor-pointer" title="Kaydı Göster">
+              <i class="fas fa-file-alt fa-2x text-danger"></i>
+            </div>
+            <div class="content">
+              <div class="row-1">
+                <div class="w-100">
+                  <span class="text-red font-weight-600 mr-1" title="Ürün Kodu">{{item.data.productCode}}</span>
+                  <span class="font-weight-600" title="Ürün Adı">{{item.data.productName}}</span>
+                </div>
+              </div>
+              <div class="row-2">
+                <div class="w-50 float-left">
+                  <span class="badge badge-danger" title="Ürün Stok Tipi">{{item.stockTypeTr}}</span>
+                  <span class="badge badge-secondary" title="Ürün Tipi">{{item.productTypeTr}}</span>
+                  <span class="badge badge-warning" title="Aktiflik Durumu">{{item.isActiveTr}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-red text-white">
+        <div class="card bg-red text-white m-3">
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
     </div>
     <ng-template #elseBlock2>
-      <div class="loader"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
     </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/product-list.png" class="float-left mr-2" width="30px" alt="">
-        <h4 class="card-title float-left mr-2">Ürün Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
-                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Bilgiler"
-                (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
+        <h5 class="card-title float-left mr-2">Ürün > 
+          <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+          <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+        </h5>
+      </div>
+      <div class="head-filter">
+        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
+        </button>
+      </div>
+      <div class="head-filter">
+        <div class="dropdown">
+          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -379,7 +355,7 @@
                   {{item.data.fileName}}
                 </div>
                 <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
               </div>
             </div>
           </div>
@@ -408,7 +384,7 @@
               <div class="row">
                 <div class="col-sm-2">{{item.data.action}}</div>
                 <div class="col-sm-8">{{item.employeeName}}</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
                 </div>
               </div>
             </div>

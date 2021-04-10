@@ -3,7 +3,7 @@ import {AngularFirestore, AngularFirestoreCollection} from '@angular/fire/firest
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -21,27 +21,31 @@ import {InfoModuleComponent} from '../partials/info-module/info-module.component
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-visit',
   templateUrl: './visit.component.html',
   styleUrls: ['./visit.component.css']
 })
-export class VisitComponent implements OnInit {
+export class VisitComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<VisitMainModel> = [];
   collection: AngularFirestoreCollection<VisitMainModel>;
-  customerList$: Observable<CustomerModel[]>;
   profileList$: Observable<ProfileMainModel[]>;
+  profileList: Array<ProfileMainModel> = [];
   selectedRecord: VisitMainModel;
   recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  isMainFilterOpened = false;
   searchText = '';
   chart1: any;
   chart2: any;
   onTransaction = false;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
 
   constructor(public authService: AuthenticationService, public service: VisitService, public route: Router,
               public atService: AccountTransactionService, public infoService: InformationService,
@@ -50,9 +54,34 @@ export class VisitComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.clearMainFiler();
-    this.customerList$ = this.cService.getAllItems();
-    this.profileList$ = this.proService.getMainItems();
+    this.proService.getMainItems().subscribe(list => {
+      if (this.profileList === undefined) {
+        this.profileList = [];
+      }
+      list.forEach((data: any) => {
+        const item = data.returnData as ProfileMainModel;
+
+        if (item.actionType === 'added') {
+          this.profileList.push(item);
+        }
+        if (item.actionType === 'removed') {
+          for (let i = 0; i < this.profileList.length; i++) {
+            if (item.data.primaryKey === this.profileList[i].data.primaryKey) {
+              this.profileList.splice(i, 1);
+              break;
+            }
+          }
+        }
+        if (item.actionType === 'modified') {
+          for (let i = 0; i < this.profileList.length; i++) {
+            if (item.data.primaryKey === this.profileList[i].data.primaryKey) {
+              this.profileList[i] = item;
+              break;
+            }
+          }
+        }
+      });
+    });
     this.selectedRecord = undefined;
     this.generateCharts();
     this.populateList();
@@ -63,6 +92,12 @@ export class VisitComponent implements OnInit {
       if (paramItem) {
         this.showSelectedRecord(paramItem);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -90,9 +125,9 @@ export class VisitComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -131,8 +166,8 @@ export class VisitComponent implements OnInit {
   }
 
   populateCharts(): void {
-    const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const startDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const endDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
 
     const chart1DataValues = [0, 0, 0];
     Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
@@ -323,23 +358,20 @@ export class VisitComponent implements OnInit {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
-    this.clearMainFiler();
-  }
-
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateCharts();
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateCharts();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -354,11 +386,6 @@ export class VisitComponent implements OnInit {
   clearSelectedRecord(): void {
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearVisitMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

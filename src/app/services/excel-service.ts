@@ -36,39 +36,44 @@ export class ExcelService {
     const excelList = [];
     const transactionTypes = getTransactionTypes();
     let fileName = 'default';
-    if (record === 'purchaseInvoice') {
-      fileName = 'purchase_invoice';
-      list.forEach((data: any) => {
-        const item = data as PurchaseInvoiceMainModel;
-        excelList.push({
-          'Customer Code': item.customer.data.code,
-          'Customer Name': item.customer.data.name,
-          'Receipt No': item.data.receiptNo,
-          'Total Price': item.data.totalPrice,
-          'Total Price (+KDV)': item.data.totalPriceWithTax,
-          'Insert Date': getDateForExcel(item.data.insertDate),
-          Description: item.data.description
+
+    switch (record) {
+      case 'purchase-invoice': {
+        fileName = 'purchase_invoice';
+        list.forEach((data: any) => {
+          const item = data as PurchaseInvoiceMainModel;
+          excelList.push({
+            'Customer Code': item.customer.data.code,
+            'Customer Name': item.customer.data.name,
+            'Receipt No': item.data.receiptNo,
+            'Total Price': item.data.totalPrice,
+            'Total Price (+KDV)': item.data.totalPriceWithTax,
+            'Insert Date': getDateForExcel(item.data.insertDate),
+            Description: item.data.description
+          });
         });
-      });
-    }
-    if (record === 'payment') {
-      fileName = 'payment';
-      list.forEach((data: any) => {
+        break;
+      }
+      case 'payment': {
+        fileName = 'payment';
+        list.forEach((data: any) => {
         const item = data as PaymentMainModel;
         excelList.push({
           'Customer Code': data.customer.data.code,
           'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
-          'Status': data.statusTr,
+          Status: data.statusTr,
           Amount: data.amountFormatted,
           'Insert Date': getDateForExcel(data.data.insertDate),
           Description: data.data.description
         });
       });
-    }
-    if (record === 'salesInvoice') {
-      fileName = 'sales_invoice';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'salesInvoice': {
+        fileName = 'sales_invoice';
+        list.forEach((item: any) => {
         const data = item as SalesInvoiceMainModel;
         excelList.push({
           'Customer Code': data.customer.data.code,
@@ -82,25 +87,29 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    }
-    if (record === 'collection') {
-      fileName = 'collection';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'collection': {
+        fileName = 'collection';
+        list.forEach((item: any) => {
         const data = item as CollectionMainModel;
         excelList.push({
           'Customer Code': data.customer.data.code,
           'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
-          'Status': data.statusTr,
+          Status: data.statusTr,
           Amount: data.amountFormatted,
           'Insert Date': getDateForExcel(data.data.insertDate),
           Description: data.data.description
         });
       });
-    }
-    if (record === 'customer') {
-      fileName = 'customer';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'customer': {
+        fileName = 'customer';
+        list.forEach((item: any) => {
         const data = {
           'Customer Type': item.customerTypeTr,
           Code: item.data.code,
@@ -117,20 +126,24 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    }
-    if (record === 'note') {
-      fileName = 'note';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'note': {
+        fileName = 'note';
+        list.forEach((item: any) => {
         const data = {
           Note: item.data.note,
           'Insert Date': getDateForExcel(item.data.insertDate)
         };
         excelList.push(data);
       });
-    }
-    if (record === 'cashdeskVoucher') {
-      fileName = 'cashdesk_voucher';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'cashdeskVoucher': {
+        fileName = 'cashdesk_voucher';
+        list.forEach((item: any) => {
         const data = {
           Cashdesk: item.casDeskName,
           'Receipt No': item.data.receiptNo,
@@ -141,23 +154,12 @@ export class ExcelService {
         };
         excelList.push(data);
       });
-    }
-    if (record === 'cashdeskTransaction') {
-      fileName = 'cashdesk_transaction';
-      list.forEach((item: any) => {
-        const data = {
-          'Transaction Type': transactionTypes.get(item.transactionType),
-          'Receipt No': item.receiptNo,
-          Amount: Math.abs(item.amount),
-          Type: item.type === 'debit' ? 'Borç' : 'Alacak',
-          'Insert Date': getDateForExcel(item.insertDate)
-        };
-        excelList.push(data);
-      });
-    }
-    if (record === 'accountVoucher') {
-      fileName = 'account_voucher';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'accountVoucher': {
+        fileName = 'account_voucher';
+        list.forEach((item: any) => {
         const data = item as AccountVoucherMainModel;
         excelList.push({
           'Customer Name': data.customer.data.name,
@@ -168,11 +170,13 @@ export class ExcelService {
           Description: data.data.description
         });
       });
-    }
-    if (record === 'customerAccountSummary') {
-      fileName = 'customer_account_summary';
-      let totalValue = 0;
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'customerAccountSummary': {
+        fileName = 'customer_account_summary';
+        let totalValue = 0;
+        list.forEach((item: any) => {
         const data = {
           Transaction: item.transactionTypeTr,
           'Sub Transaction': item.subTransactionTypeTr,
@@ -184,22 +188,28 @@ export class ExcelService {
         excelList.push(data);
         totalValue += data.Amount;
       });
-      excelList.push({Transaction: 'Toplam', 'Receipt No': '', Amount: totalValue, Type: '', 'Insert Date': ''});
-    }
-    if (record === 'customer-account') {
-      fileName = 'customer-account';
-      list.forEach((item: any) => {
+        excelList.push({Transaction: 'Toplam', 'Receipt No': '', Amount: totalValue, Type: '', 'Insert Date': ''});
+
+        break;
+      }
+      case 'customer-account': {
+        fileName = 'customer-account';
+        list.forEach((item: any) => {
         const data = item as CustomerAccountMainModel;
         excelList.push({
+          'Customer Code': data.customer.data.code,
           'Customer Name': data.customer.data.name,
+          'Customer Owner': data.customer.data.owner,
           'Account No': data.data.name,
           Description: data.data.description
         });
       });
-    }
-    if (record === 'customer-account-transactions') {
-      fileName = 'customer-account-transactions';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'customer-account-transactions': {
+        fileName = 'customer-account-transactions';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Receipt No': data.receiptNo,
@@ -207,10 +217,12 @@ export class ExcelService {
           Amount: item.amount,
         });
       });
-    }
-    if (record === 'buy-sell-currency-transactions') {
-      fileName = 'buy-sell-currency-transactions';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'buy-sell-currency-transactions': {
+        fileName = 'buy-sell-currency-transactions';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           Employee: data.employeeName,
@@ -220,10 +232,12 @@ export class ExcelService {
           'Total Amount': data.totalAmountFormatted,
         });
       });
-    }
-    if (record === 'buy-sale') {
-      fileName = 'buy-sale';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'buy-sale': {
+        fileName = 'buy-sale';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           Employee: data.employeeName,
@@ -233,10 +247,12 @@ export class ExcelService {
           'Total Amount': data.totalAmountFormatted,
         });
       });
-    }
-    if (record === 'unit-mapping') {
-      fileName = 'unit-mapping';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'unit-mapping': {
+        fileName = 'unit-mapping';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           Code: data.product.data.productCode,
@@ -245,10 +261,12 @@ export class ExcelService {
           Value: data.data.unitValue
         });
       });
-    }
-    if (record === 'product') {
-      fileName = 'product';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'product': {
+        fileName = 'product';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Type': data.productTypeTr,
@@ -262,14 +280,16 @@ export class ExcelService {
           'Is Web Product': data.isWebProductTr,
           'Barcode 1': data.data.barcode1,
           'Barcode 2': data.data.barcode2,
-          'Height': data.data.height,
-          'Weight': data.data.weight
+          Height: data.data.height,
+          Weight: data.data.weight
         });
       });
-    }
-    if (record === 'product-unit') {
-      fileName = 'product_unit';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'product-unit': {
+        fileName = 'product_unit';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Stock Type': data.product.stockTypeTr,
@@ -279,10 +299,12 @@ export class ExcelService {
           Value: data.data.unitValue
         });
       });
-    }
-    if (record === 'sales-invoice-detail') {
-      fileName = 'sales_invoice_detail';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'sales-invoice-detail': {
+        fileName = 'sales_invoice_detail';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Code': data.product.data.productCode,
@@ -291,34 +313,38 @@ export class ExcelService {
           'Product Price': data.priceFormatted,
           'Discount 1': '%' + data.data.discount1.toString(),
           'Discount 2': '%' + data.data.discount2.toString(),
-          'Quantity': data.data.quantity,
-          'Unit': data.unit.unitName,
+          Quantity: data.data.quantity,
+          Unit: data.unit.unitName,
           'Tax Rate': '%' + data.data.taxRate.toString(),
           'Total Price': data.totalPriceFormatted,
           'Total Tax': data.totalTaxAmountFormatted,
           'Total Price With Tax': data.totalPriceWithTaxFormatted,
         });
       });
-    }
-    if (record === 'sales-order') {
-      fileName = 'sales_order';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'sales-order': {
+        fileName = 'sales_order';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Customer Code': data.customer.data.code,
           'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
           'Order Type': data.orderTypeTr,
-          'Status': data.statusTr,
+          Status: data.statusTr,
           'Total Price': data.totalPriceFormatted,
           'Total Tax': data.totalTaxAmountFormatted,
           'Total Price With Tax': data.totalPriceWithTaxFormatted,
         });
       });
-    }
-    if (record === 'sales-order-detail') {
-      fileName = 'sales_order_detail';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'sales-order-detail': {
+        fileName = 'sales_order_detail';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Code': data.product.data.productCode,
@@ -327,35 +353,39 @@ export class ExcelService {
           'Product Price': data.priceFormatted,
           'Discount 1': '%' + data.data.discount1.toString(),
           'Discount 2': '%' + data.data.discount2.toString(),
-          'Quantity': data.data.quantity,
+          Quantity: data.data.quantity,
           'Invoiced Quantity': data.data.invoicedQuantity,
-          'Unit': data.unit.unitName,
+          Unit: data.unit.unitName,
           'Tax Rate': '%' + data.data.taxRate.toString(),
           'Total Price': data.totalPriceFormatted,
           'Total Tax': data.totalTaxAmountFormatted,
           'Total Price With Tax': data.totalPriceWithTaxFormatted,
         });
       });
-    }
-    if (record === 'purchase-order') {
-      fileName = 'sales_order';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'purchase-order': {
+        fileName = 'sales_order';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Customer Code': data.customer.data.code,
           'Customer Name': data.customer.data.name,
           'Receipt No': data.data.receiptNo,
           'Order Type': data.orderTypeTr,
-          'Status': data.statusTr,
+          Status: data.statusTr,
           'Total Price': data.totalPriceFormatted,
           'Total Tax': data.totalTaxAmountFormatted,
           'Total Price With Tax': data.totalPriceWithTaxFormatted,
         });
       });
-    }
-    if (record === 'purchase-order-detail') {
-      fileName = 'sales_order_detail';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'purchase-order-detail': {
+        fileName = 'sales_order_detail';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Code': data.product.data.productCode,
@@ -364,19 +394,21 @@ export class ExcelService {
           'Product Price': data.priceFormatted,
           'Discount 1': '%' + data.data.discount1.toString(),
           'Discount 2': '%' + data.data.discount2.toString(),
-          'Quantity': data.data.quantity,
+          Quantity: data.data.quantity,
           'Invoiced Quantity': data.data.invoicedQuantity,
-          'Unit': data.unit.unitName,
+          Unit: data.unit.unitName,
           'Tax Rate': '%' + data.data.taxRate.toString(),
           'Total Price': data.totalPriceFormatted,
           'Total Tax': data.totalTaxAmountFormatted,
           'Total Price With Tax': data.totalPriceWithTaxFormatted,
         });
       });
-    }
-    if (record === 'product-prices') {
-      fileName = 'product_price';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'product-prices': {
+        fileName = 'product_price';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Code': data.product.data.productCode,
@@ -386,10 +418,12 @@ export class ExcelService {
           'Product Price': data.priceFormatted,
         });
       });
-    }
-    if (record === 'product-discount') {
-      fileName = 'product_discount';
-      list.forEach((item: any) => {
+
+        break;
+      }
+      case 'product-discount': {
+        fileName = 'product_discount';
+        list.forEach((item: any) => {
         const data = item as any;
         excelList.push({
           'Product Code': data.product.data.productCode,
@@ -400,6 +434,94 @@ export class ExcelService {
           'Discount 2': '%' + data.data.discount2.toString(),
         });
       });
+
+        break;
+      }
+      case 'purchase-invoice-detail': {
+        fileName = 'purchase_invoice_detail';
+        list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Product Code': data.product.data.productCode,
+          'Product Name': data.product.data.productName,
+          'Product Type': data.product.stockTypeTr,
+          'Product Price': data.priceFormatted,
+          'Discount 1': '%' + data.data.discount1.toString(),
+          'Discount 2': '%' + data.data.discount2.toString(),
+          Quantity: data.data.quantity,
+          Unit: data.unit.unitName,
+          'Tax Rate': '%' + data.data.taxRate.toString(),
+          'Total Price': data.totalPriceFormatted,
+          'Total Tax': data.totalTaxAmountFormatted,
+          'Total Price With Tax': data.totalPriceWithTaxFormatted,
+        });
+      });
+
+        break;
+      }
+      case 'cash-desk': {
+        fileName = 'cash-desk';
+        list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Cashdesk Name': data.data.name,
+          'Cashdesk Description': data.data.description,
+        });
+      });
+
+        break;
+      }
+      case 'cash-desk-transaction': {
+        fileName = 'cash-desk-transaction';
+        list.forEach((item: any) => {
+        const data = item as any;
+        excelList.push({
+          'Receipt No': data.data.receiptNo,
+          'Transaction Main': data.transactionTypeTr,
+          'Sub Transaction': data.subTransactionTypeTr,
+          'Amount Type': data.amountTypeTr,
+          Amount: Math.abs(item.data.amount),
+          'Insert Date': getDateForExcel(item.insertDate)
+        });
+      });
+
+        break;
+      }
+      case 'mail-sender': {
+        fileName = 'mail-sender';
+        list.forEach((item: any) => {
+        const data = {
+          'Mail To': item.data.mailTo,
+          Subject: item.data.subject,
+          Content: item.data.content,
+          'Customer Name': item.customerName,
+          'Gönderim Durumu': item.isSendTr,
+          'Insert Date': getDateForExcel(item.data.insertDate)
+        };
+        excelList.push(data);
+      });
+
+        break;
+      }
+      case 'to-do-list': {
+        fileName = 'to-do-list';
+        list.forEach((item: any) => {
+        const data = {
+          Employee: item.employee.longName,
+          Content: item.data.todoText,
+          Result: item.data.result,
+          'Aktiflik Durumu': item.isActiveTr,
+          'Insert Date': getDateForExcel(item.data.insertDate)
+        };
+        excelList.push(data);
+      });
+
+        break;
+      }
+      default: {
+
+        break;
+      }
     }
 
     this.exportAsExcelFile(excelList, fileName);

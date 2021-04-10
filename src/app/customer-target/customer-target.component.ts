@@ -4,10 +4,10 @@ import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {CustomerTargetMainModel} from '../models/customer-target-main-model';
 import {CustomerTargetService} from '../services/customer-target.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
-import { getFloat, getNumber, getTodayForInput, getBeginOfYear, getEndOfYear, getEncryptionKey, currencyFormat, moneyFormat
+import { getFloat, getNumber, getTodayForInput, getBeginOfYear, getEndOfYear, getEncryptionKey, currencyFormat, moneyFormat, getBeginOfMonth, getEndOfMonth, getLastDay
 } from '../core/correct-library';
 import {CollectionService} from '../services/collection.service';
 import * as CryptoJS from 'crypto-js';
@@ -20,13 +20,15 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {ToastService} from '../services/toast.service';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-customer-target',
   templateUrl: './customer-target.component.html',
   styleUrls: ['./customer-target.component.css']
 })
-export class CustomerTargetComponent implements OnInit {
+export class CustomerTargetComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CustomerTargetMainModel> = [];
   selectedRecord: CustomerTargetMainModel;
   transactionList$: Observable<CollectionMainModel[]>;
@@ -58,6 +60,12 @@ export class CustomerTargetComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
       this.toastService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
@@ -82,7 +90,7 @@ export class CustomerTargetComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems(this.filter.isActive).subscribe(list => {
+    this.mainList$ = this.service.getMainItems(this.filter.isActive).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -131,9 +139,11 @@ export class CustomerTargetComponent implements OnInit {
         beginDate = getBeginOfYear(getNumber(this.selectedRecord.data.year));
         finishDate = getEndOfYear(getNumber(this.selectedRecord.data.year));
       } else if (this.selectedRecord.data.type === 'monthly') {
-
+        beginDate = getBeginOfMonth(getNumber(this.selectedRecord.data.year), getNumber(this.selectedRecord.data.beginMonth) - 1);
+        finishDate = getEndOfMonth(getNumber(this.selectedRecord.data.year), getNumber(this.selectedRecord.data.beginMonth) - 1);
       } else if (this.selectedRecord.data.type === 'periodic') {
-
+        beginDate = getBeginOfMonth(getNumber(this.selectedRecord.data.year), getNumber(this.selectedRecord.data.beginMonth) - 1);
+        finishDate = getEndOfMonth(getNumber(this.selectedRecord.data.year), getNumber(this.selectedRecord.data.finishMonth) - 1);
       } else {
 
       }
@@ -257,20 +267,14 @@ export class CustomerTargetComponent implements OnInit {
 
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
-      }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      this.populateList();
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.isActive = result.isActive;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }

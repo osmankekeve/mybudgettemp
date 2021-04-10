@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Hesap Kapama Listesi</h4>
+        <h5 class="card-title float-left mr-2">Hesap Kapama Listesi</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
                 (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
       </div>
@@ -163,7 +163,7 @@
     <div class="row">
       <div class="col-sm-12">
         <img src="../../assets/images/customer_account.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Hesap Kapama Detayı</h4>
+        <h5 class="card-title float-left mr-2">Hesap Kapama Detayı</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                 (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
         <div class="float-right">
@@ -213,7 +213,7 @@
                         {{item.data.amount | currency:'₺'}} / <span class="text-success">{{item.data.paidAmount | currency:'₺'}}</span>
                       </span>
                     </div>
-                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
                     <div class="col-sm-12" [ngClass]="(item.remainingAmount > 0)?'text-success':'text-danger'">
                       <span class="font-weight-600 fs-14 float-right">{{item.matchTr}}</span>
                     </div>
@@ -271,7 +271,7 @@
                         {{item.data.amount | currency:'₺'}} / <span class="text-success">{{item.data.paidAmount | currency:'₺'}}</span>
                       </span>
                     </div>
-                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+                    <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
                     <div class="col-sm-12" [ngClass]="(item.remainingAmount > 0)?'text-success':'text-danger'">
                       <span class="font-weight-600 fs-14 float-right">{{item.matchTr}}</span>
                     </div>

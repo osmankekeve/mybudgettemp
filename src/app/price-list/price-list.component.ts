@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
@@ -23,19 +23,21 @@ import {ProductSelectComponent} from '../partials/product-select/product-select.
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import { ToastService } from '../services/toast.service';
 import { Observable } from 'rxjs/Observable';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-price-list',
   templateUrl: './price-list.component.html',
   styleUrls: ['./price-list.component.css']
 })
-export class PriceListComponent implements OnInit {
+export class PriceListComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<PriceListMainModel>;
   selectedRecord: PriceListMainModel;
   selectedProductPrice: ProductPriceMainModel;
   productsOnList: Array<ProductPriceMainModel>;
   encryptSecretKey: string = getEncryptionKey();
-  isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
   productSearchText: '';
@@ -49,7 +51,6 @@ export class PriceListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
     this.selectedProductPrice = undefined;
@@ -63,9 +64,15 @@ export class PriceListComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -236,25 +243,18 @@ export class PriceListComponent implements OnInit {
     this.onTransaction = false;
   }
 
-  async btnShowMainFiler_Click(): Promise<void> {
-    try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+        this.clearSelectedProductRecord();
       }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      this.infoService.error('yazıllmadı');
-    } catch (error) {
-      await this.infoService.error(error);
-    }
+    this.onTransaction = false;
   }
 
   async btnSelectProduct_Click(): Promise<void> {
@@ -327,16 +327,15 @@ export class PriceListComponent implements OnInit {
           } else {
             await this.ppService.updateItem(this.selectedProductPrice)
               .then(() => {
-                this.clearSelectedProductRecord();
-                this.finishProcess(null, 'Ürün başarıyla güncellendi.', false);
+                this.finishSubProcess(null, 'Ürün başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null, false);
+                this.finishSubProcess(error, null);
               });
           }
         })
         .catch((error) => {
-          this.finishProcess(error, null, false);
+          this.finishSubProcess(error, null);
         });
     } catch (error) {
       await this.infoService.error(error);
@@ -350,15 +349,14 @@ export class PriceListComponent implements OnInit {
         .then(async (values: any) => {
           await this.ppService.removeItem(this.selectedProductPrice)
             .then(() => {
-              this.clearSelectedProductRecord();
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+              this.finishSubProcess(null, 'Ürün başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcess(error, null, false);
+              this.finishSubProcess(error, null);
             });
         })
         .catch((error) => {
-          this.finishProcess(error, null, false);
+          this.finishSubProcess(error, null);
         });
     } catch (error) {
       await this.infoService.error(error);
@@ -431,6 +429,14 @@ export class PriceListComponent implements OnInit {
     }
   }
 
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   showSelectedProduct(record: any): void {
     this.selectedProductPrice = record as ProductPriceMainModel;
     this.isNewPricePanelOpened = true;
@@ -447,10 +453,6 @@ export class PriceListComponent implements OnInit {
   clearSelectedProductRecord(): void {
     this.isNewPricePanelOpened = false;
     this.selectedProductPrice = undefined;
-  }
-
-  clearMainFiler(): void {
-
   }
 
   format_amount($event): void {

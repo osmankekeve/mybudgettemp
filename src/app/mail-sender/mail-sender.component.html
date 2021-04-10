@@ -1,113 +1,110 @@
-<div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/mail_sender.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Mail Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Mail Gönder"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
-      </div>
-      <div class="col-sm-4 head-filter">
-        <div class="input-group input-group-round">
-          <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
-          </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Mail Ara.." [(ngModel)]="searchText">
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/mail_sender.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Mail</h5>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="card mb-2" *ngIf="isMainFilterOpened">
-      <div class="card-header">Filtreler</div>
-      <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Başlangıç Tarihi</label>
-          </div>
-          <div class="col-sm-3">
-            <div class="input-group">
-              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
-                     [(ngModel)]="filterBeginDate" ngbDatepicker #d="ngbDatepicker">
-              <div class="input-group-append">
-                <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
-                  class="fa fa-calendar"></i></button>
-              </div>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
             </div>
-          </div>
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Bitiş Tarihi</label>
-          </div>
-          <div class="col-sm-3">
-            <div class="input-group">
-              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
-                     [(ngModel)]="filterFinishDate" ngbDatepicker #d2="ngbDatepicker">
-              <div class="input-group-append">
-                <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
-                  class="fa fa-calendar"></i></button>
-              </div>
-            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Mail Ara.." [(ngModel)]="searchText">
           </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <div class="row">
-          <div class="col-sm-2">
-            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> Yeni Mail Oluştur
+          </button>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
             </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnShowMainFiler_Click()">Geniş Filtre</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()">Excel'e Aktar</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="list-group-item bg-success text-light main-list-item">
-          <div class="row">
-            <div class="col-sm-2">Personel</div>
-            <div class="col-sm-1">Kayıt Tipi</div>
-            <div class="col-sm-2">Alıcı</div>
-            <div class="col-sm-4">Başlık</div>
-            <div class="col-sm-1">Durum</div>
-            <div class="col-sm-1"><span class="float-right">Tarih</span></div>
+      <div class="main-list" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list-item" *ngFor="let item of mainList | filterMail: searchText; index as i;">
+          <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showSelectedRecord(item)">
+            <i class="fas fa-file-alt fa-2x text-danger"></i>
           </div>
-        </div>
-        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-             (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
-             *ngFor="let item of mainList; index as i;">
-          <div class="row">
-            <div class="col-sm-2"><i class="far fa-arrow-alt-circle-right mr-2 text-success"></i>{{item.employeeName}}</div>
-            <div class="col-sm-1">{{item.parentTypeTr}}</div>
-            <div class="col-sm-2">{{item.customerName}}</div>
-            <div class="col-sm-4">{{item.data.subject}}</div>
-            <div class="col-sm-2">{{item.isSendTr}}</div>
-            <div class="col-sm-1"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+          <div class="content">
+            <div class="row-1">
+              <div class="w-100">
+                <span class="font-weight-600 mr-1" title="Alıcı">{{item.customerName}}</span>
+              </div>
+            <div class="row-1">
+              <div class="w-100">
+                <span class="font-weight-600 mr-1" title="Mail Başlık">{{item.data.subject}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="row-2">
+            <div class="w-66">
+              <span class="badge badge-danger" title="Alıcı Tipi">{{item.parentTypeTr}}</span>
+              <span class="badge badge-warning" title="Gönderim Durumu">{{item.isSendTr}}</span>
+            </div>
+            <div class="w-33">
+              <span class="float-right mr-1">Kayıt Tarihi {{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
             </div>
           </div>
         </div>
+        </div>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-red text-white">
+        <div class="card bg-red text-white m-3">
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
     </div>
     <ng-template #elseBlock2>
-      <div class="loader"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
     </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/mail_sender.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">İçerik Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <img src="../../assets/images/mail_sender.png" width="30px" alt="" class="float-left mr-2">
+        <h5 class="card-title float-left mr-2">Mail > 
+          <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+          <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+        </h5>
+      </div>
+      <div class="head-filter">
+        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
+        </button>
+      </div>
+      <div class="head-filter">
+        <div class="dropdown">
+          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
+              <i class="fa fa-jsfiddle text-secondary"></i> Json Göster
+            </a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
+              <i class="fa fa-info-circle text-secondary"></i> Bilgiler
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -178,7 +175,7 @@
     </form>
   </div>
   <div class="card-footer">
-    <div class="col-sm-2 float-right" *ngIf="selectedRecord.data.primaryKey==null">
+    <div class="btn-action float-right" *ngIf="selectedRecord.data.primaryKey==null">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">

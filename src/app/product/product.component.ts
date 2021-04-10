@@ -31,9 +31,10 @@ import {InfoModuleComponent} from '../partials/info-module/info-module.component
 import {ToastService} from '../services/toast.service';
 import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
 import * as Chart from 'chart.js';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-product',
@@ -41,6 +42,7 @@ import * as Chart from 'chart.js';
   styleUrls: ['./product.component.css']
 })
 export class ProductComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<ProductMainModel>;
   collection: AngularFirestoreCollection<ProductModel>;
   actionList: Array<ActionMainModel>;
@@ -75,7 +77,6 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
     await this.populateUnits();
     this.selectedRecord = undefined;
@@ -86,6 +87,12 @@ export class ProductComponent implements OnInit, OnDestroy {
       if (paramItem) {
         this.showSelectedRecord(paramItem);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -110,12 +117,9 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  ngOnDestroy(): void {
-  }
-
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems(this.filter.isActive, this.filter.stockType).subscribe(list => {
+    this.mainList$ = this.service.getMainItems(this.filter.isActive, this.filter.stockType).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -346,20 +350,15 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
-      }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      this.populateList();
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.isActive = result.isActive;
+          this.filter.stockType = result.filterStockType;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -562,13 +561,6 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filter = {
-      stockType: '-1',
-      isActive: true,
-    };
   }
 
   clearImageItems(): void {

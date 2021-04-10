@@ -5,37 +5,44 @@ import { AccountTransactionModel } from '../models/account-transaction-model';
 import { LogModel } from '../models/log-model';
 import { LogService } from '../services/log.service';
 import { getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty } from '../core/correct-library';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.css']
 })
 export class NotificationComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<LogModel>;
   refModel: LogModel;
   isMainFilterOpened = false;
-  filterBeginDate: any;
-  filterFinishDate: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+  };
   searchText: '';
 
-  constructor(public infoService: InformationService,
+  constructor(public infoService: InformationService, protected modalService: NgbModal,
               public service: LogService,
               public db: AngularFirestore) { }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
   }
 
-  ngOnDestroy(): void {
-
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getNotifications(beginDate, finishDate).subscribe(list => {
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getNotifications(beginDate, finishDate).subscribe(list => {
       this.mainList = [];
       list.forEach((item: any) => {
         if (item.actionType === 'added') {
@@ -56,27 +63,19 @@ export class NotificationComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
-  }
-
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
-    }
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
   }
 }

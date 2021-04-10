@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-sm-8">
         <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Alış&Satış Listesi</h4>
+        <h5 class="card-title float-left mr-2">Alış&Satış Listesi</h5>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Kayıt"
                 (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
         <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
@@ -46,7 +46,7 @@
             <td><span class="float-right">{{item.data.unitAmount | currency:'₺'}}</span></td>
             <td><span class="float-right">{{item.data.unitValue }} {{item.currencyName}}</span></td>
             <td><span class="float-right">{{item.totalAmountFormatted}}</span></td>
-            <td><span class="float-right">{{item.data.recordDate | date: 'yyyy.MM.dd'}}</span></td>
+            <td><span class="float-right">{{item.data.recordDate | date: 'yyyy-MM-dd'}}</span></td>
             <td>
               <i class="fas fa-check mr-2 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
               <i class="far fa-thumbs-up mr-2 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
@@ -81,7 +81,7 @@
         <div class="row">
           <div class="col-sm-10">
             <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
-            <h4 class="card-title float-left mr-2">Alış&Satış Detayı</h4>
+            <h5 class="card-title float-left mr-2">Alış&Satış Detayı</h5>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                     (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"

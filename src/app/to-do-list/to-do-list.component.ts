@@ -11,36 +11,41 @@ import {ToDoService} from '../services/to-do.service';
 import {TodoListMainModel} from '../models/to-do-list-main-model';
 import {PurchaseOrderService} from '../services/purchase-order.service';
 import {ToastService} from '../services/toast.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ExcelService } from '../services/excel-service';
+import { Subscription } from 'rxjs';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-to-do-list',
   templateUrl: './to-do-list.component.html',
   styleUrls: ['./to-do-list.component.css']
 })
-export class ToDoListComponent implements OnInit {
+export class ToDoListComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<TodoListMainModel>;
   employeeList$: Observable<ProfileMainModel[]>;
   selectedRecord: TodoListMainModel;
   refModel: TodoListMainModel;
   openedPanel: any;
   searchText: '';
-  isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
-
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterIsActive = '1';
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterIsActive: '1'
+  };
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ToDoService, protected toastService: ToastService,
               public proService: ProfileService, public router: ActivatedRoute,
               public infoService: InformationService, public route: Router,
-              public db: AngularFirestore) {
+              public db: AngularFirestore, protected modalService: NgbModal, public excelService: ExcelService) {
   }
 
   async ngOnInit() {
     this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
-    this.clearMainFiler();
     this.populateList();
     this.employeeList$ = this.proService.getMainItems();
     this.selectedRecord = undefined;
@@ -49,6 +54,12 @@ export class ToDoListComponent implements OnInit {
       if (data) {
         this.showSelectedRecord(data);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -76,9 +87,9 @@ export class ToDoListComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsTimeBetweenDates(undefined, undefined, this.filterIsActive).subscribe(list => {
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsTimeBetweenDates(undefined, undefined, this.filter.filterIsActive).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -199,21 +210,43 @@ export class ToDoListComponent implements OnInit {
     }
   }
 
-  async btnMainFilter_Click(): Promise<void> {
+  async btnShowMainFiler_Click(): Promise<void> {
     try {
-      this.generateCharts();
-      this.populateList();
-    } catch (err) {
-      await this.infoService.error(err);
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
-  btnShowMainFiler_Click(): void {
+  async btnShowJsonData_Click(): Promise<void> {
     try {
-      this.isMainFilterOpened = this.isMainFilterOpened !== true;
-      this.clearMainFiler();
-    } catch (err) {
-      this.infoService.error(err);
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'to-do-list');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
@@ -221,12 +254,6 @@ export class ToDoListComponent implements OnInit {
     this.openedPanel = 'mainPanel';
     this.refModel = undefined;
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterIsActive = '1';
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

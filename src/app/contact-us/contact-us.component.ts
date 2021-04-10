@@ -8,6 +8,11 @@ import {ContactUsService} from '../services/contact-us.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
 import {CONFIG} from 'src/mail.config';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ExcelService } from '../services/excel-service';
+import { Subscription } from 'rxjs';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-contact-us',
@@ -15,35 +20,39 @@ import {CONFIG} from 'src/mail.config';
   styleUrls: ['./contact-us.component.css']
 })
 export class ContactUsComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<ContactUsMainModel>;
   collection: AngularFirestoreCollection<ContactUsMainModel>;
   selectedRecord: ContactUsMainModel;
   employeeDetail: any;
-  isMainFilterOpened = false;
-  filterBeginDate: any;
-  filterFinishDate: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+  };
   searchText: '';
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: ContactUsService,
               public infoService: InformationService, public route: Router,
-              public db: AngularFirestore) {
+              public db: AngularFirestore, protected modalService: NgbModal, public excelService: ExcelService) {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.employeeDetail = this.authService.isEmployeeLoggedIn();
     this.populateList();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -85,15 +94,6 @@ export class ContactUsComponent implements OnInit, OnDestroy {
     this.clearSelectedRecord();
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
-    this.clearMainFiler();
-  }
-
   async btnSave_Click(): Promise<void> {
     try {
       Promise.all([this.service.checkForSave(this.selectedRecord)])
@@ -132,23 +132,48 @@ export class ContactUsComponent implements OnInit, OnDestroy {
     this.route.navigate(['contact-us', {}]);
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'contact-us');
     } else {
-      this.populateList();
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
   }
 
   finishProcessAndError(error: any): void {

@@ -1,54 +1,67 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {ReminderService} from '../services/reminder.service';
 import {ProfileService} from '../services/profile.service';
-import {getDateForInput, getInputDataForInsert, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
+import {getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileMainModel} from '../models/profile-main-model';
 import {ReminderMainModel} from '../models/reminder-main-model';
 import {CustomerModel} from '../models/customer-model';
 import {CustomerService} from '../services/customer.service';
 import {ToastService} from '../services/toast.service';
+import { ExcelService } from '../services/excel-service';
+import { Subscription } from 'rxjs';
+import { ProfileModel } from '../models/profile-model';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 @Component({
   selector: 'app-reminder',
   templateUrl: './reminder.component.html',
   styleUrls: ['./reminder.component.css']
 })
-export class ReminderComponent implements OnInit {
+export class ReminderComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<ReminderMainModel>;
-  employeeList$: Observable<ProfileMainModel[]>;
+  employeeList$: Observable<ProfileModel[]>;
   customerList$: Observable<CustomerModel[]>;
   selectedRecord: ReminderMainModel;
   recordDate: any;
   searchText: '';
-  isMainFilterOpened = false;
   paramPrimaryKey: any = undefined;
-  filterIsPersonal = '-1';
-  filterPeriodType = '-1';
-  filterIsActive = '1';
-  onTransaction = false;
+  onTransaction = false;  
+  filter = {
+    filterIsPersonal: '-1',
+    filterPeriodType: '-1',
+    filterIsActive: '-1',
+  };
 
   constructor(public authService: AuthenticationService, public service: ReminderService, protected cService: CustomerService,
               public proService: ProfileService, public router: ActivatedRoute, protected toastService: ToastService,
-              public infoService: InformationService, public route: Router,
-              public db: AngularFirestore) {
+              public infoService: InformationService, public route: Router, public excelService: ExcelService,
+              public db: AngularFirestore, protected modalService: NgbModal) {
   }
 
   async ngOnInit() {
     this.paramPrimaryKey = this.router.snapshot.paramMap.get('primaryKey');
-    this.clearMainFiler();
     this.populateList();
     this.customerList$ = this.cService.getAllItems();
-    this.employeeList$ = this.proService.getMainItems();
+    this.employeeList$ = this.proService.getAllItems();
     this.selectedRecord = undefined;
     if (this.paramPrimaryKey !== undefined && this.paramPrimaryKey !== null) {
       const data = await this.service.getItem(this.paramPrimaryKey);
       if (data) {
         this.showSelectedRecord(data.returnData);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -80,7 +93,7 @@ export class ReminderComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItemsTimeBetweenDates(null, null, this.filterIsActive, this.filterPeriodType).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsTimeBetweenDates(null, null, this.filter.filterIsActive, this.filter.filterPeriodType).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -189,10 +202,18 @@ export class ReminderComponent implements OnInit {
     }
   }
 
-  async btnMainFilter_Click(): Promise<void> {
+  async btnShowMainFiler_Click(): Promise<void> {
     try {
-      this.generateCharts();
-      this.populateList();
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterIsPersonal = result.filterIsPersonal;
+          this.filter.filterPeriodType = result.filterPeriodType;
+          this.filter.filterIsActive = result.filterIsActive;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -206,13 +227,24 @@ export class ReminderComponent implements OnInit {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnExportToExcel_Click(): Promise<void> {
+    try {
+      if (this.mainList.length > 0) {
+        this.excelService.exportToExcel(this.mainList, 'reminder');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   onChangeVoucherType(isPersonal: any): void {
@@ -236,12 +268,6 @@ export class ReminderComponent implements OnInit {
   clearSelectedRecord(): void {
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterPeriodType = '-1';
-    this.filterIsPersonal = '-1';
-    this.filterIsActive = '1';
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

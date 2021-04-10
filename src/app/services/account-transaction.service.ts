@@ -212,9 +212,9 @@ export class AccountTransactionService {
   }
 
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<AccountTransactionModel>();
+      const list = Array<AccountTransactionMainModel>();
       const citiesRef = this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
           .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
@@ -222,10 +222,11 @@ export class AccountTransactionService {
           .endAt(endDate.getTime()));
       citiesRef.get().subscribe(snapshot => {
         snapshot.forEach(doc => {
-          const data = doc.data();
+          const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
-          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-          list.push(data);
+
+          const returnData = this.convertMainModel(data);
+          list.push(returnData);
         });
         resolve(list);
       });
@@ -237,9 +238,9 @@ export class AccountTransactionService {
   })
 
   getSingleCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<AccountTransactionModel>();
+      const list = Array<AccountTransactionMainModel>();
       const citiesRef = this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
           .where('parentPrimaryKey', '==', cashDeskPrimaryKey)
@@ -249,10 +250,11 @@ export class AccountTransactionService {
           .endAt(endDate.getTime()));
       citiesRef.get().subscribe(snapshot => {
         snapshot.forEach(doc => {
-          const data = doc.data();
+          const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
-          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-          list.push(data);
+
+          const returnData = this.convertMainModel(data);
+          list.push(returnData);
         });
         resolve(list);
       });
@@ -264,9 +266,9 @@ export class AccountTransactionService {
   })
 
   getAccountTransactions = async (accountPrimaryKey: string, startDate: Date, endDate: Date):
-    Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      const list = Array<AccountTransactionModel>();
+      const list = Array<AccountTransactionMainModel>();
       this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate')
           .where('accountPrimaryKey', '==', accountPrimaryKey)
@@ -275,11 +277,11 @@ export class AccountTransactionService {
           .endAt(endDate.getTime()))
         .get().subscribe(snapshot => {
         snapshot.forEach(doc => {
-          const data = doc.data();
+          const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
-          data.transactionTypeTr = this.transactionTypes.get(data.transactionType);
-          data.customer = this.customerMap.get(data.parentPrimaryKey);
-          list.push(data);
+
+          const returnData = this.convertMainModel(data);
+          list.push(returnData);
         });
         resolve(list);
       });

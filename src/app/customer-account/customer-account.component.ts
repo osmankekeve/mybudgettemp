@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
@@ -24,26 +24,31 @@ import {CustomerSelectComponent} from '../partials/customer-select/customer-sele
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {SalesOrderService} from '../services/sales-order.service';
 import {ToastService} from '../services/toast.service';
+import { Subscription } from 'rxjs';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-customer-account',
   templateUrl: './customer-account.component.html',
   styleUrls: ['./customer-account.component.css']
 })
-export class CustomerAccountComponent implements OnInit {
+export class CustomerAccountComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CustomerAccountMainModel>;
   selectedRecord: CustomerAccountMainModel;
   customerList$: Observable<CustomerModel[]>;
-  transactionList: Array<AccountTransactionModel>;
-  isMainFilterOpened = false;
+  transactionList: Array<AccountTransactionMainModel>;
   searchText: '';
   onTransaction = false;
   isRecordHasTransaction = false;
-  filterBeginDate: any;
-  filterFinishDate: any;
   BarChart: any;
   totalValues = {
     amount: 0
+  };
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
   };
   encryptSecretKey: string = getEncryptionKey();
 
@@ -54,7 +59,6 @@ export class CustomerAccountComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.customerList$ = this.cService.getAllItems();
     this.selectedRecord = undefined;
     this.populateList();
@@ -65,6 +69,12 @@ export class CustomerAccountComponent implements OnInit {
       if (paramItem) {
         this.showSelectedRecord(paramItem.returnData);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -92,7 +102,7 @@ export class CustomerAccountComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -142,33 +152,34 @@ export class CustomerAccountComponent implements OnInit {
     let avAmount = 0;
     let cvAmount = 0;
 
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     Promise.all([this.atService.getAccountTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
       .then((values: any) => {
-        if (values[0] !== undefined || values[0] !== null) {
+        if (values[0] !== null) {
           const returnData = values[0] as Array<AccountTransactionMainModel>;
           this.transactionList = [];
-          returnData.forEach((item: any) => {
-            this.totalValues.amount += item.amount;
+          returnData.forEach((data: any) => {
+            const item = data as AccountTransactionMainModel;
+            this.totalValues.amount += item.data.amount;
             this.transactionList.push(item);
-            if (item.transactionType === 'salesInvoice') {
-              siAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'salesInvoice') {
+              siAmount += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'collection') {
-              colAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'collection') {
+              colAmount += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'purchaseInvoice') {
-              piAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'purchaseInvoice') {
+              piAmount += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'payment') {
-              payAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'payment') {
+              payAmount += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'accountVoucher') {
-              avAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'accountVoucher') {
+              avAmount += getFloat(Math.abs(item.data.amount));
             }
-            if (item.transactionType === 'cashDeskVoucher') {
-              cvAmount += getFloat(Math.abs(item.amount));
+            if (item.data.transactionType === 'cashDeskVoucher') {
+              cvAmount += getFloat(Math.abs(item.data.amount));
             }
           });
         }
@@ -303,18 +314,47 @@ export class CustomerAccountComponent implements OnInit {
     this.populateTransactions();
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.populateTransactions();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
   }
 
-  btnMainFilter_Click(): void {
-    this.populateTransactions();
-    this.generateCharts();
+  async btnExportToExcelTransaction_Click(): Promise<void> {
+    try {
+      if (this.transactionList.length > 0) {
+        this.excelService.exportToExcel(this.transactionList, 'customer-account-transactions');
+      } else {
+        this.infoService.error('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -414,14 +454,6 @@ export class CustomerAccountComponent implements OnInit {
     }
   }
 
-  btnExportTransactionsToExcel_Click(): void {
-    if (this.transactionList.length > 0) {
-      this.excelService.exportToExcel(this.transactionList, 'customer-account-transactions');
-    } else {
-      this.infoService.error('Aktarılacak kayıt bulunamadı.');
-    }
-  }
-
   async btnCreateMissingAccounts_Click(): Promise<void> {
     const mapData = new Map();
     this.mainList.forEach((data: any) => {
@@ -462,8 +494,8 @@ export class CustomerAccountComponent implements OnInit {
 
   async showTransactionRecord(item: any): Promise<void> {
     const r = new RouterModel();
-    r.nextModule = item.transactionType;
-    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.nextModule = item.data.transactionType;
+    r.nextModulePrimaryKey = item.data.transactionPrimaryKey;
     r.previousModule = 'customer-account';
     r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
     await this.globService.showTransactionRecord(r);
@@ -487,11 +519,10 @@ export class CustomerAccountComponent implements OnInit {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
+    this.totalValues = {
+      amount: 0
+    };
+    this.transactionList = [];
   }
 
 }

@@ -61,6 +61,7 @@ import { DashboardDefinitionComponent } from './dashboard-definition/dashboard-d
 const routes: Routes = [
   {path: '', redirectTo: '/dashboard', pathMatch: 'full'},
   {path: 'customer', component: CustomerComponent, pathMatch: 'full'},
+  {path: 'purchase-invoice', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'purchaseInvoice', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'purchaseInvoice/:id', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'sales-invoice', component: SalesInvoiceComponent, pathMatch: 'full'},

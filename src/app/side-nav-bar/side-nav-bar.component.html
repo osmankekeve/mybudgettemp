@@ -17,7 +17,7 @@
           <span class="user-name" hidden>{{employeeDetail.data.longName}}
             <strong hidden>Smith</strong>
           </span>
-          <span class="user-role" hidden>{{employeeDetail.typeTr}} {{loginTime | date: 'yyyy.MM.dd HH:mm:ss'}}</span>
+          <span class="user-role" hidden>{{employeeDetail.typeTr}} {{loginTime | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
           <span class="user-status" hidden>
             <i class="fa fa-circle"></i>
             <span>Online</span>
@@ -102,10 +102,6 @@
                     <img src="../../assets/images/collection.png" width="30px" alt=""> Tahsilat</a>
                 </li>
                 <li>
-                  <a routerLink="/account-voucher" routerLinkActive="active">
-                    <img src="../../assets/images/account_voucher.png" width="30px" alt=""> Cari Fiş</a>
-                </li>
-                <li>
                   <a routerLink="/campaign" routerLinkActive="active">
                     <img src="../../assets/images/account_voucher.png" width="30px" alt=""> Kampanya</a>
                 </li>
@@ -177,6 +173,10 @@
                     <img src="../../assets/images/customer_account.png" width="30px" alt=""> Hesap Kapama
                   </a>
                 </li>
+                <li>
+                  <a routerLink="/account-voucher" routerLinkActive="active">
+                    <img src="../../assets/images/account_voucher.png" width="30px" alt=""> Cari Fiş</a>
+                </li>
               </ul>
             </div>
           </li>
@@ -235,24 +235,24 @@
           </li>
           <li class="sidebar-dropdown">
             <a class="cursor-pointer">
-              <img src="../../assets/images/customers.png" width="30px" alt="">
+              <img src="../../assets/images/report_icon.png" width="30px" alt="">
               <i class="fa fa-angle-right float-right"></i> Tanımlar
             </a>
             <div class="sidebar-submenu">
               <ul>
                 <li>
                   <a routerLink="/storage" routerLinkActive="active">
-                    <img src="../../assets/images/customers.png" width="30px" alt=""> Depo
+                    <img src="../../assets/images/report_icon.png" width="30px" alt=""> Depo
                   </a>
                 </li>
                 <li>
                   <a routerLink="/term" routerLinkActive="active">
-                    <img src="../../assets/images/customers.png" width="30px" alt=""> Vade
+                    <img src="../../assets/images/report_icon.png" width="30px" alt=""> Vade
                   </a>
                 </li>
                 <li>
                   <a routerLink="/payment-type" routerLinkActive="active">
-                    <img src="../../assets/images/customers.png" width="30px" alt=""> Ödeme Şekli
+                    <img src="../../assets/images/report_icon.png" width="30px" alt=""> Ödeme Şekli
                   </a>
                 </li>
               </ul>

@@ -10,7 +10,7 @@ import { LogService } from './log.service';
 import {SettingService} from './setting.service';
 import {ProfileService} from './profile.service';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
-import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getAccountVoucherType, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -75,6 +75,7 @@ export class AccountVoucherService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'accountVoucher';
+          trans.transactionSubType = 'accountVoucher';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -103,6 +104,7 @@ export class AccountVoucherService {
           trans.receiptNo = record.data.receiptNo;
           trans.transactionPrimaryKey = record.data.primaryKey;
           trans.transactionType = 'accountVoucher';
+          trans.transactionSubType = 'accountVoucher';
           trans.parentPrimaryKey = record.data.customerCode;
           trans.parentType = 'customer';
           trans.accountPrimaryKey = record.data.accountPrimaryKey;
@@ -192,6 +194,7 @@ export class AccountVoucherService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     returnData.approverName = '';
@@ -200,18 +203,26 @@ export class AccountVoucherService {
 
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
+      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as AccountVoucherModel;
           data.primaryKey = doc.id;
 
           const returnData = new AccountVoucherMainModel();
           returnData.data = this.checkFields(data);
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
-          returnData.customer = this.customerMap.get(returnData.data.customerCode);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
+
+          const d1 = await this.cusService.getItem(returnData.data.customerCode);
+          returnData.customer = this.cusService.convertMainModel(d1.data);
+
+          const d2 = await this.eService.getItem(returnData.data.approveByPrimaryKey, false);
+          returnData.approverName = d2 != null ? d2.returnData.data.longName : '';
+
+          const d3 = await this.eService.getItem(returnData.data.employeePrimaryKey, false);
+          returnData.employeeName = d3 != null ? d3.returnData.data.longName : '';
+
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -236,6 +247,7 @@ export class AccountVoucherService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
           return Object.assign({returnData});
         })
       )
@@ -258,6 +270,7 @@ export class AccountVoucherService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -291,6 +304,7 @@ export class AccountVoucherService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
         .pipe(map( (customer: CustomerModel) => {
@@ -331,6 +345,7 @@ export class AccountVoucherService {
           returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getAccountVoucherType().get(returnData.data.type);
 
           list.push(returnData);
         });

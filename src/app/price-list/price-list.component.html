@@ -1,83 +1,95 @@
-<div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/price-list.png" class="float-left mr-2" width="30px" alt="">
-        <h4 class="card-title float-left mr-2">Fiyat Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Fiyat Listesi"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-      </div>
-      <div class="col-sm-4 head-filter">
-        <div class="input-group input-group-round">
-          <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/price-list.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Fiyat Listesi</h5>
+        </div>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
+            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Liste Ara.." [(ngModel)]="searchText">
           </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Liste Ara.." [(ngModel)]="searchText">
+        </div>
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button-full" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> Yeni Liste Oluştur
+          </button>
         </div>
       </div>
     </div>
-  </div>
-  <div class="card-body">
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <tr class="table-row-class">
-            <th>Liste Adı</th>
-            <th>Liste Tipi</th>
-            <th><span class="float-right">Başlangıç Tarihi</span></th>
-            <th><span class="float-right">Bitiş Tarihi</span></th>
-            <th>Aktif Mi?</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="cursor-pointer table-row-class"
-              (click)="mainListItem_Click(item)" title="Kaydı Görüntüle"
-              *ngFor="let item of mainList | filterList: searchText; index as i;">
-            <td>
-              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600">{{item.data.listName}}</span>
-            </td>
-            <td>{{item.typeTr}}</td>
-            <td><span class="float-right">{{item.data.beginDate | date: 'yyyy.MM.dd'}}</span></td>
-            <td><span class="float-right">{{item.data.finishDate | date: 'yyyy.MM.dd'}}</span></td>
-            <td>{{item.isActiveTr}}</td>
-          </tr>
-          </tbody>
-        </table>
+      <div class="main-list" *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list-item" *ngFor="let item of mainList | filterList: searchText; index as i;">
+          <div class="icon cursor-pointer" title="Kayıt Göster" (click)="mainListItem_Click(item)">
+            <i class="fas fa-file-alt fa-2x text-danger"></i>
+          </div>
+          <div class="content">
+            <div class="row-1">
+              <div class="w-100">
+                <span class="font-weight-600 mr-1" title="Liste Adı">{{item.data.listName}}</span>
+              </div>
+            </div>
+            <div class="row-2">
+              <div class="w-66">
+                <span class="badge badge-danger" title="Liste Tipi">{{item.typeTr}}</span>
+                <span class="badge badge-warning" title="Aktiflik Durumu">{{item.isActiveTr}}</span>
+              </div>
+              <div class="w-33">
+                <span class="float-right mr-1" title="Aktif olduğu tarih aralığı">Aktif Tarihler {{item.data.beginDate | date: 'yyyy-MM-dd'}}-{{item.data.finishDate | date: 'yyyy-MM-dd'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-red text-white">
+        <div class="card bg-red text-white m-3">
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
     </div>
     <ng-template #elseBlock2>
-      <div class="loader"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
     </ng-template>
   </div>
 </div>
-
 <div class="row" *ngIf="selectedRecord!=undefined">
   <div class="col-sm-6">
     <div class="card work-area">
       <div class="card-header bg-gray-gradient">
-        <div class="row">
-          <div class="col-sm-12">
-            <img src="../../assets/images/price-list.png" class="float-left mr-2" width="30px" alt="">
-            <h4 class="card-title float-left mr-2">Fiyat Listesi Detayı</h4>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                    (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Aktar"
-                    *ngIf="selectedRecord.data.primaryKey != null"
-                    (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Excel'e Aktar"
-                    *ngIf="productsOnList?.length > 0"
-                    (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/price-list.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Liste > 
+            <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+            <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+          </h5>
+        </div>
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+            <i class="fa fa-arrow-left text-secondary"></i> Geri Dön
+          </button>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+            </div>
           </div>
         </div>
+      </div>
       </div>
       <div class="card-body work-area-3">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
@@ -184,23 +196,41 @@
   <div class="col-sm-6 pl-md-0">
     <div class="card work-area" *ngIf="!isNewPricePanelOpened">
       <div class="card-header bg-gray-gradient">
-        <div class="row">
-          <div class="col-sm-6">
-            <h4 class="float-left mr-2">Ürünler</h4>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ürün Ekle"
-                    *ngIf="selectedRecord.data.primaryKey!=undefined"
-                    (click)="btnNewProduct_Click()"><i class="fa fa-plus"></i></button>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Tüm Fiyatları Kaldır"
-                    (click)="btnRemoveAllProducts_Click()"><i class="fa fa-remove"></i></button>
-          </div>
-          <div class="col-sm-6 head-filter">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1 mr-1">
+          <div class="head-filter">
             <div class="input-group input-group-round">
               <div class="input-group-prepend">
-                    <span class="input-group-text">
-                        <i class="fa fa-filter"></i>
-                    </span>
+                            <span class="input-group-text">
+                                <i class="fa fa-filter"></i>
+                            </span>
               </div>
               <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="productSearchText">
+            </div>
+          </div>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button" (click)="btnNewProduct_Click()">
+              <i class="fa fa-plus text-secondary"></i> Ürün Ekle
+            </button>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item cursor-pointer text-danger" (then)="btnRemoveAllProducts_Click()" appAreYouSure>
+                  <i class="fa fa-remove text-danger"></i> Tüm Eşleşmeyi Kaldır
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnExcelImport_Click()" 
+                  *ngIf="selectedRecord.data.primaryKey != null">
+                  <i class="fa fa-upload text-secondary"></i> Ürün Aktar
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()"
+                  *ngIf="productsOnList?.length > 0">
+                  <i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -242,9 +272,16 @@
     </div>
     <div class="card work-area" *ngIf="isNewPricePanelOpened">
       <div class="card-header bg-gray-gradient">
-        <h4 class="float-left mr-2">Ürün Detay</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                (click)="btnOpenList_Click()"><i class="fa fa-arrow-left"></i></button>
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h5 class="card-title float-left mr-2">Ürün Detayı</h5>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button-full" (click)="btnOpenList_Click()">
+              <i class="fa fa-arrow-left text-secondary"></i> İptal Et
+            </button>
+          </div>
+        </div>
       </div>
       <div class="card-body">
         <form (ngSubmit)="btnSaveProduct_Click()" class="was-validated" #f2="ngForm">

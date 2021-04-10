@@ -106,6 +106,7 @@ export class SalesOrderDetailService {
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
+    returnData.isShowImage = false;
     returnData.priceFormatted = currencyFormat(returnData.data.price);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax);

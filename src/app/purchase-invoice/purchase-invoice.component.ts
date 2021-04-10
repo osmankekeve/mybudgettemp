@@ -848,7 +848,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   btnExportToExcel_Click(): void {
     if (this.mainList.length > 0) {
-      this.excelService.exportToExcel(this.mainList, 'purchaseInvoice');
+      this.excelService.exportToExcel(this.mainList, 'purchase-invoice');
     } else {
       this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }

@@ -5,7 +5,7 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { CustomerRelationService } from '../services/crm.service';
 import {NgbDateStruct, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { CustomerModel } from '../models/customer-model';
 import { CustomerService } from '../services/customer.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -17,26 +17,31 @@ import {CustomerSelectComponent} from '../partials/customer-select/customer-sele
 import {ToastService} from '../services/toast.service';
 import {GlobalUploadService} from '../services/global-upload.service';
 import { fail } from 'assert';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-crm',
   templateUrl: './crm.component.html',
   styleUrls: ['./crm.component.css']
 })
-export class CRMComponent implements OnInit {
+export class CRMComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CustomerRelationMainModel>;
   selectedRecord: CustomerRelationMainModel;
   transactionList: Array<any>;
   date = new Date();
   today: NgbDateStruct = {year: this.date.getFullYear(), month: this.date.getMonth() + 1, day: this.date.getDate()};
   encryptSecretKey: string = getEncryptionKey();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  isMainFilterOpened = false;
   searchText = '';
   chart1: any;
   chart2: any;
   onTransaction = false;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
 
   constructor(public authService: AuthenticationService, public service: CustomerRelationService,
               public atService: AccountTransactionService, protected toastService: ToastService,
@@ -46,7 +51,6 @@ export class CRMComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -55,6 +59,12 @@ export class CRMComponent implements OnInit {
       if (paramItem) {
         this.showSelectedRecord(paramItem);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -82,10 +92,10 @@ export class CRMComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
 
-    this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as CustomerRelationMainModel;
@@ -124,8 +134,8 @@ export class CRMComponent implements OnInit {
     const chart1 = document.getElementById('chart1');
     if (chart1) {
       this.transactionList = undefined;
-      const startDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-      const endDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+      const startDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+      const endDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
 
       Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate)])
         .then((values: any) => {
@@ -293,35 +303,44 @@ export class CRMComponent implements OnInit {
     }
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
-      this.generateCharts();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+          this.generateCharts();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   clearSelectedRecord(): void {
     const selectedDate = new Date();
     this.today = {year: selectedDate.getFullYear(), month: selectedDate.getMonth() + 1, day: selectedDate.getDate()};
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

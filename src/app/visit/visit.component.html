@@ -1,139 +1,121 @@
-<div class="card work-area" *ngIf="selectedRecord==undefined">
-  <div class="card-header">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2" alt="">
-        <h4 class="card-title float-left mr-2">Ziyaret Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Etkinlik"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
-      </div>
-      <div class="col-sm-4 head-filter">
-        <div class="input-group input-group-round">
-          <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
-          </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.."
-                 [(ngModel)]="searchText">
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/visit-2.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Ziyaret Listesi</h5>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="card mb-2" *ngIf="isMainFilterOpened">
-      <div class="card-header">Filtreler</div>
-      <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Başlangıç Tarihi</label>
-          </div>
-          <div class="col-sm-3">
-            <div class="input-group">
-              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d" #c="ngModel"
-                     [(ngModel)]="filterBeginDate" ngbDatepicker #d="ngbDatepicker">
-              <div class="input-group-append">
-                <button class="btn btn-sm btn-outline-secondary" (click)="d.toggle()" type="button"><i
-                  class="fa fa-calendar"></i></button>
-              </div>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
             </div>
-          </div>
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Bitiş Tarihi</label>
-          </div>
-          <div class="col-sm-3">
-            <div class="input-group">
-              <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
-                     [(ngModel)]="filterFinishDate" ngbDatepicker #d2="ngbDatepicker">
-              <div class="input-group-append">
-                <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
-                  class="fa fa-calendar"></i></button>
-              </div>
-            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
           </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <div class="row">
-          <div class="col-sm-2">
-            <button type="button" class="btn btn-sm btn-success btn-block" (click)="btnMainFilter_Click()">Filtrele
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> Yeni Etkinlik Oluştur
+          </button>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
             </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnShowMainFiler_Click()">Geniş Filtre</a>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="row" *ngIf="mainList.length > 0; else elseBlock">
-        <div class="col-sm-6">
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="card">
-                <div class="card-body">
-                  <canvas id="chart1"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-sm-12 mt-4">
-              <div class="card">
-                <div class="card-body">
-                  <canvas id="chart2"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-sm-6">
-          <div class="card-list-parent" *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
-              <i class="fa fa-ellipsis-h small-list-list-icon"></i>
-              <div class="card-body">
-                <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" alt=""
-                     *ngIf="item.visit.isVisited"/>
-                <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" alt=""
-                     *ngIf="!item.visit.isVisited"/>
-                <div>
-                  <span class="text-red mr-2 text-small">{{item["customer"].data.code}}</span>
-                  <span class="text-small">{{item["customer"].data.name}}</span>
-                </div>
-                <div class="row">
-                  <div class="col">
-                    <div class="text-small text-dark float-left">{{item.employeeName}}</div>
+    <div class="card-body">
+      <div *ngIf="mainList != undefined; else elseBlock2">
+        <div class="row" *ngIf="mainList.length > 0; else elseBlock">
+          <div class="col-sm-6">
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="card">
+                  <div class="card-body">
+                    <canvas id="chart1"></canvas>
                   </div>
-                  <div class="col">
-                    <div class="text-small text-dark float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</div>
+                </div>
+              </div>
+              <div class="col-sm-12 mt-4">
+                <div class="card">
+                  <div class="card-body">
+                    <canvas id="chart2"></canvas>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          <div class="col-sm-6">
+            <div class="card-list-parent" *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+              <div class="card mb-2 bg-light cursor-pointer"
+                   (click)="showSelectedRecord(item)" title="Kaydı Göster">
+                <i class="fa fa-ellipsis-h small-list-list-icon"></i>
+                <div class="card-body">
+                  <img src="../../assets/images/okey_icon.png" width="20px" class="float-left mr-2" alt=""
+                       *ngIf="item.visit.isVisited"/>
+                  <img src="../../assets/images/not_okey_icon.png" width="20px" class="float-left mr-2" alt=""
+                       *ngIf="!item.visit.isVisited"/>
+                  <div>
+                    <span class="text-red mr-2 text-small">{{item["customer"].data.code}}</span>
+                    <span class="text-small">{{item["customer"].data.name}}</span>
+                  </div>
+                  <div class="row">
+                    <div class="col">
+                      <div class="text-small text-dark float-left">{{item.employeeName}}</div>
+                    </div>
+                    <div class="col">
+                      <div class="text-small text-dark float-right">{{item.visit.visitDate | date: 'yyyy-MM-dd'}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <ng-template #elseBlock>
+          <div class="card bg-red text-white">
+            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+          </div>
+        </ng-template>
       </div>
-      <ng-template #elseBlock>
-        <div class="card bg-red text-white">
-          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-        </div>
+      <ng-template #elseBlock2>
+        <div class="loader"></div>
       </ng-template>
     </div>
-    <ng-template #elseBlock2>
-      <div class="loader"></div>
-    </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header">
-    <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/visit-2.png" width="30px" class="float-left mr-2" alt="">
-        <h4 class="card-title float-left mr-2">Ziyaret Detayı</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
-                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Bilgiler"
-                (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle"></i></button>
+  <div class="card-header bg-gray-gradient">
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <img src="../../assets/images/crm_2.png" width="30px" alt="" class="float-left mr-2">
+        <h5 class="card-title float-left mr-2">Ziyaret > 
+          <span *ngIf="!selectedRecord.visit.primaryKey">Yeni Kayıt</span>
+          <span *ngIf="selectedRecord.visit.primaryKey">Görüntüleme</span>
+        </h5>
+      </div>
+      <div class="head-filter">
+        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
+        </button>
+      </div>
+      <div class="head-filter">
+        <div class="dropdown">
+          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -170,8 +152,7 @@
                           [disabled]="selectedRecord.visit.primaryKey"
                           (change)="onChangeEmployee($event)"
                           [(ngModel)]="selectedRecord.visit.employeePrimaryKey">
-                    <option value={{item.returnData.data.primaryKey}}
-                            *ngFor="let item of profileList$ | async; index as i;">{{item.returnData.data.longName}}</option>
+                            <option value={{item.data.primaryKey}} *ngFor="let item of profileList; index as i;">{{item.data.longName}}</option>
                   </select>
                   <div class="invalid-feedback invalid-input-info">Lütfen personel seçiniz.</div>
                 </div>
@@ -214,13 +195,13 @@
                   <label class="col-form-label float-left">Ziyaret Başlangıç</label>
                 </div>
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left">{{selectedRecord.visit.visitStartDate | date: 'yyyy.MM.dd HH:mm:ss'}}</label>
+                  <label class="col-form-label float-left">{{selectedRecord.visit.visitStartDate | date: 'yyyy-MM-dd HH:mm:ss'}}</label>
                 </div>
                 <div class="col-sm-3">
                   <label class="col-form-label float-left">Ziyaret Bitiş</label>
                 </div>
                 <div class="col-sm-3">
-                  <label class="col-form-label float-left">{{selectedRecord.visit.visitFinishDate | date: 'yyyy.MM.dd HH:mm:ss'}}</label>
+                  <label class="col-form-label float-left">{{selectedRecord.visit.visitFinishDate | date: 'yyyy-MM-dd HH:mm:ss'}}</label>
                 </div>
                 <div class="col-sm-3">
                   <label class="col-form-label float-left">Boylam</label>

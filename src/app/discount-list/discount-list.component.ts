@@ -22,19 +22,21 @@ import {ProductDiscountService} from '../services/product-discount.service';
 import {DiscountListService} from '../services/discount-list.service';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import { ToastService } from '../services/toast.service';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-discount-list',
   templateUrl: './discount-list.component.html',
   styleUrls: ['./discount-list.component.css']
 })
-export class DiscountListComponent implements OnInit {
+export class DiscountListComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<DiscountListMainModel>;
   selectedRecord: DiscountListMainModel;
   selectedProductDiscount: ProductDiscountMainModel;
   productsOnList: Array<ProductDiscountMainModel>;
   encryptSecretKey: string = getEncryptionKey();
-  isMainFilterOpened = false;
   onTransaction = false;
   searchText: '';
   productSearchText: '';
@@ -49,7 +51,6 @@ export class DiscountListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
     this.selectedProductDiscount = undefined;
@@ -63,9 +64,15 @@ export class DiscountListComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -237,25 +244,18 @@ export class DiscountListComponent implements OnInit {
     this.onTransaction = false;
   }
 
-  async btnShowMainFiler_Click(): Promise<void> {
-    try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+        this.clearSelectedProductRecord();
       }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
     }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      this.infoService.error('yazıllmadı');
-    } catch (error) {
-      await this.infoService.error(error);
-    }
+    this.onTransaction = false;
   }
 
   async btnSelectProduct_Click(): Promise<void> {
@@ -326,16 +326,15 @@ export class DiscountListComponent implements OnInit {
           } else {
             await this.ppService.updateItem(this.selectedProductDiscount)
               .then(() => {
-                this.clearSelectedProductRecord();
-                this.finishProcess(null, 'Ürün başarıyla güncellendi.', false);
+                this.finishSubProcess(null, 'Ürün başarıyla güncellendi.');
               })
               .catch((error) => {
-                this.finishProcess(error, null, false);
+                this.finishSubProcess(error, null);
               });
           }
         })
         .catch((error) => {
-          this.finishProcess(error, null, false);
+          this.finishSubProcess(error, null,);
         });
     } catch (error) {
       await this.infoService.error(error);
@@ -349,15 +348,14 @@ export class DiscountListComponent implements OnInit {
         .then(async (values: any) => {
           await this.ppService.removeItem(this.selectedProductDiscount)
             .then(() => {
-              this.clearSelectedProductRecord();
-              this.finishProcess(null, 'Ürün başarıyla kaldırıldı.', false);
+              this.finishSubProcess(null, 'Ürün başarıyla kaldırıldı.');
             })
             .catch((error) => {
-              this.finishProcess(error, null, false);
+              this.finishSubProcess(error, null);
             });
         })
         .catch((error) => {
-          this.finishProcess(error, null, false);
+          this.finishSubProcess(error, null);
         });
     } catch (error) {
       await this.infoService.error(error);
@@ -422,6 +420,22 @@ export class DiscountListComponent implements OnInit {
     }
   }
 
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   showSelectedProduct(record: any): void {
     this.selectedProductDiscount = record as ProductDiscountMainModel;
     this.isNewDiscountPanelOpened = true;
@@ -438,9 +452,5 @@ export class DiscountListComponent implements OnInit {
   clearSelectedProductRecord(): void {
     this.isNewDiscountPanelOpened = false;
     this.selectedProductDiscount = undefined;
-  }
-
-  clearMainFiler(): void {
-
   }
 }

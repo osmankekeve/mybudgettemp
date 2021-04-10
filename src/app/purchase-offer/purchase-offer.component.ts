@@ -44,13 +44,16 @@ import {PurchaseOrderService} from '../services/purchase-order.service';
 import {setOrderCalculation} from '../models/purchase-order-model';
 import {GlobalService} from '../services/global.service';
 import {ActionService} from '../services/action.service';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-offer',
   templateUrl: './purchase-offer.component.html',
   styleUrls: ['./purchase-offer.component.css']
 })
-export class PurchaseOfferComponent implements OnInit {
+export class PurchaseOfferComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<PurchaseOrderMainModel>;
   selectedRecord: PurchaseOrderMainModel;
   selectedDetail: PurchaseOrderDetailMainModel;
@@ -92,10 +95,15 @@ export class PurchaseOfferComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.selectedRecord = undefined;
     this.selectedDetail = undefined;
     this.populateList();
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
@@ -128,7 +136,7 @@ export class PurchaseOfferComponent implements OnInit {
     }
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -314,6 +322,7 @@ export class PurchaseOfferComponent implements OnInit {
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as PurchaseOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.populateUnits();
       this.populatePriceList();
       this.populateDiscountList();
       this.populateTermList();
@@ -469,6 +478,8 @@ export class PurchaseOfferComponent implements OnInit {
         if (result) {
           this.selectedRecord.customer = result;
           this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
+          this.selectedRecord.data.termPrimaryKey = this.selectedRecord.customer.data.termKey;
+          this.selectedRecord.data.paymentTypePrimaryKey = this.selectedRecord.customer.data.paymentTypeKey;
         }
       }, () => {});
     } catch (error) {
@@ -511,19 +522,21 @@ export class PurchaseOfferComponent implements OnInit {
     }
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filter.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filter.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-  }
-
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
   }
 
   clearSelectedRecord(): void {
@@ -549,7 +562,6 @@ export class PurchaseOfferComponent implements OnInit {
     this.selectedRecord = undefined;
     this.onTransaction = false;
   }
-
 
   showOrderDetail(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {
@@ -650,12 +662,6 @@ export class PurchaseOfferComponent implements OnInit {
       this.selectedDetail.data.defaultPrice = getFloat((this.selectedDetail.data.listPrice / this.selectedDetail.data.unitValue).toFixed(2));
       setOrderDetailCalculation(this.selectedDetail);
     });
-  }
-
-  clearMainFiler(): void {
-    this.filter.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filter.filterFinishDate = getTodayForInput();
-    this.filter.filterStatus = '-1';
   }
 
   clearSelectedDetail(): void {

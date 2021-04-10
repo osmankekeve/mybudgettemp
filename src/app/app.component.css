@@ -21,67 +21,7 @@
 .panelHeightControl {
     max-height: 380px;
     overflow-y: scroll;
-  scrollbar-width: thin;
-}
-
-@media (min-width: 576px) { /*xs*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 320px;
-        z-index: 1001
-    }
-}
-
-@media (min-width: 768px) { /*sm*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 320px;
-        z-index: 1001
-    }
-}
-
-@media (min-width: 992px) { /*md*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 320px;
-        z-index: 1001
-    }
-}
-
-@media (min-width: 1200px) { /*lg*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 320px;
-        z-index: 1001
-    }
-}
-
-@media (min-width: 1349px) { /*lg*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 320px;
-        z-index: 1001
-    }
-}
-
-@media (min-width: 1920px) { /*xlg*/
-    .notificationHeaderPanel {
-        position: absolute;
-        right: 15px;
-        top: 65px;
-        width: 350px;
-        z-index: 1001
-    }
+    scrollbar-width: thin;
 }
 
   /*--------------------sidebar-header----------------------*/

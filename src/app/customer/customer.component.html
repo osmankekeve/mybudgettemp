@@ -1,118 +1,127 @@
-<div class="card work-area" *ngIf="selectedCustomer==undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-8">
-        <img src="../../assets/images/customers.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Müşteri Listesi</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Yeni Müşteri"
-                (click)="btnNew_Click()"><i class="fa fa-plus"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Müşteri Aktar"
-                (click)="btnExcelImport_Click()"><i class="fa fa-upload"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Geniş Filtre"
-                (click)="btnShowMainFiler_Click()"><i class="fa fa-filter"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnExportToExcel_Click()"><i class="fas fa-file-excel"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Fix"
-                (click)="btnFix_Click()" hidden><i class="fas fa-file-excel"></i></button>
-      </div>
-      <div class="col-sm-4 head-filter">
-        <div class="input-group input-group-round">
-          <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
-          </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.."
-                 [(ngModel)]="searchText">
+<div class="work-area" *ngIf="selectedCustomer==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/customers.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Müşteriler</h5>
         </div>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="card mb-2" *ngIf="isMainFilterOpened">
-      <div class="card-header">Filtreler</div>
-      <div class="card-body bg-light">
-        <div class="row">
-          <div class="col-sm-3">
-            <label class="col-form-label float-left">Aktif Durumu</label>
-          </div>
-          <div class="col-sm-9">
-            <select class="form-control form-control-sm w-100"
-                    [(ngModel)]="isActive">
-              <option [ngValue]="true">Aktif</option>
-              <option [ngValue]="false">Pasif</option>
-            </select>
+        <div class="head-filter mr-1">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
+            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
           </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <button type="button" class="btn btn-sm btn-success" (click)="btnMainFilter_Click()">Filtrele</button>
+        <div class="head-filter">
+          <button type="button" class="btn btn-light input-button" (click)="btnNew_Click()">
+            <i class="fa fa-plus text-secondary"></i> Yeni Müşteri Oluştur
+          </button>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnShowMainFiler_Click()">Geniş Filtre</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()">Excel'e Aktar</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnExcelImport_Click()">Müşteri Aktar</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnFix_Click()" hidden>Fix</a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div *ngIf="mainList != undefined; else elseBlock2">
-      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-          <tr class="table-row-class">
-            <th>Müşteri Adı</th>
-            <th>Müşteri Tipi</th>
-            <th>Yetkili</th>
-            <th>Ödeme Şekli</th>
-            <th>Vade Şekli</th>
-            <th>Telefon</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr class="cursor-pointer table-row-class"
-              (click)="showSelectedCustomer(item)" title="Kaydı Görüntüle"
-              *ngFor="let item of mainList | filterDataCustomer: searchText; index as i;">
-            <td>
-              <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600 mr-1">{{item.data.code}}</span>
-              <span class="font-weight-600">{{item.data.name}}</span>
-            </td>
-            <td>{{item.customerTypeTr}}</td>
-            <td>{{item.data.owner}}</td>
-            <td>{{item.paymentTypeTr}}</td>
-            <td>{{item.termTr}}</td>
-            <td>{{item.data.phone1}}</td>
-          </tr>
-          </tbody>
-        </table>
+      <div *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list">
+          <div class="main-list-item bg-body">
+            <div class="icon-empty">
+              
+            </div>
+            <div class="content">
+              <div class="row-2">
+                <div class="w-50 float-left font-weight-600">ÜNVANI</div>
+                <div class="w-25 float-left font-weight-600">ÖDEME TİPİ</div>
+                <div class="w-25 float-left font-weight-600">VADE</div>
+              </div>
+            </div>
+          </div>
+          <div class="main-list-item cursor-pointer" title="Kayıt Göster" (click)="showSelectedCustomer(item)"
+          *ngFor="let item of mainList | filterDataCustomer: searchText; index as i;">
+            <div class="icon">
+              <i class="fas fa-file-alt fa-2x text-danger"></i>
+            </div>
+            <div class="content">
+              <div class="row-1">
+                <div class="w-100">
+                  <span class="text-red font-weight-600 mr-1">{{item.data.code}}</span>
+                  <span class="font-weight-600">{{item.data.name}}</span>
+                  <small class="font-weight-600">-{{item.data.owner}}</small>
+                </div>
+              </div>
+              <div class="row-2">
+                <div class="w-50 float-left">
+                  <span class="badge badge-warning">{{item.customerTypeTr}}</span>
+                </div>
+                <div class="w-25 float-left">{{item.paymentTypeTr}}</div>
+                <div class="w-25 float-left">{{item.termTr}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <ng-template #elseBlock>
-        <div class="card bg-red text-white">
+        <div class="card bg-red text-white m-3">
           <div class="card-body">Görüntülenecek veri bulunamadı.</div>
         </div>
       </ng-template>
     </div>
     <ng-template #elseBlock2>
-      <div class="loader"></div>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
     </ng-template>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedCustomer!=undefined">
+
   <div class="card-header bg-gray-gradient">
-    <div class="row">
-      <div class="col-sm-12">
-        <img src="../../assets/images/customers.png" width="30px" class="float-left mr-2">
-        <h4 class="card-title float-left mr-2">Müşteri</h4>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
-                (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'"><i class="fa fa-arrow-left"></i>
+    <div class="d-flex align-items-center">
+      <div class="flex-grow-1">
+        <img src="../../assets/images/customers.png" width="30px" alt="" class="float-left mr-2">
+        <h5 class="card-title float-left mr-2">Müşteri > 
+          <span *ngIf="!selectedCustomer.data.primaryKey">Yeni Kayıt</span>
+          <span *ngIf="selectedCustomer.data.primaryKey">Görüntüleme</span>
+        </h5>
+      </div>
+      <div class="head-filter">
+        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()" *ngIf="openedPanel=='dashboard'">
+          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
         </button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Ana Ekrana Geri Dön"
-                (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'"><i
-          class="fa fa-arrow-left"></i>
+        <button type="button" class="btn btn-light input-button" (click)="btnOpenSubPanel_Click('dashboard')" *ngIf="openedPanel!='dashboard'">
+          <i class="fa fa-arrow-left text-secondary"></i> Ana Ekrana Geri Dön
         </button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Excel'e Aktar"
-                (click)="btnAccountSummaryExportToExcel_Click()" *ngIf="openedPanel=='accountSummary'"><i
-          class="fas fa-file-excel"></i>
-        </button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="File Upload"
-                *ngIf="selectedCustomer.data.primaryKey!=undefined"
-                (click)="btnFileUpload_Click()"><i class="fa fa-upload"></i></button>
-        <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
-                (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
+      </div>
+      <div class="head-filter">
+        <div class="dropdown">
+          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item cursor-pointer" (click)="btnAccountSummaryExportToExcel_Click()" 
+              *ngIf="openedPanel=='accountSummary'"><i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
+            </a>
+            <a class="dropdown-item cursor-pointer" (click)="btnFileUpload_Click()" *ngIf="selectedCustomer.data.primaryKey!=undefined">
+              <i class="fa fa-upload text-secondary"></i> Dosya Yükle
+            </a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -362,7 +371,7 @@
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
@@ -422,8 +431,7 @@
                     <select class="form-control form-control-sm w-100" name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newCollection.data.cashDeskPrimaryKey">
-                      <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
+                      <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -468,7 +476,7 @@
               </form>
             </div>
             <div class="card-footer">
-              <div class="col-sm-4 float-right">
+              <div class="btn-action float-right">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text success-icon-side">
@@ -509,7 +517,7 @@
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
@@ -552,7 +560,7 @@
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
@@ -612,8 +620,7 @@
                     <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newPayment.data.cashDeskPrimaryKey">
-                      <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
+                            <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -658,7 +665,7 @@
               </form>
             </div>
             <div class="card-footer">
-              <div class="col-sm-4 float-right">
+              <div class="btn-action float-right">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text success-icon-side">
@@ -699,7 +706,7 @@
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
@@ -761,8 +768,7 @@
                             name="cashDeskPrimaryKey"
                             required
                             [(ngModel)]="newVoucher.data.cashDeskPrimaryKey">
-                      <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
+                            <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}</option>
                     </select>
                     <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
                   </div>
@@ -807,7 +813,7 @@
               </form>
             </div>
             <div class="card-footer">
-              <div class="col-sm-4 float-right">
+              <div class="btn-action float-right">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text success-icon-side">
@@ -848,7 +854,7 @@
                       <span class="text-red">{{item.receiptNo}}</span>
                     </div>
                     <div class="col-sm-3"><span class="float-right">{{item.amount | currency:'₺'}}</span></div>
-                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy.MM.dd'}}</span>
+                    <div class="col-sm-3"><span class="float-right">{{item.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
@@ -870,187 +876,184 @@
     </div>
   </div>
   <div *ngIf="openedPanel=='edit'">
-    <div class="card-body">
-      <div class="card card-stats">
-        <div class="card-body">
-          <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
-            <div class="row">
-              <div class="col-sm-6">
-                <div class="row form-inline">
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="customerName" name="customerName" type="text"
-                           [(ngModel)]="selectedCustomer.data.name" required>
-                    <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="customerCode">Kod</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
-                           [disabled]="selectedCustomer.data.code != ''"
-                           [(ngModel)]="selectedCustomer.data.code">
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="customerType">Müşteri Tipi</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="customerType" name="customerType"
-                            [(ngModel)]="selectedCustomer.data.customerType">
-                      <option value="customer">Müşteri</option>
-                      <option value="supplier">Tedarikçi</option>
-                      <option value="customer-supplier">Müşteri-Tedarikçi</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                            [(ngModel)]="selectedCustomer.data.isActive">
-                      <option [ngValue]="true">Aktif</option>
-                      <option [ngValue]="false">Pasif</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="phone1">Telefon</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="phone1" name="phone1" type="text"
-                           [(ngModel)]="selectedCustomer.data.phone1" required>
-                    <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="phone2">Fax</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="phone2" name="phone2" type="text"
-                           [(ngModel)]="selectedCustomer.data.phone2">
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="eMail">E-Mail</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="eMail" name="eMail" type="email"
-                           [(ngModel)]="selectedCustomer.data.email">
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="owner" name="owner" type="text"
-                           [(ngModel)]="selectedCustomer.data.owner" required>
-                    <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="executivePrimary">Temsilci</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="executivePrimary" name="executivePrimary"
-                            [(ngModel)]="selectedCustomer.data.executivePrimary">
-                      <option [value]="-1">Seçilmedi</option>
-                      <option value={{item.returnData.data.primaryKey}}
-                              *ngFor="let item of executiveList$ | async; index as i;">{{item.returnData.data.longName}}</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="postCode">Posta Kodu</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="postCode" name="postCode" type="text"
-                           [(ngModel)]="selectedCustomer.data.postCode">
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="address">Adres</label>
-                  </div>
-                  <div class="col-sm-9">
-                        <textarea class="form-control form-control-sm w-100" id="address" name="address"
-                                  type="text" cols="40" rows="2"
-                                  [(ngModel)]="selectedCustomer.data.address"></textarea>
-                  </div>
+    <div class="card">
+      <div class="card-body">
+        <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
                 </div>
-              </div>
-              <div class="col-sm-6">
-                <div class="row form-inline">
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
-                            [(ngModel)]="selectedCustomer.data.defaultAccountPrimaryKey">
-                      <option value={{item.primaryKey}}
-                              *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="paymentTypeKey">Ödeme Tipi</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="paymentTypeKey" name="paymentTypeKey"
-                            [(ngModel)]="selectedCustomer.data.paymentTypeKey">
-                      <option value="-1">Seçilmedi</option>
-                      <option value={{item.primaryKey}} *ngFor="let item of paymentList">{{item.custom1}}</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="termKey">Vade</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <select class="form-control form-control-sm w-100" id="termKey" name="termKey"
-                            [(ngModel)]="selectedCustomer.data.termKey">
-                      <option value="-1">Seçilmedi</option>
-                      <option value={{item.primaryKey}} *ngFor="let item of termList">{{item.custom1}}</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="taxOffice">Vergi Dairesi</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="taxOffice" name="taxOffice" type="text"
-                           [(ngModel)]="selectedCustomer.data.taxOffice">
-                  </div>
-                  <div class="col-sm-3">
-                    <label class="col-form-label float-left" for="taxNumber">Vergi Numarası</label>
-                  </div>
-                  <div class="col-sm-9">
-                    <input class="form-control form-control-sm w-100" id="taxNumber" name="taxNumber" type="text"
-                           [(ngModel)]="selectedCustomer.data.taxNumber">
-                  </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="customerName" name="customerName" type="text"
+                         [(ngModel)]="selectedCustomer.data.name" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="customerCode">Kod</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="customerCode" name="customerCode" type="text"
+                         [disabled]="selectedCustomer.data.code != ''"
+                         [(ngModel)]="selectedCustomer.data.code">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="customerType">Müşteri Tipi</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="customerType" name="customerType"
+                          [(ngModel)]="selectedCustomer.data.customerType">
+                    <option value="customer">Müşteri</option>
+                    <option value="supplier">Tedarikçi</option>
+                    <option value="customer-supplier">Müşteri-Tedarikçi</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="isActive">Aktif Durumu</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
+                          [(ngModel)]="selectedCustomer.data.isActive">
+                    <option [ngValue]="true">Aktif</option>
+                    <option [ngValue]="false">Pasif</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="phone1">Telefon</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="phone1" name="phone1" type="text"
+                         [(ngModel)]="selectedCustomer.data.phone1" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="phone2">Fax</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="phone2" name="phone2" type="text"
+                         [(ngModel)]="selectedCustomer.data.phone2">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="eMail">E-Mail</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="eMail" name="eMail" type="email"
+                         [(ngModel)]="selectedCustomer.data.email">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="owner">Yetkili Kişi</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="owner" name="owner" type="text"
+                         [(ngModel)]="selectedCustomer.data.owner" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="executivePrimary">Temsilci</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="executivePrimary" name="executivePrimary"
+                          [(ngModel)]="selectedCustomer.data.executivePrimary">
+                    <option [value]="-1">Seçilmedi</option>
+                    <option value={{item.primaryKey}} *ngFor="let item of executiveList$ | async; index as i;">{{item.longName}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="postCode">Posta Kodu</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="postCode" name="postCode" type="text"
+                         [(ngModel)]="selectedCustomer.data.postCode">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="address">Adres</label>
+                </div>
+                <div class="col-sm-9">
+                      <textarea class="form-control form-control-sm w-100" id="address" name="address"
+                                type="text" cols="40" rows="2"
+                                [(ngModel)]="selectedCustomer.data.address"></textarea>
                 </div>
               </div>
             </div>
-          </form>
-        </div>
-        <div class="card-footer">
-          <div class="col-sm-3 float-left" *ngIf="selectedCustomer.data.primaryKey!=undefined">
-            <div class="input-group">
-              <div class="input-group-prepend">
-          <span class="input-group-text danger-icon-side">
-            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
+            <div class="col-sm-6">
+              <div class="row form-inline">
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
+                          [(ngModel)]="selectedCustomer.data.defaultAccountPrimaryKey">
+                    <option value={{item.primaryKey}}
+                            *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="paymentTypeKey">Ödeme Tipi</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="paymentTypeKey" name="paymentTypeKey"
+                          [(ngModel)]="selectedCustomer.data.paymentTypeKey">
+                    <option value="-1">Seçilmedi</option>
+                    <option value={{item.primaryKey}} *ngFor="let item of paymentList">{{item.custom1}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="termKey">Vade</label>
+                </div>
+                <div class="col-sm-9">
+                  <select class="form-control form-control-sm w-100" id="termKey" name="termKey"
+                          [(ngModel)]="selectedCustomer.data.termKey">
+                    <option value="-1">Seçilmedi</option>
+                    <option value={{item.primaryKey}} *ngFor="let item of termList">{{item.custom1}}</option>
+                  </select>
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="taxOffice">Vergi Dairesi</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="taxOffice" name="taxOffice" type="text"
+                         [(ngModel)]="selectedCustomer.data.taxOffice">
+                </div>
+                <div class="col-sm-3">
+                  <label class="col-form-label float-left" for="taxNumber">Vergi Numarası</label>
+                </div>
+                <div class="col-sm-9">
+                  <input class="form-control form-control-sm w-100" id="taxNumber" name="taxNumber" type="text"
+                         [(ngModel)]="selectedCustomer.data.taxNumber">
+                </div>
               </div>
-              <button type="button" class="btn btn-sm btn-danger form-control"
-                      [disabled]="onTransaction"
-                      (click)="btnRemove_Click()">Kaldır
-              </button>
             </div>
           </div>
-          <div class="col-sm-3 float-right">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                    <span class="input-group-text success-icon-side">
-                      <i class="fa fa-check" *ngIf="!onTransaction"></i>
-                      <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-                    </span>
-              </div>
-              <button type="button" class="btn btn-sm btn-success form-control"
-                      [disabled]="onTransaction || !f.valid"
-                      (click)="btnSave_Click()">Kaydet
-              </button>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="btn-action float-left" *ngIf="selectedCustomer.data.primaryKey!=undefined">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text danger-icon-side">
+                <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
             </div>
+            <button type="button" class="btn btn-sm btn-danger form-control"
+                    [disabled]="onTransaction"
+                    (click)="btnRemove_Click()">Kaldır
+            </button>
+          </div>
+        </div>
+        <div class="btn-action float-right">
+          <div class="input-group">
+            <div class="input-group-prepend">
+                  <span class="input-group-text success-icon-side">
+                    <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                    <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+                  </span>
+            </div>
+            <button type="button" class="btn btn-sm btn-success form-control"
+                    [disabled]="onTransaction || !f.valid"
+                    (click)="btnSave_Click()">Kaydet
+            </button>
           </div>
         </div>
       </div>
@@ -1081,7 +1084,7 @@
               <td>{{item.subTransactionTypeTr}}</td>
               <td>{{item.amountTypeTr}}</td>
               <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
-              <td><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></td>
+              <td><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></td>
             </tr>
               <tr class="table-success table-row-class">
                 <td colspan="4">Toplam</td>
@@ -1123,7 +1126,7 @@
                 {{item.data.fileName}}
               </div>
               <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
-              <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy.MM.dd'}}</span></div>
+              <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
             </div>
           </div>
         </div>
@@ -1154,7 +1157,7 @@
             <tr class="table-row-class" *ngFor="let item of visitList">
               <td>{{item.employeeName}}</td>
               <td>{{item.visit.description}}</td>
-              <td><span class="float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</span></td>
+              <td><span class="float-right">{{item.visit.visitDate | date: 'yyyy-MM-dd'}}</span></td>
             </tr>
             </tbody>
           </table>
@@ -1188,14 +1191,14 @@
           <tr class="table-row-class" *ngFor="let item of targetList">
             <td>
               <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-              <span class="text-red font-weight-600 mr-1">{{item.returnData.customer.data.code}}</span>
-              <span class="font-weight-600">{{item.returnData.customer.data.name}}</span>
+              <span class="text-red font-weight-600 mr-1">{{item['returnData'].customer.data.code}}</span>
+              <span class="font-weight-600">{{item['returnData'].customer.data.name}}</span>
             </td>
-            <td>{{item.returnData.typeTr}}</td>
-            <td><span class="float-right">{{item.returnData.data.amount | currency:'₺'}}</span></td>
-            <td>{{item.returnData.beginMonthTr}}</td>
-            <td>{{item.returnData.finishMonthTr}}</td>
-            <td>{{item.returnData.data.year}}</td>
+            <td>{{item['returnData'].typeTr}}</td>
+            <td><span class="float-right">{{item['returnData'].data.amount | currency:'₺'}}</span></td>
+            <td>{{item['returnData'].beginMonthTr}}</td>
+            <td>{{item['returnData'].finishMonthTr}}</td>
+            <td>{{item['returnData'].data.year}}</td>
           </tr>
           </tbody>
         </table>
@@ -1222,11 +1225,11 @@
              *ngFor="let item of visitList; index as i;">
           <div class="row">
             <div class="col-sm-2"><i
-              class="far fa-arrow-alt-circle-right mr-2 text-success"></i>{{item.returnData.employeeName}}</div>
-            <div class="col-sm-8">{{item.returnData.data.subject}}</div>
-            <div class="col-sm-1">{{item.returnData.isSendTr}}</div>
+              class="far fa-arrow-alt-circle-right mr-2 text-success"></i>{{item['returnData'].employeeName}}</div>
+            <div class="col-sm-8">{{item['returnData'].data.subject}}</div>
+            <div class="col-sm-1">{{item['returnData'].isSendTr}}</div>
             <div class="col-sm-1">
-              <span class="float-right">{{item.returnData.data.insertDate | date: 'yyyy.MM.dd'}}</span>
+              <span class="float-right">{{item['returnData'].data.insertDate | date: 'yyyy-MM-dd'}}</span>
             </div>
           </div>
         </div>
@@ -1271,7 +1274,7 @@
               </form>
             </div>
             <div class="card-footer">
-              <div class="col-sm-4 float-left">
+              <div class="btn-action float-left">
                 <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text success-icon-side">
@@ -1285,7 +1288,7 @@
                   </button>
                 </div>
               </div>
-              <div class="col-sm-4 float-right" *ngIf="newDeliveryAddress.data.primaryKey!=undefined">
+              <div class="btn-action float-right" *ngIf="newDeliveryAddress.data.primaryKey!=undefined">
                 <div class="input-group">
                   <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">

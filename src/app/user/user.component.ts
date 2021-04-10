@@ -8,6 +8,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { ExcelService } from '../services/excel-service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user',
@@ -15,6 +17,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<ProfileMainModel> = [];
   selectedRecord: ProfileMainModel;
   birthDate: any;
@@ -23,7 +26,8 @@ export class UserComponent implements OnInit, OnDestroy {
   employeeDetail: any;
 
   constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected service: ProfileService,
-              protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute, protected modalService: NgbModal) {
+              protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute, protected modalService: NgbModal,
+              protected excelService: ExcelService) {
   }
 
   async ngOnInit() {
@@ -32,12 +36,15 @@ export class UserComponent implements OnInit, OnDestroy {
     this.selectedRecord = undefined;
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -164,6 +171,14 @@ export class UserComponent implements OnInit, OnDestroy {
       this.modalService.open(InfoModuleComponent, {size: 'lg'});
     } catch (error) {
       await this.infoService.error(error);
+    }
+  }
+
+  btnExportToExcel_Click(): void {
+    if (this.mainList.length > 0) {
+      this.excelService.exportToExcel(this.mainList, 'users');
+    } else {
+      this.infoService.error('Aktarılacak kayıt bulunamadı.');
     }
   }
 

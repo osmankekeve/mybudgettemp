@@ -153,6 +153,16 @@ export class CashDeskService {
     return this.mainList$;
   }
 
+  getAllItems(): Observable<CashDeskModel[]> {
+    this.listCollection = this.db.collection<CashDeskModel>(this.tableName,
+      ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid());
+        return query;
+      });
+    return this.listCollection.valueChanges({ idField : 'primaryKey'});
+  }
+
   getCashDeskTransactions = async (cashDeskPrimaryKey: string, startDate: Date, endDate: Date):
     // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<AccountTransactionModel>> => new Promise(async (resolve, reject): Promise<void> => {

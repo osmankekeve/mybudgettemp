@@ -9,5 +9,6 @@ export class PaymentMainModel {
   actionType?: string;
   amountFormatted?: string;
   statusTr?: string;
+  typeTr?: string;
   platformTr?: string;
 }

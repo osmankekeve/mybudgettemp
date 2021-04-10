@@ -44,13 +44,16 @@ import {setInvoiceCalculation} from '../models/sales-invoice-model';
 import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
 import {ProductUnitService} from '../services/product-unit.service';
 import {ProductService} from '../services/product.service';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sales-invoice',
   templateUrl: './sales-invoice.component.html',
   styleUrls: ['./sales-invoice.component.css']
 })
-export class SalesInvoiceComponent implements OnInit {
+export class SalesInvoiceComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<SalesInvoiceMainModel>;
   invoiceDetailList: Array<SalesInvoiceDetailMainModel>;
   customerList: Array<CustomerModel>;
@@ -63,19 +66,20 @@ export class SalesInvoiceComponent implements OnInit {
   selectedDetailRecord: SalesInvoiceDetailMainModel;
   isRecordHasTransaction = false;
   isRecordHasReturnTransaction = false;
-  isMainFilterOpened = false;
-  recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
 
-  searchText: any;
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterCustomerCode: any;
-  filterStatus: any;
   totalValues = {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
+
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
+  recordDate: any;
+  searchText: any;
   chart1: any;
   chart2: any;
   onTransaction = false;
@@ -96,7 +100,6 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.clearMainFiler();
     this.selectedRecord = undefined;
     this.populateCustomers();
     this.generateCharts();
@@ -118,6 +121,12 @@ export class SalesInvoiceComponent implements OnInit {
           this.showSelectedRecord(paramItem);
         }
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -183,9 +192,9 @@ export class SalesInvoiceComponent implements OnInit {
       totalPrice: 0,
       totalPriceWithTax: 0,
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
       .subscribe(list => {
         if (this.mainList === undefined) {
           this.mainList = [];
@@ -261,7 +270,7 @@ export class SalesInvoiceComponent implements OnInit {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<SalesInvoiceMainModel>;
@@ -487,18 +496,20 @@ export class SalesInvoiceComponent implements OnInit {
     });
   }
 
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
-  }
-
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -913,13 +924,6 @@ export class SalesInvoiceComponent implements OnInit {
     this.selectedRecord = this.service.clearMainModel();
     this.setOrderCountInfo();
     await this.getReceiptNo();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterCustomerCode = '-1';
-    this.filterStatus = '-1';
   }
 
   async finishProcess(error: any, info: any): Promise<void> {

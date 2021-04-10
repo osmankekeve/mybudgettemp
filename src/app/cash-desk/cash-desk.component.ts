@@ -6,7 +6,7 @@ import {AccountTransactionModel} from '../models/account-transaction-model';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
-import { getBeginOfYearForInput, getEncryptionKey, getFloat, getTodayForInput, isNullOrEmpty } from '../core/correct-library';
+import { getBeginOfYearForInput, getEncryptionKey, getFirstDayOfMonthForInput, getFloat, getTodayForInput, isNullOrEmpty } from '../core/correct-library';
 import {ExcelService} from '../services/excel-service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {CashDeskMainModel} from '../models/cash-desk-main-model';
@@ -14,6 +14,11 @@ import {Chart} from 'chart.js';
 import {GlobalService} from '../services/global.service';
 import {RouterModel} from '../models/router-model';
 import * as CryptoJS from 'crypto-js';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
+import { AccountTransactionMainModel } from '../models/account-transaction-main-model';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-cash-desk',
@@ -21,30 +26,31 @@ import * as CryptoJS from 'crypto-js';
   styleUrls: ['./cash-desk.component.css']
 })
 export class CashDeskComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CashDeskMainModel>;
   collection: AngularFirestoreCollection<CashDeskModel>;
-  transactionList: Array<AccountTransactionModel>;
+  transactionList: Array<AccountTransactionMainModel>;
   selectedRecord: CashDeskMainModel;
-  isMainFilterOpened = false;
   totalValues = {
     amount: 0
+  };
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
   };
   encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
   searchText: '';
   chart1: any;
   onTransaction = false;
 
   constructor(public authService: AuthenticationService, public service: CashDeskService, public globService: GlobalService,
               public atService: AccountTransactionService, public infoService: InformationService, public route: Router,
-              public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore) {
+              public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore, protected modalService: NgbModal) {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
     this.selectedRecord = undefined;
 
@@ -54,6 +60,12 @@ export class CashDeskComponent implements OnInit, OnDestroy {
       if (paramItem) {
         this.showSelectedRecord(paramItem.returnData);
       }
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
     }
   }
 
@@ -79,12 +91,9 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  ngOnDestroy(): void {
-  }
-
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -201,8 +210,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   async showTransactionRecord(item: any): Promise<void> {
     const r = new RouterModel();
-    r.nextModule = item.transactionType;
-    r.nextModulePrimaryKey = item.transactionPrimaryKey;
+    r.nextModule = item.data.transactionType;
+    r.nextModulePrimaryKey = item.data.transactionPrimaryKey;
     r.previousModule = 'cash-desk';
     r.previousModulePrimaryKey = this.selectedRecord.data.primaryKey;
     await this.globService.showTransactionRecord(r);
@@ -226,26 +235,14 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      if (this.isMainFilterOpened === true) {
-        this.isMainFilterOpened = false;
-      } else {
-        this.isMainFilterOpened = true;
-      }
-      this.clearMainFiler();
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
-  async btnMainFilter_Click(): Promise<void> {
-    try {
-      if (isNullOrEmpty(this.filterBeginDate)) {
-        await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-      } else if (isNullOrEmpty(this.filterFinishDate)) {
-        await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-      } else {
-        this.populateTransactions();
-      }
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.populateTransactions();
+        }
+      }, () => {});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -254,10 +251,38 @@ export class CashDeskComponent implements OnInit, OnDestroy {
   async btnExportToExcel_Click(): Promise<void> {
     try {
       if (this.mainList.length > 0) {
-        this.excelService.exportToExcel(this.transactionList, 'cashdeskTransaction');
+        this.excelService.exportToExcel(this.mainList, 'cash-desk');
       } else {
         this.infoService.success('Aktarılacak kayıt bulunamadı.');
       }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnExportToExcelTransaction_Click(): Promise<void> {
+    try {
+      if (this.transactionList.length > 0) {
+        this.excelService.exportToExcel(this.transactionList, 'cash-desk-transaction');
+      } else {
+        this.infoService.success('Aktarılacak kayıt bulunamadı.');
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -268,8 +293,8 @@ export class CashDeskComponent implements OnInit, OnDestroy {
     this.totalValues = {
       amount: 0
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     let totalCollectionAmount = 0;
     let totalPaymentAmount = 0;
     let totalAccountVoucherAmount = 0;
@@ -279,23 +304,25 @@ export class CashDeskComponent implements OnInit, OnDestroy {
       this.atService.getSingleCashDeskTransactions(this.selectedRecord.data.primaryKey, beginDate, finishDate)])
       .then((item: any) => {
         this.transactionList = [];
-        item[0].forEach((data: any) => {
+        item[0].forEach((item2: any) => {
+          const data = item2 as AccountTransactionMainModel;
           this.transactionList.push(data);
-          this.totalValues.amount += data.amount;
-          if (data.transactionType === 'collection') {
-            totalCollectionAmount += data.amount;
-          } else if (data.transactionType === 'payment') {
-            totalPaymentAmount += data.amount;
-          } else if (data.transactionType === 'accountVoucher') {
-            totalAccountVoucherAmount += data.amount;
+          this.totalValues.amount += data.data.amount;
+          if (data.data.transactionType === 'collection') {
+            totalCollectionAmount += data.data.amount;
+          } else if (data.data.transactionType === 'payment') {
+            totalPaymentAmount += data.data.amount;
+          } else if (data.data.transactionType === 'accountVoucher') {
+            totalAccountVoucherAmount += data.data.amount;
           } else {
             // nothing
           }
         });
-        item[1].forEach((data: any) => {
+        item[1].forEach((item2: any) => {
+          const data = item2 as AccountTransactionMainModel;
           this.transactionList.push(data);
-          this.totalValues.amount += data.amount;
-          totalCashDeskVoucherAmount += data.amount;
+          this.totalValues.amount += data.data.amount;
+          totalCashDeskVoucherAmount += data.data.amount;
         });
       })
       .finally(() => {
@@ -343,10 +370,9 @@ export class CashDeskComponent implements OnInit, OnDestroy {
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getBeginOfYearForInput();
-    this.filterFinishDate = getTodayForInput();
+    this.totalValues = {
+      amount: 0
+    };
+    this.transactionList = [];
   }
 }

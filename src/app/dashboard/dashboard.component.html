@@ -16,9 +16,6 @@
               <div class="card-body">
                 <canvas id="barChart"></canvas>
               </div>
-              <div class="card-footer">
-                <h5>Aylık Cari Hareketler</h5>
-              </div>
             </div>
           </div>
           <div class="col-sm-12 mt-2">
@@ -89,7 +86,7 @@
                           </div>
                           <div class="col">
                             <div
-                              class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy.MM.dd'}}</div>
+                              class="text-small text-dark float-right">{{item.data.actionDate | date: 'yyyy-MM-dd'}}</div>
                           </div>
                         </div>
                       </div>
@@ -131,7 +128,7 @@
                           </div>
                           <div class="col">
                             <div
-                              class="text-small text-dark float-right">{{item.visit.visitDate | date: 'yyyy.MM.dd'}}</div>
+                              class="text-small text-dark float-right">{{item.visit.visitDate | date: 'yyyy-MM-dd'}}</div>
                           </div>
                         </div>
                       </div>
@@ -246,44 +243,54 @@
           </div>
           <div class="col-sm-12 mt-2">
             <div class="card">
-              <div class="card-header bg-white work-area-250">
-                <h5 class="card-title">Günlük İşlemler</h5>
+              <div class="card-header bg-gray-gradient">
+                <div class="d-flex align-items-center">
+                  <div class="flex-grow-1">
+                    <img src="../../assets/images/reminder.png" width="30px" alt="" class="float-left mr-2">
+                    <h5 class="card-title float-left mr-2">Günlük İşlemler</h5>
+                  </div>
+                </div>
               </div>
-              <div class="card-body bg-white work-area-2">
-                <div *ngIf="transactionList != undefined; else elseBlock2">
-                  <div class="list-group" *ngIf="transactionList.length > 0; else elseBlock">
-                    <div class="list-group-item bg-red text-light">
-                      <div class="row">
-                        <div class="col-sm-6">İşlem</div>
-                        <div class="col-sm-3"><span class="float-right">Fiş</span></div>
-                        <div class="col-sm-3"><span class="float-right">Bakiye</span></div>
-                      </div>
+              <div class="work-area-2" *ngIf="transactionList != undefined; else elseBlock2">
+                <div class="main-list" *ngIf="transactionList.length > 0; else elseBlock">
+                  <div class="main-list-item" *ngFor="let item of transactionList; index as i;">
+                    <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showTransaction(item)">
+                      <i class="fas fa-file-alt fa-2x text-danger"></i>
                     </div>
-                    <div class="list-group-item list-group-item-action list-group-item-light cursor-pointer"
-                         *ngFor="let item of transactionList; index as i;"
-                         (click)="showTransaction(item)"
-                         style="font-size: 85%">
-                      <img src='{{item.iconUrl}}' width="40px" alt="" class="float-left">
-                      <div class="row">
-                        <div class="col-sm-6 text-red">{{item.subTransactionTypeTr}}</div>
-                        <div class="col-sm-3"><span class="float-right">{{item.data.receiptNo}}</span></div>
-                        <div class="col-sm-3"><span class="float-right">{{item.data.amount | currency:'₺'}}</span></div>
-                        <div class="col-sm-12" *ngIf="item.parentData != undefined">
-                          <small>{{item?.parentData.name}}</small>
+                    <div class="content">
+                      <div class="row-1">
+                        <div class="w-100">
+                          <span class="text-danger">{{item.subTransactionTypeTr}}</span>
+                        </div>
+                        <div class="w-100" *ngIf="item.parentData">
+                          <span>{{item?.parentData.name}}</span>
+                        </div>
+                      </div>
+                      <div class="row-2">
+                        <div class="w-66">
+                          <span class="badge badge-danger" title="Fiş Numaras">{{item.data.receiptNo}}</span>
+                          <span class="badge badge-warning" title="İşlem Tarihi">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+                        </div>
+                        <div class="w-33">
+                          <span class="float-right font-weight-600 text-danger" title="Tahsilat Tutarı">{{item.data.amount | currency:'₺'}}</span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <ng-template #elseBlock>
-                    <div class="card bg-red text-white">
-                      <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                    </div>
-                  </ng-template>
                 </div>
-                <ng-template #elseBlock2>
-                  <div class="loader"></div>
+                <ng-template #elseBlock>
+                  <div class="card bg-red text-white m-3">
+                    <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                  </div>
                 </ng-template>
               </div>
+              <ng-template #elseBlock2>
+                <div class="card">
+                  <div class="card-body">
+                    <div class="loader"></div>
+                  </div>
+                </div>
+              </ng-template>
             </div>
           </div>
         </div>

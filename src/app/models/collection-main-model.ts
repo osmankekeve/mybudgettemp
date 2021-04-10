@@ -10,5 +10,6 @@ export class CollectionMainModel {
   actionType?: string;
   statusTr?: string;
   platformTr?: string;
+  typeTr?: string;
   amountFormatted?: string;
 }

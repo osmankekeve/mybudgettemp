@@ -1,59 +1,65 @@
-import {Component, OnInit} from '@angular/core';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {InformationService} from '../services/information.service';
-import {AuthenticationService} from '../services/authentication.service';
-import {ExcelService} from '../services/excel-service';
-import {Router} from '@angular/router';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderService} from '../services/sales-order.service';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
-import {setOrderDetailCalculation} from '../models/sales-order-detail-main-model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import { getNumber } from './../core/correct-library';
+import { TermService } from './../services/term.service';
+import { DefinitionMainModel } from './../models/definition-main-model';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { InformationService } from '../services/information.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { ExcelService } from '../services/excel-service';
+import { Router } from '@angular/router';
+import { SalesOrderMainModel } from '../models/sales-order-main-model';
+import { SalesOrderService } from '../services/sales-order.service';
+import { SalesOrderDetailMainModel } from '../models/sales-order-detail-main-model';
+import { setOrderDetailCalculation } from '../models/sales-order-detail-main-model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CustomerSelectComponent } from '../partials/customer-select/customer-select.component';
 import {
   currencyFormat,
-  getDateForInput, getFirstDayOfMonthForInput,
+  getDateForInput, getDateTimeForInput, getFirstDayOfMonthForInput,
   getFloat,
   getInputDataForInsert,
   getTodayForInput, isNullOrEmpty,
   moneyFormat
 } from '../core/correct-library';
-import {PriceListModel} from '../models/price-list-model';
-import {DiscountListModel} from '../models/discount-list-model';
-import {PriceListService} from '../services/price-list.service';
-import {DiscountListService} from '../services/discount-list.service';
-import {DefinitionModel} from '../models/definition-model';
-import {DefinitionService} from '../services/definition.service';
-import {DeliveryAddressModel} from '../models/delivery-address-model';
-import {DeliveryAddressService} from '../services/delivery-address.service';
-import {SalesOrderDetailService} from '../services/sales-order-detail.service';
-import {SettingModel} from '../models/setting-model';
-import {ProductSelectComponent} from '../partials/product-select/product-select.component';
-import {ProductPriceService} from '../services/product-price.service';
-import {SettingService} from '../services/setting.service';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {ProductUnitService} from '../services/product-unit.service';
-import {ProductDiscountService} from '../services/product-discount.service';
-import {ProductDiscountModel} from '../models/product-discount-model';
-import {ProductPriceMainModel} from '../models/product-price-main-model';
-import {setOrderCalculation} from '../models/sales-order-model';
-import {ProductUnitMappingService} from '../services/product-unit-mapping.service';
-import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
-import {ToastService} from '../services/toast.service';
-import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import { PriceListModel } from '../models/price-list-model';
+import { DiscountListModel } from '../models/discount-list-model';
+import { PriceListService } from '../services/price-list.service';
+import { DiscountListService } from '../services/discount-list.service';
+import { DefinitionModel } from '../models/definition-model';
+import { DefinitionService } from '../services/definition.service';
+import { DeliveryAddressModel } from '../models/delivery-address-model';
+import { DeliveryAddressService } from '../services/delivery-address.service';
+import { SalesOrderDetailService } from '../services/sales-order-detail.service';
+import { SettingModel } from '../models/setting-model';
+import { ProductSelectComponent } from '../partials/product-select/product-select.component';
+import { ProductPriceService } from '../services/product-price.service';
+import { SettingService } from '../services/setting.service';
+import { ProductUnitModel } from '../models/product-unit-model';
+import { ProductUnitService } from '../services/product-unit.service';
+import { ProductDiscountService } from '../services/product-discount.service';
+import { ProductDiscountModel } from '../models/product-discount-model';
+import { ProductPriceMainModel } from '../models/product-price-main-model';
+import { setOrderCalculation } from '../models/sales-order-model';
+import { ProductUnitMappingService } from '../services/product-unit-mapping.service';
+import { ProductUnitMappingModel } from '../models/product-unit-mapping-model';
+import { ToastService } from '../services/toast.service';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { CampaignModel } from '../models/campaign-model';
 import { CampaignService } from '../services/campaign.service';
 import { CampaignDetailService } from '../services/campaign-detail.service';
 import { CampaignDetailModel } from '../models/campaign-detail-model';
 import { ProductService } from '../services/product.service';
 import { PDFModuleComponent } from '../partials/pdf-module/pdf-module.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-sales-offer',
   templateUrl: './sales-offer.component.html',
   styleUrls: ['./sales-offer.component.css']
 })
-export class SalesOfferComponent implements OnInit {
+export class SalesOfferComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<SalesOrderMainModel>;
   selectedRecord: SalesOrderMainModel;
   selectedDetail: SalesOrderDetailMainModel;
@@ -64,7 +70,6 @@ export class SalesOfferComponent implements OnInit {
   isNewPanelOpened = false;
   productType = 'normal';
   date = new Date();
-  isMainFilterOpened = false;
   filter = {
     filterBeginDate: getFirstDayOfMonthForInput(),
     filterFinishDate: getTodayForInput(),
@@ -92,7 +97,7 @@ export class SalesOfferComponent implements OnInit {
               protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService, protected pService: ProductService,
               protected pdService: ProductDiscountService, protected setService: SettingService, protected cdService: CampaignDetailService,
-              protected pumService: ProductUnitMappingService, protected campService: CampaignService) {
+              protected pumService: ProductUnitMappingService, protected campService: CampaignService, protected termService: TermService) {
   }
 
   ngOnInit() {
@@ -100,6 +105,12 @@ export class SalesOfferComponent implements OnInit {
     this.selectedRecord = undefined;
     this.selectedDetail = undefined;
     this.populateList();
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
@@ -132,7 +143,7 @@ export class SalesOfferComponent implements OnInit {
     }
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -198,18 +209,18 @@ export class SalesOfferComponent implements OnInit {
     list.push(true);
     Promise.all([this.dService.getDiscountLists(list, 'sales'), this.setService.getItem('defaultDiscountListPrimaryKey')])
       .then((values: any) => {
-      this.discountLists = [];
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<DiscountListModel>;
-        returnData.forEach(value => {
-          this.discountLists.push(value);
-        });
-      }
-      if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
-        const defaultDiscountListPrimaryKey = values[1].data as SettingModel;
-        this.selectedRecord.data.discountListPrimaryKey = defaultDiscountListPrimaryKey.value;
-      }
-    });
+        this.discountLists = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<DiscountListModel>;
+          returnData.forEach(value => {
+            this.discountLists.push(value);
+          });
+        }
+        if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
+          const defaultDiscountListPrimaryKey = values[1].data as SettingModel;
+          this.selectedRecord.data.discountListPrimaryKey = defaultDiscountListPrimaryKey.value;
+        }
+      });
   }
 
   populatePacketCampaignList(): void {
@@ -217,31 +228,31 @@ export class SalesOfferComponent implements OnInit {
     list.push(true);
     Promise.all([this.campService.getAvaliableCampaignsAsPromise('packet', this.selectedRecord.data.primaryKey === null)])
       .then((values: any) => {
-      this.packetCampaignList = [];
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<CampaignModel>;
-        returnData.forEach(value => {
-          this.packetCampaignList.push(value);
-        });
-      }
-    });
+        this.packetCampaignList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<CampaignModel>;
+          returnData.forEach(value => {
+            this.packetCampaignList.push(value);
+          });
+        }
+      });
   }
 
   populateStorageList(): void {
     Promise.all([this.defService.getItemsForFill('storage'), this.setService.getItem('defaultStoragePrimaryKey')])
       .then((values: any) => {
-      this.storageList = [];
-      if (values[0] !== null) {
-        const returnData = values[0] as Array<DefinitionModel>;
-        returnData.forEach(value => {
-          this.storageList.push(value);
-        });
-      }
-      if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
-        const defaultStoragePrimaryKey = values[1].data as SettingModel;
-        this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
-      }
-    });
+        this.storageList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<DefinitionModel>;
+          returnData.forEach(value => {
+            this.storageList.push(value);
+          });
+        }
+        if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
+          const defaultStoragePrimaryKey = values[1].data as SettingModel;
+          this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
+        }
+      });
   }
 
   populateTermList(): void {
@@ -342,6 +353,7 @@ export class SalesOfferComponent implements OnInit {
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.calculateTerm();
       this.populateDeliveryAddressList();
       this.populatePriceList();
       this.populateDiscountList();
@@ -357,6 +369,20 @@ export class SalesOfferComponent implements OnInit {
           this.selectedRecord.orderDetailList = list;
         });
     });
+  }
+
+  async calculateTerm(): Promise<void> {
+    const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
+    const term = record.returnData as DefinitionMainModel;
+    const date = new Date(this.selectedRecord.data.recordDate);
+    this.selectedRecord.termList = [];
+    for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
+      const item = this.termService.clearSubModel();
+      item.dayCount = getNumber(term.data.custom2.split(';')[i]);
+      item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
+      item.termDate = date.setDate(date.getDate() + item.dayCount);
+      this.selectedRecord.termList.push(item);
+    }
   }
 
   async btnShowJsonData_Click(): Promise<void> {
@@ -502,16 +528,18 @@ export class SalesOfferComponent implements OnInit {
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
-      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      const modalRef = this.modalService.open(CustomerSelectComponent, { size: 'lg' });
       modalRef.componentInstance.customer = this.selectedRecord.customer;
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
         if (result) {
           this.selectedRecord.customer = result;
           this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
+          this.selectedRecord.data.termPrimaryKey = this.selectedRecord.customer.data.termKey;
+          this.selectedRecord.data.paymentTypePrimaryKey = this.selectedRecord.customer.data.paymentTypeKey;
           this.populateDeliveryAddressList();
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -535,7 +563,7 @@ export class SalesOfferComponent implements OnInit {
 
   async btnShowInfoModule_Click(): Promise<void> {
     try {
-      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+      this.modalService.open(InfoModuleComponent, { size: 'lg' });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -543,7 +571,7 @@ export class SalesOfferComponent implements OnInit {
 
   async btnShowPDFModule_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(PDFModuleComponent, {size: 'xl'});
+      const modalRef = this.modalService.open(PDFModuleComponent, { size: 'xl' });
       modalRef.componentInstance.key = 'sales-order';
       modalRef.componentInstance.data = this.selectedRecord;
 
@@ -563,19 +591,21 @@ export class SalesOfferComponent implements OnInit {
     }
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filter.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filter.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, { size: 'md' });
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => { });
+    } catch (error) {
+      await this.infoService.error(error);
     }
-  }
-
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
   }
 
   async ddlPacketCampaign_SelectedIndexChanged(campaignPrimaryKey: any): Promise<void> {
@@ -597,44 +627,44 @@ export class SalesOfferComponent implements OnInit {
     try {
       if (this.selectedRecord.data.campaignPrimaryKey === '-1') {
         this.toastService.error('Lütfen paket kampanya seçiniz');
-      }  else if (this.selectedRecord.data.campaignQuantity < 1) {
+      } else if (this.selectedRecord.data.campaignQuantity < 1) {
         this.toastService.error('Lütfen paket kampanya miktarı giriniz');
       } else {
         this.onTransaction = true;
         this.selectedRecord.orderDetailList = [];
         this.db.collection('tblCampaignDetail').ref.where('campaignPrimaryKey', '==', this.selectedRecord.data.campaignPrimaryKey)
-        .get().then(snapshot => {
-          if (snapshot.empty) {
-            console.log('No matching documents.');
-            return;
-          }
-          snapshot.forEach(async doc => {
-            const data = doc.data() as CampaignDetailModel;
-            const p = await this.pService.getItem(data.productPrimaryKey);
-            const pu = await this.puService.getItem(data.unitPrimaryKey);
+          .get().then(snapshot => {
+            if (snapshot.empty) {
+              console.log('No matching documents.');
+              return;
+            }
+            snapshot.forEach(async doc => {
+              const data = doc.data() as CampaignDetailModel;
+              const p = await this.pService.getItem(data.productPrimaryKey);
+              const pu = await this.puService.getItem(data.unitPrimaryKey);
 
-            const a = this.sodService.clearMainModel();
-            a.data.primaryKey = this.db.createId();
-            a.product = p.returnData;
-            a.unit = pu.returnData.data;
-            a.data.productPrimaryKey = data.productPrimaryKey;
-            a.data.listPrice = data.listPrice;
-            a.data.price = data.price;
-            a.data.defaultPrice = data.defaultPrice;
-            a.data.discount1 = data.discount1;
-            a.data.defaultDiscount1 = data.defaultDiscount1;
-            a.data.discount2 = data.discount2;
-            a.data.defaultDiscount2 = data.defaultDiscount2;
-            a.data.quantity = data.quantity * this.selectedRecord.data.campaignQuantity;
-            a.data.taxRate = data.taxRate;
-            a.data.unitPrimaryKey = data.unitPrimaryKey;
-            a.data.unitValue = data.unitValue;
-            a.data.campaignPrimaryKey = this.selectedRecord.data.campaignPrimaryKey;
-            this.selectedRecord.orderDetailList.push(a);
-            setOrderDetailCalculation(a);
-            setOrderCalculation(this.selectedRecord);
+              const a = this.sodService.clearMainModel();
+              a.data.primaryKey = this.db.createId();
+              a.product = p.returnData;
+              a.unit = pu.returnData.data;
+              a.data.productPrimaryKey = data.productPrimaryKey;
+              a.data.listPrice = data.listPrice;
+              a.data.price = data.price;
+              a.data.defaultPrice = data.defaultPrice;
+              a.data.discount1 = data.discount1;
+              a.data.defaultDiscount1 = data.defaultDiscount1;
+              a.data.discount2 = data.discount2;
+              a.data.defaultDiscount2 = data.defaultDiscount2;
+              a.data.quantity = data.quantity * this.selectedRecord.data.campaignQuantity;
+              a.data.taxRate = data.taxRate;
+              a.data.unitPrimaryKey = data.unitPrimaryKey;
+              a.data.unitValue = data.unitValue;
+              a.data.campaignPrimaryKey = this.selectedRecord.data.campaignPrimaryKey;
+              this.selectedRecord.orderDetailList.push(a);
+              setOrderDetailCalculation(a);
+              setOrderCalculation(this.selectedRecord);
+            });
           });
-        });
         this.toastService.info('Paket Kampanya Teklife eklendi');
         this.onTransaction = false;
       }
@@ -670,7 +700,7 @@ export class SalesOfferComponent implements OnInit {
   showOrderDetail(record: any, index: any): void {
     this.selectedDetail = record as SalesOrderDetailMainModel;
     if (this.selectedDetail.data.campaignPrimaryKey !== '-1'
-    && this.selectedDetail.data.campaignPrimaryKey === this.selectedRecord.data.campaignPrimaryKey) {
+      && this.selectedDetail.data.campaignPrimaryKey === this.selectedRecord.data.campaignPrimaryKey) {
       this.toastService.warning('Paket Kampanya detayı düzenlenemez', true);
       this.clearSelectedDetail();
     } else if (this.selectedRecord.data.status === 'waitingForApprove') {
@@ -689,7 +719,7 @@ export class SalesOfferComponent implements OnInit {
       } else if (this.selectedRecord.data.priceListPrimaryKey === '-1') {
         await this.infoService.error('Lütfen iskonto listesi seçiniz.');
       } else {
-        const modalRef = this.modalService.open(ProductSelectComponent, {size: 'lg'});
+        const modalRef = this.modalService.open(ProductSelectComponent, { size: 'lg' });
         modalRef.componentInstance.product = this.selectedDetail.product;
         modalRef.componentInstance.productStockTypes = [this.productType];
         modalRef.result.then((result: any) => {
@@ -699,7 +729,7 @@ export class SalesOfferComponent implements OnInit {
             this.selectedDetail.data.productPrimaryKey = this.selectedDetail.product.data.primaryKey;
             this.populateProductAfterSelectData();
           }
-        }, () => {});
+        }, () => { });
       }
     } catch (error) {
       await this.infoService.error(error);
@@ -811,3 +841,4 @@ export class SalesOfferComponent implements OnInit {
   }
 
 }
+

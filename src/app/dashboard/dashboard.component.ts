@@ -5,7 +5,7 @@ import {AccountTransactionService} from '../services/account-transaction.service
 import {CustomerRelationService} from '../services/crm.service';
 import {CustomerRelationModel} from '../models/customer-relation-model';
 import {Router} from '@angular/router';
-import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey} from '../core/correct-library';
+import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, getDateForInput} from '../core/correct-library';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -16,6 +16,8 @@ import {TodoListMainModel} from '../models/to-do-list-main-model';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import { CustomerRelationMainModel } from '../models/customer-relation-main-model';
+import { Subscription } from 'rxjs';
+import { Utility } from 'src/utilitys.config';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,6 +25,7 @@ import { CustomerRelationMainModel } from '../models/customer-relation-main-mode
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+  chartList$: Subscription;
   BarChart: any;
   actionList: Array<CustomerRelationMainModel> = [];
   todoList: Array<TodoListMainModel> = [];
@@ -42,65 +45,159 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const date = new Date();
     this.transactionList = undefined;
-    const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    const end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-    // gunluk hareketler
-    this.atService.getMainItems(start, end, null, null).subscribe(list => {
+    const date = new Date();
+    const monthBeginDate = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
+    const monthToday = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    this.BarChart = new Chart('barChart', {
+        type: 'bar', // bar, pie, doughnut
+        data: {
+          labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
+          datasets: [{
+            label: '# of Votes',
+            data: [0, 0, 0, 0, 0, 0],
+            backgroundColor: [
+              Utility.Chart_Colors_Soft.red,
+              Utility.Chart_Colors_Soft.blue,
+              Utility.Chart_Colors_Soft.yellow,
+              Utility.Chart_Colors_Soft.green,
+              Utility.Chart_Colors_Soft.purple,
+              Utility.Chart_Colors_Soft.grey
+            ],
+            borderColor: [
+              Utility.Chart_Colors.red,
+              Utility.Chart_Colors.blue,
+              Utility.Chart_Colors.yellow,
+              Utility.Chart_Colors.green,
+              Utility.Chart_Colors.purple,
+              Utility.Chart_Colors.grey
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          title: {
+            text: 'Aylık Cari Hareketler',
+            display: true
+          },
+          scales: {
+            yAxes: [{
+              ticks: {
+                beginAtZero: true,
+                callback: (value, index, values) => {
+                  if (Number(value) >= 1000) {
+                    return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                  } else {
+                    return '₺' + Number(value).toFixed(2);
+                  }
+                }
+              }
+            }]
+          },
+          tooltips: {
+            callbacks: {
+              label(tooltipItem, data) {
+                return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                  return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                });
+              }
+            }
+          },
+        }
+    });
+    this.chartList$ = this.atService.getMainItems(monthBeginDate, monthToday, null, null).subscribe(list => {
       if (this.transactionList === undefined) {
         this.transactionList = [];
       }
-      // TODO: kasa fisinin eksili ve artilisi birbirini goturuyor sifir yaziyor, bunu duzelt.
       list.forEach((data: any) => {
-        const item = data.returnData as AccountTransactionMainModel;
-        if (item.data.transactionType === 'salesInvoice') {
-          if (item.data.transactionSubType === 'salesInvoice'
-            || item.data.transactionSubType === 'serviceSalesInvoice'
-            || item.data.transactionSubType === 'cancelReturnSalesInvoice') {
-            this.siAmount += getFloat(Math.abs(item.data.amount));
-          } else if (item.data.transactionSubType === 'cancelSalesInvoice'
-            || item.data.transactionSubType === 'cancelServiceSalesInvoice'
-            || item.data.transactionSubType === 'returnSalesInvoice') {
-            this.siAmount -= getFloat(Math.abs(item.data.amount));
-          } else {
+          const item = data.returnData as AccountTransactionMainModel;
+          if (item.data.transactionType === 'salesInvoice') {
+            if (item.data.transactionSubType === 'salesInvoice'
+              || item.data.transactionSubType === 'serviceSalesInvoice'
+              || item.data.transactionSubType === 'cancelReturnSalesInvoice') {
+                this.BarChart.data.datasets[0].data[0] += getFloat(Math.abs(item.data.amount));
+                if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                  this.siAmount += getFloat(Math.abs(item.data.amount));
+                  this.transactionList.push(item);
+                }
+            } else if (item.data.transactionSubType === 'cancelSalesInvoice'
+              || item.data.transactionSubType === 'cancelServiceSalesInvoice'
+              || item.data.transactionSubType === 'returnSalesInvoice') {
+                this.BarChart.data.datasets[0].data[0] -= getFloat(Math.abs(item.data.amount));
+                if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                  this.siAmount -= getFloat(Math.abs(item.data.amount));
+                  this.transactionList.push(item);
+                }
+            } else {
 
+            }
           }
-        }
-        if (item.data.transactionType === 'collection') {
-          if (item.data.transactionSubType.startsWith('cancel')) {
-            this.colAmount -= getFloat(Math.abs(item.data.amount));
-          } else {
-            this.colAmount += getFloat(Math.abs(item.data.amount));
+          if (item.data.transactionType === 'collection') {
+            if (item.data.transactionSubType.startsWith('cancel')) {
+              this.BarChart.data.datasets[0].data[1] -= getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.colAmount -= getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
+            } else {
+              this.BarChart.data.datasets[0].data[1] += getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.colAmount += getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
+            }
           }
-        }
-        if (item.data.transactionType === 'purchaseInvoice') {
-          if (item.data.transactionSubType === 'purchaseInvoice'
+          if (item.data.transactionType === 'purchaseInvoice') {
+            if (item.data.transactionSubType === 'purchaseInvoice'
             || item.data.transactionSubType === 'servicePurchaseInvoice'
             || item.data.transactionSubType === 'cancelReturnPurchaseInvoice') {
-            this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+              this.BarChart.data.datasets[0].data[2] += getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.purchaseInvoiceAmount += getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
           } else if (item.data.transactionSubType === 'cancelPurchaseInvoice'
             || item.data.transactionSubType === 'cancelServicePurchaseInvoice'
             || item.data.transactionSubType === 'returnPurchaseInvoice') {
-            this.purchaseInvoiceAmount -= getFloat(Math.abs(item.data.amount));
+              this.BarChart.data.datasets[0].data[2] -= getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.purchaseInvoiceAmount -= getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
           } else {
 
           }
-        }
-        if (item.data.transactionType === 'payment') {
-          if (item.data.transactionSubType.startsWith('cancel')) {
-            this.payAmount -= getFloat(Math.abs(item.data.amount));
-          } else {
-            this.payAmount += getFloat(Math.abs(item.data.amount));
           }
-        }
-        if (item.data.transactionType === 'accountVoucher') {
-          this.avAmount += getFloat(Math.abs(item.data.amount));
-        }
-        if (item.data.transactionType === 'cashDeskVoucher') {
-          this.cvAmount += getFloat(Math.abs(item.data.amount));
-        }
-        this.transactionList.push(item);
+          if (item.data.transactionType === 'payment') {
+            if (item.data.transactionSubType.startsWith('cancel')) {
+              this.BarChart.data.datasets[0].data[3] -= getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.payAmount -= getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
+            } else {
+              this.BarChart.data.datasets[0].data[3] += getFloat(Math.abs(item.data.amount));
+              if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+                this.payAmount += getFloat(Math.abs(item.data.amount));
+                this.transactionList.push(item);
+              }
+            }
+          }
+          if (item.data.transactionType === 'accountVoucher') {
+            this.BarChart.data.datasets[0].data[4] += getFloat(Math.abs(item.data.amount));
+            if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+              this.avAmount += getFloat(Math.abs(item.data.amount));
+              this.transactionList.push(item);
+            }
+          }
+          if (item.data.transactionType === 'cashDeskVoucher') {
+            this.BarChart.data.datasets[0].data[5] += getFloat(Math.abs(item.data.amount));
+            if (getDateForInput(item.data.insertDate).day === date.getDate()) {
+              this.cvAmount += getFloat(Math.abs(item.data.amount));
+              this.transactionList.push(item);
+            }
+          }
+          this.BarChart.update();
       });
     });
     setTimeout(() => {
@@ -108,133 +205,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.transactionList = [];
       }
     }, 1000);
-
-    const todayStart = new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0);
-    const endDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    let siAmount2 = 0;
-    let colAmount2 = 0;
-    let purchaseInvoiceAmount2 = 0;
-    let payAmount2 = 0;
-    let avAmount2 = 0;
-    let cvAmount2 = 0;
-
-    Promise.all([this.atService.getOnDayTransactionsBetweenDates2(todayStart, endDate)])
-      .then((values: any) => {
-        if (values[0] !== null) {
-          const returnData = values[0] as Array<AccountTransactionMainModel>;
-          returnData.forEach(item => {
-            if (item.data.transactionType === 'salesInvoice') {
-              if (item.data.transactionSubType === 'salesInvoice'
-                || item.data.transactionSubType === 'serviceSalesInvoice'
-                || item.data.transactionSubType === 'cancelReturnSalesInvoice') {
-                siAmount2 += getFloat(Math.abs(item.data.amount));
-              } else if (item.data.transactionSubType === 'cancelSalesInvoice'
-                || item.data.transactionSubType === 'cancelServiceSalesInvoice'
-                || item.data.transactionSubType === 'returnSalesInvoice') {
-                siAmount2 -= getFloat(Math.abs(item.data.amount));
-              } else {
-
-              }
-            }
-            if (item.data.transactionType === 'collection') {
-              if (item.data.transactionSubType.startsWith('cancel')) {
-                colAmount2 -= getFloat(Math.abs(item.data.amount));
-              } else {
-                colAmount2 += getFloat(Math.abs(item.data.amount));
-              }
-            }
-            if (item.data.transactionType === 'purchaseInvoice') {
-              if (item.data.transactionSubType === 'purchaseInvoice'
-              || item.data.transactionSubType === 'servicePurchaseInvoice'
-              || item.data.transactionSubType === 'cancelReturnPurchaseInvoice') {
-              purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
-            } else if (item.data.transactionSubType === 'cancelPurchaseInvoice'
-              || item.data.transactionSubType === 'cancelServicePurchaseInvoice'
-              || item.data.transactionSubType === 'returnPurchaseInvoice') {
-              purchaseInvoiceAmount2 -= getFloat(Math.abs(item.data.amount));
-            } else {
-
-            }
-              if (item.data.transactionSubType.startsWith('cancel')) {
-                purchaseInvoiceAmount2 -= getFloat(Math.abs(item.data.amount));
-              } else {
-                purchaseInvoiceAmount2 += getFloat(Math.abs(item.data.amount));
-              }
-            }
-            if (item.data.transactionType === 'payment') {
-              if (item.data.transactionSubType.startsWith('cancel')) {
-                payAmount2 -= getFloat(Math.abs(item.data.amount));
-              } else {
-                payAmount2 += getFloat(Math.abs(item.data.amount));
-              }
-            }
-            if (item.data.transactionType === 'accountVoucher') {
-              avAmount2 += getFloat(Math.abs(item.data.amount));
-            }
-            if (item.data.transactionType === 'cashDeskVoucher') {
-              cvAmount2 += getFloat(Math.abs(item.data.amount));
-            }
-          });
-        }
-      })
-      .finally(() => {
-        this.BarChart = new Chart('barChart', {
-          type: 'bar', // bar, pie, doughnut
-          data: {
-            labels: ['Satış Faturası', 'Tahsilat', 'Alım Faturası', 'Ödeme', 'Hesap Fişi', 'Kasa Fişi'],
-            datasets: [{
-              label: '# of Votes',
-              data: [siAmount2, colAmount2, purchaseInvoiceAmount2, payAmount2, avAmount2, cvAmount2],
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            title: {
-              text: 'Aylık Cari Hareketler',
-              display: true
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  callback: (value, index, values) => {
-                    if (Number(value) >= 1000) {
-                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    } else {
-                      return '₺' + Number(value).toFixed(2);
-                    }
-                  }
-                }
-              }]
-            },
-            tooltips: {
-              callbacks: {
-                label(tooltipItem, data) {
-                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
-                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-                  });
-                }
-              }
-            },
-          }
-        });
-      });
 
     this.populateActivityList();
     this.populateVisitList();

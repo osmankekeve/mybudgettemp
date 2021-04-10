@@ -4,4 +4,5 @@ export class BuySaleCurrencyMainModel {
   data: BuySaleCurrencyModel;
   employeeName?: string;
   actionType?: string;
+  isActiveTr?: string;
 }

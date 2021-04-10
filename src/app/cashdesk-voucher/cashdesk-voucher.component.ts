@@ -16,8 +16,12 @@ import * as CryptoJS from 'crypto-js';
 import { Router, ActivatedRoute } from '@angular/router';
 import {SettingService} from '../services/setting.service';
 import {CashDeskVoucherMainModel} from '../models/cashdesk-voucher-main-model';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cashdesk-voucher',
@@ -25,8 +29,9 @@ import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
   styleUrls: ['./cashdesk-voucher.component.css']
 })
 export class CashdeskVoucherComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<CashDeskVoucherMainModel>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
   selectedRecord: CashDeskVoucherMainModel;
   isRecordHasTransaction = false;
   isMainFilterOpened = false;
@@ -35,9 +40,11 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
   encryptSecretKey: string = getEncryptionKey();
 
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterStatus: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
   totalValues = {
     amount: 0
   };
@@ -47,12 +54,11 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
               public service: CashDeskVoucherService, public cdService: CashDeskService,
               public atService: AccountTransactionService, public infoService: InformationService,
               public excelService: ExcelService, public sService: SettingService,
-              public cService: CustomerService, public db: AngularFirestore) { }
+              public cService: CustomerService, public db: AngularFirestore, protected modalService: NgbModal) { }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.populateList();
-    this.cashDeskList$ = this.cdService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
 
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -86,7 +92,10 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
@@ -94,9 +103,9 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.totalValues = {
       amount: 0
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, this.filterStatus).subscribe(list => {
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, this.filter.filterStatus).subscribe(list => {
       if (this.mainList === undefined) { this.mainList = []; }
       list.forEach((data: any) => {
         const item = data.returnData as CashDeskVoucherMainModel;
@@ -308,23 +317,37 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
-      this.generateCharts();
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+          this.generateCharts();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -344,12 +367,6 @@ export class CashdeskVoucherComponent implements OnInit, OnDestroy {
     this.isRecordHasTransaction = false;
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterStatus = '-1';
   }
 
   format_amount($event): void {

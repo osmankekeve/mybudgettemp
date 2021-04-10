@@ -10,6 +10,7 @@ import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {CompanyModel} from '../models/company-model';
 import {CompanyService} from '../services/company.service';
+import { RefrasherService } from '../services/refrasher.service';
 
 @Component({
   selector: 'app-company',
@@ -28,7 +29,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
 
   constructor(protected authService: AuthenticationService, protected infoService: InformationService, protected service: CompanyService,
               protected db: AngularFirestore, protected route: Router, protected router: ActivatedRoute, protected toastService: ToastService,
-              protected storage: AngularFireStorage, protected fuService: FileUploadService) {
+              protected storage: AngularFireStorage, protected fuService: FileUploadService, protected refService: RefrasherService) {
   }
 
   async ngOnInit() {
@@ -64,6 +65,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
               .then(() => {
                 this.finishProcess(null, 'Firma bilgileri başarıyla güncellendi.');
                 sessionStorage.setItem('company', JSON.stringify(this.selectedRecord));
+                this.refService.sendCompanyUpdate(this.selectedRecord);
               })
               .catch((error) => {
                 this.finishProcess(error, null);

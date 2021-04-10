@@ -1,22 +1,28 @@
-import { Component, OnInit, AfterViewInit  } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy  } from '@angular/core';
 import * as $ from 'jquery';
 import { AuthenticationService } from '../services/authentication.service';
 import {CookieService} from 'ngx-cookie-service';
+import { RefrasherService } from '../services/refrasher.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-side-nav-bar',
   templateUrl: './side-nav-bar.component.html',
   styleUrls: ['./side-nav-bar.component.css']
 })
-export class SideNavBarComponent implements OnInit, AfterViewInit {
+export class SideNavBarComponent implements OnInit , OnDestroy , AfterViewInit {
+  companySubscription: Subscription;
   userDetails: any;
   employeeDetail: any;
   companyDetail: any;
   loginTime: any;
   projectVersion: any;
 
-  constructor( private authService: AuthenticationService,
-               private cookieService: CookieService) {  }
+  constructor( private authService: AuthenticationService, private service: RefrasherService,
+               private cookieService: CookieService) {
+                //this.companySubscription = this.service.companyDetail$.subscribe(data => { this.companyDetail = data; }); burasida calisiyor
+                this.companySubscription = this.service.companyDetail.subscribe(data => { this.companyDetail = data; });
+               }
 
   ngOnInit() {
     this.userDetails = this.authService.isUserLoggedIn();
@@ -31,6 +37,11 @@ export class SideNavBarComponent implements OnInit, AfterViewInit {
     this.companyDetail = JSON.parse(sessionStorage.getItem('company'));
     const pjson = require('package.json');
     this.projectVersion = pjson.version;
+
+  }
+
+  ngOnDestroy() {
+    this.companySubscription.unsubscribe();
   }
 
   downloadMobileAPK() {

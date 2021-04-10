@@ -7,6 +7,7 @@ export class SalesOrderDetailMainModel {
   data: SalesOrderDetailModel;
   product: ProductMainModel;
   unit: ProductUnitModel;
+  isShowImage?: boolean;
   priceFormatted?: string;
   totalPriceFormatted?: string;
   totalPriceWithTaxFormatted?: string;

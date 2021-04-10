@@ -56,6 +56,11 @@ import { PDFModuleComponent } from './partials/pdf-module/pdf-module.component';
 import { AccountTransactionFilterPipe } from './filters/account-transaction-filter.pipe';
 import { AreYouSureComponent } from './partials/are-you-sure/are-you-sure.component';
 import { AreYouSureDirective } from './services/are-you-sure.directive';
+import { MainFilterComponent } from './partials/main-filter/main-filter.component';
+import { DefinitionFilterPipe } from './filters/definition-filter.pipe';
+import { ReminderFilterPipe } from './filters/reminder-filter.pipe';
+import { MailFilterPipe } from './filters/mail-filter.pipe';
+import { RefrasherService } from './services/refrasher.service';
 
 @NgModule({
   declarations: [
@@ -74,6 +79,7 @@ import { AreYouSureDirective } from './services/are-you-sure.directive';
     PDFModuleComponent,
     OrderSelectComponent,
     AreYouSureComponent,
+    MainFilterComponent,
 
     CustomerDataFilterPipe,
     CustomerFilterPipe,
@@ -92,6 +98,9 @@ import { AreYouSureDirective } from './services/are-you-sure.directive';
     CampaignFilterPipe,
     WaitingWorkFilterPipe,
     AccountTransactionFilterPipe,
+    DefinitionFilterPipe,
+    ReminderFilterPipe,
+    MailFilterPipe,
 
     DropzoneDirective,
     AreYouSureDirective
@@ -107,9 +116,10 @@ import { AreYouSureDirective } from './services/are-you-sure.directive';
   ],
   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy},
     InformationService, CookieService, LogService, AuthenticationService, ExcelService, GlobalUploadService, HttpClientModule,
-    ToastService
+    ToastService, RefrasherService
   ],
   bootstrap: [AppComponent],
-  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent, PDFModuleComponent, AreYouSureComponent ]
+  entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent,
+    PDFModuleComponent, AreYouSureComponent, MainFilterComponent ]
 })
 export class AppModule { }

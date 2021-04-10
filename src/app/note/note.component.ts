@@ -8,13 +8,17 @@ import {ExcelService} from '../services/excel-service';
 import {Router} from '@angular/router';
 import {NoteMainModel} from '../models/note-main-model';
 import {ToastService} from '../services/toast.service';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-note',
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.css']
 })
-export class NoteComponent implements OnInit {
+export class NoteComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<NoteMainModel>;
   collection: AngularFirestoreCollection<NoteMainModel>;
   selectedRecord: NoteMainModel;
@@ -23,7 +27,7 @@ export class NoteComponent implements OnInit {
 
   constructor(public authService: AuthenticationService, public service: NoteService, public atService: AccountTransactionService,
               public infoService: InformationService, public excelService: ExcelService, public db: AngularFirestore,
-              public route: Router, protected toastService: ToastService) {
+              public route: Router, protected toastService: ToastService, protected modalService: NgbModal) {
   }
 
   ngOnInit() {
@@ -31,9 +35,15 @@ export class NoteComponent implements OnInit {
     this.selectedRecord = undefined;
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -143,6 +153,22 @@ export class NoteComponent implements OnInit {
         });
     } catch (error) {
       this.finishProcess(error, null);
+    }
+  }
+
+  async btnShowJsonData_Click(): Promise<void> {
+    try {
+      await this.infoService.showJsonData(JSON.stringify(this.selectedRecord, null, 2));
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 

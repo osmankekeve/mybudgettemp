@@ -9,6 +9,7 @@ import {SalesOrderService} from '../services/sales-order.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {
   getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert,
+  getNumber,
   getTodayForInput, isNullOrEmpty,
 } from '../core/correct-library';
 import {PriceListService} from '../services/price-list.service';
@@ -23,13 +24,18 @@ import {DefinitionService} from '../services/definition.service';
 import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import { PDFModuleComponent } from '../partials/pdf-module/pdf-module.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
+import { TermService } from '../services/term.service';
+import { DefinitionMainModel } from '../models/definition-main-model';
 
 @Component({
   selector: 'app-sales-order',
   templateUrl: './sales-order.component.html',
   styleUrls: ['./sales-order.component.css']
 })
-export class SalesOrderComponent implements OnInit {
+export class SalesOrderComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<SalesOrderMainModel>;
   selectedRecord: SalesOrderMainModel;
   searchText: '';
@@ -58,11 +64,10 @@ export class SalesOrderComponent implements OnInit {
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected sodService: SalesOrderDetailService, protected defService: DefinitionService, public globService: GlobalService,
-              protected dService: DiscountListService) {
+              protected dService: DiscountListService, protected termService: TermService) {
   }
 
   ngOnInit() {
-    this.clearMainFiler();
     this.selectedRecord = undefined;
     this.populateList();
     this.populatePriceList();
@@ -70,6 +75,12 @@ export class SalesOrderComponent implements OnInit {
     this.populateStorageList();
     this.populateTermList();
     this.populatePaymentTypeList();
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
@@ -113,7 +124,7 @@ export class SalesOrderComponent implements OnInit {
     }
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -217,6 +228,20 @@ export class SalesOrderComponent implements OnInit {
     });
   }
 
+  async calculateTerm(): Promise<void> {
+    const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
+    const term = record.returnData as DefinitionMainModel;
+    const date = new Date(this.selectedRecord.data.recordDate);
+    this.selectedRecord.termList = [];
+    for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
+      const item = this.termService.clearSubModel();
+      item.dayCount = getNumber(term.data.custom2.split(';')[i]);
+      item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
+      item.termDate = date.setDate(date.getDate() + item.dayCount);
+      this.selectedRecord.termList.push(item);
+    }
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = this.service.clearMainModel();
     this.service.getItem(record.data.primaryKey).then(async value => {
@@ -227,6 +252,7 @@ export class SalesOrderComponent implements OnInit {
       this.selectedRecord.storageName = this.storageListMap.get(this.selectedRecord.data.storagePrimaryKey);
       this.selectedRecord.termName = this.termListMap.get(this.selectedRecord.data.termPrimaryKey);
       this.selectedRecord.paymentName = this.paymentListMap.get(this.selectedRecord.data.paymentTypePrimaryKey);
+      this.calculateTerm();
 
       this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
         .then((list) => {
@@ -351,30 +377,26 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filter.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filter.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-  }
-
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
   }
 
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();
-  }
-
-  clearMainFiler(): void {
-    this.filter.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filter.filterFinishDate = getTodayForInput();
-    this.filter.filterStatus = '-1';
   }
 
   finishProcess(error: any, info: any): void {
@@ -396,3 +418,4 @@ export class SalesOrderComponent implements OnInit {
     this.onTransaction = false;
   }
 }
+

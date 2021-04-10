@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/internal/Observable';
 import {PaymentService} from '../services/payment.service';
@@ -30,15 +30,20 @@ import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ToastService} from '../services/toast.service';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { Subscription } from 'rxjs';
+import { CashDeskModel } from '../models/cash-desk-model';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css']
 })
-export class PaymentComponent implements OnInit {
+export class PaymentComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<PaymentMainModel>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
   customerList: Array<CustomerModel>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<PaymentMainModel>;
@@ -47,16 +52,16 @@ export class PaymentComponent implements OnInit {
   selectedRecord: PaymentMainModel;
   isRecordHasTransaction = false;
   isRecordHasReturnTransaction = false;
-  isMainFilterOpened = false;
-  recordDate: any;
   encryptSecretKey: string = getEncryptionKey();
   searchText: '';
 
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterCustomerCode: any;
-  filterStatus: any;
+  recordDate: any;
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
+  };
   totalValues = {
     amount: 0
   };
@@ -75,8 +80,7 @@ export class PaymentComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.clearMainFiler();
-    this.cashDeskList$ = this.cdService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
     this.populateCustomers();
     this.generateCharts();
@@ -107,6 +111,12 @@ export class PaymentComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
@@ -134,9 +144,9 @@ export class PaymentComponent implements OnInit {
     this.totalValues = {
       amount: 0
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
+    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
       .subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -209,7 +219,7 @@ export class PaymentComponent implements OnInit {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== null) {
           this.transactionList = values[0] as Array<PaymentMainModel>;
@@ -224,14 +234,11 @@ export class PaymentComponent implements OnInit {
             }
             if (item.data.recordDate >= date1.getTime() && item.data.recordDate < date2.getTime()) {
               chart2DataValues[0] = getFloat(chart2DataValues[0]) + item.data.amount;
-            }
-            else if (item.data.recordDate >= date2.getTime() && item.data.recordDate < date3.getTime()) {
+            } else if (item.data.recordDate >= date2.getTime() && item.data.recordDate < date3.getTime()) {
               chart2DataValues[1] = getFloat(chart2DataValues[1]) + item.data.amount;
-            }
-            else if (item.data.recordDate >= date3.getTime() && item.data.recordDate < date4.getTime()) {
+            } else if (item.data.recordDate >= date3.getTime() && item.data.recordDate < date4.getTime()) {
               chart2DataValues[2] = getFloat(chart2DataValues[2]) + item.data.amount;
-            }
-            else {
+            } else {
               chart2DataValues[3] = getFloat(chart2DataValues[3]) + item.data.amount;
             }
           });
@@ -422,23 +429,29 @@ export class PaymentComponent implements OnInit {
     this.populateActions();
   }
 
-  btnMainFilter_Click(): void {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+          this.generateCharts();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
+  async btnExportToXml_Click(): Promise<void> {
+    try {
+    } catch (error) {
+      await this.infoService.error(error);
     }
-    this.clearMainFiler();
   }
 
   async btnReturnList_Click(): Promise<void> {
@@ -705,6 +718,14 @@ export class PaymentComponent implements OnInit {
     }
   }
 
+  async btnShowInfoModule_Click(): Promise<void> {
+    try {
+      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
@@ -726,13 +747,6 @@ export class PaymentComponent implements OnInit {
     this.isRecordHasReturnTransaction = false;
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();
-  }
-
-  clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterCustomerCode = '-1';
-    this.filterStatus = '-1';
   }
 
   format_amount($event): void {

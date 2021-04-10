@@ -10,7 +10,7 @@ import {LogService} from './log.service';
 import {SettingService} from './setting.service';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {ProfileService} from './profile.service';
-import {currencyFormat, getStatus, isNullOrEmpty} from '../core/correct-library';
+import {currencyFormat, getPaymentTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
 import {CustomerService} from './customer.service';
 import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
@@ -225,6 +225,7 @@ export class CollectionService {
     returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getPaymentTypes().get(returnData.data.type);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
     returnData.amountFormatted = currencyFormat(returnData.data.amount);
     return returnData;
@@ -287,6 +288,7 @@ export class CollectionService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
           const d1 = await this.cusService.getItem(returnData.data.customerCode);
           returnData.customer = this.cusService.convertMainModel(d1.data);
@@ -315,6 +317,7 @@ export class CollectionService {
           returnData.amountFormatted = currencyFormat(returnData.data.amount);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
           return Object.assign({returnData});
         })
@@ -338,6 +341,7 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -378,6 +382,7 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -421,6 +426,7 @@ export class CollectionService {
         returnData.amountFormatted = currencyFormat(returnData.data.amount);
         returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
         returnData.statusTr = getStatus().get(returnData.data.status);
+        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
@@ -460,6 +466,7 @@ export class CollectionService {
           returnData.customer = this.customerMap.get(returnData.data.customerCode);
           returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
           returnData.statusTr = getStatus().get(returnData.data.status);
+          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
 
           list.push(returnData);
         });
