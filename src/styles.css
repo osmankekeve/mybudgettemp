@@ -946,6 +946,6 @@ progress::-webkit-progress-value {
 
 .order-item-product-img i {
   position: absolute;
-  right: 20px;
-  top: 5px;
+  right: 25px;
+  top: 10px;
 }

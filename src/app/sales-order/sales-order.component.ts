@@ -8,7 +8,7 @@ import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {SalesOrderService} from '../services/sales-order.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {
-  getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert,
+  getDateForInput, getFirstDayOfMonthForInput, getFloat, getInputDataForInsert,
   getNumber,
   getTodayForInput, isNullOrEmpty,
 } from '../core/correct-library';
@@ -232,6 +232,7 @@ export class SalesOrderComponent implements OnInit, OnDestroy {
     const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
     const term = record.returnData as DefinitionMainModel;
     const date = new Date(this.selectedRecord.data.recordDate);
+    let controlAmount = 0;
     this.selectedRecord.termList = [];
     for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
       const item = this.termService.clearSubModel();
@@ -239,7 +240,10 @@ export class SalesOrderComponent implements OnInit, OnDestroy {
       item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
       item.termDate = date.setDate(date.getDate() + item.dayCount);
       this.selectedRecord.termList.push(item);
+      controlAmount += getFloat(item.termAmount.toFixed(2));
     }
+    this.selectedRecord.termList[this.selectedRecord.termList.length - 1].termAmount +=
+    getFloat(this.selectedRecord.data.totalPriceWithTax.toFixed(2)) -  getFloat(controlAmount);
   }
 
   showSelectedRecord(record: any): void {

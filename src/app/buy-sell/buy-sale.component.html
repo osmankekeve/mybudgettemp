@@ -79,16 +79,13 @@
     <div class="card work-area">
       <div class="card-header bg-gray-gradient">
         <div class="row">
-          <div class="col-sm-10">
+          <div class="col-sm-12">
             <img src="../../assets/images/collection_term_on_day.png" width="30px" class="float-left mr-2">
             <h5 class="card-title float-left mr-2">Alış&Satış Detayı</h5>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Listeye Geri Dön"
                     (click)="btnReturnList_Click()"><i class="fa fa-arrow-left"></i></button>
             <button class="btn btn-sm btn-round btn-outline-secondary float-left mr-2" title="Json Göster"
                     (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle"></i></button>
-          </div>
-          <div class="col-sm-2">
-            <i class="float-right" [ngClass]="isRecordHasTransaction ? 'pulse-green' : 'pulse-red'"></i>
           </div>
         </div>
       </div>
@@ -122,8 +119,8 @@
             <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
                     [disabled]="selectedRecord.data.primaryKey!=undefined"
                     [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
-              <option value={{item.returnData.data.primaryKey}}
-                      *ngFor="let item of cashDeskList$ | async; index as i;">{{item.returnData.data.name}}</option>
+              <option value={{item.primaryKey}}
+                      *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}</option>
             </select>
             <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
           </div>

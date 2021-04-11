@@ -24,6 +24,7 @@ import {
 } from '../core/correct-library';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import * as CryptoJS from 'crypto-js';
+import { CashDeskModel } from '../models/cash-desk-model';
 
 @Component({
   selector: 'app-buy-sale',
@@ -32,7 +33,7 @@ import * as CryptoJS from 'crypto-js';
 })
 export class BuySaleComponent implements OnInit {
   mainList: Array<BuySaleMainModel>;
-  cashDeskList$: Observable<CashDeskMainModel[]>;
+  cashDeskList$: Observable<CashDeskModel[]>;
   currencyList$: Observable<BuySaleCurrencyMainModel[]>;
   selectedRecord: BuySaleMainModel;
   searchText: '';
@@ -48,7 +49,7 @@ export class BuySaleComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.cashDeskList$ = this.cdService.getMainItems();
+    this.cashDeskList$ = this.cdService.getAllItems();
     this.currencyList$ = this.cscService.getMainItems();
     this.selectedRecord = undefined;
     this.populateList();

@@ -1,12 +1,12 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore, CollectionReference, Query} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/internal/Observable';
-import {SalesInvoiceService} from '../services/sales-invoice.service';
-import {CustomerModel} from '../models/customer-model';
-import {AuthenticationService} from '../services/authentication.service';
-import {CustomerService} from '../services/customer.service';
-import {AccountTransactionService} from '../services/account-transaction.service';
-import {InformationService} from '../services/information.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AngularFirestore, CollectionReference, Query } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/internal/Observable';
+import { SalesInvoiceService } from '../services/sales-invoice.service';
+import { CustomerModel } from '../models/customer-model';
+import { AuthenticationService } from '../services/authentication.service';
+import { CustomerService } from '../services/customer.service';
+import { AccountTransactionService } from '../services/account-transaction.service';
+import { InformationService } from '../services/information.service';
 import {
   getFirstDayOfMonthForInput,
   getTodayForInput,
@@ -14,38 +14,42 @@ import {
   getInputDataForInsert,
   getDateForInput,
   getEncryptionKey,
-  getFloat, currencyFormat, moneyFormat
+  getFloat, currencyFormat, moneyFormat, getNumber
 } from '../core/correct-library';
-import {ExcelService} from '../services/excel-service';
+import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import {Router, ActivatedRoute} from '@angular/router';
-import {SettingService} from '../services/setting.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {Chart} from 'chart.js';
-import {SettingModel} from '../models/setting-model';
-import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {GlobalService} from '../services/global.service';
-import {FileMainModel} from '../models/file-main-model';
-import {ActionMainModel} from '../models/action-main-model';
-import {ActionService} from '../services/action.service';
-import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {InfoModuleComponent} from '../partials/info-module/info-module.component';
-import {OrderSelectComponent} from '../partials/order-select/order-select.component';
-import {ToastService} from '../services/toast.service';
-import {SalesOrderDetailMainModel} from '../models/sales-order-detail-main-model';
-import {SalesInvoiceDetailService} from '../services/sales-invoice-detail.service';
-import {SalesOrderDetailService} from '../services/sales-order-detail.service';
-import {SalesInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/sales-invoice-detail-main-model';
-import {setInvoiceCalculation} from '../models/sales-invoice-model';
-import {SalesOrderDetailModel} from '../models/sales-order-detail-model';
-import {ProductUnitService} from '../services/product-unit.service';
-import {ProductService} from '../services/product.service';
+import { Router, ActivatedRoute } from '@angular/router';
+import { SettingService } from '../services/setting.service';
+import { SalesInvoiceMainModel } from '../models/sales-invoice-main-model';
+import { Chart } from 'chart.js';
+import { SettingModel } from '../models/setting-model';
+import { CustomerAccountModel } from '../models/customer-account-model';
+import { CustomerAccountService } from '../services/customer-account.service';
+import { GlobalService } from '../services/global.service';
+import { FileMainModel } from '../models/file-main-model';
+import { ActionMainModel } from '../models/action-main-model';
+import { ActionService } from '../services/action.service';
+import { FileUploadService } from '../services/file-upload.service';
+import { GlobalUploadService } from '../services/global-upload.service';
+import { CustomerSelectComponent } from '../partials/customer-select/customer-select.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
+import { OrderSelectComponent } from '../partials/order-select/order-select.component';
+import { ToastService } from '../services/toast.service';
+import { SalesOrderDetailMainModel } from '../models/sales-order-detail-main-model';
+import { SalesInvoiceDetailService } from '../services/sales-invoice-detail.service';
+import { SalesOrderDetailService } from '../services/sales-order-detail.service';
+import { SalesInvoiceDetailMainModel, setInvoiceDetailCalculation } from '../models/sales-invoice-detail-main-model';
+import { setInvoiceCalculation } from '../models/sales-invoice-model';
+import { SalesOrderDetailModel } from '../models/sales-order-detail-model';
+import { ProductUnitService } from '../services/product-unit.service';
+import { ProductService } from '../services/product.service';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { Subscription } from 'rxjs';
+import { DefinitionService } from '../services/definition.service';
+import { TermService } from '../services/term.service';
+import { DefinitionMainModel } from '../models/definition-main-model';
+import { SalesOrderMainModel } from '../models/sales-order-main-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -95,8 +99,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
               protected sService: SettingService, protected accService: CustomerAccountService, protected db: AngularFirestore,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
               protected gfuService: GlobalUploadService, protected modalService: NgbModal, protected toastService: ToastService,
-              protected sidService: SalesInvoiceDetailService, protected sodService: SalesOrderDetailService,
-              protected puService: ProductUnitService, protected pService: ProductService) {
+              protected sidService: SalesInvoiceDetailService, protected sodService: SalesOrderDetailService, protected termService: TermService,
+              protected puService: ProductUnitService, protected pService: ProductService, protected defService: DefinitionService) {
   }
 
   async ngOnInit() {
@@ -248,8 +252,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           this.chart1Visibility = data1.valueBool;
           this.chart2Visibility = data2.valueBool;
         }).finally(() => {
-        this.populateCharts();
-      });
+          this.populateCharts();
+        });
     } else {
       this.populateCharts();
     }
@@ -296,7 +300,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           chart1DataNames = [];
           chart1DataValues = [];
           creatingData.forEach((value, key) => {
-            creatingList.push({itemKey: key, itemValue: value});
+            creatingList.push({ itemKey: key, itemValue: value });
           });
           creatingList.sort((a, b) => {
             return b.itemValue - a.itemValue;
@@ -313,96 +317,96 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      if (this.chart1Visibility) {
-        this.chart1 = new Chart('chart1', {
-          type: 'bar', // bar, pie, doughnut
-          data: {
-            labels: chart1DataNames,
-            datasets: [{
-              label: '# of Votes',
-              data: chart1DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            title: {
-              text: 'En Çok Satış Yapılan Cari Hareketler',
-              display: true
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  callback: (value, index, values) => {
-                    if (Number(value) >= 1000) {
-                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    } else {
-                      return '₺' + Number(value).toFixed(2);
-                    }
-                  }
-                }
+        if (this.chart1Visibility) {
+          this.chart1 = new Chart('chart1', {
+            type: 'bar', // bar, pie, doughnut
+            data: {
+              labels: chart1DataNames,
+              datasets: [{
+                label: '# of Votes',
+                data: chart1DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)',
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1
               }]
             },
-            tooltips: {
-              callbacks: {
-                label(tooltipItem, data) {
-                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
-                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-                  });
+            options: {
+              title: {
+                text: 'En Çok Satış Yapılan Cari Hareketler',
+                display: true
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true,
+                    callback: (value, index, values) => {
+                      if (Number(value) >= 1000) {
+                        return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                      } else {
+                        return '₺' + Number(value).toFixed(2);
+                      }
+                    }
+                  }
+                }]
+              },
+              tooltips: {
+                callbacks: {
+                  label(tooltipItem, data) {
+                    return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                      return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                    });
+                  }
                 }
               }
             }
-          }
-        });
-      }
-      if (this.chart2Visibility) {
-        this.chart2 = new Chart('chart2', {
-          type: 'doughnut', // bar, pie, doughnut
-          data: {
-            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-            datasets: [{
-              label: '# of Votes',
-              data: chart2DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-              ],
-              borderWidth: 1
-            }]
-          }
-        });
-      }
-    });
+          });
+        }
+        if (this.chart2Visibility) {
+          this.chart2 = new Chart('chart2', {
+            type: 'doughnut', // bar, pie, doughnut
+            data: {
+              labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+              datasets: [{
+                label: '# of Votes',
+                data: chart2DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1
+              }]
+            }
+          });
+        }
+      });
   }
 
   populateFiles(): void {
@@ -481,13 +485,22 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
         });
 
-      this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.termService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey)
+        .then((list) => {
+          if (list.length > 0) {
+            this.selectedRecord.termList = list;
+          } else {
+            this.calculateTerm();
+          }
+        });
+
+      /*this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
 
       this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
         this.isRecordHasReturnTransaction = list.length > 0;
-      });
+      });*/
 
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
       this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
@@ -496,9 +509,47 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     });
   }
 
+  async calculateTerm(): Promise<void> {
+    const list = new Map();
+    this.selectedRecord.termList = [];
+    this.selectedRecord.data.orderPrimaryKeyList.forEach(async orderCode => {
+      const o = await this.service.soService.getItem(orderCode);
+      const order = o.returnData as SalesOrderMainModel;
+      const record = await this.defService.getItem(order.data.termPrimaryKey);
+      const term = record.returnData as DefinitionMainModel;
+      const termLength = term.data.custom2.split(';').length;
+      const calculatedTermAmount = (order.data.totalPriceWithTax / termLength);
+      let controlAmount = 0;
+
+      for (let i = 0; i <= termLength - 1; ++i) {
+        const dayCount = getNumber(term.data.custom2.split(';')[i]);
+        if (list.has(dayCount)) {
+          for (let k = 0; k <= this.selectedRecord.termList.length - 1; ++k) {
+            if (this.selectedRecord.termList[k].dayCount === dayCount) {
+              const currentTermAmount = this.selectedRecord.termList[k].termAmount;
+              this.selectedRecord.termList[k].termAmount = currentTermAmount + calculatedTermAmount;
+            }
+          }
+        } else {
+          const date = new Date(this.selectedRecord.data.recordDate);
+          const item = this.termService.clearSubModel();
+          item.primaryKey = this.db.createId();
+          item.dayCount = dayCount;
+          item.termDate = date.setDate(date.getDate() + item.dayCount);
+          item.termAmount = calculatedTermAmount;
+          this.selectedRecord.termList.push(item);
+          list.set(dayCount, 1);
+        }
+        controlAmount += getFloat(calculatedTermAmount.toFixed(2));
+      }
+      this.selectedRecord.termList[this.selectedRecord.termList.length - 1].termAmount +=
+      getFloat(order.data.totalPriceWithTax.toFixed(2)) -  getFloat(controlAmount);
+    });
+  }
+
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      const modalRef = this.modalService.open(MainFilterComponent, { size: 'md' });
       modalRef.result.then((result: any) => {
         if (result) {
           this.filter.filterBeginDate = result.filterBeginDate;
@@ -507,7 +558,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           this.ngOnDestroy();
           this.populateList();
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -701,7 +752,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
-      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      const modalRef = this.modalService.open(CustomerSelectComponent, { size: 'lg' });
       modalRef.componentInstance.customer = this.selectedRecord.customer;
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
@@ -710,7 +761,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -721,15 +772,16 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       if (this.selectedRecord.data.customerCode === '') {
         this.toastService.error('Lütfen müşteri seçiniz', true);
       } else {
-        const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
+        const modalRef = this.modalService.open(OrderSelectComponent, { size: 'lg' });
         modalRef.componentInstance.orderType = this.selectedRecord.data.type;
         modalRef.componentInstance.customerPrimaryKey = this.selectedRecord.data.customerCode;
         modalRef.componentInstance.list = this.selectedRecord.data.orderPrimaryKeyList;
         modalRef.result.then(async (result: any) => {
           if (result) {
+            this.calculateTerm();
             await this.generateOrderToInvoice(result);
           }
-        }, () => {});
+        }, () => { });
       }
     } catch (error) {
       await this.infoService.error(error);
@@ -746,7 +798,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   async btnShowInfoModule_Click(): Promise<void> {
     try {
-      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+      this.modalService.open(InfoModuleComponent, { size: 'lg' });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -794,7 +846,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   setOrderCountInfo(): void {
     if (this.selectedRecord.data.orderPrimaryKeyList.length > 0) {
-      this.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() +  ' Adet Sipariş Seçildi';
+      this.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() + ' Adet Sipariş Seçildi';
     } else {
       this.orderInfoText = 'Sipariş Seçilmedi';
     }
@@ -837,6 +889,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
         .then(async () => {
           this.invoiceDetailList[this.itemIndex] = this.selectedDetailRecord;
           setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+          this.calculateTerm();
           await this.finishSubProcess(null, 'Fatura detayı başarıyla güncellendi');
         })
         .catch((error) => {
@@ -851,6 +904,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     try {
       this.invoiceDetailList.splice(this.itemIndex, 1);
       setInvoiceCalculation(this.selectedRecord, this.invoiceDetailList);
+      this.calculateTerm();
       this.setOrderCountInfo();
       this.clearSelectedDetail();
     } catch (error) {
@@ -884,7 +938,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.selectedDetailRecord = undefined;
     this.itemIndex = -1;
   }
-
 
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('salesInvoice')

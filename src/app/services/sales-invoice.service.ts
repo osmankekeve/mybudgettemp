@@ -1,3 +1,4 @@
+import { TermService } from './term.service';
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
@@ -37,7 +38,8 @@ export class SalesInvoiceService {
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected accService: CustomerAccountService, protected atService: AccountTransactionService, protected sodService: SalesOrderDetailService,
-              protected actService: ActionService, protected sidService: SalesInvoiceDetailService, protected soService: SalesOrderService) {
+              protected actService: ActionService, protected sidService: SalesInvoiceDetailService, public soService: SalesOrderService,
+              protected termService: TermService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().subscribe(list => {
         this.employeeMap.clear();
@@ -75,6 +77,18 @@ export class SalesInvoiceService {
               item.data.invoicePrimaryKey = record.data.primaryKey;
               item.invoiceStatus = record.data.status;
               await this.sidService.setItem(item, item.data.primaryKey);
+            }
+          });
+
+          await this.termService.getItemsWithInvoicePrimaryKey(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.termService.tableName).doc(item.primaryKey).delete();
+            });
+          }).finally(async () => {
+            for (const item of record.termList) {
+              item.invoicePrimaryKey = record.data.primaryKey;
+              await this.termService.setItem(item, item.primaryKey);
             }
           });
         }
@@ -202,6 +216,18 @@ export class SalesInvoiceService {
               item.data.invoicePrimaryKey = record.data.primaryKey;
               item.invoiceStatus = record.data.status;
               await this.sidService.setItem(item, item.data.primaryKey);
+            }
+          });
+
+          await this.termService.getItemsWithInvoicePrimaryKey(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.termService.tableName).doc(item.primaryKey).delete();
+            });
+          }).finally(async () => {
+            for (const item of record.termList) {
+              item.invoicePrimaryKey = record.data.primaryKey;
+              await this.termService.setItem(item, item.primaryKey);
             }
           });
         }

@@ -117,6 +117,7 @@ export class SalesInvoiceDetailService {
     returnData.product = this.pService.clearMainModel();
     returnData.unit = this.puService.clearSubModel();
     returnData.actionType = 'added';
+    returnData.isShowImage = false;
     returnData.maxQuantity = returnData.data.quantity;
     returnData.invoiceStatus = ''; // waitingForApprove, approved, rejected
     returnData.priceFormatted = currencyFormat(returnData.data.price);

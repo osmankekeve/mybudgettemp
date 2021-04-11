@@ -26,7 +26,9 @@ export class TermService {
 
   constructor(public authService: AuthenticationService, public sService: SettingService, public cusService: CustomerService,
               public logService: LogService, public eService: ProfileService, public db: AngularFirestore,
-              public atService: AccountTransactionService, protected actService: ActionService) { }
+              public atService: AccountTransactionService, protected actService: ActionService) {
+                this.listCollection = this.db.collection(this.tableName);
+              }
 
   async addItem(record: TermModel) {
     return await this.listCollection.add(Object.assign({}, record));
@@ -88,4 +90,53 @@ export class TermService {
       });
     });
   }
+
+  getItemsWithInvoicePrimaryKey = async (invoicePrimaryKey: string):
+    Promise<Array<TermModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<TermModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('invoicePrimaryKey', '==', invoicePrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as TermModel;
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  getMainItemsWithInvoicePrimaryKey = async (invoicePrimaryKey: string):
+    Promise<Array<TermModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<TermModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query
+          .where('invoicePrimaryKey', '==', invoicePrimaryKey);
+        return query;
+      })
+        .get().subscribe(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as TermModel;
+          data.primaryKey = doc.id;
+          list.push(data);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
 }
