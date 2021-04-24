@@ -14,6 +14,7 @@ export class SalesInvoiceMainModel {
   statusTr?: string;
   platformTr?: string;
   typeTr?: string;
+  isWaybillTr?: string;
   totalDetailDiscountFormatted?: string;
   generalDiscountFormatted?: string;
   totalPriceWithoutDiscountFormatted?: string;

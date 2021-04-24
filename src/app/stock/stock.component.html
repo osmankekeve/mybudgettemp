@@ -1,0 +1,192 @@
+<div class="work-area" *ngIf="selectedRecord==undefined">
+  <div class="card">
+    <div class="card-header bg-gray-gradient">
+      <div class="d-flex align-items-center">
+        <div class="flex-grow-1">
+          <img src="../../assets/images/product-list.png" width="30px" alt="" class="float-left mr-2">
+          <h5 class="card-title float-left mr-2">Ürün Stok</h5>
+        </div>
+        <div class="head-filter">
+          <div class="input-group input-group-round">
+            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                              <i class="fa fa-filter"></i>
+                          </span>
+            </div>
+            <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="searchText">
+          </div>
+        </div>
+        <div class="head-filter">
+          <div class="dropdown">
+            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()">Excel'e Aktar</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div *ngIf="mainList.length > 0; else elseBlock">
+        <div class="main-list">
+          <div class="main-list-item" (click)="showSelectedRecord(item)"
+          *ngFor="let item of mainList | filterProduct: searchText; index as i;">
+            <div class="icon cursor-pointer" title="Kaydı Göster">
+              <i class="fas fa-file-alt fa-2x text-danger"></i>
+            </div>
+            <div class="content">
+              <div class="row-1">
+                <div class="w-100">
+                  <span class="text-red font-weight-600 mr-1" title="Ürün Kodu">{{item.data.productCode}}</span>
+                  <span class="font-weight-600" title="Ürün Adı">{{item.data.productName}}</span>
+                </div>
+              </div>
+              <div class="row-2">
+                <div class="w-50 float-left">
+                  <span class="badge badge-danger" title="Ürün Stok Tipi">{{item.stockTypeTr}}</span>
+                  <span class="badge badge-secondary" title="Ürün Tipi">{{item.productTypeTr}}</span>
+                  <span class="badge badge-warning" title="Aktiflik Durumu">{{item.isActiveTr}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #elseBlock>
+        <div class="card bg-red text-white m-3">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
+      </ng-template>
+    </div>
+    <ng-template #elseBlock2>
+      <div class="card">
+        <div class="card-body">
+          <div class="loader"></div>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>
+<div class="row" *ngIf="selectedRecord!=undefined">
+  <div class="col-sm-6">
+    <div class="card work-area">
+      <div class="card-header bg-gray-gradient">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <img src="../../assets/images/cash-desks.png" width="30px" alt="" class="float-left mr-2">
+            <h5 class="card-title float-left mr-2">Stok > Görüntüleme</h5>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+              <i class="fa fa-arrow-left text-secondary"></i> Geri Dön
+            </button>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
+                  <i class="fa fa-jsfiddle text-secondary"></i> Json Göster
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
+                  <i class="fa fa-info-circle text-secondary"></i> Bilgiler
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body work-area-12">
+        <div class="list-group">
+          <div class="fs-14">
+            <div class="row">
+              <div class="col-sm-12 text-secondary mb-2">
+                <span class="font-weight-600 text-red mr-1">{{selectedRecord.data.productCode}}</span>
+                <span class="font-weight-600 text-secondary">{{selectedRecord.data.productName}}</span>
+              </div>
+              <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Ürün Stok Tipi</div>
+              <div class="col-sm-8 text-secondary mb-2">{{selectedRecord.stockTypeTr}}</div>
+              <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Ürün Tipi</div>
+              <div class="col-sm-8 text-secondary mb-2">{{selectedRecord.productTypeTr}}</div>
+              <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Stok Miktarı</div>
+              <div class="col-sm-8 text-secondary mb-2">{{stockRecord.data.quantity}} Adet</div>
+              <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Maliyet</div>
+              <div class="col-sm-8 text-secondary mb-2">{{stockRecord.data.costPrice | currency:'₺'}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock3">
+      <div class="card">
+        <div class="card-header bg-gray-gradient">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <h5 class="float-left mr-2">Stok Hareketleri</h5>
+            </div>
+            <div class="head-filter mr-1">
+              <button type="button" class="btn btn-light input-button-full" (click)="btnShowMainFiler_Click()">
+                <i class="fa fa-filter text-secondary"></i> Filtre
+              </button>
+            </div>
+            <div class="head-filter">
+              <button type="button" class="btn btn-light input-button-full" (click)="btnExportToExcelTransaction_Click()">
+                <i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="work-area-12" *ngIf="transactionList != undefined; else elseBlock2">
+          <div class="main-list" *ngIf="transactionList.length > 0; else elseBlock">
+            <div class="main-list-item" *ngFor="let item of transactionList; index as i;">
+              <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showTransactionRecord(item)">
+                <i class="fas fa-file-alt fa-2x text-danger"></i>
+              </div>
+              <div class="content">
+                <div class="row-1">
+                  <div class="w-66">
+                    <span class="text-red font-weight-600 mr-1" title="İşlem Şekli">{{item.transactionTypeTr}}</span>
+                  </div>
+                  <div class="w-33">
+                    <span class="float-right font-weight-800 text-danger" title="Hareket Tutarı">{{item.data.amount | currency:'₺'}}</span>
+                  </div>
+                </div>
+                <div class="row-2">
+                  <div class="w-66">
+                    <span class="badge badge-secondary" title="Hareket Şekli">{{item.subTransactionTypeTr}}</span>
+                    <span class="badge badge-warning" title="Fiş Numarası">{{item.data.receiptNo}}</span>
+                    <span class="badge badge-secondary" title="Hareket Tarihi">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
+                  </div>
+                  <div class="w-33">
+                    <span class="float-right font-weight-700">{{item.data.quantity}} Adet</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #elseBlock>
+            <div class="card bg-red text-white m-3">
+              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+            </div>
+          </ng-template>
+        </div>
+        <ng-template #elseBlock2>
+          <div class="card">
+            <div class="card-body">
+              <div class="loader"></div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+    <ng-template #elseBlock3>
+      <div class="card bg-red text-white m-3">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
+  </div>
+</div>

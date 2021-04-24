@@ -233,6 +233,23 @@ export class MainFilterComponent implements OnInit {
         this.pnlFinishDate = true;
         break;
       }
+      case 'product-stock': {
+        this.pnlBeginDate = true;
+        this.pnlFinishDate = true;
+        break;
+      }
+      case 'stock-voucher': {
+        this.pnlBeginDate = true;
+        this.pnlFinishDate = true;
+        this.pnlStatus = true;
+        this.listStatus = [
+          { key: '-1', value: 'Hepsi'},
+          { key: 'waitingForApprove', value: 'Onay Bekliyor'},
+          { key: 'approved', value: 'Onaylandı'},
+          { key: 'canceled', value: 'İptal Edildi'}
+        ];
+        break;
+      }
       default: {
         this.pnlBeginDate = false;
         this.pnlFinishDate = false;

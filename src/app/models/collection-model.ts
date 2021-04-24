@@ -15,4 +15,5 @@ export class CollectionModel {
   platform?: string; // mobile, web
   insertDate?: number;
   recordDate?: number;
+  termDate?: number;
 }

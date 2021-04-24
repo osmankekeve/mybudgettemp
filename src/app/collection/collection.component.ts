@@ -73,6 +73,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     amount: 0
   };
   recordDate: any;
+  termDate: any;
   chart1: any;
   chart2: any;
   onTransaction = false;
@@ -422,6 +423,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
   async showSelectedRecord(record: any): Promise<void> {
     this.selectedRecord = record as CollectionMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+    this.termDate = getDateForInput(this.selectedRecord.data.termDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
@@ -480,6 +482,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     try {
       this.onTransaction = true;
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.termDate = getInputDataForInsert(this.termDate);
       this.selectedRecord.data.insertDate = Date.now();
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
@@ -755,6 +758,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.isRecordHasTransaction = false;
     this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
+    this.termDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
   }
 

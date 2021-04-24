@@ -1,4 +1,3 @@
-
 <div class="work-area" *ngIf="selectedRecord==undefined">
   <div class="card">
     <div class="card-header bg-gray-gradient">
@@ -10,11 +9,12 @@
         <div class="head-filter mr-1">
           <div class="input-group input-group-round">
             <div class="input-group-prepend">
-                          <span class="input-group-text">
-                              <i class="fa fa-filter"></i>
-                          </span>
+              <span class="input-group-text">
+                <i class="fa fa-filter"></i>
+              </span>
             </div>
-            <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
+            <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.."
+              [(ngModel)]="searchText">
           </div>
         </div>
         <div class="head-filter">
@@ -30,7 +30,8 @@
               <a class="dropdown-item cursor-pointer" (click)="btnShowMainFiler_Click()">Geniş Filtre</a>
               <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()">Excel'e Aktar</a>
               <a class="dropdown-item cursor-pointer" (click)="btnExportToXml_Click()" hidden>XML'e Aktar</a>
-              <a class="dropdown-item cursor-pointer" (click)="btnCreateTransactions_Click()" hidden>Hesapları Güncelle</a>
+              <a class="dropdown-item cursor-pointer" (click)="btnCreateTransactions_Click()" hidden>Hesapları
+                Güncelle</a>
             </div>
           </div>
         </div>
@@ -72,8 +73,8 @@
               </div>
               <div class="work-area-6">
                 <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                     (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
-                     *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+                  (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
+                  *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
                   <div class="row">
                     <div class="col-sm-12">
                       <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
@@ -84,15 +85,23 @@
                   </div>
                   <div class="row">
                     <div class="col-sm-4">
-                      <i class="fas fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
-                      <i class="far fa-thumbs-up mr-2 text-success" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
-                      <i class="far fa-thumbs-down mr-2 text-danger" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
-                      <i class="fas fa-ban mr-2 text-danger" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
-                      <i class="fas fa-ban mr-2 text-default" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
-                      <i class="fab fa-buromobelexperte mr-2 text-secondary" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
-                      <i class="far fa-check-circle mr-2 text-success" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
+                      <i class="fas fa-check mr-2 text-secondary" *ngIf="item.data.status === 'waitingForApprove'"
+                        title="Onay Bekliyor"></i>
+                      <i class="far fa-thumbs-up mr-2 text-success" *ngIf="item.data.status === 'approved'"
+                        title="Onaylandı"></i>
+                      <i class="far fa-thumbs-down mr-2 text-danger" *ngIf="item.data.status === 'rejected'"
+                        title="Reddedildi"></i>
+                      <i class="fas fa-ban mr-2 text-danger" *ngIf="item.data.status === 'canceled'"
+                        title="İptal Edildi"></i>
+                      <i class="fas fa-ban mr-2 text-default" *ngIf="item.data.status === 'closed'"
+                        title="Kapatıldı"></i>
+                      <i class="fab fa-buromobelexperte mr-2 text-secondary" *ngIf="item.data.status === 'portion'"
+                        title="Parçalı Kayıt"></i>
+                      <i class="far fa-check-circle mr-2 text-success" *ngIf="item.data.status === 'done'"
+                        title="Tamamlandı"></i>
                       <i class="fas fa-wifi mr-2 text-yellow" *ngIf="item.data.platform === 'web'" title="Web"></i>
-                      <i class="fas fa-mobile mr-2 text-purple" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
+                      <i class="fas fa-mobile mr-2 text-purple" *ngIf="item.data.platform === 'mobile'"
+                        title="Mobil"></i>
                     </div>
                     <div class="col-sm-2">{{item.data.receiptNo}}</div>
                     <div class="col-sm-2">{{item.statusTr}}</div>
@@ -112,7 +121,8 @@
           </div>
         </div>
         <ng-template #elseBlock3>
-          <div class="main-list-item" *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+          <div class="main-list-item"
+            *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
             <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showSelectedRecord(item)">
               <i class="fas fa-file-alt fa-2x text-danger"></i>
             </div>
@@ -124,7 +134,8 @@
                   <small class="font-weight-600">-{{item.customer.data.owner}}</small>
                 </div>
                 <div class="w-33">
-                  <span class="float-right font-weight-800 text-danger" title="Tahsilat Tutarı">{{item.data.amount | currency:'₺'}}</span>
+                  <span class="float-right font-weight-800 text-danger"
+                    title="Tahsilat Tutarı">{{item.data.amount | currency:'₺'}}</span>
                 </div>
               </div>
               <div class="row-2">
@@ -135,15 +146,24 @@
                 </div>
                 <div class="w-33">
                   <span class="float-right mr-1">Döküman Tarihi {{item.data.recordDate | date: 'yyyy-MM-dd'}}</span>
-                  <i class="fas fa-check mr-1 p-1 text-secondary float-right" *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
-                  <i class="far fa-thumbs-up mr-1 p-1 text-success float-right" *ngIf="item.data.status === 'approved'" title="Onaylandı"></i>
-                  <i class="far fa-thumbs-down mr-1 p-1 text-danger float-right" *ngIf="item.data.status === 'rejected'" title="Reddedildi"></i>
-                  <i class="fas fa-ban mr-1 p-1 text-danger float-right" *ngIf="item.data.status === 'canceled'" title="İptal Edildi"></i>
-                  <i class="fas fa-ban mr-1 p-1 text-default float-right" *ngIf="item.data.status === 'closed'" title="Kapatıldı"></i>
-                  <i class="fab fa-buromobelexperte mr-1 p-1 text-secondary float-right" *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
-                  <i class="far fa-check-circle mr-1 p-1 text-success float-right" *ngIf="item.data.status === 'done'" title="Tamamlandı"></i>
-                  <i class="fas fa-wifi mr-1 p-1 text-yellow float-right" *ngIf="item.data.platform === 'web'" title="Web"></i>
-                  <i class="fas fa-mobile mr-1 p-1 text-purple float-right" *ngIf="item.data.platform === 'mobile'" title="Mobil"></i>
+                  <i class="fas fa-check mr-1 p-1 text-secondary float-right"
+                    *ngIf="item.data.status === 'waitingForApprove'" title="Onay Bekliyor"></i>
+                  <i class="far fa-thumbs-up mr-1 p-1 text-success float-right" *ngIf="item.data.status === 'approved'"
+                    title="Onaylandı"></i>
+                  <i class="far fa-thumbs-down mr-1 p-1 text-danger float-right" *ngIf="item.data.status === 'rejected'"
+                    title="Reddedildi"></i>
+                  <i class="fas fa-ban mr-1 p-1 text-danger float-right" *ngIf="item.data.status === 'canceled'"
+                    title="İptal Edildi"></i>
+                  <i class="fas fa-ban mr-1 p-1 text-default float-right" *ngIf="item.data.status === 'closed'"
+                    title="Kapatıldı"></i>
+                  <i class="fab fa-buromobelexperte mr-1 p-1 text-secondary float-right"
+                    *ngIf="item.data.status === 'portion'" title="Parçalı Kayıt"></i>
+                  <i class="far fa-check-circle mr-1 p-1 text-success float-right" *ngIf="item.data.status === 'done'"
+                    title="Tamamlandı"></i>
+                  <i class="fas fa-wifi mr-1 p-1 text-yellow float-right" *ngIf="item.data.platform === 'web'"
+                    title="Web"></i>
+                  <i class="fas fa-mobile mr-1 p-1 text-purple float-right" *ngIf="item.data.platform === 'mobile'"
+                    title="Mobil"></i>
                 </div>
               </div>
             </div>
@@ -165,7 +185,8 @@
     </ng-template>
   </div>
   <div class="main-list-total-row" *ngIf="mainList?.length > 0">
-    <span class="font-weight-800">{{mainList?.length}}</span> Kayıt, Toplam Tutar <span class="float-right font-weight-800 text-danger ml-1">{{totalValues.amount | currency:'₺'}}</span>
+    <span class="font-weight-800">{{mainList?.length}}</span> Kayıt, Toplam Tutar <span
+      class="float-right font-weight-800 text-danger ml-1">{{totalValues.amount | currency:'₺'}}</span>
   </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
@@ -173,7 +194,7 @@
     <div class="d-flex align-items-center">
       <div class="flex-grow-1">
         <img src="../../assets/images/collection.png" width="30px" alt="" class="float-left mr-2">
-        <h5 class="card-title float-left mr-2">Tahsilat > 
+        <h5 class="card-title float-left mr-2">Tahsilat >
           <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
           <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
         </h5>
@@ -224,11 +245,10 @@
             <div class="col-sm-9">
               <div class="input-group">
                 <input class="form-control form-control-sm" name="customerName" id="customerName"
-                       [(ngModel)]="selectedRecord.customer?.data.name" disabled>
+                  [(ngModel)]="selectedRecord.customer?.data.name" disabled>
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" type="button"
-                          [disabled]="selectedRecord.data.primaryKey!=undefined"
-                          (click)="btnSelectCustomer_Click()">
+                    [disabled]="selectedRecord.data.primaryKey!=undefined" (click)="btnSelectCustomer_Click()">
                     <i class="far fa-arrow-alt-circle-right"></i></button>
                 </div>
               </div>
@@ -237,11 +257,11 @@
               <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
             </div>
             <div class="col-sm-9">
-              <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey" required
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      [(ngModel)]="selectedRecord.data.accountPrimaryKey">
-                <option value={{item.primaryKey}}
-                        *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
+              <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
+                required [disabled]="selectedRecord.data.primaryKey!=undefined"
+                [(ngModel)]="selectedRecord.data.accountPrimaryKey">
+                <option value={{item.primaryKey}} *ngFor="let item of accountList$ | async; index as i;">{{item.name}}
+                </option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
             </div>
@@ -250,8 +270,7 @@
             </div>
             <div class="col-sm-3">
               <select class="form-control form-control-sm w-100" id="type" name="type" required
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      [(ngModel)]="selectedRecord.data.type">
+                [disabled]="selectedRecord.data.primaryKey!=undefined" [(ngModel)]="selectedRecord.data.type">
                 <option value="cash">Nakit</option>
                 <option value="creditCard">Kredi Kartı</option>
                 <option value="pNote">Senet</option>
@@ -262,10 +281,10 @@
               <label class="col-form-label float-left" for="cashDeskPrimaryKey">Kasa</label>
             </div>
             <div class="col-sm-3">
-              <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey" required
-                      [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
-                <option value={{item.primaryKey}}
-                        *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}</option>
+              <select class="form-control form-control-sm w-100" id="cashDeskPrimaryKey" name="cashDeskPrimaryKey"
+                required [(ngModel)]="selectedRecord.data.cashDeskPrimaryKey">
+                <option value={{item.primaryKey}} *ngFor="let item of cashDeskList$ | async; index as i;">{{item.name}}
+                </option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen kasa seçiniz.</div>
             </div>
@@ -274,11 +293,26 @@
             </div>
             <div class="col-sm-3">
               <div class="input-group">
-                <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3" #c3="ngModel"
-                       [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3"
+                  #c3="ngModel" [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
-                    class="fa fa-calendar"></i></button>
+                      class="fa fa-calendar"></i></button>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left">Vade Tarihi</label>
+            </div>
+            <div class="col-sm-3">
+              <div class="input-group">
+                <input class="form-control form-control-sm" id="termDate" placeholder="yyyy-mm-dd" name="d4"
+                  #c4="ngModel" [(ngModel)]="termDate" ngbDatepicker #d4="ngbDatepicker"
+                  [disabled]="selectedRecord.data.type === 'cash'">
+                <div class="input-group-append">
+                  <button class="btn btn-sm btn-outline-secondary" (click)="d4.toggle()" type="button"
+                    [disabled]="selectedRecord.data.type === 'cash'">
+                    <i class="fa fa-calendar"></i></button>
                 </div>
               </div>
             </div>
@@ -287,7 +321,7 @@
             </div>
             <div class="col-sm-3">
               <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                     [(ngModel)]="selectedRecord.data.receiptNo" required>
+                [(ngModel)]="selectedRecord.data.receiptNo" required>
               <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
             </div>
             <div class="col-sm-3">
@@ -295,22 +329,13 @@
             </div>
             <div class="col-sm-3">
               <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
-                     (focus)="focus_amount()"
-                     (blur)="format_amount($event)"
-                     [(ngModel)]="selectedRecord.amountFormatted">
+                (focus)="focus_amount()" (blur)="format_amount($event)" [(ngModel)]="selectedRecord.amountFormatted">
             </div>
             <div class="col-sm-3">
               <label class="col-form-label float-left">Durum</label>
             </div>
             <div class="col-sm-3">
               <label class="col-form-label float-left">{{selectedRecord.statusTr}}</label>
-            </div>
-            <div class="col-sm-3">
-              <label class="col-form-label float-left" for="description">Açıklama</label>
-            </div>
-            <div class="col-sm-9">
-              <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                     [(ngModel)]="selectedRecord.data.description">
             </div>
             <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
               <label class="col-form-label float-left">Onaylayan Kişi</label>
@@ -324,12 +349,21 @@
             <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
               <label class="col-form-label float-left">{{selectedRecord.data.approveDate | date: 'yyyy-MM-dd'}}</label>
             </div>
+            <div class="col-sm-6"></div>
+            <div class="col-sm-3">
+              <label class="col-form-label float-left" for="description">Açıklama</label>
+            </div>
+            <div class="col-sm-9">
+              <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                [(ngModel)]="selectedRecord.data.description">
+            </div>
           </div>
         </form>
       </div>
       <div id="files" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
+          <div class="list-group-item bg-success text-light main-list-item"
+            *ngIf="filesList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-1">#</div>
               <div class="col-sm-7">Dosya Adı</div>
@@ -338,12 +372,11 @@
             </div>
           </div>
           <div class="work-area-7">
-            <div class="list-group-item list-group-item-action main-list-item"
-                 *ngFor="let item of filesList">
+            <div class="list-group-item list-group-item-action main-list-item" *ngFor="let item of filesList">
               <div class="row">
                 <div class="col-sm-1">
                   <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
-                       (click)="btnRemoveFile_Click(item)">
+                    (click)="btnRemoveFile_Click(item)">
                 </div>
                 <div class="col-sm-7">
                   <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
@@ -352,7 +385,8 @@
                   {{item.data.fileName}}
                 </div>
                 <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
+                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -368,7 +402,8 @@
       </div>
       <div id="actions" class="tab-pane p-1 fade">
         <div class="list-group" *ngIf="actionList != undefined; else elseBlock">
-          <div class="list-group-item bg-danger text-light main-list-item" *ngIf="actionList.length > 0; else elseBlock2">
+          <div class="list-group-item bg-danger text-light main-list-item"
+            *ngIf="actionList.length > 0; else elseBlock2">
             <div class="row">
               <div class="col-sm-2">İşlem</div>
               <div class="col-sm-8">Personel</div>
@@ -376,12 +411,12 @@
             </div>
           </div>
           <div class="work-area-7">
-            <div class="list-group-item list-group-item-action main-list-item"
-                 *ngFor="let item of actionList">
+            <div class="list-group-item list-group-item-action main-list-item" *ngFor="let item of actionList">
               <div class="row">
                 <div class="col-sm-2">{{item.data.action}}</div>
                 <div class="col-sm-8">{{item.employeeName}}</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+                <div class="col-sm-2"><span
+                    class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
                 </div>
               </div>
             </div>
@@ -407,14 +442,13 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                [disabled]="onTransaction || !f.valid"
-                (click)="btnSave_Click()">Kaydet
+        <button type="button" class="btn btn-sm btn-success form-control" [disabled]="onTransaction || !f.valid"
+          (click)="btnSave_Click()">Kaydet
         </button>
       </div>
     </div>
     <div class="btn-action mr-2 float-right"
-         *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text success-icon-side">
@@ -422,14 +456,13 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                [disabled]="onTransaction"
-                (click)="btnApprove_Click()">Onayla
+        <button type="button" class="btn btn-sm btn-success form-control" [disabled]="onTransaction"
+          (click)="btnApprove_Click()">Onayla
         </button>
       </div>
     </div>
     <div class="btn-action mr-2 float-left"
-         *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -437,14 +470,13 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnRemove_Click()">Kaldır
+        <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+          (click)="btnRemove_Click()">Kaldır
         </button>
       </div>
     </div>
     <div class="btn-action mr-2 float-left"
-         *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+      *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -452,14 +484,13 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnReject_Click()">Geri Çevir
+        <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+          (click)="btnReject_Click()">Geri Çevir
         </button>
       </div>
     </div>
     <div class="btn-action mr-2 float-left"
-         *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
+      *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
       <div class="input-group">
         <div class="input-group-prepend">
           <span class="input-group-text danger-icon-side">
@@ -467,9 +498,8 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnCancelRecord_Click()">İptal Et
+        <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+          (click)="btnCancelRecord_Click()">İptal Et
         </button>
       </div>
     </div>

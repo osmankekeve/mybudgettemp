@@ -56,6 +56,8 @@ import { DashboardPurchaseComponent } from './dashboard-purchase/dashboard-purch
 import { DashboardAccountComponent } from './dashboard-account/dashboard-account.component';
 import { DashboardProductComponent } from './dashboard-product/dashboard-product.component';
 import { DashboardDefinitionComponent } from './dashboard-definition/dashboard-definition.component';
+import { StockComponent } from './stock/stock.component';
+import { StockVoucherComponent } from './stock-voucher/stock-voucher.component';
 
 
 const routes: Routes = [
@@ -121,6 +123,8 @@ const routes: Routes = [
   {path: 'account-dashboard', component: DashboardAccountComponent, pathMatch: 'full'},
   {path: 'product-dashboard', component: DashboardProductComponent, pathMatch: 'full'},
   {path: 'definition-dashboard', component: DashboardDefinitionComponent, pathMatch: 'full'},
+  {path: 'product-stock', component: StockComponent, pathMatch: 'full'},
+  {path: 'stock-voucher', component: StockVoucherComponent, pathMatch: 'full'},
   {path: '**', component: PageNotFoundComponent}// herzaman en sonda olmalı
 ];
 
@@ -139,7 +143,7 @@ export const routingComponents = [
   AccountTransactionComponent, ContactUsComponent, MailSenderComponent, ToDoListComponent, CustomerAccountComponent, GlobalUploadComponent,
   ProductUnitComponent, PriceListComponent, DiscountListComponent, DefinitionComponent, SalesOrderComponent, SalesOfferComponent,
   PurchaseOfferComponent, PurchaseOrderComponent, CompanyComponent, CampaignComponent, MessagingComponent, DashboardCustomerComponent, DashboardSalesComponent,
-  DashboardPurchaseComponent, DashboardAccountComponent, DashboardProductComponent, DashboardDefinitionComponent
+  DashboardPurchaseComponent, DashboardAccountComponent, DashboardProductComponent, DashboardDefinitionComponent, StockComponent, StockVoucherComponent
 ];
 
 // bunun sebebi her import edilen componenti app.module.ts e de yazmamız gerekli.

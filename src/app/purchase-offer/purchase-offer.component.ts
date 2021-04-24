@@ -9,7 +9,6 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
 import {
   currencyFormat,
-  getConvertedUnitValue,
   getDateForInput, getFirstDayOfMonthForInput,
   getFloat,
   getInputDataForInsert,
@@ -42,7 +41,6 @@ import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main
 import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
 import {PurchaseOrderService} from '../services/purchase-order.service';
 import {setOrderCalculation} from '../models/purchase-order-model';
-import {GlobalService} from '../services/global.service';
 import {ActionService} from '../services/action.service';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { Subscription } from 'rxjs';

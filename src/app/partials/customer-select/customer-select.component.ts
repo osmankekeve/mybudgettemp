@@ -47,16 +47,16 @@ export class CustomerSelectComponent implements OnInit {
           this.customerList = [];
         } else {
           const aa = [];
+          const bb = [];
           snapshot.forEach(async doc => {
-            this.service.getItem(doc.data().customerPrimaryKey).then(result => {
-              const a = result.data as CustomerModel;
-              const aMain = this.service.convertMainModel(a);
-              if (!aa.includes(aMain)) {
-                aa.push(aMain);
+            this.service.getCustomer(doc.data().customerPrimaryKey).then(result => {
+              if (aa.indexOf(result.data.primaryKey) < 0) {
+                aa.push(result.data.primaryKey);
+                bb.push(result);
               }
             });
           });
-          this.customerList = aa;
+          this.customerList = bb;
         }
       });
     } else if (module === 'purchaseInvoice') {
@@ -75,13 +75,16 @@ export class CustomerSelectComponent implements OnInit {
           this.customerList = [];
         } else {
           const aa = [];
+          const bb = [];
           snapshot.forEach(async doc => {
-            this.service.getItem(doc.data().customerPrimaryKey).then(result => {
-              const a = result.data as CustomerModel;
-              aa.push(this.service.convertMainModel(a));
+            this.service.getCustomer(doc.data().customerPrimaryKey).then(result => {
+              if (aa.indexOf(result.data.primaryKey) < 0) {
+                aa.push(result.data.primaryKey);
+                bb.push(result);
+              }
             });
           });
-          this.customerList = aa;
+          this.customerList = bb;
         }
       });
     } else {

@@ -1,4 +1,4 @@
-import {isNullOrUndefined} from 'util';
+import { isNullOrUndefined } from 'util';
 import * as CryptoJS from 'crypto-js';
 
 export const getNumber = (value: any) => {
@@ -118,9 +118,9 @@ export const getTomorrowEnd = () => {
 export const getLastDay = (year: number, month: number) => {
   const date = new Date();
   if (isNullOrEmpty(year) || isNullOrEmpty(month)) {
-    return new Date(date.getFullYear(), date.getMonth() , 0, 0, 0, 0).getDate();
+    return new Date(date.getFullYear(), date.getMonth(), 0, 0, 0, 0).getDate();
   } else {
-    return getDateTime(year, month , 0, 0, 0, 0).getDate();
+    return getDateTime(year, month, 0, 0, 0, 0).getDate();
   }
 };
 
@@ -172,8 +172,10 @@ export const getDateForInput = (value: number) => {
 
 export const getDateTimeForInput = (value: number) => {
   const date = new Date(value);
-  return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(),
-    hour: date.getHours(), minute: date.getMinutes(), seconds: date.getSeconds() };
+  return {
+    year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(),
+    hour: date.getHours(), minute: date.getMinutes(), seconds: date.getSeconds()
+  };
 };
 
 export const getInputDataForInsert = (value: any) => {
@@ -249,6 +251,10 @@ export const getPaymentTypes = () => {
   return new Map([['cash', 'Nakit'], ['creditCard', 'Kredi Kartı'], ['transfer', 'Havale'], ['cheque', 'Çek'], ['pNote', 'Senet'], ['-1', 'Seçilmedi']]);
 };
 
+export const getStockVoucherType = () => {
+  return new Map([['openingStock', 'Stok Açılış'], ['addingStock', 'Stok Ekleme'], ['dropStock', 'Stok Düşüm'], ['consumableStock', 'Sarfiyat']]);
+};
+
 export const getCurrencyTypes = () => {
   return new Map([['lira', 'Lira'], ['dollar', 'Dolar'], ['euro', 'Avro']]);
 };
@@ -259,7 +265,7 @@ export const getUserTypes = () => {
 
 export const getTerms = () => {
   return new Map([['cash', 'Nakit'], ['15G', '15 Gün'], ['30G', '30 Gün'], ['45G', '45 Gün'], ['60G', '60 Gün'], ['90G', '90 Gün'],
-    ['120G', '120 Gün'], ['-1', 'Seçilmedi']]);
+  ['120G', '120 Gün'], ['-1', 'Seçilmedi']]);
 };
 
 export const getGenders = () => {
@@ -284,7 +290,7 @@ export const getCashDeskVoucherType = () => {
 
 export const getStatus = () => {
   return new Map([['waitingForApprove', 'Onay Bekleniyor'], ['approved', 'Onaylandı'], ['rejected', 'Reddedildi'],
-    ['closed', 'Kapatıldı'], ['done', 'Tamamlandı'], ['portion', 'Parçalı Faturalama'], ['canceled', 'İptal Edildi']]);
+  ['closed', 'Kapatıldı'], ['done', 'Tamamlandı'], ['portion', 'Parçalı Faturalama'], ['canceled', 'İptal Edildi']]);
 };
 
 export const getAccountVoucherType = () => {
@@ -313,7 +319,7 @@ export const getMailParents = () => {
 
 export const getProductTypes = () => {
   return new Map([['normal', 'Normal'], ['promotion', 'Promosyon'], ['service', 'Hizmet'],
-    ['buy', 'Alım'], ['sale', 'Satış'], ['buy-sale', 'Alım-Satış']]);
+  ['buy', 'Alım'], ['sale', 'Satış'], ['buy-sale', 'Alım-Satış']]);
 };
 
 export const getStockTypesForImport = () => {
@@ -338,7 +344,7 @@ export const getEncryptionKey = () => {
 };
 
 
-export const numberOnly = (event) =>  {
+export const numberOnly = (event) => {
   const charCode = (event.which) ? event.which : event.keyCode;
   if (charCode > 31 && (charCode < 48 || charCode > 57)) {
     return false;
@@ -399,30 +405,32 @@ export const getFileIcons = () => {
 };
 
 export const currencyFormat = (data: any) => {
-  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY'}).format(data);
+  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(data);
 };
 
 export const moneyFormat = (data: any) => {
   return data.replace('₺', '').replace('.', '').replace(',', '.');
 };
 
-export const getConvertedUnitValue = (productValue: number, productDefaultUnitCode: string, productCurrentUnitCode: string,
-                                      productCurrentUnitValue: number, productTargetUnitCode: string, productTargetUnitValue: number) => {
-  if (productCurrentUnitCode === productTargetUnitCode) {
-    return productValue;
+export const getConvertedUnitValue = (productValue: number, defaultUnitCode: string,
+                                      currentUnitCode: string, currentUnitValue: number, targetUnitCode: string, targetUnitValue: number) => {
+  let returnValue = 0;
+  if (currentUnitCode === targetUnitCode) {
+    returnValue = productValue;
   } else {
     let defaultValue = 0;
-    if (productDefaultUnitCode === productCurrentUnitCode) {
+    if (defaultUnitCode === currentUnitCode) {
       defaultValue = productValue;
     } else {
-      defaultValue = productValue / productCurrentUnitValue;
+      defaultValue = productValue / currentUnitValue;
     }
-    if (productDefaultUnitCode === productTargetUnitCode) {
-      return defaultValue.toFixed(2);
+    if (defaultUnitCode === targetUnitCode) {
+      returnValue = defaultValue;
     } else {
-      return (defaultValue / productTargetUnitValue).toFixed(2);
+      returnValue = defaultValue * targetUnitValue;
     }
   }
+  return returnValue;
 };
 
 

@@ -275,8 +275,8 @@
                   <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
                 </div>
                 <div class="col-sm-8">
-                  <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
-                    required [disabled]="selectedRecord.data.primaryKey!=undefined"
+                  <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"required
+                    [disabled]="selectedRecord.data.primaryKey!=undefined"
                     [(ngModel)]="selectedRecord.data.accountPrimaryKey">
                     <option value={{item.primaryKey}} *ngFor="let item of accountList$ | async; index as i;">
                       {{item.name}}</option>
@@ -297,6 +297,17 @@
                   <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
                 </div>
                 <div class="col-sm-4">
+                  <label class="col-form-label float-left" for="storagePrimaryKey">Depo</label>
+                </div>
+                <div class="col-sm-8">
+                  <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
+                    [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [(ngModel)]="selectedRecord.data.storagePrimaryKey">
+                    <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen depo seçiniz.</div>
+                </div>
+                <div class="col-sm-4">
                   <label class="col-form-label float-left">Sipariş</label>
                 </div>
                 <div class="col-sm-8">
@@ -308,6 +319,23 @@
                         [disabled]="selectedRecord.data.primaryKey!=undefined" (click)="btnSelectOrder_Click()">
                         <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <label class="col-form-label float-left">İrsaliye</label>
+                </div>
+                <div class="col-sm-8">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="isWaybill" name="isWaybill" 
+                    [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [(ngModel)]="selectedRecord.data.isWaybill"
+                    [checked]="selectedRecord.data.isWaybill">
+                    <label class="custom-control-label float-left text-dark" for="isWaybill">İrsaliyeli Fatura</label>
+                  </div>
+                  <div title="Stok hareket durumu bilgilendirmesi">
+                    <small class="text-secondary">
+                      <i>*İrsaliyeli Fatura seçimi ile stok hareketleri aktif hale gelir.</i>
+                    </small>
                   </div>
                 </div>
                 <div class="col-sm-4">
@@ -339,7 +367,12 @@
                   <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
                     step="any" [disabled]="selectedRecord.data.primaryKey!=undefined"
                     [(ngModel)]="selectedRecord.data.receiptNo" required>
-                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>                  
+                  <div title="Fiş numarası bilgilendirmesi">
+                    <small class="text-secondary">
+                      <i>*Otomatik numaralama aktif olduğunda düzenlenemez.</i>
+                    </small>
+                  </div>
                 </div>
                 <div class="col-sm-4">
                   <label class="col-form-label float-left">Durum</label>
@@ -486,17 +519,17 @@
               <div class="list-group-item bg-danger text-light main-list-item"
                 *ngIf="actionList.length > 0; else elseBlock2">
                 <div class="row">
-                  <div class="col-sm-2">İşlem</div>
-                  <div class="col-sm-8">Personel</div>
-                  <div class="col-sm-2"><span class="float-right">İşlem Tarihi</span></div>
+                  <div class="col-sm-4">İşlem</div>
+                  <div class="col-sm-4">Personel</div>
+                  <div class="col-sm-4"><span class="float-right">İşlem Tarihi</span></div>
                 </div>
               </div>
               <div class="work-area-7">
                 <div class="list-group-item list-group-item-action main-list-item" *ngFor="let item of actionList">
                   <div class="row">
-                    <div class="col-sm-2">{{item.data.action}}</div>
-                    <div class="col-sm-8">{{item.employeeName}}</div>
-                    <div class="col-sm-2"><span
+                    <div class="col-sm-4">{{item.data.action}}</div>
+                    <div class="col-sm-4">{{item.employeeName}}</div>
+                    <div class="col-sm-4"><span
                         class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
                     </div>
                   </div>
@@ -543,7 +576,7 @@
           </div>
         </div>
         <div class="btn-action mr-2  float-left"
-          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+          *ngIf="selectedRecord.data.primaryKey!=undefined">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text danger-icon-side">

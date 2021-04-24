@@ -222,7 +222,8 @@
             <div class="col-sm-8">
               <select class="form-control form-control-sm w-100" id="termPrimaryKey" name="termPrimaryKey" required
                 [disabled]="selectedRecord.data.status != 'waitingForApprove'"
-                [(ngModel)]="selectedRecord.data.termPrimaryKey">
+                [(ngModel)]="selectedRecord.data.termPrimaryKey"
+                (change)="onChangeTermType()">
                 <option value={{item.primaryKey}} *ngFor="let item of termList">{{item.custom1}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen seçim yapınız.</div>

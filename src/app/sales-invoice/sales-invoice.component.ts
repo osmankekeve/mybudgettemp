@@ -50,6 +50,7 @@ import { DefinitionService } from '../services/definition.service';
 import { TermService } from '../services/term.service';
 import { DefinitionMainModel } from '../models/definition-main-model';
 import { SalesOrderMainModel } from '../models/sales-order-main-model';
+import { DefinitionModel } from '../models/definition-model';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -66,6 +67,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   transactionList: Array<SalesInvoiceMainModel>;
   actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
+  storageList: Array<DefinitionModel>;
   selectedRecord: SalesInvoiceMainModel;
   selectedDetailRecord: SalesInvoiceDetailMainModel;
   isRecordHasTransaction = false;
@@ -95,7 +97,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: SalesInvoiceService, protected cService: CustomerService, protected excelService: ExcelService,
-              protected infoService: InformationService, protected atService: AccountTransactionService,
+              protected infoService: InformationService, protected atService: AccountTransactionService, protected setService: SettingService,
               protected sService: SettingService, protected accService: CustomerAccountService, protected db: AngularFirestore,
               protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
               protected gfuService: GlobalUploadService, protected modalService: NgbModal, protected toastService: ToastService,
@@ -161,6 +163,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.selectedRecord.data.orderPrimaryKeyList = orderPrimaryKeyList;
       this.invoiceDetailList = [];
       this.clearSelectedDetail();
+      this.calculateTerm();
       this.setOrderCountInfo();
       this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
@@ -409,6 +412,23 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       });
   }
 
+  populateStorageList(): void {
+    Promise.all([this.defService.getItemsForFill('storage'), this.setService.getItem('defaultStoragePrimaryKey')])
+      .then((values: any) => {
+        this.storageList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<DefinitionModel>;
+          returnData.forEach(value => {
+            this.storageList.push(value);
+          });
+        }
+        if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
+          const defaultStoragePrimaryKey = values[1].data as SettingModel;
+          this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
+        }
+      });
+  }
+
   populateFiles(): void {
     this.filesList = undefined;
     this.fuService.getMainItemsWithPrimaryKey(this.selectedRecord.data.primaryKey)
@@ -478,6 +498,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
       this.setOrderCountInfo();
+      this.populateStorageList();
 
       this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey)
         .then((list) => {
@@ -585,6 +606,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   async btnNew_Click(): Promise<void> {
     try {
       await this.clearSelectedRecord();
+      this.populateStorageList();
     } catch (error) {
       await this.infoService.error(error);
     }

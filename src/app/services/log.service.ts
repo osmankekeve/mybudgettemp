@@ -150,6 +150,10 @@ export class LogService {
       item.parentPrimaryKey = record.data.primaryKey;
       item.log = record.data.listName + ' isimli iskonto Listesi';
 
+    } else if (systemModule === 'stock-voucher') {
+      item.parentPrimaryKey = record.data.primaryKey;
+      item.log = record.data.receiptNo + ' fiş numaralı Stok Fişi';
+
     } else {
       item.log = ' bilinmeyen modül ';
     }

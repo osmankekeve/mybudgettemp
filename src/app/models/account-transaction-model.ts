@@ -13,4 +13,5 @@ export class AccountTransactionModel {
   amountType?: string;
   paidAmount?: number;
   insertDate?: number;
+  termDate?: number;
 }

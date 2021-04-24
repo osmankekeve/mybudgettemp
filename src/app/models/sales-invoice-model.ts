@@ -8,13 +8,15 @@ export class SalesInvoiceModel {
   employeePrimaryKey: string;
   customerCode?: string;
   accountPrimaryKey?: string;
+  storagePrimaryKey?: string;
   receiptNo?: string;
   type?: string; // sales, service, return
   description?: string;
-  status?: string; // waitingForApprove, approved, rejected
+  status?: string; // waitingForApprove, approved, rejected, canceled
   approveByPrimaryKey?: string; // approved or rejected
   approveDate?: number;
   platform?: string; // mobile, web
+  isWaybill?: boolean;
   insertDate?: number;
   recordDate?: number;
   totalPriceWithoutDiscount?: number;

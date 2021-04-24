@@ -32,19 +32,20 @@ export class AccountTransactionService {
 
   constructor(protected authService: AuthenticationService, protected cdService: CashDeskService,
               protected cService: CustomerService, protected db: AngularFirestore) {
-    if (this.authService.isUserLoggedIn()) {
-      this.cService.getAllItems().subscribe(list => {
-        this.customerMap.clear();
-        list.forEach(item => {
-          this.customerMap.set(item.primaryKey, item);
-        });
-      });
-      this.cdService.getItems().subscribe(list => {
-        this.cashDeskMap.clear();
-        list.forEach(item => {
-          this.cashDeskMap.set(item.primaryKey, item);
-        });
-      });
+                this.listCollection = this.db.collection(this.tableName);
+                if (this.authService.isUserLoggedIn()) {
+                this.cService.getAllItems().subscribe(list => {
+                  this.customerMap.clear();
+                  list.forEach(item => {
+                    this.customerMap.set(item.primaryKey, item);
+                  });
+                });
+                this.cdService.getItems().subscribe(list => {
+                  this.cashDeskMap.clear();
+                  list.forEach(item => {
+                    this.cashDeskMap.set(item.primaryKey, item);
+                  });
+                });
     }
   }
 
@@ -146,6 +147,7 @@ export class AccountTransactionService {
     returnData.amountType = '-1';
     returnData.paidAmount = 0;
     returnData.insertDate = Date.now();
+    returnData.termDate = Date.now();
 
     return returnData;
   }
@@ -194,6 +196,9 @@ export class AccountTransactionService {
     }
     if (model.transactionSubType === undefined || model.transactionSubType === '-1') {
       model.transactionSubType = model.transactionType;
+    }
+    if (model.termDate === undefined) {
+      model.termDate = model.insertDate;
     }
 
     return model;

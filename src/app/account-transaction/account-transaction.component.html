@@ -8,11 +8,12 @@
       <div class="head-filter mr-1">
         <div class="input-group input-group-round">
           <div class="input-group-prepend">
-                        <span class="input-group-text">
-                            <i class="fa fa-filter"></i>
-                        </span>
+            <span class="input-group-text">
+              <i class="fa fa-filter"></i>
+            </span>
           </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Hesap Hareketi Ara.." [(ngModel)]="searchText">
+          <input type="search" class="form-control filter-list-input" placeholder="Hesap Hareketi Ara.."
+            [(ngModel)]="searchText">
         </div>
       </div>
       <div class="head-filter">
@@ -22,25 +23,25 @@
       </div>
     </div>
   </div>
-    <div class="card-body">
-      <div *ngIf="mainList != undefined; else elseBlock2">
-        <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
-          <table class="table table-bordered table-striped table-hover">
-            <thead>
-              <tr class="table-row-class">
+  <div class="card-body">
+    <div *ngIf="mainList != undefined; else elseBlock2">
+      <div class="table-responsive work-area-11" *ngIf="mainList.length > 0; else elseBlock">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr class="table-row-class">
               <th>Fiş Numarası</th>
               <th>Müşteri</th>
               <th>İşlem Tipi</th>
               <th>Alt İşlem Tipi</th>
               <th>Tutar Tipi</th>
               <th><span class="float-right">Tutar</span></th>
-              <th><span class="float-right">Tarih</span></th>
+              <th><span class="float-right">işlem Tarih</span></th>
+              <th><span class="float-right">Vade Tarih</span></th>
             </tr>
-            </thead>
-            <tbody>
-              <tr class="cursor-pointer table-row-class"
-                (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
-                *ngFor="let item of mainList | filterAccountTransaction: searchText">
+          </thead>
+          <tbody>
+            <tr class="cursor-pointer table-row-class" (click)="showSelectedRecord(item)" title="Kaydı Görüntüle"
+              *ngFor="let item of mainList | filterAccountTransaction: searchText">
               <td>
                 <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                 <span>{{item.data.receiptNo}}</span>
@@ -49,33 +50,35 @@
               <td>{{item.transactionTypeTr}}</td>
               <td>{{item.subTransactionTypeTr}}</td>
               <td>{{item.amountTypeTr}}</td>
-                <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
+              <td><span class="float-right">{{item.data.amount | currency:'₺'}}</span></td>
               <td><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></td>
+              <td><span class="float-right">{{item.data.termDate | date: 'yyyy-MM-dd'}}</span></td>
             </tr>
-            </tbody>
-          </table>
-        </div>
-        <ng-template #elseBlock>
-          <div class="card bg-red text-white">
-            <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-          </div>
-        </ng-template>
+          </tbody>
+        </table>
       </div>
-      <ng-template #elseBlock2>
-        <div class="loader"></div>
+      <ng-template #elseBlock>
+        <div class="card bg-red text-white">
+          <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+        </div>
       </ng-template>
     </div>
+    <ng-template #elseBlock2>
+      <div class="loader"></div>
+    </ng-template>
+  </div>
 </div>
 <div class="card work-area" *ngIf="selectedRecord!=undefined">
   <div class="card-header">
     <div class="row">
-        <div class="col-sm-12">
-          <img src="../../assets/images/account_transactions.png" width="30px" class="float-left mr-2" alt="">
-            <h5 class="card-title float-left mr-2">Hareket Detayı</h5>
-            <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön" (click)="btnReturnList_Click()">
-              <i class="fa fa-arrow-left"></i>
-            </button>
-        </div>
+      <div class="col-sm-12">
+        <img src="../../assets/images/account_transactions.png" width="30px" class="float-left mr-2" alt="">
+        <h5 class="card-title float-left mr-2">Hareket Detayı</h5>
+        <button class="btn btn-sm btn-round btn-outline-secondary float-left" title="Listeye Geri Dön"
+          (click)="btnReturnList_Click()">
+          <i class="fa fa-arrow-left"></i>
+        </button>
+      </div>
     </div>
   </div>
   <div class="card-body work-area-3">
@@ -96,30 +99,28 @@
               </div>
               <div class="col-sm-6">
                 <input class="form-control form-control-sm w-100" id="amountType" name="amountType" type="text"
-                       [(ngModel)]="selectedRecord.data.amountType">
+                  [(ngModel)]="selectedRecord.data.amountType">
               </div>
               <div class="col-sm-6">
                 <label class="col-form-label float-left" for="transactionType">Transaction Type</label>
               </div>
               <div class="col-sm-6">
-                <input class="form-control form-control-sm w-100" id="transactionType" name="transactionType" type="text"
-                       [(ngModel)]="selectedRecord.data.transactionType">
+                <input class="form-control form-control-sm w-100" id="transactionType" name="transactionType"
+                  type="text" [(ngModel)]="selectedRecord.data.transactionType">
               </div>
               <div class="col-sm-6">
                 <label class="col-form-label float-left" for="transactionSubType">Transaction Sub Type</label>
               </div>
               <div class="col-sm-6">
-                <input class="form-control form-control-sm w-100" id="transactionSubType" name="transactionSubType" type="text"
-                       [(ngModel)]="selectedRecord.data.transactionSubType">
+                <input class="form-control form-control-sm w-100" id="transactionSubType" name="transactionSubType"
+                  type="text" [(ngModel)]="selectedRecord.data.transactionSubType">
               </div>
               <div class="col-sm-6">
                 <label class="col-form-label float-left" for="amount">Amount</label>
               </div>
               <div class="col-sm-6">
                 <input class="form-control form-control-sm w-100" id="amount" name="amount" type="text"
-                       (focus)="focus_amount()"
-                       (blur)="format_amount($event)"
-                       [(ngModel)]="selectedRecord.data.amount">
+                  (focus)="focus_amount()" (blur)="format_amount($event)" [(ngModel)]="selectedRecord.data.amount">
               </div>
             </div>
           </div>
@@ -135,13 +136,12 @@
             <i class="fa fa-check"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                (click)="btnSave_Click()">Kaydet
+        <button type="button" class="btn btn-sm btn-success form-control" (click)="btnSave_Click()">Kaydet
         </button>
       </div>
     </div>
-      <div class="col-sm-3">
-          <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
-      </div>
+    <div class="col-sm-3">
+      <button type="button" class="btn btn-sm btn-danger btn-block" (click)="btnRemove_Click()">Kaldır</button>
+    </div>
   </div>
 </div>

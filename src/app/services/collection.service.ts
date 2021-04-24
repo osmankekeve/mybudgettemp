@@ -85,6 +85,7 @@ export class CollectionService {
           trans.amount = record.data.amount;
           trans.amountType = 'credit';
           trans.insertDate = record.data.insertDate;
+          trans.termDate = record.data.termDate;
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
@@ -106,6 +107,7 @@ export class CollectionService {
           trans.amount = record.data.amount * -1;
           trans.amountType = 'debit';
           trans.insertDate = record.data.insertDate;
+          trans.termDate = record.data.termDate;
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'collection');
@@ -138,6 +140,7 @@ export class CollectionService {
           trans.amount = record.data.amount;
           trans.amountType = 'credit';
           trans.insertDate = record.data.insertDate;
+          trans.termDate = record.data.termDate;
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'approved', 'collection');
@@ -157,6 +160,7 @@ export class CollectionService {
           trans.amount = record.data.amount * -1;
           trans.amountType = 'debit';
           trans.insertDate = record.data.insertDate;
+          trans.termDate = record.data.termDate;
 
           await this.atService.setItem(trans, trans.primaryKey);
           await this.logService.addTransactionLog(record, 'canceled', 'collection');
@@ -214,6 +218,7 @@ export class CollectionService {
     returnData.platform = 'web'; // mobile, web
     returnData.insertDate = Date.now();
     returnData.recordDate = Date.now();
+    returnData.termDate = Date.now();
 
     return returnData;
   }
@@ -266,6 +271,7 @@ export class CollectionService {
     if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
     if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
     if (model.recordDate === undefined) { model.recordDate = model.insertDate; }
+    if (model.termDate === undefined) { model.termDate = model.recordDate; }
     // if (model.status === undefined && model.primaryKey !== null) { model.status = 'approved'; }
 
     return model;

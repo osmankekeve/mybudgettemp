@@ -632,7 +632,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       } else {
         this.onTransaction = true;
         this.selectedRecord.orderDetailList = [];
-        this.db.collection('tblCampaignDetail').ref.where('campaignPrimaryKey', '==', this.selectedRecord.data.campaignPrimaryKey)
+        await this.db.collection('tblCampaignDetail').ref.where('campaignPrimaryKey', '==', this.selectedRecord.data.campaignPrimaryKey)
           .get().then(snapshot => {
             if (snapshot.empty) {
               console.log('No matching documents.');
@@ -663,6 +663,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
               this.selectedRecord.orderDetailList.push(a);
               setOrderDetailCalculation(a);
               setOrderCalculation(this.selectedRecord);
+              this.calculateTerm();
             });
           });
         this.toastService.info('Paket Kampanya Teklife eklendi');
@@ -670,6 +671,14 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       }
     } catch (error) {
       await this.infoService.error(error);
+    }
+  }
+
+  onChangeTermType(): void {
+    try {
+      this.calculateTerm();
+    } catch (err) {
+      this.infoService.error(err);
     }
   }
 
@@ -755,11 +764,13 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord.orderDetailList.push(this.selectedDetail);
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
+            this.calculateTerm();
             await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
           } else {
             this.selectedRecord.orderDetailList[this.itemIndex] = this.selectedDetail;
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
+            this.calculateTerm();
             await this.finishSubProcess(null, 'Ürün başarıyla düzenlendi');
           }
         })
@@ -776,6 +787,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     try {
       this.selectedRecord.orderDetailList.splice(this.itemIndex, 1);
       setOrderCalculation(this.selectedRecord);
+      this.calculateTerm();
       this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);

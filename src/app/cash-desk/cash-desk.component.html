@@ -200,7 +200,7 @@
               <div class="content">
                 <div class="row-1">
                   <div class="w-66">
-                    <span class="text-red font-weight-600 mr-1" title="İşlem Şekli">{{item.transactionTypeTr}}</span>
+                    <span class="text-red font-weight-600" title="İşlem Şekli">{{item.transactionTypeTr}}</span>
                   </div>
                   <div class="w-33">
                     <span class="float-right font-weight-800 text-danger" title="Hareket Tutarı">{{item.data.amount | currency:'₺'}}</span>
@@ -212,7 +212,7 @@
                     <span class="badge badge-warning" title="Fiş Numarası">{{item.data.receiptNo}}</span>
                   </div>
                   <div class="w-33">
-                    <span class="float-right mr-1">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
+                    <span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
                   </div>
                 </div>
               </div>

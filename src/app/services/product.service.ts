@@ -146,6 +146,7 @@ export class ProductService {
   clearMainModel(): ProductMainModel {
     const returnData = new ProductMainModel();
     returnData.data = this.clearSubModel();
+    returnData.stock = null;
     returnData.actionType = 'added';
     returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
     returnData.isWebProductTr = returnData.data.isWebProduct === true ? 'Evet' : 'Hayır';
