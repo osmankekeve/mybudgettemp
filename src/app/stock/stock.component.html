@@ -111,7 +111,7 @@
               <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Ürün Tipi</div>
               <div class="col-sm-8 text-secondary mb-2">{{selectedRecord.productTypeTr}}</div>
               <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Stok Miktarı</div>
-              <div class="col-sm-8 text-secondary mb-2">{{stockRecord.data.quantity}} Adet</div>
+              <div class="col-sm-8 text-secondary mb-2">{{stockRecord.data.quantity | number:'1.2-2'}} Adet</div>
               <div class="col-sm-4 font-weight-600 text-dark-blue mb-2"> Maliyet</div>
               <div class="col-sm-8 text-secondary mb-2">{{stockRecord.data.costPrice | currency:'₺'}}</div>
             </div>
@@ -120,7 +120,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-6 pl-md-0">
     <div *ngIf="selectedRecord.data.primaryKey!=undefined; else elseBlock3">
       <div class="card">
         <div class="card-header bg-gray-gradient">
@@ -162,7 +162,7 @@
                     <span class="badge badge-secondary" title="Hareket Tarihi">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
                   </div>
                   <div class="w-33">
-                    <span class="float-right font-weight-700">{{item.data.quantity}} Adet</span>
+                    <span class="float-right font-weight-700">{{item.data.quantity | number:'1.2-2'}} Adet</span>
                   </div>
                 </div>
               </div>

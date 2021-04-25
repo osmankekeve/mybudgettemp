@@ -22,13 +22,15 @@ import {GlobalService} from '../services/global.service';
 import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
 import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
 import {PurchaseOrderService} from '../services/purchase-order.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-order',
   templateUrl: './purchase-order.component.html',
   styleUrls: ['./purchase-order.component.css']
 })
-export class PurchaseOrderComponent implements OnInit {
+export class PurchaseOrderComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<PurchaseOrderMainModel>;
   selectedRecord: PurchaseOrderMainModel;
   searchText: '';
@@ -68,6 +70,12 @@ export class PurchaseOrderComponent implements OnInit {
     this.populateStorageList();
     this.populateTermList();
     this.populatePaymentTypeList();
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
@@ -111,7 +119,7 @@ export class PurchaseOrderComponent implements OnInit {
     }
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
-    this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
+    this.mainList$ = this.service.getMainItemsBetweenDates(beginDate, finishDate, type).subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }

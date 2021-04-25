@@ -213,7 +213,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('storagePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -233,7 +233,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('storagePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -253,7 +253,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('termKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -273,7 +273,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('termPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -293,7 +293,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('termPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -313,7 +313,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('paymentTypeKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -333,7 +333,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('paymentTypePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -353,7 +353,7 @@ export class DefinitionService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('paymentTypePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

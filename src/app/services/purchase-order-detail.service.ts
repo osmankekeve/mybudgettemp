@@ -150,7 +150,7 @@ export class PurchaseOrderDetailService {
           .where('orderPrimaryKey', '==', orderPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as SalesOrderDetailModel;
           data.primaryKey = doc.id;
@@ -186,7 +186,7 @@ export class PurchaseOrderDetailService {
           .where('orderPrimaryKey', '==', orderPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as SalesOrderDetailModel;
           list.push(data);

@@ -202,7 +202,7 @@ export class PurchaseInvoiceDetailService {
           .where('invoicePrimaryKey', '==', invoicePrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as PurchaseInvoiceDetailModel;
           data.primaryKey = doc.id;
@@ -237,7 +237,7 @@ export class PurchaseInvoiceDetailService {
           .where('invoicePrimaryKey', '==', invoicePrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as PurchaseInvoiceDetailModel;
           data.primaryKey = doc.id;

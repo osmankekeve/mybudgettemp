@@ -175,7 +175,7 @@ export class ProductUnitService {
           .where('isActive', '==', true);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           let data = doc.data() as ProductUnitModel;
           data.primaryKey = doc.id;
@@ -201,7 +201,7 @@ export class ProductUnitService {
           .where('unitPrimaryKey', '==', unitPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as ProductUnitMappingModel;
           data.primaryKey = doc.id;
@@ -224,7 +224,7 @@ export class ProductUnitService {
         query = query.limit(1).where('userPrimaryKey', '==', this.authService.getUid())
           .where('defaultUnitCode', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -244,7 +244,7 @@ export class ProductUnitService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('unitPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -265,7 +265,7 @@ export class ProductUnitService {
         query = query.limit(1)
           .where('unitPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -286,7 +286,7 @@ export class ProductUnitService {
         query = query.limit(1)
           .where('unitPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -307,7 +307,7 @@ export class ProductUnitService {
         query = query.limit(1)
           .where('unitPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

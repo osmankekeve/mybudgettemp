@@ -86,7 +86,7 @@ export class BuySaleComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems(null).subscribe(list => {
+    this.service.getMainItems(null).toPromise().then(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -123,7 +123,7 @@ export class BuySaleComponent implements OnInit {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as BuySaleMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
   }

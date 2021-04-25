@@ -29,7 +29,7 @@ export class CashDeskVoucherService {
   constructor(public authService: AuthenticationService, public sService: SettingService, public eService: ProfileService,
               public logService: LogService, public cdService: CashDeskService, public db: AngularFirestore,
               public atService: AccountTransactionService, protected actService: ActionService) {
-    this.cdService.getItems().subscribe(list => {
+    this.cdService.getItems().toPromise().then(list => {
       this.cashDeskMap.clear();
       list.forEach((data: any) => {
         const item = data as CashDeskModel;
@@ -38,7 +38,7 @@ export class CashDeskVoucherService {
     });
     this.cashDeskVoucherTypeMap = getCashDeskVoucherType();
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
@@ -347,7 +347,7 @@ export class CashDeskVoucherService {
         }
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CashdeskVoucherModel;
           data.primaryKey = doc.id;

@@ -46,13 +46,15 @@ import {PurchaseOrderDetailModel} from '../models/purchase-order-detail-model';
 import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-purchase-invoice',
   templateUrl: './purchase-invoice.component.html',
   styleUrls: ['./purchase-invoice.component.css']
 })
-export class PurchaseInvoiceComponent implements OnInit {
+export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<PurchaseInvoiceMainModel>;
   invoiceDetailList: Array<PurchaseInvoiceDetailMainModel>;
   customerList: Array<CustomerModel>;
@@ -123,6 +125,12 @@ export class PurchaseInvoiceComponent implements OnInit {
     }
   }
 
+  async ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
+  }
+
   async generateModule(isReload: boolean, primaryKey: string, error: any, info: any): Promise<void> {
     if (error === null) {
       this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
@@ -188,7 +196,7 @@ export class PurchaseInvoiceComponent implements OnInit {
     const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
 
-    this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
       .subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -431,7 +439,7 @@ export class PurchaseInvoiceComponent implements OnInit {
 
   populateActions(): void {
     this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
       if (this.actionList === undefined) {
         this.actionList = [];
       }
@@ -548,11 +556,11 @@ export class PurchaseInvoiceComponent implements OnInit {
           this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
         });
 
-      this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
 
-      this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+      this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).toPromise().then(list => {
         this.isRecordHasReturnTransaction = list.length > 0;
       });
 
@@ -874,7 +882,7 @@ export class PurchaseInvoiceComponent implements OnInit {
             doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
             this.service.updateItem(doc).then(() => {
               this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
+                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().toPromise().then(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
                   this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));

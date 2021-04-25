@@ -39,7 +39,7 @@ export class SettingService {
   fillSettingsToSession(): void {
     if (sessionStorage.getItem('settings') !== null) {
       const sessionData = [];
-      this.getAllItems().subscribe(list => {
+      this.getAllItems().toPromise().then(list => {
         list.forEach((item: any) => {
           sessionData.push({key: item.key, value: item});
         });

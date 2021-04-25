@@ -5,6 +5,7 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { LocationService } from '../services/location.service';
 import { LocationMainModel } from '../models/location-main-model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-location',
@@ -12,6 +13,7 @@ import { LocationMainModel } from '../models/location-main-model';
   styleUrls: ['./location.component.css']
 })
 export class LocationComponent implements OnInit, OnDestroy {
+  mainList$: Subscription;
   mainList: Array<LocationMainModel>;
   lat: any;
   lng: any;
@@ -25,13 +27,16 @@ export class LocationComponent implements OnInit, OnDestroy {
     this.populateList();
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   populateList(): void {
     this.mainList = undefined;
 
-    this.service.getMainItems().subscribe(list => {
+    this.mainList$ = this.service.getMainItems().subscribe(list => {
         if (this.mainList === undefined) {
           this.mainList = [];
         }

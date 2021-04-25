@@ -410,7 +410,7 @@ export class SalesOrderService {
         query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
           .where('invoicedStatus', '==', 'short');
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -431,7 +431,7 @@ export class SalesOrderService {
         query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
           .where('invoicedStatus', '==', 'complete');
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

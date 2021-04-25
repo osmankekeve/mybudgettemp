@@ -698,7 +698,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   async btnFix_Click(): Promise<void> {
-    this.service.getMainItems(null).subscribe(list => {
+    this.service.getMainItems(null).toPromise().then(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -832,7 +832,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       }
       if (this.openedPanel === 'delivery-address') {
         this.deliveryAddressList = undefined;
-        this.daService.getMainItemsByCustomerPrimaryKey(this.selectedCustomer.data.primaryKey).subscribe(list => {
+        this.daService.getMainItemsByCustomerPrimaryKey(this.selectedCustomer.data.primaryKey).toPromise().then(list => {
           if (this.deliveryAddressList === undefined) {
             this.deliveryAddressList = [];
           }

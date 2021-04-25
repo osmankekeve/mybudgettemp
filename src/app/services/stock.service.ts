@@ -99,6 +99,7 @@ export class StockService {
         if (snapshot.size > 0) {
           snapshot.forEach(async doc => {
             const data = doc.data() as StockModel;
+            data.primaryKey = doc.id;
             const returnData = this.convertMainModel(data);
             resolve(Object.assign({returnData}));
           });

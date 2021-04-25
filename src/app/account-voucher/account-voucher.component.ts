@@ -328,7 +328,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as AccountVoucherMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       if (list.length > 0) {
         this.isRecordHasTransaction = true;
       } else {
@@ -537,7 +537,7 @@ export class AccountVoucherComponent implements OnInit, OnDestroy {
             doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
             this.service.updateItem(doc).then(() => {
               this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
+                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().toPromise().then(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
                   this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));

@@ -98,7 +98,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   populateDetailList(): void {
     this.unitMappingList = undefined;
-    this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       if (this.unitMappingList === undefined) {
         this.unitMappingList = [];
       }

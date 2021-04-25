@@ -116,7 +116,7 @@ export class SettingComponent implements OnInit {
     await this.populateDiscountList();
     await this.populatePurchasePriceList();
     await this.populatePurchaseDiscountList();
-    this.service.getAllItems().subscribe(list => {
+    this.service.getAllItems().toPromise().then(list => {
       list.forEach((item: any) => {
         if (item.key === 'purchaseInvoicePrefix') {
           this.purchaseInvoice.prefix = item.value;

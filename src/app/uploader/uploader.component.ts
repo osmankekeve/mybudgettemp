@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {FileUploadService} from '../services/file-upload.service';
 import {FileMainModel} from '../models/file-main-model';
 import { ToastService } from '../services/toast.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-uploader',
   templateUrl: './uploader.component.html',
   styleUrls: ['./uploader.component.css']
 })
-export class UploaderComponent implements OnInit {
+export class UploaderComponent implements OnInit, OnDestroy {
   constructor( public service: FileUploadService, public toastService: ToastService) { }
+  mainList$: Subscription;
   mainList: Array<FileMainModel>;
 
   ngOnInit() {
     this.mainList = undefined;
-    this.service.getMainItems('shared').subscribe(list => {
+    this.mainList$ = this.service.getMainItems('shared').subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
@@ -44,6 +46,12 @@ export class UploaderComponent implements OnInit {
         this.mainList = [];
       }
     }, 1000);
+  }
+
+  ngOnDestroy() {
+    if (this.mainList$ !== undefined) {
+      this.mainList$.unsubscribe();
+    }
   }
 
   async btnRemoveFile_Click(item: FileMainModel): Promise<void> {

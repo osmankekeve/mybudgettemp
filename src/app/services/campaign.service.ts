@@ -244,7 +244,7 @@ export class CampaignService {
         .where('userPrimaryKey', '==', this.authService.getUid())
         .where('type', '==', type);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CampaignModel;
           data.primaryKey = doc.id;
@@ -274,7 +274,7 @@ export class CampaignService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('code', '==', code).where('primaryKey', '!=', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -293,7 +293,7 @@ export class CampaignService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('campaignPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -312,7 +312,7 @@ export class CampaignService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('campaignPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

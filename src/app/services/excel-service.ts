@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
-import {getDateForExcel, getBoolStr, getTransactionTypes, getRelationTypes} from '../core/correct-library';
+import {getDateForExcel, getBoolStr, getTransactionTypes, getRelationTypes, currencyFormat} from '../core/correct-library';
 import {ExcelConfig} from 'src/excel.config';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
@@ -514,6 +514,22 @@ export class ExcelService {
           'Insert Date': getDateForExcel(item.data.insertDate)
         };
         excelList.push(data);
+      });
+
+        break;
+      }
+      case 'product-stock-transaction': {
+        fileName = 'product-stock-transaction';
+        list.forEach((item: any) => {
+        excelList.push(
+          {
+            'Transaction Type': item.transactionTypeTr,
+            'Subtransaction Type': item.subTransactionTypeTr,
+            ReceiptNo: item.data.receiptNo,
+            Amount: currencyFormat(item.data.amount),
+            Quantity: item.data.quantity,
+          }
+        );
       });
 
         break;

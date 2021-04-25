@@ -53,7 +53,7 @@ export class BuySellCurrencyComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.service.getMainItems().toPromise().then(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }

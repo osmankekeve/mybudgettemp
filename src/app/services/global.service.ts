@@ -1,22 +1,24 @@
-import {Injectable} from '@angular/core';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {SalesInvoiceService} from './sales-invoice.service';
-import {CollectionService} from './collection.service';
-import {PaymentService} from './payment.service';
-import {AccountTransactionService} from './account-transaction.service';
-import {ActivatedRoute, Router} from '@angular/router';
-import {getEncryptionKey} from '../core/correct-library';
+import { StockService } from './stock.service';
+import { StockVoucherService } from './stock-voucher.service';
+import { Injectable } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { SalesInvoiceService } from './sales-invoice.service';
+import { CollectionService } from './collection.service';
+import { PaymentService } from './payment.service';
+import { AccountTransactionService } from './account-transaction.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { getEncryptionKey } from '../core/correct-library';
 import * as CryptoJS from 'crypto-js';
-import {PurchaseInvoiceService} from './purchase-invoice.service';
-import {CashDeskService} from './cash-desk.service';
-import {AccountVoucherService} from './account-voucher.service';
-import {CustomerService} from './customer.service';
-import {RouterModel} from '../models/router-model';
-import {CustomerTargetService} from './customer-target.service';
-import {CustomerAccountService} from './customer-account.service';
-import {BuySaleService} from './buy-sale.service';
-import {SalesOrderService} from './sales-order.service';
-import {PurchaseOrderService} from './purchase-order.service';
+import { PurchaseInvoiceService } from './purchase-invoice.service';
+import { CashDeskService } from './cash-desk.service';
+import { AccountVoucherService } from './account-voucher.service';
+import { CustomerService } from './customer.service';
+import { RouterModel } from '../models/router-model';
+import { CustomerTargetService } from './customer-target.service';
+import { CustomerAccountService } from './customer-account.service';
+import { BuySaleService } from './buy-sale.service';
+import { SalesOrderService } from './sales-order.service';
+import { PurchaseOrderService } from './purchase-order.service';
 import { ProductService } from './product.service';
 import { BuySaleCurrencyService } from './buy-sale-currency.service';
 
@@ -27,12 +29,12 @@ export class GlobalService {
   encryptSecretKey: string = getEncryptionKey();
 
   constructor(protected db: AngularFirestore, protected route: Router,
-              protected siService: SalesInvoiceService, protected cusService: CustomerService, protected caService: CustomerAccountService,
-              protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
-              protected avService: AccountVoucherService, protected payService: PaymentService, protected proService: ProductService,
-              protected atService: AccountTransactionService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
-              protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService,
-              protected bscService: BuySaleCurrencyService) {
+    protected siService: SalesInvoiceService, protected cusService: CustomerService, protected caService: CustomerAccountService,
+    protected colService: CollectionService, protected piService: PurchaseInvoiceService, protected cdService: CashDeskService,
+    protected avService: AccountVoucherService, protected payService: PaymentService, protected proService: ProductService,
+    protected atService: AccountTransactionService, protected router: ActivatedRoute, protected ctService: CustomerTargetService,
+    protected byService: BuySaleService, protected soService: SalesOrderService, protected poService: PurchaseOrderService,
+    protected bscService: BuySaleCurrencyService, protected svService: StockVoucherService, protected psService: StockService) {
 
   }
 
@@ -126,6 +128,13 @@ export class GlobalService {
           routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
           await this.route.navigate(['product', routeData]);
         }
+      } else if (item.nextModule === 'stockVoucher') {
+
+        data = await this.svService.getItem(item.nextModulePrimaryKey);
+        if (data) {
+          routeData.paramItem = CryptoJS.AES.encrypt(JSON.stringify(data.returnData), this.encryptSecretKey).toString();
+          await this.route.navigate(['stock-voucher', routeData]);
+        }
       } else {
 
       }
@@ -137,74 +146,97 @@ export class GlobalService {
     const previousModulePrimaryKey = router.snapshot.paramMap.get('previousModulePrimaryKey');
 
     if (previousModule !== null && previousModulePrimaryKey !== null) {
-      if (previousModule === 'customer') {
-        await this.cusService.getCustomer(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'customer-target') {
-        await this.ctService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'cash-desk') {
-        await this.cdService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'customer-account') {
-        await this.caService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'sales-invoice') {
-        await this.siService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'sales-order') {
-        await this.soService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'purchaseInvoice') {
-        await this.piService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'purchase-order') {
-        await this.poService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else if (previousModule === 'dashboard') {
-        await this.route.navigate([previousModule]);
-      }
-      else if (previousModule === 'buy-sell-currency') {
-        await this.bscService.getItem(previousModulePrimaryKey).then(async (item) => {
-          await this.route.navigate([previousModule, {
-            paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
-          }]);
-        });
-      }
-      else {
 
+      switch (previousModule) {
+        case 'customer': {
+          await this.cusService.getCustomer(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'customer-target': {
+          await this.ctService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'cash-desk': {
+          await this.cdService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'customer-account': {
+          await this.caService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'sales-invoice': {
+          await this.siService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'sales-order': {
+          await this.soService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+
+          break;
+        }
+        case 'purchaseInvoice': {
+          await this.piService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'purchase-order': {
+          await this.poService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'dashboard': {
+          await this.route.navigate([previousModule]);
+          break;
+        }
+        case 'buy-sell-currency': {
+          await this.bscService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        case 'product-stock': {
+          await this.psService.getItem(previousModulePrimaryKey).then(async (item) => {
+            await this.route.navigate([previousModule, {
+              paramItem: CryptoJS.AES.encrypt(JSON.stringify(item.returnData), this.encryptSecretKey).toString()
+            }]);
+          });
+          break;
+        }
+        default: {
+
+          break;
+        }
       }
     }
   }

@@ -161,7 +161,7 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
 
   populateActivityList(): void {
     this.actionList = undefined;
-    this.crmService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+    this.crmService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).toPromise().then(list => {
       this.actionList = [];
       list.forEach((item: any) => {
         const data = item.returnData;
@@ -186,7 +186,7 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
 
   populateVisitList(): void {
     this.visitList = undefined;
-    this.vService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).subscribe(list => {
+    this.vService.getMainItemsBetweenDates(getTodayStart(), getTodayEnd()).toPromise().then(list => {
       this.visitList = [];
       list.forEach((data: any) => {
         const item = data.returnData as VisitMainModel;
@@ -210,7 +210,7 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
 
   populateTodoList(): void {
     this.todoList = undefined;
-    this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, '1').subscribe(list => {
+    this.tdService.getMainItemsTimeBetweenDates(undefined, undefined, '1').toPromise().then(list => {
       if (this.todoList === undefined) {
         this.todoList = [];
       }

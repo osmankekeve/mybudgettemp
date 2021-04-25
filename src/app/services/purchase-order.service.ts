@@ -438,7 +438,7 @@ export class PurchaseOrderService {
         query = query.where('orderPrimaryKey', '==', purchaseOrderPrimaryKey)
           .where('invoicedStatus', '==', 'short');
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -459,7 +459,7 @@ export class PurchaseOrderService {
         query = query.where('orderPrimaryKey', '==', purchaseOrderPrimaryKey)
           .where('invoicedStatus', '==', 'complete');
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

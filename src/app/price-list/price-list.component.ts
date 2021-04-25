@@ -105,7 +105,7 @@ export class PriceListComponent implements OnInit, OnDestroy {
 
   populateDetailList(): void {
     this.productsOnList = undefined;
-    this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.ppService.getProductsOnList(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       if (this.productsOnList === undefined) {
         this.productsOnList = [];
       }

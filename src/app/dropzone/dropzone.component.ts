@@ -12,7 +12,7 @@ export class DropzoneComponent implements OnInit {
   files: File[] = [];
 
   constructor(public service: GlobalUploadService) {
-    this.service.get().subscribe(() => {
+    this.service.get().toPromise().then(() => {
       this.files = [];
     });
   }

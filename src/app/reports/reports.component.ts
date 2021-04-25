@@ -56,7 +56,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   populateAccountTransactions(startDate: Date, endDate: Date, transactionType: string): void {
-    this.customerService.getAllItems().subscribe(list => {
+    this.customerService.getAllItems().toPromise().then(list => {
       list.forEach(async customer => {
         const dataReport = {stringField1: '', numberField1 : 0};
         dataReport.stringField1 = customer.name;

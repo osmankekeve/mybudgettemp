@@ -267,7 +267,7 @@ export class ProductService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('defaultUnitCode', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -286,7 +286,7 @@ export class ProductService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('defaultUnitCode', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -305,7 +305,7 @@ export class ProductService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('productPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -324,7 +324,7 @@ export class ProductService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('productPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -344,7 +344,7 @@ export class ProductService {
         query = query.limit(1)
           .where('productPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -365,7 +365,7 @@ export class ProductService {
         query = query.where('productPrimaryKey', '==', productPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           doc.ref.delete();
         });
@@ -387,7 +387,7 @@ export class ProductService {
         .where('productPrimaryKey', '==', productPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as PurchaseInvoiceDetailModel;
 

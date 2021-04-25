@@ -39,7 +39,7 @@ export class CustomerService {
   constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore,
               public sService: SettingService, public logService: LogService, protected defService: DefinitionService) {
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', null);
         list.forEach(item => {
@@ -97,7 +97,7 @@ export class CustomerService {
           query = query
             .where('customerPrimaryKey', '==', record.data.primaryKey);
           return query;
-        }).get().subscribe(snapshot => {
+        }).get().toPromise().then(snapshot => {
           snapshot.forEach(async doc => { await doc.ref.delete(); });
         });
       });
@@ -372,7 +372,7 @@ export class CustomerService {
         }
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           let data = doc.data() as CustomerModel;
           data.primaryKey = doc.id;
@@ -404,7 +404,7 @@ export class CustomerService {
         }
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CustomerModel;
           data.primaryKey = doc.id;
@@ -436,7 +436,7 @@ export class CustomerService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -458,7 +458,7 @@ export class CustomerService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -480,7 +480,7 @@ export class CustomerService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -502,7 +502,7 @@ export class CustomerService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -524,7 +524,7 @@ export class CustomerService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('customerPrimaryKey', '==', customerPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -600,7 +600,7 @@ export class CustomerService {
         query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as PurchaseInvoiceModel;
 
@@ -624,7 +624,7 @@ export class CustomerService {
         query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as SalesInvoiceModel;
 

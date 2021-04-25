@@ -31,14 +31,14 @@ export class AccountVoucherService {
               public atService: AccountTransactionService, protected actService: ActionService) {
     this.listCollection = this.db.collection(this.tableName);
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
           this.employeeMap.set(item.primaryKey, item.longName);
         });
       });
-      this.cusService.getAllItems().subscribe(list => {
+      this.cusService.getAllItems().toPromise().then(list => {
         this.customerMap.clear();
         list.forEach(item => {
           this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
@@ -333,7 +333,7 @@ export class AccountVoucherService {
         }
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountVoucherModel;
           data.primaryKey = doc.id;

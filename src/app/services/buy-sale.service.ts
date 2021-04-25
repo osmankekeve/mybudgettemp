@@ -27,7 +27,7 @@ export class BuySaleService {
               public eService: ProfileService, public bscService: BuySaleCurrencyService, protected logService: LogService,
               protected atService: AccountTransactionService, protected actService: ActionService) {
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
@@ -253,7 +253,7 @@ export class BuySaleService {
         .where('currencyPrimaryKey', '==', currencyPrimaryKey)
         .startAt(startDate.getTime())
         .endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as BuySaleModel;
           data.primaryKey = doc.id;

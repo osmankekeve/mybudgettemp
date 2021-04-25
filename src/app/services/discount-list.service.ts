@@ -198,7 +198,7 @@ export class DiscountListService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('discountListPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -217,7 +217,7 @@ export class DiscountListService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('discountListPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -236,7 +236,7 @@ export class DiscountListService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('discountListPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

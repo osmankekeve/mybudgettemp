@@ -41,7 +41,7 @@ export class FileUploadComponent implements OnInit {
 
   populateAllRecords(): void {
     this.mainList = undefined;
-    this.service.getMainItems('shared').subscribe(list => {
+    this.service.getMainItems('shared').toPromise().then(list => {
       this.mainList = [];
       list.forEach((data: any) => {
         const item = data.returnData as FileMainModel;

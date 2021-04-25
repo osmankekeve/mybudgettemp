@@ -37,20 +37,20 @@ export class PurchaseInvoiceService {
               protected accService: CustomerAccountService, protected sidService: PurchaseInvoiceDetailService, protected sodService: PurchaseOrderDetailService,
               protected atService: AccountTransactionService, protected actService: ActionService, protected soService: PurchaseOrderService) {
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
           this.employeeMap.set(item.primaryKey, item.longName);
         });
       });
-      this.cusService.getAllItems().subscribe(list => {
+      this.cusService.getAllItems().toPromise().then(list => {
         this.customerMap.clear();
         list.forEach(item => {
           this.customerMap.set(item.primaryKey, item);
         });
       });
-      this.accService.getAllItems(null).subscribe(list => {
+      this.accService.getAllItems(null).toPromise().then(list => {
         this.accountMap.clear();
         list.forEach(item => {
           this.accountMap.set(item.primaryKey, item);
@@ -536,7 +536,7 @@ export class PurchaseInvoiceService {
           query = query.where('status', '==', status);
         }
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as PurchaseInvoiceModel;
           data.primaryKey = doc.id;

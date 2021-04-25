@@ -34,13 +34,13 @@ export class AccountTransactionService {
               protected cService: CustomerService, protected db: AngularFirestore) {
                 this.listCollection = this.db.collection(this.tableName);
                 if (this.authService.isUserLoggedIn()) {
-                this.cService.getAllItems().subscribe(list => {
+                this.cService.getAllItems().toPromise().then(list => {
                   this.customerMap.clear();
                   list.forEach(item => {
                     this.customerMap.set(item.primaryKey, item);
                   });
                 });
-                this.cdService.getItems().subscribe(list => {
+                this.cdService.getItems().toPromise().then(list => {
                   this.cashDeskMap.clear();
                   list.forEach(item => {
                     this.cashDeskMap.set(item.primaryKey, item);
@@ -225,7 +225,7 @@ export class AccountTransactionService {
           .where('cashDeskPrimaryKey', '==', cashDeskPrimaryKey)
           .startAt(startDate.getTime())
           .endAt(endDate.getTime()));
-      citiesRef.get().subscribe(snapshot => {
+      citiesRef.get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
@@ -253,7 +253,7 @@ export class AccountTransactionService {
           .where('cashDeskPrimaryKey', '==', '-1')
           .startAt(startDate.getTime())
           .endAt(endDate.getTime()));
-      citiesRef.get().subscribe(snapshot => {
+      citiesRef.get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
@@ -280,7 +280,7 @@ export class AccountTransactionService {
           .where('parentType', '==', 'customer')
           .startAt(startDate.getTime())
           .endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
@@ -300,15 +300,15 @@ export class AccountTransactionService {
   getOnDayTransactionsBetweenDates2 = async (startDate: Date, endDate: Date):
     Promise<Array<AccountTransactionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
-      this.cService.getAllItems().subscribe(list => {
+      this.cService.getAllItems().toPromise().then(snapshot => {
         this.customerMap.clear();
-        list.forEach(item => {
+        snapshot.forEach(item => {
           this.customerMap.set(item.primaryKey, item);
         });
       });
-      this.cdService.getItems().subscribe(list => {
+      this.cdService.getItems().toPromise().then(snapshot => {
         this.cashDeskMap.clear();
-        list.forEach(item => {
+        snapshot.forEach(item => {
           this.cashDeskMap.set(item.primaryKey, item);
         });
       });
@@ -316,7 +316,7 @@ export class AccountTransactionService {
       this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid())
           .startAt(startDate.getTime()).endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as AccountTransactionModel;
           data.primaryKey = doc.id;
@@ -343,13 +343,13 @@ export class AccountTransactionService {
 
   getMainItems(startDate: Date, endDate: Date, parentPrimaryKey: string, parentType: string): Observable<AccountTransactionMainModel[]> {
     // left join siz
-    this.cService.getAllItems().subscribe(list => {
+    this.cService.getAllItems().toPromise().then(list => {
       this.customerMap.clear();
       list.forEach(item => {
         this.customerMap.set(item.primaryKey, item);
       });
     });
-    this.cdService.getItems().subscribe(list => {
+    this.cdService.getItems().toPromise().then(list => {
       this.cashDeskMap.clear();
       list.forEach(item => {
         this.cashDeskMap.set(item.primaryKey, item);
@@ -402,7 +402,7 @@ export class AccountTransactionService {
           .where('accountPrimaryKey', '==', accountPrimaryKey)
           .where('amountType', '==', amountType)
           .where('transactionType', 'in', transactionType))
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
           data.primaryKey = doc.id;
@@ -443,7 +443,7 @@ export class AccountTransactionService {
 
   isRecordHasTransaction(primaryKey: string): boolean {
     this.db.collection(this.tableName, ref => ref.where('transactionPrimaryKey', '==', primaryKey))
-      .get().subscribe(list => {
+      .get().toPromise().then(list => {
       if (list.size > 0) {
         return true;
       }

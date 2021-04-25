@@ -459,7 +459,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
 
   populateActions(): void {
     this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
       if (this.actionList === undefined) {
         this.actionList = [];
       }

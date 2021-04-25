@@ -15,7 +15,6 @@ import * as CryptoJS from 'crypto-js';
 import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
-import { AccountTransactionMainModel } from '../models/account-transaction-main-model';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { ProductMainModel } from '../models/product-main-model';
 import { StockMainModel } from '../models/stock-main-model';
@@ -117,7 +116,6 @@ export class StockComponent implements OnInit, OnDestroy {
 
     const p = await this.psService.getProductStock(this.selectedRecord.data.primaryKey);
     this.stockRecord = p.returnData;
-    console.log(this.stockRecord);
   }
 
   async btnReturnList_Click(): Promise<void> {

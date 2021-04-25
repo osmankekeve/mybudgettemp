@@ -5,6 +5,8 @@ export class StockVoucherModel {
   receiptNo: string;
   status: string; // waitingForApprove, approved, canceled
   type: string; // openingStock, positiveStockDifference, negativeStockDifference, consumableStock
+  approveByPrimaryKey?: string; // approved or rejected
+  approveDate?: number;
   storagePrimaryKey?: string;
   description?: string;
   documentDate: number;

@@ -221,6 +221,13 @@ export const getTransactionTypes = () => {
     ['collection', 'Tahsilat'],
     ['cancelCollection', 'Tahsilat İptal'],
 
+    ['stockVoucher', 'Stok Fişi'],
+    ['cancelStockVoucher', 'Stok Fişi İptal'],
+    ['openingStock', 'Stok Açılış'],
+    ['addingStock', 'Stok Ekleme'],
+    ['dropStock', 'Stok Düşüm'],
+    ['consumableStock', 'Sarfiyat'],
+
     ['purchaseInvoice', 'Alım Faturası'],
     ['cancelPurchaseInvoice', 'Alım Faturası İptal'],
     ['returnPurchaseInvoice', 'Alım İade Faturası'],
@@ -330,7 +337,6 @@ export const getProductTypesForImport = () => {
   return new Map([['Alım', 'buy'], ['Satış', 'sale'], ['Alım-Satış', 'buy-sale']]);
 };
 
-
 export const getCustomerTypesForImport = () => {
   return new Map([['Müşteri', 'customer'], ['Tedarikçi', 'supplier'], ['Müşteri-Tedarikçi', 'customer-supplier']]);
 };
@@ -342,7 +348,6 @@ export const getCampaignType = () => {
 export const getEncryptionKey = () => {
   return '34OSman17';
 };
-
 
 export const numberOnly = (event) => {
   const charCode = (event.which) ? event.which : event.keyCode;
@@ -433,5 +438,13 @@ export const getConvertedUnitValue = (productValue: number, defaultUnitCode: str
   return returnValue;
 };
 
+export const getArrayStockVoucherTypes = () => {
+  return [
+    {key: 'openingStock', value: 'Stok Açılış'},
+    {key: 'addingStock', value: 'Stok Ekleme'},
+    {key: 'dropStock', value: 'Stok Düşüm'},
+    {key: 'consumableStock', value: 'Sarfiyat'},
+  ];
+};
 
 

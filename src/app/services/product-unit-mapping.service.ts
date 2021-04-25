@@ -214,7 +214,7 @@ export class ProductUnitMappingService {
           .where('unitPrimaryKey', '==', unitPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as ProductUnitMappingModel;
           data.primaryKey = doc.id;
@@ -242,7 +242,7 @@ export class ProductUnitMappingService {
           .where('productPrimaryKey', '==', productPrimaryKey)
           .where('unitPrimaryKey', '==', unitPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
             const data = doc.data() as ProductUnitMappingModel;
@@ -269,7 +269,7 @@ export class ProductUnitMappingService {
           .where('productPrimaryKey', '==', productPrimaryKey)
           .where('unitPrimaryKey', '==', unitPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

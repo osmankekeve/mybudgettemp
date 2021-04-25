@@ -25,7 +25,7 @@ export class CustomerRelationService {
               public db: AngularFirestore) {
 
     if (this.authService.isUserLoggedIn()) {
-      this.cusService.getAllItems().subscribe(list => {
+      this.cusService.getAllItems().toPromise().then(list => {
         this.customerMap.clear();
         list.forEach(item => {
           this.customerMap.set(item.primaryKey, this.cusService.convertMainModel(item));
@@ -205,7 +205,7 @@ export class CustomerRelationService {
       const list = Array<CustomerRelationMainModel>();
       this.db.collection(this.tableName, ref =>
         ref.orderBy('insertDate').startAt(startDate.getTime()).endAt(endDate.getTime()))
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as CustomerRelationModel;
           data.primaryKey = doc.id;

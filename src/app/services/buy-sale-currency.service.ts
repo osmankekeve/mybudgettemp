@@ -130,7 +130,7 @@ export class BuySaleCurrencyService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('currencyPrimaryKey', '==', currencyPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

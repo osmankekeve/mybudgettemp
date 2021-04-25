@@ -202,7 +202,7 @@ export class FileUploadService {
         query = query.limit(1)
           .where('parentPrimaryKey', '==', parentPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
             const data = doc.data() as FileModel;

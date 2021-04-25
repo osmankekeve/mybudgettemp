@@ -147,7 +147,7 @@ export class CampaignDetailService {
         query = query.where('campaignPrimaryKey', '==', campaignPrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as CampaignDetailModel;
           data.primaryKey = doc.id;

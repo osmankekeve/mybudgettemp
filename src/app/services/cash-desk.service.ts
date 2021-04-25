@@ -23,7 +23,7 @@ export class CashDeskService {
 
   constructor(public authService: AuthenticationService, public eService: ProfileService, public db: AngularFirestore) {
     if (this.authService.isUserLoggedIn()) {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
         this.employeeMap.set('-1', 'Tüm Kullanıcılar');
         list.forEach(item => {
@@ -180,7 +180,7 @@ export class CashDeskService {
           query = query.endAt(endDate.getTime());
         }
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
           list.push(data);

@@ -101,7 +101,7 @@ export class TermService {
           .where('invoicePrimaryKey', '==', invoicePrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as TermModel;
           list.push(data);
@@ -125,7 +125,7 @@ export class TermService {
           .where('invoicePrimaryKey', '==', invoicePrimaryKey);
         return query;
       })
-        .get().subscribe(snapshot => {
+        .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
           const data = doc.data() as TermModel;
           data.primaryKey = doc.id;

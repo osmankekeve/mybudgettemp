@@ -391,7 +391,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   populateActions(): void {
     this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).subscribe((list) => {
+    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
       if (this.actionList === undefined) {
         this.actionList = [];
       }
@@ -424,10 +424,10 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.selectedRecord = record as CollectionMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
     this.termDate = getDateForInput(this.selectedRecord.data.termDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
-    this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).subscribe(list => {
+    this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).toPromise().then(list => {
       this.isRecordHasReturnTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
@@ -679,7 +679,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
             doc.data.accountPrimaryKey = doc.customer.defaultAccountPrimaryKey;
             this.service.updateItem(doc).then(() => {
               this.db.collection<AccountTransactionModel>('tblAccountTransaction',
-                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().subscribe(list => {
+                ref => ref.where('transactionPrimaryKey', '==', doc.data.primaryKey)).get().toPromise().then(list => {
                 list.forEach((item) => {
                   const trans = {accountPrimaryKey: doc.customer.defaultAccountPrimaryKey};
                   this.db.collection('tblAccountTransaction').doc(item.id).update(trans).catch(err => this.infoService.error(err));

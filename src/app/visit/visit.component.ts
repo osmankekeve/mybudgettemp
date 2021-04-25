@@ -54,7 +54,7 @@ export class VisitComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.proService.getMainItems().subscribe(list => {
+    this.proService.getMainItems().toPromise().then(list => {
       if (this.profileList === undefined) {
         this.profileList = [];
       }

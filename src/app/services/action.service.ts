@@ -65,7 +65,7 @@ export class ActionService {
 
   removeActions(tableName: string, primaryKey: string) {
     this.db.collection(tableName).doc(primaryKey)
-      .collection('actions').get().subscribe(snapshot => {
+      .collection('actions').get().toPromise().then(snapshot => {
       snapshot.forEach(doc => {
         doc.ref.delete();
       });

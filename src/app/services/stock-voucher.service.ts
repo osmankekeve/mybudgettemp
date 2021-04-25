@@ -48,26 +48,49 @@ export class StockVoucherService {
 
   async updateItem(record: StockVoucherMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data)).then(async () => {
-      this.logService.addTransactionLog(record, 'update', 'stock-voucher');
-      for (const item of record.detailList) {
-        const st = this.stService.clearMainModel();
-        st.data.primaryKey = this.db.createId();
-        st.data.productPrimaryKey = item.data.productPrimaryKey;
-        st.data.transactionPrimaryKey = record.data.primaryKey;
-        st.data.receiptNo = record.data.receiptNo;
-        st.data.transactionType = 'stockVoucher';
-        if (record.data.type === 'dropStock' || record.data.type === 'consumableStock') {
-          st.data.transactionSubType = 'salesInvoice';
-          st.data.quantity = item.data.quantity * -1;
-          st.data.amount = item.data.amount * -1;
+      if (record.data.status === 'waitingForApprove' || record.data.status === 'approved') {
+        await this.vdService.getItemsWithOrderPrimaryKey(record.data.primaryKey)
+        .then((list) => {
+          list.forEach(async item => {
+            await this.db.collection(this.vdService.tableName).doc(item.primaryKey).delete();
+          });
+        }).finally(async () => {
+          for (const item of record.detailList) {
+            item.data.voucherPrimaryKey = record.data.primaryKey;
+            await this.db.collection(this.vdService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+          }
+          await this.logService.addTransactionLog(record, 'insert', 'stock-voucher');
+        });
+      }
+      if (record.data.status === 'waitingForApprove') {
+        this.logService.addTransactionLog(record, 'update', 'stock-voucher');
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
+      } else if (record.data.status === 'approved') {
+        for (const item of record.detailList) {
+          const st = this.stService.clearMainModel();
+          st.data.primaryKey = this.db.createId();
+          st.data.productPrimaryKey = item.data.productPrimaryKey;
+          st.data.transactionPrimaryKey = record.data.primaryKey;
+          st.data.receiptNo = record.data.receiptNo;
+          st.data.transactionType = 'stockVoucher';
+          if (record.data.type === 'dropStock' || record.data.type === 'consumableStock') {
+            st.data.transactionSubType = record.data.type;
+            st.data.quantity = item.defaultUnitQuantity * -1;
+            st.data.amount = item.data.amount * -1;
+          }
+          if (record.data.type === 'addingStock' || record.data.type === 'openingStock') {
+            st.data.transactionSubType = record.data.type;
+            st.data.quantity = item.defaultUnitQuantity;
+            st.data.amount = item.data.amount;
+          }
+          st.data.insertDate = Date.now();
+          await this.stService.setItem(st, st.data.primaryKey);
         }
-        if (record.data.type === 'addingStock' || record.data.type === 'openingStock') {
-          st.data.transactionSubType = 'returnSalesInvoice';
-          st.data.quantity = item.data.quantity;
-          st.data.amount = item.data.amount;
-        }
-        st.data.insertDate = Date.now();
-        await this.stService.setItem(st, st.data.primaryKey);
+        this.logService.addTransactionLog(record, 'approved', 'stock-voucher');
+        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onaylandı');
+      } else {
+        this.logService.addTransactionLog(record, 'update', 'salesInvoice');
+        this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
       }
     });
   }
@@ -117,6 +140,8 @@ export class StockVoucherService {
     returnData.receiptNo = '';
     returnData.type = '-1';
     returnData.status = 'waitingForApprove';
+    returnData.approveByPrimaryKey = '-1';
+    returnData.approveDate = 0;
     returnData.description = '';
     returnData.documentDate = Date.now();
     returnData.insertDate = Date.now();

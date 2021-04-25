@@ -220,7 +220,7 @@ export class ProfileService {
         query = query.where('userPrimaryKey', '==', this.authService.getUid());
         query = query.where('isActive', '==', true);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as ProfileModel;
           data.primaryKey = doc.id;
@@ -248,7 +248,7 @@ export class ProfileService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -270,7 +270,7 @@ export class ProfileService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -292,7 +292,7 @@ export class ProfileService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -314,7 +314,7 @@ export class ProfileService {
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -336,7 +336,7 @@ export class ProfileService {
           .where('primaryKey', '==', primaryKey)
           .where('password', '==', password);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

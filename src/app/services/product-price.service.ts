@@ -193,7 +193,7 @@ export class ProductPriceService {
         query = query.where('userPrimaryKey', '==', this.authService.getUid())
           .where('priceListPrimaryKey', '==', priceListPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as ProductPriceModel;
 
@@ -223,7 +223,7 @@ export class ProductPriceService {
           .where('priceListPrimaryKey', '==', priceListPrimaryKey)
           .where('productPrimaryKey', '==', productPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
             const data = doc.data() as ProductPriceModel;

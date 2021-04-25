@@ -26,7 +26,7 @@ export class CustomerAccountService {
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore) {
 
     if (this.authService.isUserLoggedIn()) {
-      this.cusService.getAllItems().subscribe(list => {
+      this.cusService.getAllItems().toPromise().then(list => {
         this.customerMap.clear();
         list.forEach(item => {
           this.customerMap.set(item.primaryKey, item);
@@ -205,7 +205,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('defaultAccountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -225,7 +225,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('accountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -245,7 +245,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('accountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -265,7 +265,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('accountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -285,7 +285,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('accountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {
@@ -305,7 +305,7 @@ export class CustomerAccountService {
         let query: CollectionReference | Query = ref;
         query = query.limit(1).where('accountPrimaryKey', '==', primaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           resolve(true);
         } else {

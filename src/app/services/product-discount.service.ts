@@ -179,7 +179,7 @@ export class ProductDiscountService {
         query = query.where('userPrimaryKey', '==', this.authService.getUid())
           .where('discountListPrimaryKey', '==', discountListPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data() as ProductDiscountModel;
 
@@ -208,7 +208,7 @@ export class ProductDiscountService {
           .where('discountListPrimaryKey', '==', discountListPrimaryKey)
           .where('productPrimaryKey', '==', productPrimaryKey);
         return query;
-      }).get().subscribe(snapshot => {
+      }).get().toPromise().then(snapshot => {
         if (snapshot.size > 0) {
           snapshot.forEach(doc => {
             const data = doc.data() as ProductDiscountModel;

@@ -209,7 +209,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
   onChangeType(record: any): void {
     this.receiversList = [];
     if (record === 'customer') {
-      this.cService.getAllItems().subscribe(list => {
+      this.cService.getAllItems().toPromise().then(list => {
         list.forEach(item => {
           const key = item as CustomerModel;
           if (key.email !== '') {
@@ -218,7 +218,7 @@ export class MailSenderComponent implements OnInit, OnDestroy {
         });
       });
     } else if (record === 'employee') {
-      this.eService.getItems().subscribe(list => {
+      this.eService.getItems().toPromise().then(list => {
         list.forEach(item => {
           const key = item as ProfileModel;
           if (key.mailAddress !== '') {

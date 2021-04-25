@@ -26,7 +26,9 @@ export class MessagingComponent implements OnInit, OnDestroy {
   }
   mainList$: Subscription;
   mainList: Array<MessageMainModel>;
+  profileList$: Subscription;
   profileList: Array<ProfileMainModel>;
+  chatChannelList$: Subscription;
   chatChannelList: Array<ChatChanelMainModel>;
   mainProfileRecord: ProfileMainModel;
   searchText: '';
@@ -39,7 +41,7 @@ export class MessagingComponent implements OnInit, OnDestroy {
     this.mainProfileRecord = JSON.parse(sessionStorage.getItem('employee')) as ProfileMainModel;
 
     this.chatChannelList = undefined;
-    this.service.getMainItems().subscribe(list => {
+    this.chatChannelList$ = this.service.getMainItems().subscribe(list => {
       if (this.chatChannelList === undefined) {
         this.chatChannelList = [];
       }
@@ -86,7 +88,7 @@ export class MessagingComponent implements OnInit, OnDestroy {
     }, 2000);
 
     this.profileList = undefined;
-    this.profileService.getMainItems().subscribe(list => {
+    this.profileList$ = this.profileService.getMainItems().subscribe(list => {
       if (this.profileList === undefined) {
         this.profileList = [];
       }
@@ -125,7 +127,12 @@ export class MessagingComponent implements OnInit, OnDestroy {
     if (this.mainList$ !== undefined) {
       this.mainList$.unsubscribe();
     }
-
+    if (this.chatChannelList$ !== undefined) {
+      this.chatChannelList$.unsubscribe();
+    }
+    if (this.profileList$ !== undefined) {
+      this.profileList$.unsubscribe();
+    }
   }
 
   btnShowNewChat_Click(): void {

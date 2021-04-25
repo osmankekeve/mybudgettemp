@@ -5,6 +5,7 @@ import {InformationService} from '../services/information.service';
 import {AuthenticationService} from '../services/authentication.service';
 import {
   currencyFormat,
+  getArrayStockVoucherTypes,
   getDateForInput,
   getEncryptionKey,
   getFirstDayOfMonthForInput,
@@ -32,6 +33,7 @@ import { ProductUnitModel } from '../models/product-unit-model';
 import { ProductUnitService } from '../services/product-unit.service';
 import { ProductUnitMappingService } from '../services/product-unit-mapping.service';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { GlobalService } from '../services/global.service';
 
 @Component({
   selector: 'app-stock-voucher',
@@ -45,6 +47,7 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
   selectedDetail: StockVoucherDetailMainModel;
   storageList: Array<DefinitionModel>;
   unitList: Array<ProductUnitModel>;
+  voucherTypeList: any;
   encryptSecretKey: string = getEncryptionKey();
   onTransaction = false;
   searchText: '';
@@ -61,11 +64,12 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
               protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService, protected toastService: ToastService,
               protected db: AngularFirestore, protected ppService: StockVoucherDetailService, protected modalService: NgbModal,
               protected setService: SettingService, protected puService: ProductUnitService, protected defService: DefinitionService,
-              protected pumService: ProductUnitMappingService) {
+              protected pumService: ProductUnitMappingService, protected globService: GlobalService) {
   }
 
   ngOnInit() {
     this.populateList();
+    this.voucherTypeList = getArrayStockVoucherTypes();
     this.selectedRecord = undefined;
     this.selectedDetail = undefined;
 
@@ -73,7 +77,7 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
       const bytes = CryptoJS.AES.decrypt(this.router.snapshot.paramMap.get('paramItem'), this.encryptSecretKey);
       const paramItem = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       if (paramItem) {
-        this.mainListItem_Click(paramItem.returnData);
+        this.mainListItem_Click(paramItem);
       }
     }
   }
@@ -82,6 +86,21 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
     if (this.mainList$ !== undefined) {
       this.mainList$.unsubscribe();
     }
+  }
+
+  async generateModule(isReload: boolean, error: any, info: any): Promise<void> {
+    if (error === null) {
+      this.infoService.success(info !== null ? info : 'Belirtilmeyen Bilgi');
+      if (isReload) {
+        this.mainListItem_Click(this.selectedRecord);
+      } else {
+        this.clearSelectedRecord();
+        this.selectedRecord = undefined;
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
   }
 
   populateList(): void {
@@ -172,8 +191,17 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
 
   async btnReturnList_Click(): Promise<void> {
     try {
-      await this.finishProcess(null, null, true);
-      await this.route.navigate(['stock-voucher', {}]);
+      this.clearSelectedRecord();
+      this.clearSelectedDetail();
+      const previousModule = this.router.snapshot.paramMap.get('previousModule');
+      const previousModulePrimaryKey = this.router.snapshot.paramMap.get('previousModulePrimaryKey');
+
+      if (previousModule !== null && previousModulePrimaryKey !== null) {
+        await this.globService.returnPreviousModule(this.router);
+      } else {
+        await this.finishProcess(null, null, true);
+        await this.route.navigate(['stock-voucher', {}]);
+      }
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -220,6 +248,30 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
         });
     } catch (error) {
       await this.finishProcess(error, null, true);
+    }
+  }
+
+  async btnApprove_Click(): Promise<void> {
+    try {
+      this.onTransaction = true;
+      this.selectedRecord.data.status = 'approved';
+      this.selectedRecord.data.approveByPrimaryKey = this.authService.getEid();
+      this.selectedRecord.data.approveDate = Date.now();
+      Promise.all([this.service.checkForSave(this.selectedRecord)])
+        .then(async (values: any) => {
+          await this.service.updateItem(this.selectedRecord)
+            .then(() => {
+              this.generateModule(true, null, 'Kayıt başarıyla onaylandı.');
+            })
+            .catch((error) => {
+              this.finishProcess(error, null, false);
+            });
+        })
+        .catch((error) => {
+          this.finishProcess(error, null, false);
+        });
+    } catch (error) {
+      await this.finishProcess(error, null, false);
     }
   }
 
@@ -284,7 +336,7 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
     if (error === null) {
       if (info !== null) {
         this.toastService.success(info, true);
-        this.clearSelectedProductRecord();
+        this.clearSelectedDetail();
       }
     } else {
       await this.infoService.error(error.message !== undefined ? error.message : error);
@@ -386,7 +438,7 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
 
   async btnOpenList_Click(): Promise<void> {
     try {
-      this.clearSelectedProductRecord();
+      this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -473,7 +525,7 @@ export class StockVoucherComponent implements OnInit, OnDestroy {
     this.isNewPanelOpened = false;
   }
 
-  clearSelectedProductRecord(): void {
+  clearSelectedDetail(): void {
     this.isNewPanelOpened = false;
     this.selectedDetail = undefined;
   }

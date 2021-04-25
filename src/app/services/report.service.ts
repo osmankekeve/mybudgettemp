@@ -45,7 +45,7 @@ export class ReportService {
 
         return query;
       });
-      refData.get().subscribe(snapshot => {
+      refData.get().toPromise().then(snapshot => {
         snapshot.forEach(doc => {
           const data = doc.data();
           data.primaryKey = doc.id;
