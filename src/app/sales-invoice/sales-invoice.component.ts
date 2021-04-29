@@ -164,6 +164,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.invoiceDetailList = [];
       this.clearSelectedDetail();
       this.calculateTerm();
+      this.populateStorageList();
       this.setOrderCountInfo();
       this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
@@ -861,6 +862,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.selectedRecord.data.orderPrimaryKeyList = [];
       setInvoiceCalculation(this.selectedRecord, []);
       this.setOrderCountInfo();
+      this.calculateTerm();
     } catch (error) {
       await this.infoService.error(error);
     }

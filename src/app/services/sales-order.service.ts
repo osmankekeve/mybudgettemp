@@ -249,6 +249,7 @@ export class SalesOrderService {
     returnData.totalPriceWithTaxFormatted = currencyFormat(returnData.data.totalPriceWithTax); // tum iskontolar dusulmus kdv eklenmis fiyat
     returnData.totalTaxAmount = 0; // toplam kdv miktari
     returnData.totalTaxAmountFormatted = currencyFormat(returnData.totalTaxAmount);
+    returnData.termList = [];
     return returnData;
   }
 

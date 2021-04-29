@@ -327,7 +327,7 @@
                 <div class="col-sm-8">
                   <div class="custom-control custom-checkbox">
                     <input type="checkbox" class="custom-control-input" id="isWaybill" name="isWaybill" 
-                    [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [disabled]="selectedRecord.data.primaryKey!=undefined || selectedRecord.data.type === 'service'"
                     [(ngModel)]="selectedRecord.data.isWaybill"
                     [checked]="selectedRecord.data.isWaybill">
                     <label class="custom-control-label float-left text-dark" for="isWaybill">İrsaliyeli Fatura</label>

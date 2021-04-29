@@ -373,15 +373,17 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
 
   async calculateTerm(): Promise<void> {
     const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
-    const term = record.returnData as DefinitionMainModel;
-    const date = new Date(this.selectedRecord.data.recordDate);
-    this.selectedRecord.termList = [];
-    for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
-      const item = this.termService.clearSubModel();
-      item.dayCount = getNumber(term.data.custom2.split(';')[i]);
-      item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
-      item.termDate = date.setDate(date.getDate() + item.dayCount);
-      this.selectedRecord.termList.push(item);
+    if (record) {
+      const term = record.returnData as DefinitionMainModel;
+      const date = new Date(this.selectedRecord.data.recordDate);
+      this.selectedRecord.termList = [];
+      for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
+        const item = this.termService.clearSubModel();
+        item.dayCount = getNumber(term.data.custom2.split(';')[i]);
+        item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
+        item.termDate = date.setDate(date.getDate() + item.dayCount);
+        this.selectedRecord.termList.push(item);
+      }
     }
   }
 
@@ -538,6 +540,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.termPrimaryKey = this.selectedRecord.customer.data.termKey;
           this.selectedRecord.data.paymentTypePrimaryKey = this.selectedRecord.customer.data.paymentTypeKey;
           this.populateDeliveryAddressList();
+          this.calculateTerm();
         }
       }, () => { });
     } catch (error) {
@@ -550,6 +553,22 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       this.excelService.exportToExcel(this.mainList, 'sales-order');
     } else {
       await this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async onChangeType() {
+    try {
+      this.clearSelectedDetail();
+      this.selectedRecord.orderDetailList = [];
+      setOrderCalculation(this.selectedRecord);
+      this.calculateTerm();
+      if (this.selectedRecord.data.type === 'service') {
+        this.productType = 'service';
+      } else {
+        this.productType = 'normal';
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -835,6 +854,12 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     if (this.selectedDetail.data.price === 0) {
       this.selectedDetail.data.price = null;
       this.selectedDetail.priceFormatted = null;
+    }
+  }
+
+  focus_quantity(): void {
+    if (this.selectedDetail.data.quantity === 0) {
+      this.selectedDetail.data.quantity = null;
     }
   }
 

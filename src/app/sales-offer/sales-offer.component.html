@@ -139,6 +139,7 @@
             </div>
             <div class="col-sm-8">
               <select class="form-control form-control-sm w-100" id="type" name="type" required
+                (change)="onChangeType()"
                 [disabled]="selectedRecord.data.primaryKey != null || selectedRecord.orderDetailList?.length > 0"
                 [(ngModel)]="selectedRecord.data.type">
                 <option value="sales">Satış Siparişi</option>
@@ -222,8 +223,7 @@
             <div class="col-sm-8">
               <select class="form-control form-control-sm w-100" id="termPrimaryKey" name="termPrimaryKey" required
                 [disabled]="selectedRecord.data.status != 'waitingForApprove'"
-                [(ngModel)]="selectedRecord.data.termPrimaryKey"
-                (change)="onChangeTermType()">
+                [(ngModel)]="selectedRecord.data.termPrimaryKey" (change)="onChangeTermType()">
                 <option value={{item.primaryKey}} *ngFor="let item of termList">{{item.custom1}}</option>
               </select>
               <div class="invalid-feedback invalid-input-info">Lütfen seçim yapınız.</div>
@@ -311,7 +311,7 @@
           </div>
         </div>
         <div class="btn-action float-right mr-2"
-          *ngIf="selectedRecord.data.status === 'waitingForApprove' && selectedRecord.data.primaryKey !== undefined">
+          *ngIf="selectedRecord.data.status === 'waitingForApprove' && selectedRecord.data.primaryKey">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text success-icon-side">
@@ -414,7 +414,8 @@
                       <span class="float-right" title="Toplam Fiyat">{{item.data.totalPrice | currency:'₺'}}</span>
                     </div>
                     <div class="col-sm-2">
-                      <span class="float-right" title="KDV Dahil Toplam Fiyat">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
+                      <span class="float-right"
+                        title="KDV Dahil Toplam Fiyat">{{item.data.totalPriceWithTax | currency:'₺'}}</span>
                     </div>
                     <div class="col-sm-12">
                       <i class="fas fa-coins text-secondary mr-1"
@@ -491,14 +492,18 @@
           <div class="col-sm-12">
             <div class="card p-2">
               <span class="font-weight-600 text-dark-blue">Vade Listesi</span>
+              <div class="card bg-red text-white" *ngIf="selectedRecord.termList?.length === 0">
+                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+              </div>
               <div *ngFor="let item of selectedRecord.termList">
                 <div class="row">
                   <div class="col-sm-6">
-                    <small class="col-form-label float-left fs-13 p-0 pb-1">{{item.termDate | date: 'yyyy-MM-dd'}}</small>
-                   </div>
+                    <small
+                      class="col-form-label float-left fs-13 p-0 pb-1">{{item.termDate | date: 'yyyy-MM-dd'}}</small>
+                  </div>
                   <div class="col-sm-6">
                     <small class="col-form-label float-right fs-13 p-0 pb-1">{{item.termAmount | currency:'₺'}}</small>
-                  </div>  
+                  </div>
                 </div>
               </div>
             </div>
@@ -513,9 +518,8 @@
             <h5 class="card-title float-left mr-2">Ürün Detayı</h5>
           </div>
           <div class="head-filter">
-            <button type="button" class="btn btn-light input-button-full mr-2"
-            [disabled]="onTransaction || !f2.valid"
-             (click)="btnSaveProductDetail_Click()">
+            <button type="button" class="btn btn-light input-button-full mr-2" [disabled]="onTransaction || !f2.valid"
+              (click)="btnSaveProductDetail_Click()">
               <i class="far fa-save text-secondary"></i> Ürünü Kaydet
             </button>
             <button type="button" class="btn btn-light input-button" (click)="btnReturnOrderDetailList_Click()">
@@ -546,7 +550,7 @@
             </div>
             <div class="col-sm-8">
               <select class="form-control form-control-sm w-100" id="productType" name="productType" required
-                [(ngModel)]="productType">
+                [disabled]="selectedRecord.data.type==='service'" [(ngModel)]="productType">
                 <option value="normal">Normal Ürün</option>
                 <option value="promotion">Promosyon Ürün</option>
                 <option value="service">Hizmet Ürün</option>
@@ -560,7 +564,7 @@
               <div class="input-group">
                 <input class="form-control form-control-sm" name="productName" id="productName" required
                   [(ngModel)]="selectedDetail.product.data.productName" disabled>
-                  <div class="invalid-feedback invalid-input-info">Lütfen ürün seçiniz.</div>
+                <div class="invalid-feedback invalid-input-info">Lütfen ürün seçiniz.</div>
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"><i
                       class="far fa-arrow-alt-circle-right"></i></button>
@@ -573,7 +577,7 @@
             <div class="col-sm-8">
               <input class="form-control form-control-sm w-100" id="price" name="price" type="text" required
                 (focus)="focus_price()" (blur)="format_price($event)" [(ngModel)]="selectedDetail.priceFormatted">
-                <div class="invalid-feedback invalid-input-info">Lütfen fiyat giriniz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen fiyat giriniz.</div>
             </div>
             <div class="col-sm-4">
               <label class="col-form-label float-left" for="discount1">İskonto 1</label>
@@ -593,9 +597,11 @@
               <label class="col-form-label float-left" for="quantity">Miktar</label>
             </div>
             <div class="col-sm-8">
-              <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0" required
+              <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0"
+                required 
+                (focus)="focus_quantity()" 
                 [(ngModel)]="selectedDetail.data.quantity">
-                <div class="invalid-feedback invalid-input-info">Lütfen miktar giriniz.</div>
+              <div class="invalid-feedback invalid-input-info">Lütfen miktar giriniz.</div>
             </div>
             <div class="col-sm-4">
               <label class="col-form-label float-left" for="unitPrimaryKey">Birim</label>
