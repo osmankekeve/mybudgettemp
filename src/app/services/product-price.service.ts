@@ -184,7 +184,6 @@ export class ProductPriceService {
   }
 
   getProductsForListDetail = async (priceListPrimaryKey: string):
-    // tslint:disable-next-line:cyclomatic-complexity
     Promise<Array<ProductPriceMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<ProductPriceMainModel>();
@@ -194,14 +193,40 @@ export class ProductPriceService {
           .where('priceListPrimaryKey', '==', priceListPrimaryKey);
         return query;
       }).get().toPromise().then(snapshot => {
-        snapshot.forEach(doc => {
+        snapshot.forEach(async doc => {
           const data = doc.data() as ProductPriceModel;
+          data.primaryKey = doc.id;
 
-          const returnData = new ProductPriceMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.priceFormatted = currencyFormat(returnData.data.productPrice);
+          const returnData = this.convertMainModel(data);
+          const p = await this.pService.getItem(data.productPrimaryKey);
+          returnData.product = p.returnData;
 
           list.push(returnData);
+        });
+        resolve(list);
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  getProductsForTransaction = async (priceListPrimaryKey: string):
+    Promise<Array<ProductPriceModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductPriceModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('priceListPrimaryKey', '==', priceListPrimaryKey);
+        return query;
+      }).get().toPromise().then(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as ProductPriceModel;
+          data.primaryKey = doc.id;
+
+          list.push(data);
         });
         resolve(list);
       });

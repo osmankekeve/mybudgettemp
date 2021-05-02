@@ -227,7 +227,7 @@
                   <i class="fa fa-upload text-secondary"></i> Ürün Aktar
                 </a>
                 <a class="dropdown-item cursor-pointer" (click)="btnExportToExcel_Click()"
-                  *ngIf="productsOnList?.length > 0">
+                  *ngIf="selectedRecord.productList?.length > 0">
                   <i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
                 </a>
               </div>
@@ -236,8 +236,8 @@
         </div>
       </div>
       <div class="card-body work-area-1">
-        <div *ngIf="productsOnList != undefined; else elseBlock2">
-          <div class="table-responsive work-area-11" *ngIf="productsOnList.length > 0; else elseBlock">
+        <div *ngIf="selectedRecord.productList != undefined; else elseBlock2">
+          <div class="table-responsive work-area-11" *ngIf="selectedRecord.productList.length > 0; else elseBlock">
             <table class="table table-bordered table-striped table-hover">
               <thead>
               <tr class="table-row-class">
@@ -248,7 +248,7 @@
               <tbody>
               <tr class="cursor-pointer table-row-class"
                   (click)="showSelectedProduct(item)" title="Kaydı Göster"
-                  *ngFor="let item of productsOnList | filterProductSub: productSearchText; index as i;">
+                  *ngFor="let item of selectedRecord.productList | filterProductSub: productSearchText; index as i;">
                 <td>
                   <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
                   <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
@@ -277,9 +277,27 @@
             <h5 class="card-title float-left mr-2">Ürün Detayı</h5>
           </div>
           <div class="head-filter">
-            <button type="button" class="btn btn-light input-button-full" (click)="btnOpenList_Click()">
+            <button type="button" class="btn btn-light input-button-full mr-2" [disabled]="onTransaction || !f2.valid"
+              (click)="btnSaveProduct_Click()">
+              <i class="far fa-save text-secondary"></i> Ürünü Kaydet
+            </button>
+            <button type="button" class="btn btn-light input-button" (click)="btnOpenList_Click()">
               <i class="fa fa-arrow-left text-secondary"></i> İptal Et
             </button>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item text-danger cursor-pointer" (click)="btnRemoveProduct_Click()"
+                  *ngIf="selectedDetail.data.primaryKey != undefined">
+                  <i class="fa fa-remove text-danger"></i> Ürünü Kaldır
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonDataDetail_Click()">
+                  <i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -292,10 +310,10 @@
             <div class="col-sm-9">
               <div class="input-group">
                 <input class="form-control form-control-sm" name="productName" id="productName"
-                       [(ngModel)]="selectedProductPrice.product.data.productName" disabled>
+                       [(ngModel)]="selectedDetail.product.data.productName" disabled>
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
-                  [disabled]="selectedProductPrice.data.primaryKey!=undefined"><i
+                  [disabled]="selectedDetail.data.primaryKey!=undefined"><i
                     class="far fa-arrow-alt-circle-right"></i></button>
                 </div>
               </div>
@@ -307,40 +325,10 @@
               <input class="form-control form-control-sm w-100" id="productPrice" name="productPrice" type="text"
                      (focus)="focus_amount()"
                      (blur)="format_amount($event)"
-                     [(ngModel)]="selectedProductPrice.priceFormatted">
+                     [(ngModel)]="selectedDetail.priceFormatted">
             </div>
           </div>
         </form>
-      </div>
-      <div class="card-footer">
-        <div class="float-right">
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text success-icon-side">
-                <i class="fa fa-check" *ngIf="!onTransaction"></i>
-                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-              </span>
-            </div>
-            <button type="button" class="btn btn-sm btn-success form-control"
-                    [disabled]="onTransaction || !f2.valid"
-                    (click)="btnSaveProduct_Click()">Ürün Kaydet
-            </button>
-          </div>
-        </div>
-        <div class="float-left" *ngIf="selectedProductPrice.data.primaryKey!=undefined">
-          <div class="input-group">
-            <div class="input-group-prepend">
-              <span class="input-group-text danger-icon-side">
-        <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
-        <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-      </span>
-            </div>
-            <button type="button" class="btn btn-sm btn-danger form-control"
-                    [disabled]="onTransaction"
-                    (click)="btnRemoveProduct_Click()">Ürün Kaldır
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   </div>

@@ -6,7 +6,8 @@ import {ExcelService} from '../services/excel-service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {
-  getDateForInput, getFirstDayOfMonthForInput, getInputDataForInsert,
+  getDateForInput, getFirstDayOfMonthForInput, getFloat, getInputDataForInsert,
+  getNumber,
   getTodayForInput, isNullOrEmpty,
 } from '../core/correct-library';
 import {PriceListService} from '../services/price-list.service';
@@ -23,6 +24,9 @@ import {PurchaseOrderMainModel} from '../models/purchase-order-main-model';
 import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
 import {PurchaseOrderService} from '../services/purchase-order.service';
 import { Subscription } from 'rxjs';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { DefinitionMainModel } from '../models/definition-main-model';
+import { TermService } from '../services/term.service';
 
 @Component({
   selector: 'app-purchase-order',
@@ -58,7 +62,7 @@ export class PurchaseOrderComponent implements OnInit, OnDestroy {
               protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
               protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
               protected sodService: PurchaseOrderDetailService, protected defService: DefinitionService, public globService: GlobalService,
-              protected dService: DiscountListService) {
+              protected dService: DiscountListService, protected termService: TermService) {
   }
 
   ngOnInit() {
@@ -224,6 +228,24 @@ export class PurchaseOrderComponent implements OnInit, OnDestroy {
     });
   }
 
+  async calculateTerm(): Promise<void> {
+    const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
+    const term = record.returnData as DefinitionMainModel;
+    const date = new Date(this.selectedRecord.data.recordDate);
+    let controlAmount = 0;
+    this.selectedRecord.termList = [];
+    for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
+      const item = this.termService.clearSubModel();
+      item.dayCount = getNumber(term.data.custom2.split(';')[i]);
+      item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
+      item.termDate = date.setDate(date.getDate() + item.dayCount);
+      this.selectedRecord.termList.push(item);
+      controlAmount += getFloat(item.termAmount.toFixed(2));
+    }
+    this.selectedRecord.termList[this.selectedRecord.termList.length - 1].termAmount +=
+    getFloat(this.selectedRecord.data.totalPriceWithTax.toFixed(2)) -  getFloat(controlAmount);
+  }
+
   showSelectedRecord(record: any): void {
     this.selectedRecord = this.service.clearMainModel();
     this.service.getItem(record.data.primaryKey).then(async value => {
@@ -233,6 +255,8 @@ export class PurchaseOrderComponent implements OnInit, OnDestroy {
       this.selectedRecord.discountListName = this.discountListMap.get(this.selectedRecord.data.discountListPrimaryKey);
       this.selectedRecord.termName = this.termListMap.get(this.selectedRecord.data.termPrimaryKey);
       this.selectedRecord.paymentName = this.paymentListMap.get(this.selectedRecord.data.paymentTypePrimaryKey);
+      this.selectedRecord.storageName = this.storageListMap.get(this.selectedRecord.data.storagePrimaryKey);
+      this.calculateTerm();
 
       this.sodService.getMainItemsWithOrderPrimaryKey(record.data.primaryKey)
         .then((list) => {
@@ -356,9 +380,21 @@ export class PurchaseOrderComponent implements OnInit, OnDestroy {
     }
   }
 
-  btnShowMainFiler_Click(): void {
-    this.isMainFilterOpened = this.isMainFilterOpened !== true;
-    this.clearMainFiler();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
   }
 
   clearSelectedRecord(): void {

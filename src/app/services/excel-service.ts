@@ -384,7 +384,7 @@ export class ExcelService {
         break;
       }
       case 'purchase-order-detail': {
-        fileName = 'sales_order_detail';
+        fileName = 'purchase_order_detail';
         list.forEach((item: any) => {
         const data = item as any;
         excelList.push({

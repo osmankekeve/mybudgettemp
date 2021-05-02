@@ -94,6 +94,9 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   orderInfoText = 'Sipariş Seçilmedi';
   productSearchText = '';
   itemIndex = -1;
+  mainControls = {
+    isAutoReceiptNoAvaliable: false,
+  };
 
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
               protected service: SalesInvoiceService, protected cService: CustomerService, protected excelService: ExcelService,
@@ -877,9 +880,11 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   }
 
   async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
     const receiptNoData = await this.sService.getSalesInvoiceCode();
     if (this.selectedRecord !== undefined && receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
     }
   }
 

@@ -4,7 +4,7 @@ import {ProductService} from '../../services/product.service';
 import {ProductMainModel} from '../../models/product-main-model';
 import {InformationService} from '../../services/information.service';
 import {Router} from '@angular/router';
-import { getFirstDayOfMonthForInput, getTodayForInput } from 'src/app/core/correct-library';
+import { getBeginOfYearForInput, getFirstDayOfMonthForInput, getTodayForInput } from 'src/app/core/correct-library';
 
 @Component({
   selector: 'app-main-filter',
@@ -265,6 +265,16 @@ export class MainFilterComponent implements OnInit {
 
   async btnSubmitFilter_Click() {
     try {
+      this.passEntry.emit(this.mainFilter);
+      this.activeModal.close(this.mainFilter);
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSubmitYTDFilter_Click() {
+    try {
+      this.mainFilter.filterBeginDate = getBeginOfYearForInput();
       this.passEntry.emit(this.mainFilter);
       this.activeModal.close(this.mainFilter);
     } catch (error) {

@@ -1,12 +1,12 @@
-import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/Observable';
-import {CustomerModel} from '../models/customer-model';
-import {map, mergeMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
-import {AuthenticationService} from './authentication.service';
-import {LogService} from './log.service';
-import {ProfileService} from './profile.service';
+import { Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/Observable';
+import { CustomerModel } from '../models/customer-model';
+import { map, mergeMap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { AuthenticationService } from './authentication.service';
+import { LogService } from './log.service';
+import { ProfileService } from './profile.service';
 import {
   currencyFormat,
   getCustomerTypes,
@@ -17,17 +17,17 @@ import {
   getTerms,
   isNullOrEmpty
 } from '../core/correct-library';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
-import {ActionService} from './action.service';
-import {SalesOrderModel} from '../models/sales-order-model';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
-import {SalesOrderDetailService} from './sales-order-detail.service';
-import {PriceListService} from './price-list.service';
-import {DiscountListService} from './discount-list.service';
-import {DefinitionService} from './definition.service';
-import {DeliveryAddressService} from './delivery-address.service';
-import {SettingService} from './setting.service';
+import { CustomerService } from './customer.service';
+import { AccountTransactionService } from './account-transaction.service';
+import { ActionService } from './action.service';
+import { SalesOrderModel } from '../models/sales-order-model';
+import { SalesOrderMainModel } from '../models/sales-order-main-model';
+import { SalesOrderDetailService } from './sales-order-detail.service';
+import { PriceListService } from './price-list.service';
+import { DiscountListService } from './discount-list.service';
+import { DefinitionService } from './definition.service';
+import { DeliveryAddressService } from './delivery-address.service';
+import { SettingService } from './setting.service';
 
 @Injectable({
   providedIn: 'root'
@@ -68,7 +68,8 @@ export class SalesOrderService {
               });
             }).finally(async () => {
               for (const item of record.orderDetailList) {
-                  await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+                item.data.orderPrimaryKey = record.data.primaryKey;
+                await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
               }
             });
         }
@@ -112,7 +113,8 @@ export class SalesOrderService {
               });
             }).finally(async () => {
               for (const item of record.orderDetailList) {
-                  await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+                item.data.orderPrimaryKey = record.data.primaryKey;
+                await this.db.collection(this.sodService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
               }
             });
         }
@@ -310,7 +312,7 @@ export class SalesOrderService {
           const d8 = await this.eService.getItem(returnData.data.approverPrimaryKey, false);
           returnData.approverName = d8 != null ? d8.returnData.data.longName : '';
 
-          resolve(Object.assign({returnData}));
+          resolve(Object.assign({ returnData }));
         } else {
           resolve(null);
         }
@@ -333,7 +335,7 @@ export class SalesOrderService {
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
@@ -368,7 +370,7 @@ export class SalesOrderService {
         return this.db.collection('tblCustomer').doc(data.customerPrimaryKey).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
@@ -377,72 +379,72 @@ export class SalesOrderService {
 
   getOrdersMain = async (customerPrimaryKey: string, type: string):
     Promise<Array<SalesOrderMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<SalesOrderMainModel>();
-      await this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('customerPrimaryKey', '==', customerPrimaryKey)
-          .where('status', '==', 'approved')
-          .where('type', '==', type);
-        return query;
-      }).get()
-        .subscribe(snapshot => {
-          snapshot.forEach(async doc => {
-            const data = doc.data() as SalesOrderModel;
-            data.primaryKey = doc.id;
-            list.push(this.convertMainModel(data));
+      try {
+        const list = Array<SalesOrderMainModel>();
+        await this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query
+            .where('userPrimaryKey', '==', this.authService.getUid())
+            .where('customerPrimaryKey', '==', customerPrimaryKey)
+            .where('status', '==', 'approved')
+            .where('type', '==', type);
+          return query;
+        }).get()
+          .subscribe(snapshot => {
+            snapshot.forEach(async doc => {
+              const data = doc.data() as SalesOrderModel;
+              data.primaryKey = doc.id;
+              list.push(this.convertMainModel(data));
+            });
+            resolve(list);
           });
-          resolve(list);
-        });
 
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
   isOrderHasShortProduct = async (salesOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      this.db.collection('tblSalesOrderDetail', ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
-          .where('invoicedStatus', '==', 'short');
-        return query;
-      }).get().toPromise().then(snapshot => {
-        if (snapshot.size > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      try {
+        this.db.collection('tblSalesOrderDetail', ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+            .where('invoicedStatus', '==', 'short');
+          return query;
+        }).get().toPromise().then(snapshot => {
+          if (snapshot.size > 0) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
   isOrderHasCompleteProduct = async (salesOrderPrimaryKey: string):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      this.db.collection('tblSalesOrderDetail', ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
-          .where('invoicedStatus', '==', 'complete');
-        return query;
-      }).get().toPromise().then(snapshot => {
-        if (snapshot.size > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      try {
+        this.db.collection('tblSalesOrderDetail', ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.where('orderPrimaryKey', '==', salesOrderPrimaryKey)
+            .where('invoicedStatus', '==', 'complete');
+          return query;
+        }).get().toPromise().then(snapshot => {
+          if (snapshot.size > 0) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
 }

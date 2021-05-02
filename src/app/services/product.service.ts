@@ -176,8 +176,8 @@ export class ProductService {
   }
 
   getItem(primaryKey: string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
+    return new Promise(async (resolve, reject) => {
+      await this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(async doc => {
         if (doc.exists) {
           const data = doc.data() as ProductModel;
           data.primaryKey = doc.id;

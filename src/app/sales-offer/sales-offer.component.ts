@@ -79,7 +79,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
-  itemIndex = -1;
 
   priceLists: Array<PriceListModel>;
   discountLists: Array<DiscountListModel>;
@@ -436,9 +435,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
         .then(async () => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
-            for (const item of this.selectedRecord.orderDetailList) {
-              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
-            }
             setOrderCalculation(this.selectedRecord);
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
@@ -448,9 +444,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
                 this.finishProcess(error, null);
               });
           } else {
-            for (const item of this.selectedRecord.orderDetailList) {
-              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
-            }
             setOrderCalculation(this.selectedRecord);
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
@@ -725,7 +718,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
-  showOrderDetail(record: any, index: any): void {
+  showOrderDetail(record: any): void {
     this.selectedDetail = record as SalesOrderDetailMainModel;
     if (this.selectedDetail.data.campaignPrimaryKey !== '-1'
       && this.selectedDetail.data.campaignPrimaryKey === this.selectedRecord.data.campaignPrimaryKey) {
@@ -733,7 +726,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       this.clearSelectedDetail();
     } else if (this.selectedRecord.data.status === 'waitingForApprove') {
       this.isNewPanelOpened = true;
-      this.itemIndex = index;
     } else {
       this.toastService.warning('Sipariş detayı düzenlemeye kapalıdır', true);
       this.clearSelectedDetail();
@@ -786,7 +778,13 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
             this.calculateTerm();
             await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
           } else {
-            this.selectedRecord.orderDetailList[this.itemIndex] = this.selectedDetail;
+            this.selectedRecord.orderDetailList.forEach(item => {
+              if (item.data.primaryKey === this.selectedDetail.data.primaryKey) {
+                this.selectedRecord.orderDetailList[this.selectedRecord.orderDetailList.indexOf(item)] = this.selectedDetail;
+                return;
+              }
+            });
+
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
             this.calculateTerm();
@@ -804,7 +802,12 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
 
   async btnRemoveProductDetail_Click(): Promise<void> {
     try {
-      this.selectedRecord.orderDetailList.splice(this.itemIndex, 1);
+      this.selectedRecord.orderDetailList.forEach(item => {
+        if (item.data.primaryKey === this.selectedDetail.data.primaryKey) {
+          this.selectedRecord.orderDetailList.splice(this.selectedRecord.orderDetailList.indexOf(item), 1);
+          return;
+        }
+      });
       setOrderCalculation(this.selectedRecord);
       this.calculateTerm();
       this.clearSelectedDetail();
@@ -842,7 +845,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
   clearSelectedDetail(): void {
     this.isNewPanelOpened = false;
     this.selectedDetail = undefined;
-    this.itemIndex = -1;
   }
 
   format_price($event): void {

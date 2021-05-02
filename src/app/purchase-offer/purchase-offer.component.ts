@@ -12,6 +12,7 @@ import {
   getDateForInput, getFirstDayOfMonthForInput,
   getFloat,
   getInputDataForInsert,
+  getNumber,
   getTodayForInput, isNullOrEmpty,
   moneyFormat
 } from '../core/correct-library';
@@ -44,6 +45,8 @@ import {setOrderCalculation} from '../models/purchase-order-model';
 import {ActionService} from '../services/action.service';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { Subscription } from 'rxjs';
+import { DefinitionMainModel } from '../models/definition-main-model';
+import { TermService } from '../services/term.service';
 
 @Component({
   selector: 'app-purchase-offer',
@@ -89,7 +92,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
               protected daService: DeliveryAddressService, protected sodService: PurchaseOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService, protected actService: ActionService,
               protected pdService: ProductDiscountService, protected setService: SettingService,
-              protected pumService: ProductUnitMappingService) {
+              protected pumService: ProductUnitMappingService, protected termService: TermService) {
   }
 
   ngOnInit() {
@@ -320,6 +323,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as PurchaseOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.calculateTerm();
       this.populateUnits();
       this.populatePriceList();
       this.populateDiscountList();
@@ -333,6 +337,22 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
         });
       this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     });
+  }
+
+  async calculateTerm(): Promise<void> {
+    const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
+    if (record) {
+      const term = record.returnData as DefinitionMainModel;
+      const date = new Date(this.selectedRecord.data.recordDate);
+      this.selectedRecord.termList = [];
+      for (let i = 0; i <= term.data.custom2.split(';').length - 1; ++i) {
+        const item = this.termService.clearSubModel();
+        item.dayCount = getNumber(term.data.custom2.split(';')[i]);
+        item.termAmount = this.selectedRecord.data.totalPriceWithTax / term.data.custom2.split(';').length;
+        item.termDate = date.setDate(date.getDate() + item.dayCount);
+        this.selectedRecord.termList.push(item);
+      }
+    }
   }
 
   async btnShowJsonData_Click(): Promise<void> {
@@ -378,9 +398,6 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
             this.selectedRecord.data.primaryKey = this.db.createId();
-            for (const item of this.selectedRecord.orderDetailList) {
-              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
-            }
             setOrderCalculation(this.selectedRecord);
             await this.service.setItem(this.selectedRecord, this.selectedRecord.data.primaryKey)
               .then(() => {
@@ -390,9 +407,6 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
                 this.finishProcess(error, null);
               });
           } else {
-            for (const item of this.selectedRecord.orderDetailList) {
-              item.data.orderPrimaryKey = this.selectedRecord.data.primaryKey;
-            }
             setOrderCalculation(this.selectedRecord);
             await this.service.updateItem(this.selectedRecord)
               .then(() => {
@@ -478,6 +492,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.customerPrimaryKey = this.selectedRecord.customer.data.primaryKey;
           this.selectedRecord.data.termPrimaryKey = this.selectedRecord.customer.data.termKey;
           this.selectedRecord.data.paymentTypePrimaryKey = this.selectedRecord.customer.data.paymentTypeKey;
+          this.calculateTerm();
         }
       }, () => {});
     } catch (error) {
@@ -532,6 +547,30 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
           this.populateList();
         }
       }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  onChangeTermType(): void {
+    try {
+      this.calculateTerm();
+    } catch (err) {
+      this.infoService.error(err);
+    }
+  }
+
+  async onChangeType() {
+    try {
+      this.clearSelectedDetail();
+      this.selectedRecord.orderDetailList = [];
+      setOrderCalculation(this.selectedRecord);
+      this.calculateTerm();
+      if (this.selectedRecord.data.type === 'service') {
+        this.productType = 'service';
+      } else {
+        this.productType = 'normal';
+      }
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -615,11 +654,18 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord.orderDetailList.push(this.selectedDetail);
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
+            this.calculateTerm();
             await this.finishSubProcess(null, 'Ürün başarıyla sipariş listesine eklendi');
           } else {
-            this.selectedRecord.orderDetailList[this.itemIndex] = this.selectedDetail;
+            this.selectedRecord.orderDetailList.forEach(item => {
+              if (item.data.primaryKey === this.selectedDetail.data.primaryKey) {
+                this.selectedRecord.orderDetailList[this.selectedRecord.orderDetailList.indexOf(item)] = this.selectedDetail;
+                return;
+              }
+            });
             setOrderDetailCalculation(this.selectedDetail);
             setOrderCalculation(this.selectedRecord);
+            this.calculateTerm();
             await this.finishSubProcess(null, 'Ürün başarıyla düzenlendi');
           }
         })
@@ -634,8 +680,14 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
 
   async btnRemoveProductDetail_Click(): Promise<void> {
     try {
-      this.selectedRecord.orderDetailList.splice(this.itemIndex, 1);
+      this.selectedRecord.orderDetailList.forEach(item => {
+        if (item.data.primaryKey === this.selectedDetail.data.primaryKey) {
+          this.selectedRecord.orderDetailList.splice(this.selectedRecord.orderDetailList.indexOf(item), 1);
+          return;
+        }
+      });
       setOrderCalculation(this.selectedRecord);
+      this.calculateTerm();
       this.clearSelectedDetail();
     } catch (error) {
       await this.infoService.error(error);
@@ -677,6 +729,12 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
     if (this.selectedDetail.data.price === 0) {
       this.selectedDetail.data.price = null;
       this.selectedDetail.priceFormatted = null;
+    }
+  }
+
+  focus_quantity(): void {
+    if (this.selectedDetail.data.quantity === 0) {
+      this.selectedDetail.data.quantity = null;
     }
   }
 
