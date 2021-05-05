@@ -19,9 +19,9 @@ export class PriceListService {
   mainList$: Observable<PriceListMainModel[]>;
   tableName = 'tblPriceList';
 
-  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
-              protected logService: LogService, protected db: AngularFirestore,
-              protected ppService: ProductPriceService, protected actService: ActionService) {
+  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected logService: LogService,
+              protected db: AngularFirestore, protected ppService: ProductPriceService, protected actService: ActionService) {
+                this.listCollection = this.db.collection(this.tableName);
 
   }
 

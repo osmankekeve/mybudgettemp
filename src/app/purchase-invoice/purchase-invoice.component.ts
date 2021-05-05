@@ -1,13 +1,14 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore, CollectionReference, Query} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/internal/Observable';
-import {PurchaseInvoiceService} from '../services/purchase-invoice.service';
-import {CustomerModel} from '../models/customer-model';
-import {CustomerService} from '../services/customer.service';
-import {AuthenticationService} from '../services/authentication.service';
-import {AccountTransactionService} from '../services/account-transaction.service';
-import {InformationService} from '../services/information.service';
-import {Chart} from 'chart.js';
+import { PurchaseOrderMainModel } from './../models/purchase-order-main-model';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AngularFirestore, CollectionReference, Query } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/internal/Observable';
+import { PurchaseInvoiceService } from '../services/purchase-invoice.service';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { AccountTransactionService } from '../services/account-transaction.service';
+import { InformationService } from '../services/information.service';
+import { Chart } from 'chart.js';
 import {
   getFirstDayOfMonthForInput,
   getTodayForInput,
@@ -15,38 +16,42 @@ import {
   getInputDataForInsert,
   isNullOrEmpty,
   getEncryptionKey,
-  getFloat, currencyFormat, moneyFormat
+  getFloat, currencyFormat, moneyFormat, getNumber
 } from '../core/correct-library';
-import {ExcelService} from '../services/excel-service';
+import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import {Router, ActivatedRoute} from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import 'rxjs/add/operator/filter';
-import {SettingService} from '../services/setting.service';
-import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
-import {SettingModel} from '../models/setting-model';
-import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {GlobalService} from '../services/global.service';
-import {FileMainModel} from '../models/file-main-model';
-import {ActionMainModel} from '../models/action-main-model';
-import {ActionService} from '../services/action.service';
-import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ToastService} from '../services/toast.service';
-import {PurchaseInvoiceDetailMainModel, setInvoiceDetailCalculation} from '../models/purchase-invoice-detail-main-model';
-import {setInvoiceCalculation} from '../models/purchase-invoice-model';
-import {PurchaseInvoiceDetailService} from '../services/purchase-invoice-detail.service';
-import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
-import {OrderSelectComponent} from '../partials/order-select/order-select.component';
-import {ProductUnitService} from '../services/product-unit.service';
-import {ProductService} from '../services/product.service';
-import {PurchaseOrderDetailMainModel} from '../models/purchase-order-detail-main-model';
-import {PurchaseOrderDetailModel} from '../models/purchase-order-detail-model';
-import {PurchaseOrderDetailService} from '../services/purchase-order-detail.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {InfoModuleComponent} from '../partials/info-module/info-module.component';
+import { SettingService } from '../services/setting.service';
+import { PurchaseInvoiceMainModel } from '../models/purchase-invoice-main-model';
+import { SettingModel } from '../models/setting-model';
+import { CustomerAccountModel } from '../models/customer-account-model';
+import { CustomerAccountService } from '../services/customer-account.service';
+import { GlobalService } from '../services/global.service';
+import { FileMainModel } from '../models/file-main-model';
+import { ActionMainModel } from '../models/action-main-model';
+import { ActionService } from '../services/action.service';
+import { FileUploadService } from '../services/file-upload.service';
+import { GlobalUploadService } from '../services/global-upload.service';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from '../services/toast.service';
+import { PurchaseInvoiceDetailMainModel, setInvoiceDetailCalculation } from '../models/purchase-invoice-detail-main-model';
+import { setInvoiceCalculation } from '../models/purchase-invoice-model';
+import { PurchaseInvoiceDetailService } from '../services/purchase-invoice-detail.service';
+import { CustomerSelectComponent } from '../partials/customer-select/customer-select.component';
+import { OrderSelectComponent } from '../partials/order-select/order-select.component';
+import { ProductUnitService } from '../services/product-unit.service';
+import { ProductService } from '../services/product.service';
+import { PurchaseOrderDetailMainModel } from '../models/purchase-order-detail-main-model';
+import { PurchaseOrderDetailModel } from '../models/purchase-order-detail-model';
+import { PurchaseOrderDetailService } from '../services/purchase-order-detail.service';
+import { SalesInvoiceMainModel } from '../models/sales-invoice-main-model';
+import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { Subscription } from 'rxjs';
+import { DefinitionService } from '../services/definition.service';
+import { DefinitionModel } from '../models/definition-model';
+import { TermService } from '../services/term.service';
+import { DefinitionMainModel } from '../models/definition-main-model';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -63,15 +68,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   transactionList: Array<PurchaseInvoiceMainModel>;
   actionList: Array<ActionMainModel>;
   filesList: Array<FileMainModel>;
+  storageList: Array<DefinitionModel>;
   isRecordHasTransaction = false;
   isRecordHasReturnTransaction = false;
   isMainFilterOpened = false;
   recordDate: any;
   searchText: '';
   encryptSecretKey: string = getEncryptionKey();
-
   selectedDetailRecord: PurchaseInvoiceDetailMainModel;
-  orderInfoText = 'Sipariş Seçilmedi';
   productSearchText = '';
   itemIndex = -1;
 
@@ -83,6 +87,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   totalValues = {
     totalPrice: 0,
     totalPriceWithTax: 0,
+  };
+  mainControls = {
+    orderInfoText: 'Sipariş Seçilmedi',
+    isAutoReceiptNoAvaliable: false,
+    tableName: '',
+    primaryKey: ''
   };
   chart1: any;
   chart2: any;
@@ -96,7 +106,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
               protected infoService: InformationService, protected gfuService: GlobalUploadService, protected sidService: PurchaseInvoiceDetailService,
               protected excelService: ExcelService, protected db: AngularFirestore, protected accService: CustomerAccountService,
               protected actService: ActionService, protected fuService: FileUploadService, protected modalService: NgbModal,
-              protected puService: ProductUnitService, protected pService: ProductService, protected pod: PurchaseOrderDetailService) {
+              protected puService: ProductUnitService, protected pService: ProductService, protected pod: PurchaseOrderDetailService,
+              protected defService: DefinitionService, protected setService: SettingService, protected termService: TermService) {
   }
 
   async ngOnInit() {
@@ -156,9 +167,12 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   async generateOrderToInvoice(orderPrimaryKeyList: Array<string>): Promise<void> {
     try {
       this.selectedRecord.data.orderPrimaryKeyList = orderPrimaryKeyList;
-      this.invoiceDetailList =[];
+      this.invoiceDetailList = [];
       this.clearSelectedDetail();
+      this.calculateTerm();
+      this.populateStorageList();
       this.setOrderCountInfo();
+      this.generateMainControls();
       this.db.collection('tblPurchaseOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
         query = query.where('orderPrimaryKey', 'in', orderPrimaryKeyList)
@@ -187,6 +201,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
+  }
+
   populateList(): void {
     this.mainList = undefined;
     this.totalValues = {
@@ -198,40 +217,40 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
     this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
       .subscribe(list => {
-      if (this.mainList === undefined) {
-        this.mainList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as PurchaseInvoiceMainModel;
-        if (item.actionType === 'added') {
-          this.mainList.push(item);
-          this.totalValues.totalPrice += item.data.totalPrice;
-          this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+        if (this.mainList === undefined) {
+          this.mainList = [];
         }
-        if (item.actionType === 'removed') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
-              this.mainList.splice(i, 1);
-              this.totalValues.totalPrice -= item.data.totalPrice;
-              this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
-              break;
+        list.forEach((data: any) => {
+          const item = data.returnData as PurchaseInvoiceMainModel;
+          if (item.actionType === 'added') {
+            this.mainList.push(item);
+            this.totalValues.totalPrice += item.data.totalPrice;
+            this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+          }
+          if (item.actionType === 'removed') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.mainList.splice(i, 1);
+                this.totalValues.totalPrice -= item.data.totalPrice;
+                this.totalValues.totalPriceWithTax -= item.data.totalPriceWithTax;
+                break;
+              }
             }
           }
-        }
-        if (item.actionType === 'modified') {
-          for (let i = 0; i < this.mainList.length; i++) {
-            if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
-              this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
-              this.totalValues.totalPriceWithTax -= this.mainList[i].data.totalPriceWithTax;
-              this.totalValues.totalPrice += item.data.totalPrice;
-              this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
-              this.mainList[i] = item;
-              break;
+          if (item.actionType === 'modified') {
+            for (let i = 0; i < this.mainList.length; i++) {
+              if (item.data.primaryKey === this.mainList[i].data.primaryKey) {
+                this.totalValues.totalPrice -= this.mainList[i].data.totalPrice;
+                this.totalValues.totalPriceWithTax -= this.mainList[i].data.totalPriceWithTax;
+                this.totalValues.totalPrice += item.data.totalPrice;
+                this.totalValues.totalPriceWithTax += item.data.totalPriceWithTax;
+                this.mainList[i] = item;
+                break;
+              }
             }
           }
-        }
+        });
       });
-    });
     setTimeout(() => {
       if (this.mainList === undefined) {
         this.mainList = [];
@@ -250,8 +269,8 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           this.chart1Visibility = data1.valueBool;
           this.chart2Visibility = data2.valueBool;
         }).finally(() => {
-        this.populateCharts();
-      });
+          this.populateCharts();
+        });
     } else {
       this.populateCharts();
     }
@@ -298,7 +317,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           chart1DataNames = [];
           chart1DataValues = [];
           creatingData.forEach((value, key) => {
-            creatingList.push({itemKey: key, itemValue: value});
+            creatingList.push({ itemKey: key, itemValue: value });
           });
           creatingList.sort((a, b) => {
             return b.itemValue - a.itemValue;
@@ -315,98 +334,98 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      if (this.chart1Visibility) {
-        this.chart1 = new Chart('chart1', {
-          type: 'bar', // bar, pie, doughnut
-          data: {
-            labels: chart1DataNames,
-            datasets: [{
-              label: '# of Votes',
-              data: chart1DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            title: {
-              text: 'En Çok Alım Yapılan Cari Hareketler',
-              display: true
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  callback: (value, index, values) => {
-                    if (Number(value) >= 1000) {
-                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    } else {
-                      return '₺' + Number(value).toFixed(2);
-                    }
-                  }
-                }
+        if (this.chart1Visibility) {
+          this.chart1 = new Chart('chart1', {
+            type: 'bar', // bar, pie, doughnut
+            data: {
+              labels: chart1DataNames,
+              datasets: [{
+                label: '# of Votes',
+                data: chart1DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)',
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1
               }]
             },
-            tooltips: {
-              callbacks: {
-                label(tooltipItem, data) {
-                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
-                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-                  });
+            options: {
+              title: {
+                text: 'En Çok Alım Yapılan Cari Hareketler',
+                display: true
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true,
+                    callback: (value, index, values) => {
+                      if (Number(value) >= 1000) {
+                        return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                      } else {
+                        return '₺' + Number(value).toFixed(2);
+                      }
+                    }
+                  }
+                }]
+              },
+              tooltips: {
+                callbacks: {
+                  label(tooltipItem, data) {
+                    return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                      return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                    });
+                  }
                 }
               }
             }
-          }
-        });
-      }
-      if (this.chart2Visibility) {
-        this.chart2 = new Chart('chart2', {
-          type: 'doughnut', // bar, pie, doughnut
-          data: {
-            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-            datasets: [{
-              label: '# of Votes',
-              data: chart2DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-              ],
-              borderWidth: 1
-            }]
-          }
-        });
-      }
-      // sessionStorage.setItem('purchase_invoice_chart_1', JSON.stringify({nameValue : chart1DataNames, dataValue: chart1DataValues}));
-      // sessionStorage.setItem('purchase_invoice_chart_2', JSON.stringify({dataValue: chart2DataValues}));
-    });
+          });
+        }
+        if (this.chart2Visibility) {
+          this.chart2 = new Chart('chart2', {
+            type: 'doughnut', // bar, pie, doughnut
+            data: {
+              labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+              datasets: [{
+                label: '# of Votes',
+                data: chart2DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1
+              }]
+            }
+          });
+        }
+        // sessionStorage.setItem('purchase_invoice_chart_1', JSON.stringify({nameValue : chart1DataNames, dataValue: chart1DataValues}));
+        // sessionStorage.setItem('purchase_invoice_chart_2', JSON.stringify({dataValue: chart2DataValues}));
+      });
   }
 
   populateFiles(): void {
@@ -437,21 +456,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        }
-      });
-    });
-  }
-
   populateCustomers(): void {
     const list = Array<string>();
     list.push('supplier');
@@ -464,6 +468,23 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           returnData.forEach(value => {
             this.customerList.push(value);
           });
+        }
+      });
+  }
+
+  populateStorageList(): void {
+    Promise.all([this.defService.getItemsForFill('storage'), this.setService.getItem('defaultStoragePrimaryKey')])
+      .then((values: any) => {
+        this.storageList = [];
+        if (values[0] !== null) {
+          const returnData = values[0] as Array<DefinitionModel>;
+          returnData.forEach(value => {
+            this.storageList.push(value);
+          });
+        }
+        if (values[1] !== null && !this.selectedRecord.data.primaryKey) {
+          const defaultStoragePrimaryKey = values[1].data as SettingModel;
+          this.selectedRecord.data.storagePrimaryKey = defaultStoragePrimaryKey.value;
         }
       });
   }
@@ -550,24 +571,72 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
       this.setOrderCountInfo();
+      this.generateMainControls();
+      this.populateStorageList();
 
       this.sidService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey).then((list) => {
-          this.invoiceDetailList = list;
-          this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
+        this.invoiceDetailList = list;
+        this.selectedRecord.invoiceDetailList = this.invoiceDetailList;
+      });
+
+      this.termService.getMainItemsWithInvoicePrimaryKey(record.data.primaryKey)
+        .then((list) => {
+          if (list.length > 0) {
+            this.selectedRecord.termList = list;
+          } else {
+            this.calculateTerm();
+          }
         });
 
-      this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
+      /*this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
         this.isRecordHasTransaction = list.length > 0;
       });
 
       this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).toPromise().then(list => {
         this.isRecordHasReturnTransaction = list.length > 0;
-      });
+      });*/
 
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
       this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
       this.populateFiles();
-      this.populateActions();
+    });
+  }
+
+  async calculateTerm(): Promise<void> {
+    const list = new Map();
+    this.selectedRecord.termList = [];
+    this.selectedRecord.data.orderPrimaryKeyList.forEach(async orderCode => {
+      const o = await this.service.soService.getItem(orderCode);
+      const order = o.returnData as PurchaseOrderMainModel;
+      const record = await this.defService.getItem(order.data.termPrimaryKey);
+      const term = record.returnData as DefinitionMainModel;
+      const termLength = term.data.custom2.split(';').length;
+      const calculatedTermAmount = (order.data.totalPriceWithTax / termLength);
+      let controlAmount = 0;
+
+      for (let i = 0; i <= termLength - 1; ++i) {
+        const dayCount = getNumber(term.data.custom2.split(';')[i]);
+        if (list.has(dayCount)) {
+          for (let k = 0; k <= this.selectedRecord.termList.length - 1; ++k) {
+            if (this.selectedRecord.termList[k].dayCount === dayCount) {
+              const currentTermAmount = this.selectedRecord.termList[k].termAmount;
+              this.selectedRecord.termList[k].termAmount = currentTermAmount + calculatedTermAmount;
+            }
+          }
+        } else {
+          const date = new Date(this.selectedRecord.data.recordDate);
+          const item = this.termService.clearSubModel();
+          item.primaryKey = this.db.createId();
+          item.dayCount = dayCount;
+          item.termDate = date.setDate(date.getDate() + item.dayCount);
+          item.termAmount = calculatedTermAmount;
+          this.selectedRecord.termList.push(item);
+          list.set(dayCount, 1);
+        }
+        controlAmount += getFloat(calculatedTermAmount.toFixed(2));
+      }
+      this.selectedRecord.termList[this.selectedRecord.termList.length - 1].termAmount +=
+      getFloat(order.data.totalPriceWithTax.toFixed(2)) -  getFloat(controlAmount);
     });
   }
 
@@ -803,7 +872,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       const list = Array<string>();
       list.push('supplier');
       list.push('customer-supplier');
-      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      const modalRef = this.modalService.open(CustomerSelectComponent, { size: 'lg' });
       modalRef.componentInstance.customer = this.selectedRecord.customer;
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
@@ -812,7 +881,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -823,7 +892,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       if (this.selectedRecord.data.customerCode === '') {
         this.toastService.success('Lütfen müşteri seçiniz', true);
       } else {
-        const modalRef = this.modalService.open(OrderSelectComponent, {size: 'lg'});
+        const modalRef = this.modalService.open(OrderSelectComponent, { size: 'lg' });
         modalRef.componentInstance.orderType = this.selectedRecord.data.type;
         modalRef.componentInstance.customerPrimaryKey = this.selectedRecord.data.customerCode;
         modalRef.componentInstance.list = this.selectedRecord.data.orderPrimaryKeyList;
@@ -831,7 +900,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           if (result) {
             await this.generateOrderToInvoice(result);
           }
-        }, () => {});
+        }, () => { });
       }
     } catch (error) {
       await this.infoService.error(error);
@@ -848,7 +917,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   async btnShowInfoModule_Click(): Promise<void> {
     try {
-      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+      this.modalService.open(InfoModuleComponent, { size: 'lg' });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -917,9 +986,11 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
     const receiptNoData = await this.sService.getPurchaseInvoiceCode();
     if (this.selectedRecord !== undefined && receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
     }
   }
 
@@ -1021,9 +1092,9 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   setOrderCountInfo(): void {
     if (this.selectedRecord.data.orderPrimaryKeyList.length > 0) {
-      this.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() +  ' Adet Sipariş Seçildi';
+      this.mainControls.orderInfoText = this.selectedRecord.data.orderPrimaryKeyList.length.toString() + ' Adet Sipariş Seçildi';
     } else {
-      this.orderInfoText = 'Sipariş Seçilmedi';
+      this.mainControls.orderInfoText = 'Sipariş Seçilmedi';
     }
   }
 

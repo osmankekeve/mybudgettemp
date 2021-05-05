@@ -1,21 +1,21 @@
-import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/Observable';
-import {map, mergeMap} from 'rxjs/operators';
-import {AuthenticationService} from './authentication.service';
-import {LogService} from './log.service';
-import {SettingService} from './setting.service';
-import {ProfileService} from './profile.service';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
-import {ActionService} from './action.service';
-import {ProductUnitModel} from '../models/product-unit-model';
-import {ProductUnitMappingModel} from '../models/product-unit-mapping-model';
-import {ProductUnitMappingMainModel} from '../models/product-unit-mapping-main-model';
-import {combineLatest} from 'rxjs';
-import {ProductModel} from '../models/product-model';
-import {ProductService} from './product.service';
-import {ProductUnitService} from './product-unit.service';
+import { Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/Observable';
+import { map, mergeMap } from 'rxjs/operators';
+import { AuthenticationService } from './authentication.service';
+import { LogService } from './log.service';
+import { SettingService } from './setting.service';
+import { ProfileService } from './profile.service';
+import { CustomerService } from './customer.service';
+import { AccountTransactionService } from './account-transaction.service';
+import { ActionService } from './action.service';
+import { ProductUnitModel } from '../models/product-unit-model';
+import { ProductUnitMappingModel } from '../models/product-unit-mapping-model';
+import { ProductUnitMappingMainModel } from '../models/product-unit-mapping-main-model';
+import { combineLatest } from 'rxjs';
+import { ProductModel } from '../models/product-model';
+import { ProductService } from './product.service';
+import { ProductUnitService } from './product-unit.service';
 
 @Injectable({
   providedIn: 'root'
@@ -29,6 +29,7 @@ export class ProductUnitMappingService {
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected atService: AccountTransactionService, protected actService: ActionService, protected proService: ProductService,
               protected puService: ProductUnitService) {
+                this.listCollection = this.db.collection(this.tableName);
 
   }
 
@@ -127,7 +128,7 @@ export class ProductUnitMappingService {
 
           const returnData = new ProductUnitMappingMainModel();
           returnData.data = this.checkFields(data);
-          return Object.assign({returnData});
+          return Object.assign({ returnData });
         } else {
           resolve(null);
         }
@@ -150,36 +151,46 @@ export class ProductUnitMappingService {
         return this.db.collection('tblProductUnit').doc(data.unitPrimaryKey).valueChanges()
           .pipe(map((unit: ProductUnitModel) => {
             returnData.unit = unit;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getProductMainItems(productPrimaryKey: string): Observable<ProductUnitMappingMainModel[]> {
-    this.listCollection = this.db.collection(this.tableName,
-      ref => ref.where('userPrimaryKey', '==', this.authService.getUid())
-        .where('productPrimaryKey', '==', productPrimaryKey)
-    );
-    this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
-      return changes.map(change => {
-        const data = change.payload.doc.data() as ProductUnitMappingModel;
-        data.primaryKey = change.payload.doc.id;
+  getProductMainItems = async (productPrimaryKey: string):
+    Promise<Array<ProductUnitMappingMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
+      try {
+        const list = Array<ProductUnitMappingMainModel>();
+        this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.where('userPrimaryKey', '==', this.authService.getUid())
+            .where('productPrimaryKey', '==', productPrimaryKey);
+          return query;
+        })
+          .get().toPromise().then(snapshot => {
+            snapshot.forEach(async doc => {
+              const data = doc.data() as ProductUnitMappingModel;
+              data.primaryKey = doc.id;
+              const returnData = this.convertMainModel(data);
 
-        const returnData = new ProductUnitMappingMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
+              const pu = await this.puService.getItem(data.unitPrimaryKey);
+              returnData.unit = pu.returnData.data;
 
-        return this.db.collection('tblProductUnit').doc(data.unitPrimaryKey).valueChanges()
-          .pipe(map((unit: ProductUnitModel) => {
-            returnData.unit = unit;
-            return Object.assign({returnData});
-          }));
-      });
-    }), mergeMap(feeds => combineLatest(feeds)));
-    return this.mainList$;
-  }
+
+
+
+
+              list.push(returnData);
+            });
+            resolve(list);
+          });
+
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
   getUnitProducts(unitPrimaryKey: string): Observable<ProductUnitMappingMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
@@ -197,7 +208,7 @@ export class ProductUnitMappingService {
         return this.db.collection('tblProduct').doc(data.productPrimaryKey).valueChanges()
           .pipe(map((product: ProductModel) => {
             returnData.product = this.proService.convertMainModel(product);
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
@@ -206,79 +217,79 @@ export class ProductUnitMappingService {
 
   getUnitProductsAsync = async (unitPrimaryKey: string):
     Promise<Array<ProductUnitMappingMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<ProductUnitMappingMainModel>();
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.where('userPrimaryKey', '==', this.authService.getUid())
-          .where('unitPrimaryKey', '==', unitPrimaryKey);
-        return query;
-      })
-        .get().toPromise().then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data() as ProductUnitMappingModel;
-          data.primaryKey = doc.id;
+      try {
+        const list = Array<ProductUnitMappingMainModel>();
+        this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.where('userPrimaryKey', '==', this.authService.getUid())
+            .where('unitPrimaryKey', '==', unitPrimaryKey);
+          return query;
+        })
+          .get().toPromise().then(snapshot => {
+            snapshot.forEach(doc => {
+              const data = doc.data() as ProductUnitMappingModel;
+              data.primaryKey = doc.id;
 
-          const returnData = new ProductUnitMappingMainModel();
-          returnData.data = this.checkFields(data);
-          list.push(returnData);
-        });
-        resolve(list);
-      });
+              const returnData = new ProductUnitMappingMainModel();
+              returnData.data = this.checkFields(data);
+              list.push(returnData);
+            });
+            resolve(list);
+          });
 
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
   getProductUnitMapping = async (productPrimaryKey: string, unitPrimaryKey):
     Promise<ProductUnitMappingModel> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('productPrimaryKey', '==', productPrimaryKey)
-          .where('unitPrimaryKey', '==', unitPrimaryKey);
-        return query;
-      }).get().toPromise().then(snapshot => {
-        if (snapshot.size > 0) {
-          snapshot.forEach(doc => {
-            const data = doc.data() as ProductUnitMappingModel;
-            data.primaryKey = doc.id;
-            resolve(data);
-          });
-        } else {
-          resolve(null);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      try {
+        this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.limit(1)
+            .where('userPrimaryKey', '==', this.authService.getUid())
+            .where('productPrimaryKey', '==', productPrimaryKey)
+            .where('unitPrimaryKey', '==', unitPrimaryKey);
+          return query;
+        }).get().toPromise().then(snapshot => {
+          if (snapshot.size > 0) {
+            snapshot.forEach(doc => {
+              const data = doc.data() as ProductUnitMappingModel;
+              data.primaryKey = doc.id;
+              resolve(data);
+            });
+          } else {
+            resolve(null);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 
   isProductHasUnitMapping = async (productPrimaryKey: string, unitPrimaryKey):
     Promise<boolean> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.limit(1)
-          .where('userPrimaryKey', '==', this.authService.getUid())
-          .where('productPrimaryKey', '==', productPrimaryKey)
-          .where('unitPrimaryKey', '==', unitPrimaryKey);
-        return query;
-      }).get().toPromise().then(snapshot => {
-        if (snapshot.size > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      try {
+        this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.limit(1)
+            .where('userPrimaryKey', '==', this.authService.getUid())
+            .where('productPrimaryKey', '==', productPrimaryKey)
+            .where('unitPrimaryKey', '==', unitPrimaryKey);
+          return query;
+        }).get().toPromise().then(snapshot => {
+          if (snapshot.size > 0) {
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 }

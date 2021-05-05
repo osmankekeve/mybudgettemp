@@ -20,6 +20,7 @@ export class ProductUnitService {
 
   constructor(protected authService: AuthenticationService, protected actService: ActionService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore) {
+                this.listCollection = this.db.collection(this.tableName);
 
   }
 

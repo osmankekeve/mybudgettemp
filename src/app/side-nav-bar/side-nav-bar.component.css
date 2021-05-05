@@ -434,8 +434,9 @@
   .chiller-theme .sidebar-wrapper .sidebar-menu .sidebar-dropdown.active>a,
   .chiller-theme .sidebar-wrapper .sidebar-header .user-info,
   .chiller-theme .sidebar-wrapper .sidebar-brand>a:hover,
+  .chiller-theme .sidebar-wrapper .sidebar-menu ul li a.active,
   .chiller-theme .sidebar-footer>a:hover i {
-      color: #b8bfce;
+      color: #ffffff;
   }
 
   .page-wrapper.chiller-theme.toggled #close-sidebar {

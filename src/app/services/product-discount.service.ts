@@ -103,6 +103,12 @@ export class ProductDiscountService {
     return model;
   }
 
+  convertMainModel(model: ProductDiscountModel): ProductDiscountMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    return returnData;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
@@ -180,11 +186,13 @@ export class ProductDiscountService {
           .where('discountListPrimaryKey', '==', discountListPrimaryKey);
         return query;
       }).get().toPromise().then(snapshot => {
-        snapshot.forEach(doc => {
+        snapshot.forEach(async doc => {
           const data = doc.data() as ProductDiscountModel;
+          data.primaryKey = doc.id;
 
-          const returnData = new ProductDiscountMainModel();
-          returnData.data = this.checkFields(data);
+          const returnData = this.convertMainModel(data);
+          const p = await this.pService.getItem(data.productPrimaryKey);
+          returnData.product = p.returnData;
 
           list.push(returnData);
         });
@@ -218,6 +226,31 @@ export class ProductDiscountService {
         } else {
           resolve(null);
         }
+      });
+
+    } catch (error) {
+      console.error(error);
+      reject({message: 'Error: ' + error});
+    }
+  })
+
+  getProductsForTransaction = async (discountListPrimaryKey: string):
+    Promise<Array<ProductDiscountModel>> => new Promise(async (resolve, reject): Promise<void> => {
+    try {
+      const list = Array<ProductDiscountModel>();
+      this.db.collection(this.tableName, ref => {
+        let query: CollectionReference | Query = ref;
+        query = query.where('userPrimaryKey', '==', this.authService.getUid())
+          .where('discountListPrimaryKey', '==', discountListPrimaryKey);
+        return query;
+      }).get().toPromise().then(snapshot => {
+        snapshot.forEach(async doc => {
+          const data = doc.data() as ProductDiscountModel;
+          data.primaryKey = doc.id;
+
+          list.push(data);
+        });
+        resolve(list);
       });
 
     } catch (error) {

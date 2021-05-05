@@ -178,652 +178,641 @@
     <span class="font-weight-800">{{mainList?.length}}</span> Kayıt, Toplam Tutar <span class="float-right font-weight-800 text-danger ml-1">{{totalValues.totalPriceWithTax | currency:'₺'}}</span>
   </div>
 </div>
-<div class="card work-area" *ngIf="selectedRecord!=undefined">
-  <div class="card-header bg-gray-gradient">
-    <div class="d-flex align-items-center">
-      <div class="flex-grow-1">
-        <img src="../../assets/images/purchase_invoice.png" width="30px" alt="" class="float-left mr-2">
-        <h5 class="card-title float-left mr-2">Alım Faturası > 
-          <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
-          <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
-        </h5>
-      </div>
-      <div class="head-filter">
-        <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
-          <i class="fa fa-arrow-left text-secondary"></i> Listeye Geri Dön
-        </button>
-      </div>
-      <div class="head-filter">
-        <div class="dropdown">
-          <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
-          </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item cursor-pointer" (click)="btnCreatePayment_Click()"
-              *ngIf="selectedRecord.data.primaryKey!=undefined">
-              <i class="fa fa-external-link text-secondary"></i> Ödeme Kaydı Oluştur
-            </a>
-            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
-              <i class="fa fa-jsfiddle text-secondary"></i> Json Göster
-            </a>
-            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
-              <i class="fa fa-info-circle text-secondary"></i> Bilgiler
-            </a>
-            <a class="dropdown-item cursor-pointer" (click)="btnFileUpload_Click()"
-              *ngIf="selectedRecord.data.primaryKey!=undefined"><i class="fa fa-upload text-secondary"></i> Dosya Yükle
-            </a>
+<div class="row" *ngIf="selectedRecord!=undefined">
+  <div class="col-sm-6">
+    <div class="card work-area">
+      <div class="card-header bg-gray-gradient">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <img src="../../assets/images/purchase_invoice.png" width="30px" alt="" class="float-left mr-2">
+            <h5 class="card-title float-left mr-2">Alım Faturası >
+              <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+              <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+            </h5>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+              <i class="fa fa-arrow-left text-secondary"></i> Geri Dön
+            </button>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item cursor-pointer" (click)="btnCreatePayment_Click()"
+                  *ngIf="selectedRecord.data.primaryKey!=undefined">
+                  <i class="fa fa-external-link text-secondary"></i> Ödeme Kaydı Oluştur
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
+                  <i class="fa fa-jsfiddle text-secondary"></i> Json Göster
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
+                  <i class="fa fa-info-circle text-secondary"></i> Bilgiler
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnFileUpload_Click()"
+                  *ngIf="selectedRecord.data.primaryKey!=undefined"><i class="fa fa-upload text-secondary"></i> Dosya
+                  Yükle
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  <div class="card-body work-area-11">
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" data-toggle="tab" href="#home">Ana Ekran</a>
-      </li>
-      <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
-        <a class="nav-link" data-toggle="tab" href="#files">Dosyalar</a>
-      </li>
-      <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
-        <a class="nav-link" data-toggle="tab" href="#actions">İşlemler</a>
-      </li>
-    </ul>
-    <div class="tab-content">
-      <div id="home" class="tab-pane p-1 active">
-        <div class="row">
-          <div class="col-sm-12">
+      <div class="card-body work-area-12">
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#home">Ana Ekran</a>
+          </li>
+          <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
+            <a class="nav-link" data-toggle="tab" href="#files">Dosyalar</a>
+          </li>
+          <li class="nav-item" *ngIf="selectedRecord.data.primaryKey!=undefined">
+            <a class="nav-link" data-toggle="tab" href="#actions">İşlemler</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div id="home" class="tab-pane p-1 active">
             <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
               <div class="form-row form-inline">
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left" for="customerName">Müşteri Adı</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <div class="input-group">
                     <input class="form-control form-control-sm" name="customerName" id="customerName"
-                           [(ngModel)]="selectedRecord.customer.data.name" disabled>
+                      [(ngModel)]="selectedRecord.customer.data.name" disabled>
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" type="button"
-                              [disabled]="selectedRecord.data.primaryKey!=undefined"
-                              (click)="btnSelectCustomer_Click()">
+                        [disabled]="selectedRecord.data.primaryKey!=undefined" (click)="btnSelectCustomer_Click()">
                         <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left" for="accountPrimaryKey">Hesap</label>
                 </div>
-                <div class="col-sm-3">
-                  <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"
-                          required
-                          [disabled]="selectedRecord.data.primaryKey!=undefined"
-                          [(ngModel)]="selectedRecord.data.accountPrimaryKey">
-                    <option value={{item.primaryKey}}
-                            *ngFor="let item of accountList$ | async; index as i;">{{item.name}}</option>
+                <div class="col-sm-8">
+                  <select class="form-control form-control-sm w-100" id="accountPrimaryKey" name="accountPrimaryKey"required
+                    [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [(ngModel)]="selectedRecord.data.accountPrimaryKey">
+                    <option value={{item.primaryKey}} *ngFor="let item of accountList$ | async; index as i;">
+                      {{item.name}}</option>
                   </select>
                   <div class="invalid-feedback invalid-input-info">Lütfen hesap seçiniz.</div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left" for="type">Fatura Tipi</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <select class="form-control form-control-sm w-100" id="type" name="type" required
-                          [disabled]="selectedRecord.data.primaryKey!=undefined"
-                          [(ngModel)]="selectedRecord.data.type">
+                    (change)="onChangeType()" [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [(ngModel)]="selectedRecord.data.type">
                     <option value="purchase">Alım Faturası</option>
                     <option value="return">İade Faturası</option>
                     <option value="service">Hizmet Faturası</option>
                   </select>
                   <div class="invalid-feedback invalid-input-info">Lütfen tip seçiniz.</div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
+                  <label class="col-form-label float-left" for="storagePrimaryKey">Depo</label>
+                </div>
+                <div class="col-sm-8">
+                  <select class="form-control form-control-sm w-100" id="storagePrimaryKey" name="storagePrimaryKey" required
+                    [disabled]="selectedRecord.data.primaryKey!=undefined"
+                    [(ngModel)]="selectedRecord.data.storagePrimaryKey">
+                    <option value={{item.primaryKey}} *ngFor="let item of storageList">{{item.custom1}}</option>
+                  </select>
+                  <div class="invalid-feedback invalid-input-info">Lütfen depo seçiniz.</div>
+                </div>
+                <div class="col-sm-4">
                   <label class="col-form-label float-left">Sipariş</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <div class="input-group">
-                    <input class="form-control form-control-sm" [(ngModel)]="orderInfoText" [ngModelOptions]="{standalone: true}" disabled>
+                    <input class="form-control form-control-sm" [(ngModel)]="mainControls.orderInfoText"
+                      [ngModelOptions]="{standalone: true}" disabled>
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" type="button"
-                              [disabled]="selectedRecord.data.primaryKey!=undefined"
-                              (click)="btnSelectOrder_Click()">
+                        [disabled]="selectedRecord.data.primaryKey!=undefined" (click)="btnSelectOrder_Click()">
                         <i class="far fa-arrow-alt-circle-right"></i></button>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="recordDate">Döküman Tarihi</label>
+                <div class="col-sm-4">
+                  <label class="col-form-label float-left">İrsaliye</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="isWaybill" name="isWaybill" 
+                    [disabled]="selectedRecord.data.primaryKey!=undefined || selectedRecord.data.type === 'service'"
+                    [(ngModel)]="selectedRecord.data.isWaybill"
+                    [checked]="selectedRecord.data.isWaybill">
+                    <label class="custom-control-label float-left text-dark" for="isWaybill">İrsaliyeli Fatura</label>
+                  </div>
+                  <div title="Stok hareket durumu bilgilendirmesi">
+                    <small class="text-secondary">
+                      <i>*İrsaliyeli Fatura seçimi ile stok hareketleri aktif hale gelir.</i>
+                    </small>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                  <label class="col-form-label float-left">Döküman Tarihi</label>
+                </div>
+                <div class="col-sm-8">
                   <div class="input-group">
                     <input class="form-control form-control-sm" id="recordDate" placeholder="yyyy-mm-dd" name="d3"
-                           #c3="ngModel"
-                           [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
+                      #c3="ngModel" [disabled]="selectedRecord.data.status !== 'waitingForApprove'"
+                      [(ngModel)]="recordDate" ngbDatepicker #d3="ngbDatepicker">
                     <div class="input-group-append">
                       <button class="btn btn-sm btn-outline-secondary" (click)="d3.toggle()" type="button"><i
-                        class="fa fa-calendar"></i></button>
+                          class="fa fa-calendar"></i></button>
                     </div>
                   </div>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left">Temsilci</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <label class="col-form-label float-left">
                     {{selectedRecord.customer.executive?.longName}}
                   </label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left" for="receiptNo">Fiş Numarası</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <input class="form-control form-control-sm w-100" id="receiptNo" name="receiptNo" type="text"
-                         [disabled]="selectedRecord.data.primaryKey!=undefined"
-                         [(ngModel)]="selectedRecord.data.receiptNo" required>
-                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
+                    step="any" [disabled]="selectedRecord.data.primaryKey!=undefined || mainControls.isAutoReceiptNoAvaliable"
+                    [(ngModel)]="selectedRecord.data.receiptNo" required>
+                  <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>                  
+                  <div title="Fiş numarası bilgilendirmesi">
+                    <small class="text-secondary">
+                      <i>*Otomatik numaralama aktif olduğunda düzenlenemez.</i>
+                    </small>
+                  </div>
                 </div>
-                <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="totalPrice">Tutar</label>
-                </div>
-                <div class="col-sm-3">
-                  <input class="form-control form-control-sm w-100" id="totalPrice" name="totalPrice" type="text" disabled
-                         (focus)="focus_totalPrice()"
-                         (blur)="format_totalPrice($event)"
-                         [(ngModel)]="selectedRecord.totalPriceFormatted">
-                </div>
-                <div class="col-sm-3">
-                  <label class="col-form-label float-left" for="totalPriceWithTax">Tutar (+KDV)</label>
-                </div>
-                <div class="col-sm-3">
-                  <input class="form-control form-control-sm w-100" id="totalPriceWithTax" name="totalPriceWithTax" disabled
-                         type="text"
-                         (focus)="focus_totalPriceWithTax()"
-                         (blur)="format_totalPriceWithTax($event)"
-                         [(ngModel)]="selectedRecord.totalPriceWithTaxFormatted">
-                </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left">Durum</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <label class="col-form-label float-left">{{selectedRecord.statusTr}}</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-4">
                   <label class="col-form-label float-left" for="description">Açıklama</label>
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-8">
                   <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                         [(ngModel)]="selectedRecord.data.description">
+                    [(ngModel)]="selectedRecord.data.description">
                 </div>
-                <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+                <div class="col-sm-4" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
                   <label class="col-form-label float-left">Onaylayan Kişi</label>
                 </div>
-                <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+                <div class="col-sm-8" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
                   <label class="col-form-label float-left">{{selectedRecord.approverName}}</label>
                 </div>
-                <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+                <div class="col-sm-4" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
                   <label class="col-form-label float-left">Onaylama Tarihi</label>
                 </div>
-                <div class="col-sm-3" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
-                  <label class="col-form-label float-left">{{selectedRecord.data.approveDate | date: 'yyyy-MM-dd'}}</label>
+                <div class="col-sm-8" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
+                  <label
+                    class="col-form-label float-left">{{selectedRecord.data.approveDate | date: 'yyyy-MM-dd'}}</label>
                 </div>
               </div>
             </form>
-          </div>
-          <div class="col-sm-12">
-            <div class="card" *ngIf="!selectedDetailRecord">
-              <div class="card-header bg-gray-gradient">
-                <div class="d-flex align-items-center">
-                  <div class="flex-grow-1">
-                    <h5 class="card-title float-left mr-2">Fatura Detayı</h5>
-                  </div>
-                  <div class="head-filter mr-1">
-                    <div class="input-group input-group-round">
-                      <div class="input-group-prepend">
-                                    <span class="input-group-text">
-                                        <i class="fa fa-filter"></i>
-                                    </span>
-                      </div>
-                      <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="productSearchText">
+            <div class="row">
+              <div class="col-sm-12 my-1">
+                <div class="card p-2">
+                  <span class="font-weight-600 text-dark-blue">Fatura Toplam</span>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Ürün Sayısı</small>
                     </div>
-                  </div>
-                  <div class="head-filter">
-                    <button type="button" class="btn btn-light input-button-full" 
-                      (click)="btnDetailExportToExcel_Click()">
-                      <i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
-                    </button>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-right fs-13 p-0 pb-1">{{invoiceDetailList?.length}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam Tutar</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Detay İskonto</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalDetailDiscountFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">İskonto Dahil Fiyat</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Genel İskonto</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.generalDiscountFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam KDV</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalTaxAmountFormatted}}</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small class="col-form-label float-left fs-13 p-0 pb-1">Genel Toplam</small>
+                    </div>
+                    <div class="col-sm-6">
+                      <small
+                        class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="card-body">
+              <div class="col-sm-12">
+                <div class="card p-2">
+                  <span class="font-weight-600 text-dark-blue">Vade Listesi</span>
+                  <div *ngFor="let item of selectedRecord.termList">
+                    <div class="row">
+                      <div class="col-sm-6">
+                        <small
+                          class="col-form-label float-left fs-13 p-0 pb-1">{{item.termDate | date: 'yyyy-MM-dd'}}</small>
+                      </div>
+                      <div class="col-sm-6">
+                        <small
+                          class="col-form-label float-right fs-13 p-0 pb-1">{{item.termAmount | currency:'₺'}}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="files" class="tab-pane p-1 fade">
+            <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
+              <div class="list-group-item bg-success text-light main-list-item"
+                *ngIf="filesList.length > 0; else elseBlock2">
                 <div class="row">
-                  <div class="col-sm-9">
-                    <div *ngIf="invoiceDetailList != undefined; else elseBlock3">
-                      <div class="list-group" *ngIf="invoiceDetailList?.length > 0; else elseBlock">
-                        <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
-                             (click)="showDetailRecord(item , i)" title="Kaydı Göster"
-                             *ngFor="let item of invoiceDetailList | filterProductSub: productSearchText index as i;">
-                          <div class="row">
-                            <div class="col-sm-2">
-                              <img src='{{item.product.data.imgUrl}}' class="img-thumbnail text-center" width="250px" alt="">
-                            </div>
-                            <div class="col-sm-10">
-                              <div class="row">
-                                <div class="col-sm-12">
-                                  <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
-                                  <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
-                                  <span class="font-weight-600">{{item.product.data.productName}}</span>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Fiyat</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">{{item.data.price | currency:'₺'}}</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Liste Fiyatı</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">{{item.data.defaultPrice | currency:'₺'}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 1</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">%{{item.data.discount1}}</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 2</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">%{{item.data.discount2}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">{{item.data.quantity}} {{item.unit.unitName}}</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">{{item.data.totalPrice | currency:'₺'}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Stok Tipi</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">{{item.product.stockTypeTr}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
-                                    </div>
-                                    <div class="col-sm-6">
-                                      <label class="col-form-label float-right pb-0">%{{item.data.taxRate}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div class="col-sm-4">
-                                  <div class="row">
-                                    <div class="col-sm-7">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV</label>
-                                    </div>
-                                    <div class="col-sm-5">
-                                      <label class="col-form-label float-right pb-0">{{item.totalTaxAmount | currency:'₺'}}</label>
-                                    </div>
-                                    <div class="col-sm-7">
-                                      <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
-                                    </div>
-                                    <div class="col-sm-5">
-                                      <label class="col-form-label float-right pb-0">{{item.data.totalPriceWithTax | currency:'₺'}}</label>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <ng-template #elseBlock>
-                        <div class="loader"></div>
-                      </ng-template>
+                  <div class="col-sm-8">Dosya</div>
+                  <div class="col-sm-2">Boyut</div>
+                  <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+                </div>
+              </div>
+              <div class="work-area-7">
+                <div class="list-group-item list-group-item-action main-list-item" *ngFor="let item of filesList">
+                  <div class="row">
+                    <div class="col-sm-7">
+                      <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px"
+                        class="cursor-pointer mr-2" (click)="btnRemoveFile_Click(item)">
+                      <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
+                        <img [src]="item.fileIcon" width="24px">
+                      </a>
+                      {{item.data.fileName}}
                     </div>
-                    <ng-template #elseBlock3>
-                      <div class="card bg-red text-white">
-                        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-                      </div>
-                    </ng-template>
-                  </div>
-                  <div class="col-sm-3">
-                    <div class="card p-2">
-                      <div class="row">
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Ürün Sayısı</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{invoiceDetailList?.length}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam Tutar</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithoutDiscountFormatted}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Detay İskonto</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalDetailDiscountFormatted}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">İskonto Dahil Fiyat</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceFormatted}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Genel İskonto</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.generalDiscountFormatted}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Toplam KDV</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalTaxAmountFormatted}}</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-left fs-13 p-0 pb-1">Genel Toplam</small>
-                        </div>
-                        <div class="col-sm-6">
-                          <small class="col-form-label float-right fs-13 p-0 pb-1">{{selectedRecord.totalPriceWithTaxFormatted}}</small>
-                        </div>
-                      </div>
+                    <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
+                    <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
                     </div>
                   </div>
                 </div>
               </div>
+              <ng-template #elseBlock2>
+                <div class="card bg-red text-white">
+                  <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+                </div>
+              </ng-template>
             </div>
-            <div class="card" *ngIf="selectedDetailRecord">
-              <div class="card-header bg-gray-gradient">
-                <div class="d-flex align-items-center">
-                  <div class="flex-grow-1">
-                    <h5 class="card-title float-left mr-2">Ürün Detayı</h5>
-                  </div>
-                  <div class="head-filter">
-                    <button type="button" class="btn btn-light input-button-full mr-2" (click)="btnSaveDetail_Click()">
-                      <i class="far fa-save text-secondary"></i> Ürünü Kaydet
-                    </button>
-                    <button type="button" class="btn btn-light input-button" (click)="btnReturnInvoiceList_Click()">
-                      <i class="fa fa-arrow-left text-secondary"></i> İptal Et
-                    </button>
-                  </div>
-                  <div class="head-filter">
-                    <div class="dropdown">
-                      <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
-                      </button>
-                      <div class="dropdown-menu">
-                        <a class="dropdown-item text-danger cursor-pointer" (click)="btnRemoveDetail_Click()">
-                          <i class="fa fa-remove text-danger"></i> Ürünü Kaldır
-                        </a>
-                        <a class="dropdown-item cursor-pointer" (click)="btnShowJsonDataDetail_Click()">
-                          <i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body">
-                <div class="row fs-13">
-                  <div class="col-sm-12">
-                    <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
-                    <span class="text-red font-weight-600 mr-1">{{selectedDetailRecord.product.data.productCode}}</span>
-                    <span class="font-weight-600">{{selectedDetailRecord.product.data.productName}}</span>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Fiyat</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.price | currency:'₺'}}</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Liste Fiyatı</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.defaultPrice | currency:'₺'}}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 1</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.discount1}}</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 2</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.discount2}}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0" max="{{selectedDetailRecord.maxQuantity}}"
-                               [(ngModel)]="selectedDetailRecord.data.quantity">
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.taxRate}}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Birim</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">{{selectedDetailRecord.unit.unitName}}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.totalPrice | currency:'₺'}}</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="row">
-                      <div class="col-sm-6">
-                        <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar (+KDV)</label>
-                      </div>
-                      <div class="col-sm-6">
-                        <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.totalPriceWithTax | currency:'₺'}}</label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ng-template #elseBlock>
+              <div class="loader"></div>
+            </ng-template>
+          </div>
+          <div id="actions" class="tab-pane p-1 fade">
+            <app-action [recordData]="mainControls"></app-action>
           </div>
         </div>
       </div>
-      <div id="files" class="tab-pane p-1 fade">
-        <div class="list-group" *ngIf="filesList != undefined; else elseBlock">
-          <div class="list-group-item bg-success text-light main-list-item" *ngIf="filesList.length > 0; else elseBlock2">
-            <div class="row">
-              <div class="col-sm-1">#</div>
-              <div class="col-sm-7">Dosya Adı</div>
-              <div class="col-sm-2">Boyut</div>
-              <div class="col-sm-2"><span class="float-right">Tarih</span></div>
+      <div class="card-footer" *ngIf="selectedRecord.invoiceDetailList?.length > 0 && !selectedDetailRecord">
+        <div class="btn-action mr-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text success-icon-side">
+                <i class="fa fa-check" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
             </div>
+            <button type="button" class="btn btn-sm btn-success form-control" [disabled]="onTransaction || !f.valid"
+              (click)="btnSave_Click()">Kaydet
+            </button>
           </div>
-          <div class="work-area-7">
-            <div class="list-group-item list-group-item-action main-list-item"
-                 *ngFor="let item of filesList">
-              <div class="row">
-                <div class="col-sm-1">
-                  <img src="../../assets/icons/remove-icon.png" alt="Dosyayı Sil" width="24px" class="cursor-pointer"
-                       (click)="btnRemoveFile_Click(item)">
-                </div>
-                <div class="col-sm-7">
-                  <a [href]="item.data.downloadURL" target="_blank" rel="noopener" class="mr-1">
-                    <img [src]="item.fileIcon" width="24px">
-                  </a>
-                  {{item.data.fileName}}
-                </div>
-                <div class="col-sm-2">{{item?.data?.size/1024 | number:'1.2-2'}} KB</div>
-                <div class="col-sm-2"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
-              </div>
-            </div>
-          </div>
-          <ng-template #elseBlock2>
-            <div class="card bg-red text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
-          </ng-template>
         </div>
-        <ng-template #elseBlock>
-          <div class="loader"></div>
-        </ng-template>
-      </div>
-      <div id="actions" class="tab-pane p-1 fade">
-        <div class="list-group" *ngIf="actionList != undefined; else elseBlock">
-          <div class="list-group-item bg-danger text-light main-list-item"
-               *ngIf="actionList.length > 0; else elseBlock2">
-            <div class="row">
-              <div class="col-sm-2">İşlem</div>
-              <div class="col-sm-8">Personel</div>
-              <div class="col-sm-2"><span class="float-right">İşlem Tarihi</span></div>
+        <div class="btn-action mr-2 float-right"
+          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text success-icon-side">
+                <i class="fa fa-thumbs-up" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
             </div>
+            <button type="button" class="btn btn-sm btn-success form-control" [disabled]="onTransaction"
+              (click)="btnApprove_Click()">Onayla
+            </button>
           </div>
-          <div class="work-area-7">
-            <div class="list-group-item list-group-item-action main-list-item"
-                 *ngFor="let item of actionList">
-              <div class="row">
-                <div class="col-sm-2">{{item.data.action}}</div>
-                <div class="col-sm-8">{{item.employeeName}}</div>
-                <div class="col-sm-2"><span
-                  class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <ng-template #elseBlock2>
-            <div class="card bg-red text-white">
-              <div class="card-body">Görüntülenecek veri bulunamadı.</div>
-            </div>
-          </ng-template>
         </div>
-        <ng-template #elseBlock>
-          <div class="loader"></div>
-        </ng-template>
+        <div class="btn-action mr-2  float-left"
+          *ngIf="selectedRecord.data.primaryKey!=undefined">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text danger-icon-side">
+                <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+              (click)="btnRemove_Click()">Kaldır
+            </button>
+          </div>
+        </div>
+        <div class="btn-action mr-2  float-left"
+          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text danger-icon-side">
+                <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+              (click)="btnReject_Click()">Geri Çevir
+            </button>
+          </div>
+        </div>
+        <div class="btn-action mr-2  float-left"
+          *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <span class="input-group-text danger-icon-side">
+                <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
+                <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
+              </span>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+              (click)="btnCancelRecord_Click()">İptal Et
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="card-footer" *ngIf="selectedRecord.invoiceDetailList?.length > 0 && !selectedDetailRecord">
-    <div class="btn-action mr-2 float-right" *ngIf="selectedRecord.data.status === 'waitingForApprove'">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text success-icon-side">
-            <i class="fa fa-check" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
+  <div class="col-sm-6">
+    <div class="card work-area" *ngIf="!selectedDetailRecord">
+      <div class="card-header bg-gray-gradient">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1 head-filter mr-1">
+            <div class="input-group input-group-round">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <i class="fa fa-filter"></i>
+                </span>
+              </div>
+              <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.."
+                [(ngModel)]="productSearchText">
+            </div>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button-full" (click)="btnDetailExportToExcel_Click()">
+              <i class="fas fa-file-excel text-secondary"></i> Excel'e Aktar
+            </button>
+          </div>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                [disabled]="onTransaction || !f.valid"
-                (click)="btnSave_Click()">Kaydet
-        </button>
+      </div>
+      <div class="card-body work-area-12">
+        <div class="row">
+          <div class="col-sm-12 mb-1">
+            <div *ngIf="invoiceDetailList != undefined; else elseBlock3">
+              <div class="list-group" *ngIf="invoiceDetailList?.length > 0; else elseBlock">
+                <div class="list-group-item list-group-item-action main-list-item"
+                  *ngFor="let item of invoiceDetailList | filterProductSub: productSearchText index as i;">
+                  <div class="row">
+                    <div class="col-sm-12">
+                      <div class="text-button float-left" (click)="showDetailRecord(item , i)" title="Kaydı Göster">
+                        <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
+                        <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
+                        <span class="font-weight-600 mr-2">{{item.product.data.productName}}</span>
+                      </div>
+                      <div class="row" style="position: absolute;z-index: 10001;" *ngIf="item.isShowImage">
+                        <div class="col-sm-12">
+                          <div class="order-item-product-img">
+                            <i class="far fa-times-circle font-weight-600 text-button" title="Görseli Kapat"
+                              (click)="item.isShowImage = false">
+                            </i>
+                          </div>
+                          <img src='{{item.product.data.imgUrl}}' class="img-thumbnail text-center" width="250px"
+                            alt="">
+                        </div>
+                      </div>
+                      <i class="far fa-images font-weight-600 text-button"
+                        (click)="item.isShowImage ? item.isShowImage = false : item.isShowImage = true"
+                        title="Ürün Görseli"></i>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Fiyat</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.data.price | currency:'₺'}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Liste
+                        Fiyatı</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.data.defaultPrice | currency:'₺'}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">İskonto
+                        1</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">%{{item.data.discount1}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">İskonto
+                        2</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">%{{item.data.discount2}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">KDV
+                        (%)</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">%{{item.data.taxRate}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Miktar</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.data.quantity}}
+                        {{item.unit.unitName}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Ürün
+                        Tipi</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.product.stockTypeTr}}</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Tutar</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.data.totalPrice | currency:'₺'}}</label>
+                    </div>
+                    <div class="col-sm-6">
+                      <i class="fas fa-coins text-secondary mr-1"
+                        *ngIf="item.data.listPrice > 0 && item.data.listPrice !=item.data.price"
+                        title="Farklı Fiyat"></i>
+                      <i class="fas fa-percent text-secondary mr-1"
+                        *ngIf="item.data.discount1 !=item.data.defaultDiscount1 || item.data.discount2 !=item.data.defaultDiscount2"
+                        title="Farklı İskonto"></i>
+                      <i class="fas fa-bullhorn text-secondary mr-1" *ngIf="item.data.campaignPrimaryKey !='-1'"
+                        title="Kampanya"></i>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">KDV</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label float-right p-0">{{item.totalTaxAmount | currency:'₺'}}</label>
+                    </div>
+                    <div class="col-sm-6"></div>
+                    <div class="col-sm-3">
+                      <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">Tutar
+                        (+KDV)</label>
+                    </div>
+                    <div class="col-sm-3">
+                      <label
+                        class="col-form-label float-right p-0">{{item.data.totalPriceWithTax | currency:'₺'}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #elseBlock>
+                <div class="loader"></div>
+              </ng-template>
+            </div>
+            <ng-template #elseBlock3>
+              <div class="card bg-red text-white">
+                <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+              </div>
+            </ng-template>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="btn-action mr-2 float-right" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text success-icon-side">
-            <i class="fa fa-thumbs-up" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
+    <div class="card work-area" *ngIf="selectedDetailRecord">
+      <div class="card-header bg-gray-gradient">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <h5 class="card-title float-left mr-2">Ürün Detayı</h5>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button-full mr-2" (click)="btnSaveDetail_Click()">
+              <i class="far fa-save text-secondary"></i> Ürünü Kaydet
+            </button>
+            <button type="button" class="btn btn-light input-button" (click)="btnReturnInvoiceList_Click()">
+              <i class="fa fa-arrow-left text-secondary"></i> İptal Et
+            </button>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item text-danger cursor-pointer" (click)="btnRemoveDetail_Click()">
+                  <i class="fa fa-remove text-danger"></i> Ürünü Kaldır
+                </a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonDataDetail_Click()">
+                  <i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+              </div>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                [disabled]="onTransaction"
-                (click)="btnApprove_Click()">Onayla
-        </button>
       </div>
-    </div>
-    <div class="btn-action mr-2  float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text danger-icon-side">
-            <i class="far fa-trash-alt" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
+      <div class="card-body work-area-12">
+        <div class="row fs-13">
+          <div class="col-sm-12">
+            <i class="far fa-arrow-alt-circle-right mr-2 text-red font-weight-600"></i>
+            <span class="text-red font-weight-600 mr-1">{{selectedDetailRecord.product.data.productCode}}</span>
+            <span class="font-weight-600">{{selectedDetailRecord.product.data.productName}}</span>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Fiyat</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label float-right pb-0">{{selectedDetailRecord.data.price | currency:'₺'}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Liste
+              Fiyatı</label>
+          </div>
+          <div class="col-sm-6">
+            <label
+              class="col-form-label float-right pb-0">{{selectedDetailRecord.data.defaultPrice | currency:'₺'}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 1</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.discount1}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">İskonto 2</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.discount2}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Miktar</label>
+          </div>
+          <div class="col-sm-6">
+            <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0"
+              max="{{selectedDetailRecord.maxQuantity}}" [(ngModel)]="selectedDetailRecord.data.quantity">
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">KDV (%)</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label float-right pb-0">%{{selectedDetailRecord.data.taxRate}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Birim</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label float-right pb-0">{{selectedDetailRecord.unit.unitName}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar</label>
+          </div>
+          <div class="col-sm-6">
+            <label
+              class="col-form-label float-right pb-0">{{selectedDetailRecord.data.totalPrice | currency:'₺'}}</label>
+          </div>
+          <div class="col-sm-6">
+            <label class="col-form-label font-weight-600 float-left text-dark-blue pb-0">Tutar
+              (+KDV)</label>
+          </div>
+          <div class="col-sm-6">
+            <label
+              class="col-form-label float-right pb-0">{{selectedDetailRecord.data.totalPriceWithTax | currency:'₺'}}</label>
+          </div>
         </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnRemove_Click()">Kaldır
-        </button>
-      </div>
-    </div>
-    <div class="btn-action mr-2  float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'waitingForApprove'">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text danger-icon-side">
-            <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
-        </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnReject_Click()">Geri Çevir
-        </button>
-      </div>
-    </div>
-    <div class="btn-action mr-2  float-left" *ngIf="selectedRecord.data.primaryKey!=undefined && selectedRecord.data.status === 'approved'">
-      <div class="input-group">
-        <div class="input-group-prepend">
-          <span class="input-group-text danger-icon-side">
-            <i class="fa fa-thumbs-down" *ngIf="!onTransaction"></i>
-            <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
-          </span>
-        </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnCancelRecord_Click()">İptal Et
-        </button>
       </div>
     </div>
   </div>

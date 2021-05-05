@@ -582,6 +582,7 @@ export class SalesInvoiceService {
     returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.typeTr = getInvoiceType().get(returnData.data.type);
+    returnData.isWaybillTr = returnData.data.isWaybill ? 'İrsaliyeli Fatura' : 'İrsaliyesiz Fatura';
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);

@@ -63,6 +63,16 @@ export class SideNavBarComponent implements OnInit , OnDestroy , AfterViewInit {
       }
     });
 
+    $('.sidebar-dropdown > sidebar-submenu > ul > li > a').click(function() {
+      if ( $(this).parent().hasClass('active')) {
+        $('.sidebar-submenu').removeClass('active');
+        $(this).parent().removeClass('active');
+      } else {
+        $('.sidebar-submenu').removeClass('active');
+        $(this).parent().addClass('active');
+      }
+    });
+
     // tslint:disable-next-line: only-arrow-functions
     $('#close-sidebar').click(function() {
       $('.page-wrapper').removeClass('toggled');

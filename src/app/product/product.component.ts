@@ -325,6 +325,7 @@ export class ProductComponent implements OnInit, OnDestroy {
               }
             }
             await this.populateUnits();
+            await this.populateUnitMappings();
             await this.finishSubProcess(null, 'Birimler başarıyla oluşturuldu');
           }
         })
@@ -342,6 +343,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       this.unitMappingList.forEach(item => {
         this.pumService.removeItem(item);
       });
+      await this.populateUnitMappings();
       await this.finishSubProcess(null, 'Birimler başarıyla kaldırıldı');
     } catch (error) {
       await this.finishProcess(error, null);
@@ -476,44 +478,13 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
   }
 
-  populateUnitMappings(): void {
+  async populateUnitMappings(): Promise<void> {
     this.unitMappingList = undefined;
-
-    this.pumService.getProductMainItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
-      if (this.unitMappingList === undefined) {
+    await this.pumService.getProductMainItems(this.selectedRecord.data.primaryKey)
+      .then((list) => {
         this.unitMappingList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ProductUnitMappingMainModel;
-        if (item.actionType === 'added' && this.unitMappingList.indexOf(item) < 0) {
-          item.product = this.selectedRecord;
-          this.unitMappingList.push(item);
-        }
-        if (item.actionType === 'removed') {
-          // tslint:disable-next-line:prefer-for-of
-          for (let i = 0; i < this.unitMappingList.length; i++) {
-            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
-              this.unitMappingList.splice(i, 1);
-              break;
-            }
-          }
-        }
-        if (item.actionType === 'modified') {
-          // tslint:disable-next-line:prefer-for-of
-          for (let i = 0; i < this.unitMappingList.length; i++) {
-            if (item.data.primaryKey === this.unitMappingList[i].data.primaryKey) {
-              this.unitMappingList[i] = item;
-              break;
-            }
-          }
-        }
+        this.unitMappingList = list;
       });
-    });
-    setTimeout(() => {
-      if (this.unitMappingList === undefined) {
-        this.unitMappingList = [];
-      }
-    }, 1000);
   }
 
   populateFiles(): void {

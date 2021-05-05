@@ -140,7 +140,7 @@ export class DashboardSalesComponent implements OnInit, OnDestroy {
       labels: ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'],
       datasets: [
         {
-        label: 'Alım Faturası',
+        label: 'Satış Faturası',
         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         borderWidth: 1,
         fill: false,
@@ -152,7 +152,7 @@ export class DashboardSalesComponent implements OnInit, OnDestroy {
         pointHoverBorderColor: Utility.Chart_Colors.red
       },
       {
-      label: 'Ödeme',
+      label: 'Tahsilat',
       data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       borderWidth: 1,
       fill: false,

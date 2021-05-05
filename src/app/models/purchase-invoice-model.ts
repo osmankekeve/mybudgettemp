@@ -8,6 +8,7 @@ export class PurchaseInvoiceModel {
   employeePrimaryKey: string;
   customerCode?: string;
   accountPrimaryKey?: string;
+  storagePrimaryKey?: string;
   receiptNo?: string;
   type?: string; // purchase,return
   description?: string;
@@ -15,6 +16,7 @@ export class PurchaseInvoiceModel {
   approveByPrimaryKey?: string; // approved or rejected
   approveDate?: number;
   platform?: string; // mobile, web
+  isWaybill?: boolean;
   insertDate?: number;
   recordDate?: number;
   totalPriceWithoutDiscount?: number;

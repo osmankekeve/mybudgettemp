@@ -1,3 +1,4 @@
+import { ActionComponent } from './partials/action/action.component';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { AngularFireModule } from '@angular/fire';
@@ -81,6 +82,7 @@ import { StockVoucherFilterPipe } from './filters/stock-voucher-filter.pipe';
     OrderSelectComponent,
     AreYouSureComponent,
     MainFilterComponent,
+    ActionComponent,
 
     CustomerDataFilterPipe,
     CustomerFilterPipe,
@@ -122,6 +124,6 @@ import { StockVoucherFilterPipe } from './filters/stock-voucher-filter.pipe';
   ],
   bootstrap: [AppComponent],
   entryComponents: [ ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent,
-    PDFModuleComponent, AreYouSureComponent, MainFilterComponent ]
+    PDFModuleComponent, AreYouSureComponent, MainFilterComponent, ActionComponent ]
 })
 export class AppModule { }

@@ -188,6 +188,14 @@ export class PriceListComponent implements OnInit, OnDestroy {
     }
   }
 
+  async onChangeType() {
+    try {
+      this.selectedRecord.productList = [];
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async finishProcess(error: any, info: any, returnMainList: boolean): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası

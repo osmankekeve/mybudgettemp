@@ -9,11 +9,12 @@
         <div class="head-filter mr-1">
           <div class="input-group input-group-round">
             <div class="input-group-prepend">
-                          <span class="input-group-text">
-                              <i class="fa fa-filter"></i>
-                          </span>
+              <span class="input-group-text">
+                <i class="fa fa-filter"></i>
+              </span>
             </div>
-            <input type="search" class="form-control filter-list-input" placeholder="Liste Ara.." [(ngModel)]="searchText">
+            <input type="search" class="form-control filter-list-input" placeholder="Liste Ara.."
+              [(ngModel)]="searchText">
           </div>
         </div>
         <div class="head-filter">
@@ -41,7 +42,8 @@
                 <span class="badge badge-warning" title="Aktiflik Durumu">{{item.isActiveTr}}</span>
               </div>
               <div class="w-33">
-                <span class="float-right mr-1" title="Aktif olduğu tarih aralığı">Aktif Tarihler {{item.data.beginDate | date: 'yyyy-MM-dd'}}-{{item.data.finishDate | date: 'yyyy-MM-dd'}}</span>
+                <span class="float-right mr-1" title="Aktif olduğu tarih aralığı">Aktif Tarihler
+                  {{item.data.beginDate | date: 'yyyy-MM-dd'}}-{{item.data.finishDate | date: 'yyyy-MM-dd'}}</span>
               </div>
             </div>
           </div>
@@ -66,30 +68,32 @@
   <div class="col-sm-6">
     <div class="card work-area">
       <div class="card-header bg-gray-gradient">
-      <div class="d-flex align-items-center">
-        <div class="flex-grow-1">
-          <img src="../../assets/images/price-list.png" width="30px" alt="" class="float-left mr-2">
-          <h5 class="card-title float-left mr-2">Liste > 
-            <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
-            <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
-          </h5>
-        </div>
-        <div class="head-filter">
-          <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
-            <i class="fa fa-arrow-left text-secondary"></i> Geri Dön
-          </button>
-        </div>
-        <div class="head-filter">
-          <div class="dropdown">
-            <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+        <div class="d-flex align-items-center">
+          <div class="flex-grow-1">
+            <img src="../../assets/images/price-list.png" width="30px" alt="" class="float-left mr-2">
+            <h5 class="card-title float-left mr-2">Liste >
+              <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
+              <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
+            </h5>
+          </div>
+          <div class="head-filter">
+            <button type="button" class="btn btn-light input-button" (click)="btnReturnList_Click()">
+              <i class="fa fa-arrow-left text-secondary"></i> Geri Dön
             </button>
-            <div class="dropdown-menu">
-              <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
-              <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+          </div>
+          <div class="head-filter">
+            <div class="dropdown">
+              <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i
+                    class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i
+                    class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
       <div class="card-body work-area-3">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
@@ -99,15 +103,15 @@
             </div>
             <div class="col-sm-9">
               <input class="form-control form-control-sm w-100" id="listName" name="listName" type="text"
-                     [(ngModel)]="selectedRecord.data.listName" required>
+                [(ngModel)]="selectedRecord.data.listName" required>
               <div class="invalid-feedback invalid-input-info">Lütfen alanı doldurunuz.</div>
             </div>
             <div class="col-sm-3">
               <label class="col-form-label float-left" for="type">Liste Tipi</label>
             </div>
             <div class="col-sm-9">
-              <select class="form-control form-control-sm w-100" id="type" name="type"
-                      [(ngModel)]="selectedRecord.data.type" required="">
+              <select class="form-control form-control-sm w-100" id="type" name="type" (change)="onChangeType()"
+                [disabled]="selectedRecord.data.primaryKey !== null" [(ngModel)]="selectedRecord.data.type" required>
                 <option value="sales">Satış Listesi</option>
                 <option value="purchase">Alım Listesi</option>
               </select>
@@ -118,7 +122,7 @@
             </div>
             <div class="col-sm-9">
               <select class="form-control form-control-sm w-100" id="isActive" name="isActive"
-                      [(ngModel)]="selectedRecord.data.isActive">
+                [(ngModel)]="selectedRecord.data.isActive">
                 <option [ngValue]="true">Aktif</option>
                 <option [ngValue]="false">Pasif</option>
               </select>
@@ -129,10 +133,10 @@
             <div class="col-sm-9">
               <div class="input-group">
                 <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d1" #c1="ngModel"
-                       [(ngModel)]="recordBeginDate" ngbDatepicker #d1="ngbDatepicker">
+                  [(ngModel)]="recordBeginDate" ngbDatepicker #d1="ngbDatepicker">
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="d1.toggle()" type="button"><i
-                    class="fa fa-calendar"></i></button>
+                      class="fa fa-calendar"></i></button>
                 </div>
               </div>
             </div>
@@ -142,10 +146,10 @@
             <div class="col-sm-9">
               <div class="input-group">
                 <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
-                       [(ngModel)]="recordFinishDate" ngbDatepicker #d2="ngbDatepicker">
+                  [(ngModel)]="recordFinishDate" ngbDatepicker #d2="ngbDatepicker">
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
-                    class="fa fa-calendar"></i></button>
+                      class="fa fa-calendar"></i></button>
                 </div>
               </div>
             </div>
@@ -154,7 +158,7 @@
             </div>
             <div class="col-sm-9">
               <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                     [(ngModel)]="selectedRecord.data.description">
+                [(ngModel)]="selectedRecord.data.description">
             </div>
           </div>
         </form>
@@ -169,13 +173,11 @@
               </span>
             </div>
             <button type="button" class="btn btn-sm btn-success form-control"
-                    [disabled]="onTransaction || !f.valid || isNewPricePanelOpened"
-                    (click)="btnSave_Click()">Kaydet
+              [disabled]="onTransaction || !f.valid || isNewPricePanelOpened" (click)="btnSave_Click()">Kaydet
             </button>
           </div>
         </div>
-        <div class="btn-action float-left"
-             *ngIf="selectedRecord.data.primaryKey!=undefined">
+        <div class="btn-action float-left" *ngIf="selectedRecord.data.primaryKey!=undefined">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text danger-icon-side">
@@ -183,10 +185,8 @@
                 <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
               </span>
             </div>
-            <button type="button" class="btn btn-sm btn-danger form-control" 
-                    appAreYouSure
-                    [disabled]="onTransaction || isNewPricePanelOpened"
-                    (then)="btnRemove_Click()">Kaldır
+            <button type="button" class="btn btn-sm btn-danger form-control" appAreYouSure
+              [disabled]="onTransaction || isNewPricePanelOpened" (then)="btnRemove_Click()">Kaldır
             </button>
           </div>
         </div>
@@ -198,16 +198,17 @@
       <div class="card-header bg-gray-gradient">
         <div class="d-flex align-items-center">
           <div class="flex-grow-1 mr-1">
-          <div class="head-filter">
-            <div class="input-group input-group-round">
-              <div class="input-group-prepend">
-                            <span class="input-group-text">
-                                <i class="fa fa-filter"></i>
-                            </span>
+            <div class="head-filter">
+              <div class="input-group input-group-round">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="fa fa-filter"></i>
+                  </span>
+                </div>
+                <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.."
+                  [(ngModel)]="productSearchText">
               </div>
-              <input type="search" class="form-control filter-list-input" placeholder="Ürün Ara.." [(ngModel)]="productSearchText">
             </div>
-          </div>
           </div>
           <div class="head-filter">
             <button type="button" class="btn btn-light input-button" (click)="btnNewProduct_Click()">
@@ -222,7 +223,7 @@
                 <a class="dropdown-item cursor-pointer text-danger" (then)="btnRemoveAllProducts_Click()" appAreYouSure>
                   <i class="fa fa-remove text-danger"></i> Tüm Eşleşmeyi Kaldır
                 </a>
-                <a class="dropdown-item cursor-pointer" (click)="btnExcelImport_Click()" 
+                <a class="dropdown-item cursor-pointer" (click)="btnExcelImport_Click()"
                   *ngIf="selectedRecord.data.primaryKey != null">
                   <i class="fa fa-upload text-secondary"></i> Ürün Aktar
                 </a>
@@ -240,22 +241,21 @@
           <div class="table-responsive work-area-11" *ngIf="selectedRecord.productList.length > 0; else elseBlock">
             <table class="table table-bordered table-striped table-hover">
               <thead>
-              <tr class="table-row-class">
-                <th>Ürün</th>
-                <th><span class="float-right">Fiyat</span></th>
-              </tr>
+                <tr class="table-row-class">
+                  <th>Ürün</th>
+                  <th><span class="float-right">Fiyat</span></th>
+                </tr>
               </thead>
               <tbody>
-              <tr class="cursor-pointer table-row-class"
-                  (click)="showSelectedProduct(item)" title="Kaydı Göster"
+                <tr class="cursor-pointer table-row-class" (click)="showSelectedProduct(item)" title="Kaydı Göster"
                   *ngFor="let item of selectedRecord.productList | filterProductSub: productSearchText; index as i;">
-                <td>
-                  <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
-                  <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
-                  <span class="font-weight-600">{{item.product.data.productName}}</span>
-                </td>
-                <td><span class="float-right">{{item.data.productPrice | currency:'₺'}}</span></td>
-              </tr>
+                  <td>
+                    <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
+                    <span class="text-red font-weight-600 mr-1">{{item.product.data.productCode}}</span>
+                    <span class="font-weight-600">{{item.product.data.productName}}</span>
+                  </td>
+                  <td><span class="float-right">{{item.data.productPrice | currency:'₺'}}</span></td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -310,11 +310,11 @@
             <div class="col-sm-9">
               <div class="input-group">
                 <input class="form-control form-control-sm" name="productName" id="productName"
-                       [(ngModel)]="selectedDetail.product.data.productName" disabled>
+                  [(ngModel)]="selectedDetail.product.data.productName" disabled>
                 <div class="input-group-append">
                   <button class="btn btn-sm btn-outline-secondary" (click)="btnSelectProduct_Click()" type="button"
-                  [disabled]="selectedDetail.data.primaryKey!=undefined"><i
-                    class="far fa-arrow-alt-circle-right"></i></button>
+                    [disabled]="selectedDetail.data.primaryKey!=undefined"><i
+                      class="far fa-arrow-alt-circle-right"></i></button>
                 </div>
               </div>
             </div>
@@ -323,9 +323,7 @@
             </div>
             <div class="col-sm-9">
               <input class="form-control form-control-sm w-100" id="productPrice" name="productPrice" type="text"
-                     (focus)="focus_amount()"
-                     (blur)="format_amount($event)"
-                     [(ngModel)]="selectedDetail.priceFormatted">
+                (focus)="focus_amount()" (blur)="format_amount($event)" [(ngModel)]="selectedDetail.priceFormatted">
             </div>
           </div>
         </form>

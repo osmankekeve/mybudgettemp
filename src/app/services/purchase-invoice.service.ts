@@ -35,7 +35,7 @@ export class PurchaseInvoiceService {
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected accService: CustomerAccountService, protected sidService: PurchaseInvoiceDetailService, protected sodService: PurchaseOrderDetailService,
-              protected atService: AccountTransactionService, protected actService: ActionService, protected soService: PurchaseOrderService) {
+              protected atService: AccountTransactionService, protected actService: ActionService, public soService: PurchaseOrderService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
@@ -344,6 +344,8 @@ export class PurchaseInvoiceService {
     if (model.approveByPrimaryKey === undefined) { model.approveByPrimaryKey = model.employeePrimaryKey; }
     if (model.approveDate === undefined) { model.approveDate = model.insertDate; }
     if (model.recordDate === undefined) { model.recordDate = model.insertDate; }
+    if (model.isWaybill === undefined) { model.isWaybill = cleanModel.isWaybill; }
+    if (model.storagePrimaryKey === undefined) { model.storagePrimaryKey = cleanModel.storagePrimaryKey; }
 
     return model;
   }
@@ -356,6 +358,7 @@ export class PurchaseInvoiceService {
     returnData.employeePrimaryKey = this.authService.getEid();
     returnData.customerCode = '-1';
     returnData.accountPrimaryKey = '-1';
+    returnData.storagePrimaryKey = '-1';
     returnData.receiptNo = '';
     returnData.type = 'purchase';
     returnData.description = '';
@@ -363,6 +366,7 @@ export class PurchaseInvoiceService {
     returnData.approveByPrimaryKey = '-1';
     returnData.approveDate = 0;
     returnData.platform = 'web'; // mobile, web
+    returnData.isWaybill = false;
     returnData.insertDate = Date.now();
     returnData.recordDate = Date.now();
     returnData.totalPriceWithoutDiscount = 0;
@@ -384,6 +388,7 @@ export class PurchaseInvoiceService {
     returnData.actionType = 'added';
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
+    returnData.isWaybillTr = returnData.data.isWaybill ? 'İrsaliyeli Fatura' : 'İrsaliyesiz Fatura';
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount); // ham tutar
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount); // detayda uygulanan toplam iskonto
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice); // iskonto dusulmus toplam fiyat
@@ -403,6 +408,7 @@ export class PurchaseInvoiceService {
     returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
     returnData.statusTr = getStatus().get(returnData.data.status);
     returnData.typeTr = getInvoiceType().get(returnData.data.type);
+    returnData.isWaybillTr = returnData.data.isWaybill ? 'İrsaliyeli Fatura' : 'İrsaliyesiz Fatura';
     returnData.totalPriceWithoutDiscountFormatted = currencyFormat(returnData.data.totalPriceWithoutDiscount);
     returnData.totalDetailDiscountFormatted = currencyFormat(returnData.data.totalDetailDiscount);
     returnData.totalPriceFormatted = currencyFormat(returnData.data.totalPrice);

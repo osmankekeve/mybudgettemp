@@ -19,9 +19,10 @@ export class DiscountListService {
   mainList$: Observable<DiscountListMainModel[]>;
   tableName = 'tblDiscountList';
 
-  constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
+  constructor(protected authService: AuthenticationService, protected sService: SettingService,
               protected logService: LogService, protected db: AngularFirestore,
               protected ppService: ProductDiscountService, protected actService: ActionService) {
+                this.listCollection = this.db.collection(this.tableName);
 
   }
 
@@ -32,27 +33,58 @@ export class DiscountListService {
   }
 
   async removeItem(record: DiscountListMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete().then(async () => {
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
+    .then(async () => {
+      await this.ppService.getProductsForTransaction(record.data.primaryKey)
+        .then((list) => {
+          list.forEach(async item => {
+            await this.db.collection(this.ppService.tableName).doc(item.primaryKey).delete();
+          });
+        });
+    })
+    .finally(async () => {
       await this.logService.addTransactionLog(record, 'delete', 'discount-list');
-      await this.ppService.getProductsForListDetail(record.data.primaryKey)
-            .then((list) => {
-              list.forEach(async item => {
-                await this.db.collection(this.ppService.tableName).doc(item.data.primaryKey).delete();
-              });
-            });
     });
   }
 
   async updateItem(record: DiscountListMainModel) {
-    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data)).then(async () => {
-      await this.logService.addTransactionLog(record, 'update', 'discount-list');
-    });
+    return await this.db.collection(this.tableName).doc(record.data.primaryKey).update(Object.assign({}, record.data))
+      .then(async () => {
+        await this.ppService.getProductsForTransaction(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.ppService.tableName).doc(item.primaryKey).delete();
+            });
+          }).finally(async () => {
+            for (const item of record.productList) {
+              item.data.discountListPrimaryKey = record.data.primaryKey;
+              await this.db.collection(this.ppService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+            }
+          });
+      })
+      .finally(async () => {
+        await this.logService.addTransactionLog(record, 'update', 'discount-list');
+      });
   }
 
   async setItem(record: DiscountListMainModel, primaryKey: string) {
-    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data)).then(async () => {
-      await this.logService.addTransactionLog(record, 'insert', 'discount-list');
-    });
+    return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
+      .then(async () => {
+        await this.ppService.getProductsForTransaction(record.data.primaryKey)
+          .then((list) => {
+            list.forEach(async item => {
+              await this.db.collection(this.ppService.tableName).doc(item.primaryKey).delete();
+            });
+          }).finally(async () => {
+            for (const item of record.productList) {
+              item.data.discountListPrimaryKey = record.data.primaryKey;
+              await this.db.collection(this.ppService.tableName).doc(item.data.primaryKey).set(Object.assign({}, item.data));
+            }
+          });
+      })
+      .finally(async () => {
+        await this.logService.addTransactionLog(record, 'insert', 'discount-list');
+      });
   }
 
   checkForSave(record: DiscountListMainModel): Promise<string> {
@@ -61,7 +93,9 @@ export class DiscountListService {
         reject('Lütfen liste adı giriniz.');
       } else if (record.data.type === '-1' ) {
         reject('Lütfen liste tipi seçiniz.');
-      } else {
+      } else if (record.productList.length === 0) {
+        reject('Lütfen listeye ürün ekleyiniz.');
+      }  else {
         resolve(null);
       }
     });
@@ -119,17 +153,22 @@ export class DiscountListService {
     return model;
   }
 
+  convertMainModel(model: DiscountListModel): DiscountListMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
+    returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
+    returnData.productList = [];
+    return returnData;
+  }
+
   getItem(primaryKey: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this.db.collection(this.tableName).doc(primaryKey).get().toPromise().then(doc => {
         if (doc.exists) {
           const data = doc.data() as DiscountListModel;
           data.primaryKey = doc.id;
-
-          const returnData = new DiscountListMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-          returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
+          const returnData = this.convertMainModel(data);
           resolve(Object.assign({returnData}));
         } else {
           resolve(null);
@@ -151,12 +190,8 @@ export class DiscountListService {
         changes.map(c => {
           const data = c.payload.doc.data() as DiscountListModel;
           data.primaryKey = c.payload.doc.id;
-
-          const returnData = new DiscountListMainModel();
-          returnData.data = this.checkFields(data);
+          const returnData = this.convertMainModel(data);
           returnData.actionType = c.type;
-          returnData.isActiveTr = returnData.data.isActive === true ? 'Aktif' : 'Pasif';
-          returnData.typeTr = returnData.data.type === 'sales' ? 'Satış Listesi' : 'Alım Listesi';
           return Object.assign({returnData});
         })
       )

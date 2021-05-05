@@ -2,6 +2,7 @@ import {PurchaseInvoiceModel} from './purchase-invoice-model';
 import {PurchaseInvoiceDetailMainModel} from './purchase-invoice-detail-main-model';
 import {CustomerAccountModel} from './customer-account-model';
 import {CustomerMainModel} from './customer-main-model';
+import { TermModel } from './term-model';
 
 export class PurchaseInvoiceMainModel {
   data: PurchaseInvoiceModel;
@@ -14,6 +15,7 @@ export class PurchaseInvoiceMainModel {
   statusTr?: string;
   platformTr?: string;
   typeTr?: string;
+  isWaybillTr?: string;
   totalDetailDiscountFormatted?: string;
   generalDiscountFormatted?: string;
   totalPriceWithoutDiscountFormatted?: string;
@@ -22,4 +24,5 @@ export class PurchaseInvoiceMainModel {
   totalTaxAmount?: number;
   totalTaxAmountFormatted?: string;
   invoiceDetailList: Array<PurchaseInvoiceDetailMainModel>;
+  termList: Array<TermModel>;
 }

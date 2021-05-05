@@ -96,6 +96,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   itemIndex = -1;
   mainControls = {
     isAutoReceiptNoAvaliable: false,
+    tableName: '',
+    primaryKey: ''
   };
 
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
@@ -169,6 +171,7 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.calculateTerm();
       this.populateStorageList();
       this.setOrderCountInfo();
+      this.generateMainControls();
       this.db.collection('tblSalesOrderDetail', ref => {
         let query: CollectionReference | Query = ref;
         query = query.where('orderPrimaryKey', 'in', orderPrimaryKeyList)
@@ -195,6 +198,11 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     } catch (error) {
       await this.infoService.error(error);
     }
+  }
+
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
   }
 
   populateList(): void {
@@ -461,26 +469,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        }
-      });
-    });
-    setTimeout(() => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-    }, 1000);
-  }
-
   populateCustomers(): void {
     const list = Array<string>();
     list.push('customer');
@@ -498,9 +486,11 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
   }
 
   showSelectedRecord(record: any): void {
+
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesInvoiceMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.generateMainControls();
       this.setOrderCountInfo();
       this.populateStorageList();
 
@@ -530,7 +520,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
       this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
       this.populateFiles();
-      this.populateActions();
     });
   }
 
@@ -1005,7 +994,8 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
     this.setOrderCountInfo();
-    await this.getReceiptNo();
+    this.generateMainControls();
+    this.getReceiptNo();
   }
 
   async finishProcess(error: any, info: any): Promise<void> {
