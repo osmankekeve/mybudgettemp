@@ -24,6 +24,7 @@ import {ExcelImportComponent} from '../partials/excel-import/excel-import.compon
 import { ToastService } from '../services/toast.service';
 import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { Subscription } from 'rxjs';
+import { RefrasherService } from '../services/refrasher.service';
 
 @Component({
   selector: 'app-discount-list',
@@ -46,7 +47,8 @@ export class DiscountListComponent implements OnInit, OnDestroy {
   constructor(protected authService: AuthenticationService, protected service: DiscountListService,
               protected infoService: InformationService, protected route: Router, protected router: ActivatedRoute,
               protected excelService: ExcelService, protected db: AngularFirestore, protected ppService: ProductDiscountService,
-              public modalService: NgbModal, protected toastService: ToastService) {
+              public modalService: NgbModal, protected toastService: ToastService, protected refService: RefrasherService) {
+                this.refService.discountListDetailUpdate.subscribe(() => { this.populateDetails(); });
   }
 
   ngOnInit() {
@@ -102,22 +104,21 @@ export class DiscountListComponent implements OnInit, OnDestroy {
     });
   }
 
-  showSelectedRecord(): void {
-    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
-    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
-    this.isNewDiscountPanelOpened = false;
-  }
-
-  async mainListItem_Click(record: any): Promise<void> {
-    this.selectedRecord = record as DiscountListMainModel;
-    this.showSelectedRecord();
-
+  async populateDetails(): Promise<void> {
     this.selectedRecord.productList = undefined;
     await this.ppService.getProductsForListDetail(this.selectedRecord.data.primaryKey)
       .then((list) => {
         this.selectedRecord.productList = [];
         this.selectedRecord.productList = list;
       });
+  }
+
+  async mainListItem_Click(record: any): Promise<void> {
+    this.selectedRecord = record as DiscountListMainModel;
+    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
+    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
+    this.isNewDiscountPanelOpened = false;
+    this.populateDetails();
   }
 
   async btnReturnList_Click(): Promise<void> {

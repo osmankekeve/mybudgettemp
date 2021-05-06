@@ -24,6 +24,7 @@ import {DefinitionService} from '../../services/definition.service';
 import {CustomerAccountService} from '../../services/customer-account.service';
 import {SettingService} from '../../services/setting.service';
 import {ProductUnitModel} from '../../models/product-unit-model';
+import { RefrasherService } from 'src/app/services/refrasher.service';
 
 @Component({
   selector: 'app-excel-import',
@@ -64,7 +65,7 @@ export class ExcelImportComponent implements OnInit {
               protected db: AngularFirestore, protected pumService: ProductUnitMappingService, protected ppService: ProductPriceService,
               protected pdService: ProductDiscountService, protected cusService: CustomerService, protected profService: ProfileService,
               protected defService: DefinitionService, protected caService: CustomerAccountService, protected daService: DeliveryAddressService,
-              protected sService: SettingService) {
+              protected sService: SettingService, protected refService: RefrasherService) {
   }
 
   async ngOnInit(): Promise<void> {
@@ -499,6 +500,7 @@ export class ExcelImportComponent implements OnInit {
           }
 
           this.listErrorInfo = errorList;
+          this.refService.sendPriceListDetailUpdate();
         }
         if (this.module === 'discount-list') {
           for (let i = 1; i < this.listExcelData.length; i++) {
@@ -535,6 +537,7 @@ export class ExcelImportComponent implements OnInit {
           }
 
           this.listErrorInfo = errorList;
+          this.refService.sendDiscountListDetailUpdate();
         }
         if (this.module === 'customer') {
           for (let i = 1; i < this.listExcelData.length; i++) {

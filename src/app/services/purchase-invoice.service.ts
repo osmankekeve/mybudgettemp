@@ -1,3 +1,4 @@
+import { PurchaseOrderMainModel } from './../models/purchase-order-main-model';
 import {Injectable} from '@angular/core';
 import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
 import {Observable} from 'rxjs/Observable';
@@ -19,6 +20,7 @@ import {PurchaseInvoiceDetailService} from './purchase-invoice-detail.service';
 import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {PurchaseOrderService} from './purchase-order.service';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
+import { StockTransactionService } from './stock-transaction.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +37,8 @@ export class PurchaseInvoiceService {
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
               protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
               protected accService: CustomerAccountService, protected sidService: PurchaseInvoiceDetailService, protected sodService: PurchaseOrderDetailService,
-              protected atService: AccountTransactionService, protected actService: ActionService, public soService: PurchaseOrderService) {
+              protected atService: AccountTransactionService, protected actService: ActionService, public soService: PurchaseOrderService,
+              protected stService: StockTransactionService) {
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().toPromise().then(list => {
         this.employeeMap.clear();
@@ -81,39 +84,64 @@ export class PurchaseInvoiceService {
           await this.sService.increasePurchaseInvoiceNumber();
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         } else if (record.data.status === 'approved') {
-          const trans = this.atService.clearSubModel();
-          trans.primaryKey = record.data.primaryKey;
-          trans.receiptNo = record.data.receiptNo;
-          trans.transactionPrimaryKey = record.data.primaryKey;
-          trans.parentPrimaryKey = record.data.customerCode;
-          trans.parentType = 'customer';
-          trans.accountPrimaryKey = record.data.accountPrimaryKey;
-          trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
-          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'credit' : 'debit';
-          trans.insertDate = record.data.insertDate;
-          trans.transactionType = 'purchaseInvoice';
-          if (record.data.type === 'sales') {
-            trans.transactionSubType = 'purchaseInvoice';
+          for (const item of record.termList) {
+            const trans = this.atService.clearSubModel();
+            trans.primaryKey = item.primaryKey;
+            trans.receiptNo = record.data.receiptNo;
+            trans.transactionPrimaryKey = record.data.primaryKey;
+            trans.parentPrimaryKey = record.data.customerCode;
+            trans.parentType = 'customer';
+            trans.accountPrimaryKey = record.data.accountPrimaryKey;
+            trans.cashDeskPrimaryKey = '-1';
+            trans.amount = record.data.type === 'return' ? item.termAmount * -1 : item.termAmount;
+            trans.amountType = record.data.type === 'return' ? 'debit' : 'credit';
+            trans.insertDate = record.data.insertDate;
+            trans.termDate = item.termDate;
+            trans.transactionType = 'purchaseInvoice';
+            if (record.data.type === 'purchase') {
+              trans.transactionSubType = 'purchaseInvoice';
+            }
+            if (record.data.type === 'return') {
+              trans.transactionSubType = 'returnPurchaseInvoice';
+            }
+            if (record.data.type === 'service') {
+              trans.transactionSubType = 'servicePurchaseInvoice';
+            }
+            await this.atService.setItem(trans, trans.primaryKey);
           }
-          if (record.data.type === 'return') {
-            trans.transactionSubType = 'returnPurchaseInvoice';
-          }
-          if (record.data.type === 'service') {
-            trans.transactionSubType = 'servicePurchaseInvoice';
-          }
-          await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
             await this.soService.isOrderHasShortProduct(orderPrimaryKey).then(value => {
               // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
-                const order = item.returnData as SalesOrderMainModel;
+                const order = item.returnData as PurchaseOrderMainModel;
                 order.data.status = value ? 'portion' : 'done';
                 this.soService.updateItem(order);
               });
             });
+          }
+          if (record.data.isWaybill) {
+            for (const item of record.invoiceDetailList) {
+              if (item.product.data.stockType === 'normal' || item.product.data.stockType === 'promotion') {
+                const st = this.stService.clearMainModel();
+                st.data.primaryKey = this.db.createId();
+                st.data.productPrimaryKey = item.data.productPrimaryKey;
+                st.data.transactionPrimaryKey = record.data.primaryKey;
+                st.data.receiptNo = record.data.receiptNo;
+                st.data.transactionType = 'purchaseInvoice';
+                if (record.data.type === 'purchase') {
+                  st.data.transactionSubType = 'purchaseInvoice';
+                  st.data.quantity = item.data.quantity;
+                  st.data.amount = item.data.price;
+                }
+                if (record.data.type === 'return') {
+                  st.data.transactionSubType = 'returnPurchaseInvoice';
+                  st.data.quantity = item.data.quantity * -1;
+                  st.data.amount = item.data.price * -1;
+                }
+                st.data.insertDate = Date.now();
+                await this.stService.setItem(st, st.data.primaryKey);
+              }
+            }
           }
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseInvoice');
@@ -130,7 +158,7 @@ export class PurchaseInvoiceService {
           trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'debit' : 'credit';
           trans.insertDate = record.data.insertDate;
           trans.transactionType = 'purchaseInvoice';
-          if (record.data.type === 'sales') {
+          if (record.data.type === 'purchase') {
             trans.transactionSubType = 'cancelPurchaseInvoice';
           }
           if (record.data.type === 'return') {
@@ -164,6 +192,30 @@ export class PurchaseInvoiceService {
               await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'portion' });
             } else {
               await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'approved' });
+            }
+          }
+          if (record.data.isWaybill) {
+            for (const item of record.invoiceDetailList) {
+              if (item.product.data.stockType === 'normal' || item.product.data.stockType === 'promotion') {
+                const st = this.stService.clearMainModel();
+                st.data.primaryKey = this.db.createId();
+                st.data.productPrimaryKey = item.data.productPrimaryKey;
+                st.data.transactionPrimaryKey = record.data.primaryKey;
+                st.data.receiptNo = record.data.receiptNo;
+                st.data.transactionType = 'purchaseInvoice';
+                if (record.data.type === 'purchase') {
+                  st.data.transactionSubType = 'purchaseInvoice';
+                  st.data.quantity = item.data.quantity;
+                  st.data.amount = item.data.price;
+                }
+                if (record.data.type === 'return') {
+                  st.data.transactionSubType = 'returnPurchaseInvoice';
+                  st.data.quantity = item.data.quantity * -1;
+                  st.data.amount = item.data.price * -1;
+                }
+                st.data.insertDate = Date.now();
+                await this.stService.setItem(st, st.data.primaryKey);
+              }
             }
           }
           await this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
@@ -208,67 +260,97 @@ export class PurchaseInvoiceService {
           await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
         } else if (record.data.status === 'approved') {
-          const trans = this.atService.clearSubModel();
-          trans.primaryKey = record.data.primaryKey;
-          trans.receiptNo = record.data.receiptNo;
-          trans.transactionPrimaryKey = record.data.primaryKey;
-          trans.parentPrimaryKey = record.data.customerCode;
-          trans.parentType = 'customer';
-          trans.accountPrimaryKey = record.data.accountPrimaryKey;
-          trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax : record.data.totalPriceWithTax * -1;
-          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'credit' : 'debit';
-          trans.insertDate = record.data.insertDate;
-          trans.transactionType = 'purchaseInvoice';
-          if (record.data.type === 'sales') {
-            trans.transactionSubType = 'purchaseInvoice';
+          for (const item of record.termList) {
+            const trans = this.atService.clearSubModel();
+            trans.primaryKey = item.primaryKey;
+            trans.receiptNo = record.data.receiptNo;
+            trans.transactionPrimaryKey = record.data.primaryKey;
+            trans.parentPrimaryKey = record.data.customerCode;
+            trans.parentType = 'customer';
+            trans.accountPrimaryKey = record.data.accountPrimaryKey;
+            trans.cashDeskPrimaryKey = '-1';
+            trans.amount = record.data.type === 'return' ? item.termAmount * -1 : item.termAmount;
+            trans.amountType = record.data.type === 'return' ? 'debit' : 'credit';
+            trans.insertDate = record.data.insertDate;
+            trans.termDate = item.termDate;
+            trans.transactionType = 'purchaseInvoice';
+            if (record.data.type === 'purchase') {
+              trans.transactionSubType = 'purchaseInvoice';
+            }
+            if (record.data.type === 'return') {
+              trans.transactionSubType = 'returnPurchaseInvoice';
+            }
+            if (record.data.type === 'service') {
+              trans.transactionSubType = 'servicePurchaseInvoice';
+            }
+            await this.atService.setItem(trans, trans.primaryKey);
           }
-          if (record.data.type === 'return') {
-            trans.transactionSubType = 'returnPurchaseInvoice';
-          }
-          if (record.data.type === 'service') {
-            trans.transactionSubType = 'servicePurchaseInvoice';
-          }
-          await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
           for (const orderPrimaryKey of record.data.orderPrimaryKeyList) {
             await this.soService.isOrderHasShortProduct(orderPrimaryKey).then(value => {
               // faturalanan siparislerin detayinda tum kalemler faturalanir ise  done ,faturalanmaz ise portion durumuna guncellenir.
               this.soService.getItem(orderPrimaryKey).then(item => {
-                const order = item.returnData as SalesOrderMainModel;
+                const order = item.returnData as PurchaseOrderMainModel;
                 order.data.status = value ? 'portion' : 'done';
                 this.soService.updateItem(order);
               });
             });
           }
+          if (record.data.isWaybill) {
+            for (const item of record.invoiceDetailList) {
+              if (item.product.data.stockType === 'normal' || item.product.data.stockType === 'promotion') {
+                const st = this.stService.clearMainModel();
+                st.data.primaryKey = this.db.createId();
+                st.data.productPrimaryKey = item.data.productPrimaryKey;
+                st.data.transactionPrimaryKey = record.data.primaryKey;
+                st.data.receiptNo = record.data.receiptNo;
+                st.data.transactionType = 'purchaseInvoice';
+                if (record.data.type === 'purchase') {
+                  st.data.transactionSubType = 'purchaseInvoice';
+                  st.data.quantity = item.data.quantity;
+                  st.data.amount = item.data.price;
+                }
+                if (record.data.type === 'return') {
+                  st.data.transactionSubType = 'returnPurchaseInvoice';
+                  st.data.quantity = item.data.quantity * -1;
+                  st.data.amount = item.data.price * -1;
+                }
+                st.data.insertDate = Date.now();
+                await this.stService.setItem(st, st.data.primaryKey);
+              }
+            }
+          }
+          this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
+          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseInvoice');
         } else if (record.data.status === 'canceled') {
-          const trans = this.atService.clearSubModel();
-          trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
-          trans.receiptNo = record.data.receiptNo;
-          trans.transactionPrimaryKey = record.data.primaryKey;
-          trans.parentPrimaryKey = record.data.customerCode;
-          trans.parentType = 'customer';
-          trans.accountPrimaryKey = record.data.accountPrimaryKey;
-          trans.cashDeskPrimaryKey = '-1';
-          trans.amount = record.data.type === 'purchase' || record.data.type === 'service' ? record.data.totalPriceWithTax * -1 : record.data.totalPriceWithTax;
-          trans.amountType = record.data.type === 'purchase' || record.data.type === 'service' ? 'debit' : 'credit';
-          trans.insertDate = record.data.insertDate;
-          trans.transactionType = 'purchaseInvoice';
-          if (record.data.type === 'sales') {
-            trans.transactionSubType = 'cancelPurchaseInvoice';
+          for (const item of record.termList) {
+            const trans = this.atService.clearSubModel();
+            trans.primaryKey = item.primaryKey;
+            trans.receiptNo = record.data.receiptNo;
+            trans.transactionPrimaryKey = record.data.primaryKey;
+            trans.parentPrimaryKey = record.data.customerCode;
+            trans.parentType = 'customer';
+            trans.accountPrimaryKey = record.data.accountPrimaryKey;
+            trans.cashDeskPrimaryKey = '-1';
+            trans.amount = record.data.type === 'return' ? item.termAmount : item.termAmount * -1;
+            trans.amountType = record.data.type === 'return' ? 'credit' : 'debit';
+            trans.insertDate = record.data.insertDate;
+            trans.termDate = item.termDate;
+            trans.transactionType = 'purchaseInvoice';
+            if (record.data.type === 'purchase') {
+              trans.transactionSubType = 'cancelPurchaseInvoice';
+            }
+            if (record.data.type === 'return') {
+              trans.transactionSubType = 'cancelReturnPurchaseInvoice';
+            }
+            if (record.data.type === 'service') {
+              trans.transactionSubType = 'cancelServicePurchaseInvoice';
+            }
+            await this.atService.setItem(trans, trans.primaryKey);
           }
-          if (record.data.type === 'return') {
-            trans.transactionSubType = 'cancelReturnPurchaseInvoice';
-          }
-          if (record.data.type === 'service') {
-            trans.transactionSubType = 'cancelServicePurchaseInvoice';
-          }
-          await this.atService.setItem(trans, trans.primaryKey);
           for (const item of record.invoiceDetailList) {
-            this.db.collection('tblSalesOrderDetail').doc(item.data.orderDetailPrimaryKey).get().toPromise()
+            this.db.collection(this.sodService.tableName).doc(item.data.orderDetailPrimaryKey).get().toPromise()
               .then(async doc => {
                 // siparis detayinda faturalanan miktar kadar acilir ve statusu shorta cekilir
                 const orderInvoicedQuantity = doc.data().invoicedQuantity;
@@ -293,7 +375,31 @@ export class PurchaseInvoiceService {
               await this.db.firestore.collection(this.soService.tableName).doc(orderPrimaryKey).update({ status: 'approved' });
             }
           }
-          await this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
+          if (record.data.isWaybill) {
+            for (const item of record.invoiceDetailList) {
+              if (item.product.data.stockType === 'normal' || item.product.data.stockType === 'promotion') {
+                const st = this.stService.clearMainModel();
+                st.data.primaryKey = this.db.createId();
+                st.data.productPrimaryKey = item.data.productPrimaryKey;
+                st.data.transactionPrimaryKey = record.data.primaryKey;
+                st.data.receiptNo = record.data.receiptNo;
+                st.data.transactionType = 'purchaseInvoice';
+                if (record.data.type === 'purchase') {
+                  st.data.transactionSubType = 'cancelPurchaseInvoice';
+                  st.data.quantity = item.data.quantity * -1;
+                  st.data.amount = item.data.price * -1;
+                }
+                if (record.data.type === 'return') {
+                  st.data.transactionSubType = 'cancelReturnPurchaseInvoice';
+                  st.data.quantity = item.data.quantity;
+                  st.data.amount = item.data.price;
+                }
+                st.data.insertDate = Date.now();
+                await this.stService.setItem(st, st.data.primaryKey);
+              }
+            }
+          }
+          this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
           this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         } else {
           // await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');

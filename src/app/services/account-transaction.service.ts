@@ -343,13 +343,13 @@ export class AccountTransactionService {
 
   getMainItems(startDate: Date, endDate: Date, parentPrimaryKey: string, parentType: string): Observable<AccountTransactionMainModel[]> {
     // left join siz
-    this.cService.getAllItems().toPromise().then(list => {
+    this.cService.getAllItems().subscribe(list => {
       this.customerMap.clear();
       list.forEach(item => {
         this.customerMap.set(item.primaryKey, item);
       });
     });
-    this.cdService.getItems().toPromise().then(list => {
+    this.cdService.getItems().subscribe(list => {
       this.cashDeskMap.clear();
       list.forEach(item => {
         this.cashDeskMap.set(item.primaryKey, item);

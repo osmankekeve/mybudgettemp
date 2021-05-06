@@ -29,6 +29,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
   mainList$: Subscription;
   mainList: Array<ProductUnitMainModel>;
   collection: AngularFirestoreCollection<ProductUnitModel>;
+  unitMappingList$: Subscription;
   unitMappingList: Array<ProductUnitMappingMainModel>;
   selectedRecord: ProductUnitMainModel;
   selectedMapping: ProductUnitMappingMainModel;
@@ -60,6 +61,9 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.mainList$ !== undefined) {
       this.mainList$.unsubscribe();
+    }
+    if (this.unitMappingList$ !== undefined) {
+      this.unitMappingList$.unsubscribe();
     }
   }
 
@@ -98,7 +102,7 @@ export class ProductUnitComponent implements OnInit, OnDestroy {
 
   populateDetailList(): void {
     this.unitMappingList = undefined;
-    this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).toPromise().then(list => {
+    this.unitMappingList$ = this.pumService.getUnitProducts(this.selectedRecord.data.primaryKey).subscribe(list => {
       if (this.unitMappingList === undefined) {
         this.unitMappingList = [];
       }

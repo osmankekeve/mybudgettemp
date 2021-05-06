@@ -25,6 +25,7 @@ import { ToastService } from '../services/toast.service';
 import { Observable } from 'rxjs/Observable';
 import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { Subscription } from 'rxjs';
+import { RefrasherService } from '../services/refrasher.service';
 
 @Component({
   selector: 'app-price-list',
@@ -43,10 +44,12 @@ export class PriceListComponent implements OnInit, OnDestroy {
   recordBeginDate: any;
   recordFinishDate: any;
   isNewPricePanelOpened = false;
+  companySubscription: Subscription;
 
   constructor(protected authService: AuthenticationService, protected service: PriceListService, protected infoService: InformationService,
               protected route: Router, protected router: ActivatedRoute, protected excelService: ExcelService, protected toastService: ToastService,
-              protected db: AngularFirestore, protected ppService: ProductPriceService, public modalService: NgbModal) {
+              protected db: AngularFirestore, protected ppService: ProductPriceService, public modalService: NgbModal, protected refService: RefrasherService) {
+                this.refService.priceListDetailUpdate.subscribe(() => { this.populateDetails(); });
   }
 
   ngOnInit() {
@@ -102,18 +105,21 @@ export class PriceListComponent implements OnInit, OnDestroy {
     });
   }
 
-  async mainListItem_Click(record: any): Promise<void> {
-    this.selectedRecord = record as PriceListMainModel;
-    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
-    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
-    this.isNewPricePanelOpened = false;
-
+  async populateDetails(): Promise<void> {
     this.selectedRecord.productList = undefined;
     await this.ppService.getProductsForListDetail(this.selectedRecord.data.primaryKey)
       .then((list) => {
         this.selectedRecord.productList = [];
         this.selectedRecord.productList = list;
       });
+  }
+
+  async mainListItem_Click(record: any): Promise<void> {
+    this.selectedRecord = record as PriceListMainModel;
+    this.recordBeginDate = getDateForInput(this.selectedRecord.data.beginDate);
+    this.recordFinishDate = getDateForInput(this.selectedRecord.data.finishDate);
+    this.isNewPricePanelOpened = false;
+    this.populateDetails();
   }
 
   async btnReturnList_Click(): Promise<void> {
