@@ -12,7 +12,8 @@
               <i class="fa fa-filter"></i>
             </span>
           </div>
-          <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.." [(ngModel)]="searchText">
+          <input type="search" class="form-control filter-list-input" placeholder="Müşteri Ara.."
+            [(ngModel)]="searchText">
         </div>
       </div>
       <div class="head-filter">
@@ -44,9 +45,8 @@
         </div>
         <div class="col-sm-6">
           <div class="card-list-parent"
-               *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
-            <div class="card mb-2 bg-light cursor-pointer"
-                 (click)="showSelectedRecord(item)" title="Kaydı Göster">
+            *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
+            <div class="card mb-2 bg-light cursor-pointer" (click)="showSelectedRecord(item)" title="Kaydı Göster">
               <i class="fa fa-ellipsis-h small-list-list-icon"></i>
               <div class="card-body">
                 <div>
@@ -83,7 +83,7 @@
     <div class="d-flex align-items-center">
       <div class="flex-grow-1">
         <img src="../../assets/images/crm_2.png" width="30px" alt="" class="float-left mr-2">
-        <h5 class="card-title float-left mr-2">Etkinlik > 
+        <h5 class="card-title float-left mr-2">Etkinlik >
           <span *ngIf="!selectedRecord.data.primaryKey">Yeni Kayıt</span>
           <span *ngIf="selectedRecord.data.primaryKey">Görüntüleme</span>
         </h5>
@@ -98,8 +98,10 @@
           <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
-            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i
+                class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
+            <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i
+                class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
           </div>
         </div>
       </div>
@@ -114,11 +116,10 @@
         <div class="col-sm-9">
           <div class="input-group">
             <input class="form-control form-control-sm" name="customerName" id="customerName"
-                   [(ngModel)]="selectedRecord.customer?.data.name" disabled>
+              [(ngModel)]="selectedRecord.customer?.data.name" disabled>
             <div class="input-group-append">
               <button class="btn btn-sm btn-outline-secondary" type="button"
-                      [disabled]="selectedRecord.data.primaryKey!=undefined"
-                      (click)="btnSelectCustomer_Click()">
+                [disabled]="selectedRecord.data.primaryKey!=undefined" (click)="btnSelectCustomer_Click()">
                 <i class="far fa-arrow-alt-circle-right"></i></button>
             </div>
           </div>
@@ -128,7 +129,7 @@
         </div>
         <div class="col-sm-3">
           <select class="form-control form-control-sm w-100" id="relationType" name="relationType" required
-                  [(ngModel)]="selectedRecord.data.relationType">
+            [(ngModel)]="selectedRecord.data.relationType">
             <option value="meeting">Toplantı</option>
             <option value="mailSending">Mail Gönderim</option>
             <option value="faxSending">Fax Gönderim</option>
@@ -143,11 +144,11 @@
         </div>
         <div class="col-sm-3">
           <div class="input-group">
-            <input class="form-control form-control-sm" placeholder="yyyy-mm-dd"
-                   name="d2" #c2="ngModel" [(ngModel)]="today" ngbDatepicker #d2="ngbDatepicker">
+            <input class="form-control form-control-sm" placeholder="yyyy-mm-dd" name="d2" #c2="ngModel"
+              [(ngModel)]="today" ngbDatepicker #d2="ngbDatepicker">
             <div class="input-group-append">
               <button class="btn btn-sm btn-outline-secondary" (click)="d2.toggle()" type="button"><i
-                class="fa fa-calendar"></i></button>
+                  class="fa fa-calendar"></i></button>
             </div>
           </div>
         </div>
@@ -155,9 +156,8 @@
           <label class="col-form-label float-left" for="description">Açıklama</label>
         </div>
         <div class="col-sm-9">
-                        <textarea class="form-control form-control-sm w-100" id="description" name="description"
-                                  type="text"
-                                  cols="40" rows="5" [(ngModel)]="selectedRecord.data.description"></textarea>
+          <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text" cols="40"
+            rows="5" [(ngModel)]="selectedRecord.data.description"></textarea>
           <div class="invalid-feedback">Lütfen not alanını doldurunuz.</div>
         </div>
       </div>
@@ -172,9 +172,8 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-success form-control"
-                [disabled]="onTransaction || !f.valid"
-                (click)="btnSave_Click()">Kaydet
+        <button type="button" class="btn btn-sm btn-success form-control" [disabled]="onTransaction || !f.valid"
+          (click)="btnSave_Click()">Kaydet
         </button>
       </div>
     </div>
@@ -186,9 +185,8 @@
             <i class="fa fa-spinner fa-spin" *ngIf="onTransaction"></i>
           </span>
         </div>
-        <button type="button" class="btn btn-sm btn-danger form-control"
-                [disabled]="onTransaction"
-                (click)="btnRemove_Click()">Kaldır
+        <button type="button" class="btn btn-sm btn-danger form-control" [disabled]="onTransaction"
+          (click)="btnRemove_Click()">Kaldır
         </button>
       </div>
     </div>

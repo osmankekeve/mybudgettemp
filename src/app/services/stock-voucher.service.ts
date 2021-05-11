@@ -64,7 +64,6 @@ export class StockVoucherService {
       }
       if (record.data.status === 'waitingForApprove') {
         this.logService.addTransactionLog(record, 'update', 'stock-voucher');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
       } else if (record.data.status === 'approved') {
         for (const item of record.detailList) {
           const st = this.stService.clearMainModel();
@@ -87,10 +86,8 @@ export class StockVoucherService {
           await this.stService.setItem(st, st.data.primaryKey);
         }
         this.logService.addTransactionLog(record, 'approved', 'stock-voucher');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onaylandı');
       } else {
         this.logService.addTransactionLog(record, 'update', 'salesInvoice');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
       }
     });
   }

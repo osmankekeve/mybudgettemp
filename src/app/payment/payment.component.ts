@@ -43,8 +43,8 @@ import { InfoModuleComponent } from '../partials/info-module/info-module.compone
 export class PaymentComponent implements OnInit, OnDestroy {
   mainList$: Subscription;
   mainList: Array<PaymentMainModel>;
+  oldMainList: Array<PaymentMainModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
-  customerList: Array<CustomerModel>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<PaymentMainModel>;
   actionList: Array<ActionMainModel>;
@@ -57,13 +57,21 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   date = new Date();
   recordDate: any;
+  termDate: any;
   filter = {
     filterBeginDate: getFirstDayOfMonthForInput(),
     filterFinishDate: getTodayForInput(),
     filterStatus: '-1',
   };
   totalValues = {
-    amount: 0
+    amount: 0,
+    oldAmount: 0
+  };
+  mainControls = {
+    isAutoReceiptNoAvaliable: false,
+    tableName: '',
+    primaryKey: '',
+    oldRecordSearchtext: ''
   };
   chart1: any;
   chart2: any;
@@ -82,7 +90,6 @@ export class PaymentComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.cashDeskList$ = this.cdService.getAllItems();
     this.selectedRecord = undefined;
-    this.populateCustomers();
     this.generateCharts();
     this.populateList();
     if (this.router.snapshot.paramMap.get('paramItem') !== null) {
@@ -139,11 +146,14 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.totalValues = {
-      amount: 0
-    };
+    this.totalValues.amount = 0;
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
@@ -186,6 +196,26 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  populateOldRecords(): void {
+    this.oldMainList = undefined;
+    this.service.getMainItemsBetweenDatesAsPromise(null, null, null, this.selectedRecord.data.customerCode)
+      .then(list => {
+        if (this.oldMainList === undefined) {
+          this.oldMainList = [];
+        }
+        this.oldMainList = list;
+      }).finally(() => {
+        setTimeout(() => {
+          this.totalValues.oldAmount = this.oldMainList.reduce((prev, next) => prev + next.data.amount, 0);
+        }, 500);
+      });
+    setTimeout(() => {
+      if (this.oldMainList === undefined) {
+        this.oldMainList = [];
+      }
+    }, 1000);
+  }
+
   generateCharts(): void {
     if (this.chart1Visibility === null && this.chart2Visibility === null) {
       const chart1Visibility = this.sService.getItem('paymentChart1Visibility');
@@ -219,7 +249,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus, null)])
       .then((values: any) => {
         if (values[0] !== null) {
           this.transactionList = values[0] as Array<PaymentMainModel>;
@@ -382,40 +412,10 @@ export class PaymentComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        }
-      });
-    });
-  }
-
-  populateCustomers(): void {
-    const list = Array<string>();
-    list.push('supplier');
-    list.push('customer-supplier');
-    Promise.all([this.cService.getCustomers(list)])
-      .then((values: any) => {
-        this.customerList = [];
-        if (values[0] !== undefined || values[0] !== null) {
-          const returnData = values[0] as Array<CustomerModel>;
-          returnData.forEach(value => {
-            this.customerList.push(value);
-          });
-        }
-      });
-  }
-
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as PaymentMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+    this.termDate = getDateForInput(this.selectedRecord.data.termDate);
     this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
       this.isRecordHasTransaction = list.length > 0;
     });
@@ -423,10 +423,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
       this.isRecordHasReturnTransaction = list.length > 0;
     });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
-    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
-    this.populateCustomers();
+    this.populateOldRecords();
     this.populateFiles();
-    this.populateActions();
+    this.generateMainControls();
   }
 
   async btnShowMainFiler_Click(): Promise<void> {
@@ -475,6 +474,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     const receiptNoData = await this.sService.getPaymentCode();
     if (receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
     }
   }
 
@@ -483,6 +483,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
       this.onTransaction = true;
       this.selectedRecord.data.insertDate = Date.now();
       this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+      this.selectedRecord.data.termDate = getInputDataForInsert(this.termDate);
       Promise.all([this.service.checkForSave(this.selectedRecord)])
         .then(async (values: any) => {
           if (this.selectedRecord.data.primaryKey === null) {
@@ -683,7 +684,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('payment').then(() => {
-      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, 'approved')])
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, 'approved', null)])
         .then((values: any) => {
           if ((values[0] !== undefined || values[0] !== null)) {
             const returnData = values[0] as Array<PaymentMainModel>;
@@ -747,6 +748,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.isRecordHasReturnTransaction = false;
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();
+    this.termDate = getTodayForInput();
+    this.oldMainList = [];
+    this.generateMainControls();
   }
 
   format_amount($event): void {

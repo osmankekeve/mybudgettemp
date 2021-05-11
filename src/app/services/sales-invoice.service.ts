@@ -96,7 +96,6 @@ export class SalesInvoiceService {
         if (record.data.status === 'waitingForApprove') {
           await this.logService.addTransactionLog(record, 'insert', 'salesInvoice');
           await this.sService.increaseSalesInvoiceNumber();
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         } else if (record.data.status === 'approved') {
           for (const item of record.termList) {
             const trans = this.atService.clearSubModel();
@@ -158,7 +157,6 @@ export class SalesInvoiceService {
             }
           }
           await this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
         } else if (record.data.status === 'canceled') {
@@ -238,7 +236,6 @@ export class SalesInvoiceService {
             }
           }
           await this.logService.addTransactionLog(record, 'canceled', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         } else {
           // await this.logService.addTransactionLog(record, 'update', 'salesInvoice');
         }
@@ -291,7 +288,6 @@ export class SalesInvoiceService {
         }
         if (record.data.status === 'waitingForApprove') {
           this.logService.addTransactionLog(record, 'update', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
         } else if (record.data.status === 'approved') {
           for (const item of record.termList) {
             const trans = this.atService.clearSubModel();
@@ -353,10 +349,8 @@ export class SalesInvoiceService {
             }
           }
           this.logService.addTransactionLog(record, 'approved', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onaylandı');
         } else if (record.data.status === 'rejected') {
           this.logService.addTransactionLog(record, 'rejected', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Geri Çevrildi');
         } else if (record.data.status === 'canceled') {
           for (const item of record.termList) {
             const trans = this.atService.clearSubModel();
@@ -434,10 +428,8 @@ export class SalesInvoiceService {
             }
           }
           this.logService.addTransactionLog(record, 'canceled', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         } else {
           this.logService.addTransactionLog(record, 'update', 'salesInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
         }
       });
   }

@@ -335,7 +335,6 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
           this.selectedRecord.orderDetailList = [];
           this.selectedRecord.orderDetailList = list;
         });
-      this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
     });
   }
 

@@ -518,7 +518,6 @@ export class SalesInvoiceComponent implements OnInit, OnDestroy {
       });*/
 
       this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
-      this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
       this.populateFiles();
     });
   }

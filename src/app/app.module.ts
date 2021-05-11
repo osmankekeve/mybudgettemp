@@ -63,6 +63,7 @@ import { ReminderFilterPipe } from './filters/reminder-filter.pipe';
 import { MailFilterPipe } from './filters/mail-filter.pipe';
 import { RefrasherService } from './services/refrasher.service';
 import { StockVoucherFilterPipe } from './filters/stock-voucher-filter.pipe';
+import { CollectionFilterPipe } from './filters/collection-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -105,6 +106,7 @@ import { StockVoucherFilterPipe } from './filters/stock-voucher-filter.pipe';
     ReminderFilterPipe,
     MailFilterPipe,
     StockVoucherFilterPipe,
+    CollectionFilterPipe,
 
     DropzoneDirective,
     AreYouSureDirective

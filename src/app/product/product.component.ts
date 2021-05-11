@@ -67,6 +67,10 @@ export class ProductComponent implements OnInit, OnDestroy {
   percentage: Observable<number>;
   task: AngularFireUploadTask;
   productPurchasePriceChart: any;
+  mainControls = {
+    tableName: '',
+    primaryKey: ''
+  };
 
   constructor(public authService: AuthenticationService, public service: ProductService, public infoService: InformationService,
               public route: Router, public router: ActivatedRoute, public excelService: ExcelService, public db: AngularFirestore,
@@ -117,6 +121,11 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
+  }
+
   populateList(): void {
     this.mainList = undefined;
     this.mainList$ = this.service.getMainItems(this.filter.isActive, this.filter.stockType).subscribe(list => {
@@ -160,11 +169,9 @@ export class ProductComponent implements OnInit, OnDestroy {
 
   showSelectedRecord(record: any): void {
     this.selectedRecord = record as ProductMainModel;
-
     this.populateUnitMappings();
     this.populateFiles();
-    this.populateActions();
-    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.generateMainControls();
 
     const dateList = [];
     const priceList = [];
@@ -513,21 +520,6 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.filesList = [];
       }
     }, 1000);
-  }
-
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
-        }
-      });
-    });
   }
 
   clearSelectedRecord(): void {

@@ -7,6 +7,8 @@ import {CustomerModel} from '../models/customer-model';
 import {map, mergeMap} from 'rxjs/operators';
 import {ProfileService} from './profile.service';
 import {ProfileMainModel} from '../models/profile-main-model';
+import { ProfileModel } from '../models/profile-model';
+import { LogMainModel } from '../models/log-main-model';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +16,7 @@ import {ProfileMainModel} from '../models/profile-main-model';
 export class LogService {
   listCollection: AngularFirestoreCollection<LogModel>;
   mainList$: Observable<LogModel[]>;
+  mainList2$: Observable<LogMainModel[]>;
   tableName = 'tblLogs';
 
   constructor(protected authService: AuthenticationService, protected db: AngularFirestore, protected proService: ProfileService) {
@@ -218,6 +221,45 @@ export class LogService {
 
   async updateItem(record: LogModel) {
     return await this.db.collection(this.tableName).doc(record.primaryKey).update(record);
+  }
+
+  setLogs(recordType: string, dataRecord: any, isNew: boolean): void {
+    if (isNew && dataRecord.status === 'waitingForApprove') {
+      this.addTransactionLog(dataRecord, 'insert', recordType);
+    } else if (!isNew && dataRecord.status === 'waitingForApprove') {
+      this.addTransactionLog(dataRecord, 'update', recordType);
+    } else if (dataRecord.status === 'approved') {
+      this.addTransactionLog(dataRecord, 'approved', recordType);
+    } else if (dataRecord.status === 'rejected') {
+      this.addTransactionLog(dataRecord, 'rejected', recordType);
+    } else if (dataRecord.status === 'canceled') {
+      this.addTransactionLog(dataRecord, 'canceled', recordType);
+    } else {
+      this.addTransactionLog(dataRecord, 'update', recordType);
+    }
+  }
+
+  getLogs(primaryKey: string): Observable<LogMainModel[]> {
+    this.listCollection = this.db.collection('tblProfile')
+    .doc(this.authService.getEid())
+    .collection(this.tableName, ref => ref.orderBy('insertDate', 'desc')
+    .where('type', '==', 'notification')
+    .where('parentPrimaryKey', '==', primaryKey));
+    this.mainList2$ = this.listCollection.stateChanges().pipe(map(changes => {
+      return changes.map(change => {
+        const data = change.payload.doc.data() as LogModel;
+        const returnData = new LogMainModel();
+        returnData.data = data;
+        returnData.actionType = change.type;
+
+        return this.db.collection('tblProfile').doc(data.employeePrimaryKey).valueChanges()
+          .pipe(map((employee: ProfileModel) => {
+            returnData.employeeName = employee.longName;
+            return Object.assign({returnData});
+          }));
+      });
+    }), mergeMap(feeds => combineLatest(feeds)));
+    return this.mainList2$;
   }
 
   getMainItems(): Observable<LogModel[]> {

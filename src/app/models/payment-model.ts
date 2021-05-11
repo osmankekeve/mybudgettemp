@@ -17,4 +17,6 @@ export class PaymentModel {
   platform?: string; // mobile, web
   insertDate?: number;
   recordDate?: number;
+  termDate?: number;
+  documentDate: string | number | Date;
 }

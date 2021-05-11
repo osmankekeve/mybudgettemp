@@ -221,15 +221,15 @@ export class ExcelImportComponent implements OnInit {
         });
       }
       if (this.module === 'price-list') {
-        const b = await this.ppService.getProductsForListDetail(this.inputData);
+        const b = await this.ppService.getProductsForTransaction(this.inputData);
         b.forEach((item: any) => {
-          this.priceMap.set(item.data.productPrimaryKey, item);
+          this.priceMap.set(item.productPrimaryKey, item);
         });
       }
       if (this.module === 'discount-list') {
-        const b = await this.pdService.getProductsForListDetail(this.inputData);
+        const b = await this.pdService.getProductsForTransaction(this.inputData);
         b.forEach((item: any) => {
-          this.discountMap.set(item.data.productPrimaryKey, item);
+          this.discountMap.set(item.productPrimaryKey, item);
         });
       }
       if (this.module === 'customer') {
@@ -485,7 +485,7 @@ export class ExcelImportComponent implements OnInit {
               this.transactionProcessCount ++;
 
               if (this.priceMap.has(productPrimaryKey)) {
-                const importRow = this.priceMap.get(productPrimaryKey).data;
+                const importRow = this.priceMap.get(productPrimaryKey);
                 importRow.productPrice = Math.abs(getFloat(productPrice));
                 await this.db.collection(this.ppService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));
               } else {
@@ -520,7 +520,7 @@ export class ExcelImportComponent implements OnInit {
               this.transactionProcessCount ++;
 
               if (this.discountMap.has(productPrimaryKey)) {
-                const importRow = this.discountMap.get(productPrimaryKey).data;
+                const importRow = this.discountMap.get(productPrimaryKey);
                 importRow.discount1 = Math.abs(getFloat(discount1));
                 importRow.discount2 = Math.abs(getFloat(discount2));
                 await this.db.collection(this.pdService.tableName).doc(importRow.primaryKey).update(Object.assign({}, importRow));

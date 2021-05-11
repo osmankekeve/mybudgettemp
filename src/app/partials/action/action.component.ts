@@ -1,8 +1,7 @@
-import { ActionMainModel } from './../../models/action-main-model';
+import { LogService } from './../../services/log.service';
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from 'rxjs';
-import {getEncryptionKey} from '../../core/correct-library';
-import { ActionService } from 'src/app/services/action.service';
+import { LogMainModel } from 'src/app/models/log-main-model';
 
 @Component({
   selector: 'app-action',
@@ -11,21 +10,21 @@ import { ActionService } from 'src/app/services/action.service';
 
 export class ActionComponent implements OnDestroy, OnInit {
   mainList$: Subscription;
-  mainList: Array<ActionMainModel>;
+  mainList: Array<LogMainModel>;
   @Input() recordData: any;
 
-  constructor(protected actService: ActionService) {
+  constructor(protected actService: LogService) {
   }
 
   ngOnInit(): void {
     this.mainList = undefined;
     if (this.recordData.tableName && this.recordData.tableName !== '' && this.recordData.primaryKey) {
-      this.mainList$ = this.actService.getActions(this.recordData.tableName, this.recordData.primaryKey).subscribe((list) => {
+      this.mainList$ = this.actService.getLogs(this.recordData.primaryKey).subscribe((list) => {
         if (this.mainList === undefined) {
           this.mainList = [];
         }
         list.forEach((data: any) => {
-          const item = data.returnData as ActionMainModel;
+          const item = data.returnData as LogMainModel;
           if (item.actionType === 'added') {
             this.mainList.push(item);
           }

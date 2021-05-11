@@ -51,6 +51,7 @@ import { CashDeskModel } from '../models/cash-desk-model';
 export class CollectionComponent implements OnInit, OnDestroy {
   mainList$: Subscription;
   mainList: Array<CollectionMainModel>;
+  oldMainList: Array<CollectionMainModel>;
   cashDeskList$: Observable<CashDeskModel[]>;
   accountList$: Observable<CustomerAccountModel[]>;
   transactionList: Array<CollectionMainModel>;
@@ -58,9 +59,6 @@ export class CollectionComponent implements OnInit, OnDestroy {
   filesList: Array<FileMainModel>;
   customerList: Array<CustomerModel>;
   selectedRecord: CollectionMainModel;
-  isRecordHasTransaction = false;
-  isRecordHasReturnTransaction = false;
-  isMainFilterOpened = false;
   encryptSecretKey: string = getEncryptionKey();
   searchText: '';
   date = new Date();
@@ -70,7 +68,14 @@ export class CollectionComponent implements OnInit, OnDestroy {
     filterStatus: '-1',
   };
   totalValues = {
-    amount: 0
+    amount: 0,
+    oldAmount: 0
+  };
+  mainControls = {
+    isAutoReceiptNoAvaliable: false,
+    tableName: '',
+    primaryKey: '',
+    oldRecordSearchtext: ''
   };
   recordDate: any;
   termDate: any;
@@ -149,11 +154,14 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
+  }
+
   populateList(): void {
     this.mainList = undefined;
-    this.totalValues = {
-      amount: 0
-    };
+    this.totalValues.amount = 0;
     const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
     const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
     this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
@@ -226,7 +234,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, this.filter.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(startDate, endDate, null, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== undefined || values[0] !== null) {
           this.transactionList = values[0] as Array<CollectionMainModel>;
@@ -389,19 +397,23 @@ export class CollectionComponent implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  populateActions(): void {
-    this.actionList = undefined;
-    this.actService.getActions(this.service.tableName, this.selectedRecord.data.primaryKey).toPromise().then((list) => {
-      if (this.actionList === undefined) {
-        this.actionList = [];
-      }
-      list.forEach((data: any) => {
-        const item = data.returnData as ActionMainModel;
-        if (item.actionType === 'added') {
-          this.actionList.push(item);
+  populateOldRecords(): void {
+    this.oldMainList = undefined;
+    this.service.getMainItemsBetweenDatesAsPromise(null, null, this.selectedRecord.data.customerCode, null)
+      .then(list => {
+        if (this.oldMainList === undefined) {
+          this.oldMainList = [];
         }
+        this.oldMainList = list;
+        setTimeout(() => {
+          this.totalValues.oldAmount = list.reduce((prev, next) => prev + next.data.amount, 0);
+        }, 500);
       });
-    });
+    setTimeout(() => {
+      if (this.oldMainList === undefined) {
+        this.oldMainList = [];
+      }
+    }, 1000);
   }
 
   populateCustomers(): void {
@@ -424,16 +436,10 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.selectedRecord = record as CollectionMainModel;
     this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
     this.termDate = getDateForInput(this.selectedRecord.data.termDate);
-    this.atService.getRecordTransactionItems(this.selectedRecord.data.primaryKey).toPromise().then(list => {
-      this.isRecordHasTransaction = list.length > 0;
-    });
-    this.atService.getRecordTransactionItems('c-' + this.selectedRecord.data.primaryKey).toPromise().then(list => {
-      this.isRecordHasReturnTransaction = list.length > 0;
-    });
     this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
-    this.actService.addAction(this.service.tableName, this.selectedRecord.data.primaryKey, 5, 'Kayıt Görüntüleme');
+    this.populateOldRecords();
     this.populateFiles();
-    this.populateActions();
+    this.generateMainControls();
   }
 
   async btnShowMainFiler_Click(): Promise<void> {
@@ -475,6 +481,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     const receiptNoData = await this.sService.getCollectionCode();
     if (receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
     }
   }
 
@@ -703,7 +710,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   async btnCreateTransactions_Click(): Promise<void> {
     await this.atService.removeTransactions('collection').then(() => {
-      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, 'approved')])
+      Promise.all([this.service.getMainItemsBetweenDatesAsPromise(null, null, null, 'approved')])
         .then((values: any) => {
           if ((values[0] !== undefined || values[0] !== null)) {
             const returnData = values[0] as Array<CollectionMainModel>;
@@ -755,11 +762,11 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   clearSelectedRecord(): void {
-    this.isRecordHasTransaction = false;
-    this.isRecordHasReturnTransaction = false;
     this.recordDate = getTodayForInput();
     this.termDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
+    this.oldMainList = [];
+    this.generateMainControls();
   }
 
   format_amount($event): void {

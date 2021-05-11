@@ -1,19 +1,19 @@
-import {Injectable} from '@angular/core';
-import {AngularFirestore, AngularFirestoreCollection, CollectionReference, Query} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/Observable';
-import {CustomerModel} from '../models/customer-model';
-import {map, mergeMap} from 'rxjs/operators';
-import {combineLatest} from 'rxjs';
-import {CollectionModel} from '../models/collection-model';
-import {AuthenticationService} from './authentication.service';
-import {LogService} from './log.service';
-import {SettingService} from './setting.service';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {ProfileService} from './profile.service';
-import {currencyFormat, getPaymentTypes, getStatus, isNullOrEmpty} from '../core/correct-library';
-import {CustomerService} from './customer.service';
-import {AccountTransactionService} from './account-transaction.service';
-import {ActionService} from './action.service';
+import { Injectable } from '@angular/core';
+import { AngularFirestore, AngularFirestoreCollection, CollectionReference, Query } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/Observable';
+import { CustomerModel } from '../models/customer-model';
+import { map, mergeMap } from 'rxjs/operators';
+import { combineLatest } from 'rxjs';
+import { CollectionModel } from '../models/collection-model';
+import { AuthenticationService } from './authentication.service';
+import { LogService } from './log.service';
+import { SettingService } from './setting.service';
+import { CollectionMainModel } from '../models/collection-main-model';
+import { ProfileService } from './profile.service';
+import { currencyFormat, getPaymentTypes, getStatus, isNullOrEmpty } from '../core/correct-library';
+import { CustomerService } from './customer.service';
+import { AccountTransactionService } from './account-transaction.service';
+import { ActionService } from './action.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,8 +27,8 @@ export class CollectionService {
   tableName = 'tblCollection';
 
   constructor(protected authService: AuthenticationService, protected sService: SettingService, protected cusService: CustomerService,
-              protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
-              protected atService: AccountTransactionService, protected actService: ActionService) {
+    protected logService: LogService, protected eService: ProfileService, protected db: AngularFirestore,
+    protected atService: AccountTransactionService, protected actService: ActionService) {
 
     if (this.authService.isUserLoggedIn()) {
       this.eService.getItems().toPromise().then(list => {
@@ -47,20 +47,11 @@ export class CollectionService {
     }
   }
 
-  async addItem(record: CollectionMainModel) {
-    return await this.listCollection.add(Object.assign({}, record.data))
-      .then(async () => {
-        await this.logService.addTransactionLog(record, 'insert', 'collection');
-        await this.sService.increaseCollectionNumber();
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-      });
-  }
-
   async removeItem(record: CollectionMainModel) {
     return await this.db.collection(this.tableName).doc(record.data.primaryKey).delete()
       .then(async () => {
         this.actService.removeActions(this.tableName, record.data.primaryKey);
-        await this.logService.addTransactionLog(record, 'delete', 'collection');
+        this.logService.addTransactionLog(record, 'delete', 'collection');
         if (record.data.status === 'approved') {
           await this.atService.removeItem(null, record.data.primaryKey);
         }
@@ -86,13 +77,7 @@ export class CollectionService {
           trans.amountType = 'credit';
           trans.insertDate = record.data.insertDate;
           trans.termDate = record.data.termDate;
-
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'approved', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
-        } else if (record.data.status === 'rejected') {
-          await this.logService.addTransactionLog(record, 'rejected', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
@@ -108,25 +93,22 @@ export class CollectionService {
           trans.amountType = 'debit';
           trans.insertDate = record.data.insertDate;
           trans.termDate = record.data.termDate;
-
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'canceled', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
-          await this.logService.addTransactionLog(record, 'update', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
+
         }
+      })
+      .finally(() => {
+        this.logService.setLogs('collection', record, false);
       });
   }
 
   async setItem(record: CollectionMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async value => {
-        await this.logService.addTransactionLog(record, 'insert', 'collection');
-        await this.sService.increaseCollectionNumber();
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
-
-        if (record.data.status === 'approved') {
+        if (record.data.status === 'waitingForApprove') {
+          this.sService.increaseCollectionNumber();
+        } else if (record.data.status === 'approved') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = record.data.primaryKey;
           trans.receiptNo = record.data.receiptNo;
@@ -141,11 +123,7 @@ export class CollectionService {
           trans.amountType = 'credit';
           trans.insertDate = record.data.insertDate;
           trans.termDate = record.data.termDate;
-
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'approved', 'collection');
-        } else if (record.data.status === 'rejected') {
-          await this.logService.addTransactionLog(record, 'rejected', 'collection');
         } else if (record.data.status === 'canceled') {
           const trans = this.atService.clearSubModel();
           trans.primaryKey = this.getCancelRecordPrimaryKey(record.data);
@@ -161,13 +139,13 @@ export class CollectionService {
           trans.amountType = 'debit';
           trans.insertDate = record.data.insertDate;
           trans.termDate = record.data.termDate;
-
           await this.atService.setItem(trans, trans.primaryKey);
-          await this.logService.addTransactionLog(record, 'canceled', 'collection');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal');
         } else {
-          // await this.logService.addTransactionLog(record, 'update', 'collection');
+
         }
+      })
+      .finally(() => {
+        this.logService.setLogs('collection', record, true);
       });
   }
 
@@ -277,6 +255,18 @@ export class CollectionService {
     return model;
   }
 
+  convertMainModel(model: CollectionModel): CollectionMainModel {
+    const returnData = this.clearMainModel();
+    returnData.data = this.checkFields(model);
+    returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
+    returnData.amountFormatted = currencyFormat(returnData.data.amount);
+    returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
+    returnData.statusTr = getStatus().get(returnData.data.status);
+    returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+    returnData.platformTr = returnData.data.platform === 'web' ? 'Web' : 'Mobil';
+    return returnData;
+  }
+
   getCancelRecordPrimaryKey(model: CollectionModel): string {
     return 'c-' + model.primaryKey;
   }
@@ -287,19 +277,11 @@ export class CollectionService {
         if (doc.exists) {
           const data = doc.data() as CollectionModel;
           data.primaryKey = doc.id;
-
-          const returnData = new CollectionMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-          returnData.amountFormatted = currencyFormat(returnData.data.amount);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-          returnData.statusTr = getStatus().get(returnData.data.status);
-          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
-
+          const returnData = this.convertMainModel(data);
           const d1 = await this.cusService.getItem(returnData.data.customerCode);
           returnData.customer = this.cusService.convertMainModel(d1.data);
 
-          resolve(Object.assign({returnData}));
+          resolve(Object.assign({ returnData }));
         } else {
           resolve(null);
         }
@@ -315,17 +297,8 @@ export class CollectionService {
         changes.map(c => {
           const data = c.payload.doc.data() as CollectionModel;
           data.primaryKey = c.payload.doc.id;
-
-          const returnData = new CollectionMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.actionType = c.type;
-          returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-          returnData.amountFormatted = currencyFormat(returnData.data.amount);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-          returnData.statusTr = getStatus().get(returnData.data.status);
-          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
-
-          return Object.assign({returnData});
+          const returnData = this.convertMainModel(data);
+          return Object.assign({ returnData });
         })
       )
     );
@@ -339,20 +312,11 @@ export class CollectionService {
       return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
-
-        const returnData = new CollectionMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.amountFormatted = currencyFormat(returnData.data.amount);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
-        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
-
+        const returnData = this.convertMainModel(data);
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
@@ -380,20 +344,11 @@ export class CollectionService {
       return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
-
-        const returnData = new CollectionMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.amountFormatted = currencyFormat(returnData.data.amount);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
-        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
-
+        const returnData = this.convertMainModel(data);
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
@@ -424,64 +379,54 @@ export class CollectionService {
       return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
         data.primaryKey = change.payload.doc.id;
-
-        const returnData = new CollectionMainModel();
-        returnData.data = this.checkFields(data);
-        returnData.actionType = change.type;
-        returnData.employeeName = this.employeeMap.get(returnData.data.employeePrimaryKey);
-        returnData.amountFormatted = currencyFormat(returnData.data.amount);
-        returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-        returnData.statusTr = getStatus().get(returnData.data.status);
-        returnData.typeTr = getPaymentTypes().get(returnData.data.type);
-
+        const returnData = this.convertMainModel(data);
         return this.db.collection('tblCustomer').doc(data.customerCode).valueChanges()
           .pipe(map((customer: CustomerModel) => {
             returnData.customer = customer !== undefined ? this.cusService.convertMainModel(customer) : undefined;
-            return Object.assign({returnData});
+            return Object.assign({ returnData });
           }));
       });
     }), mergeMap(feeds => combineLatest(feeds)));
     return this.mainList$;
   }
 
-  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, status: string):
+  getMainItemsBetweenDatesAsPromise = async (startDate: Date, endDate: Date, customerPrimaryKey: string, status: string):
     Promise<Array<CollectionMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
-    try {
-      const list = Array<CollectionMainModel>();
-      this.db.collection(this.tableName, ref => {
-        let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
-        if (startDate !== null) {
-          query = query.startAt(startDate.getTime());
-        }
-        if (endDate !== null) {
-          query = query.endAt(endDate.getTime());
-        }
-        if (status !== null && status !== '-1') {
-          query = query.where('status', '==', status);
-        }
-        return query;
-      }).get().toPromise().then(snapshot => {
-        snapshot.forEach(doc => {
-          const data = doc.data() as CollectionModel;
-          data.primaryKey = doc.id;
+      try {
+        const list = Array<CollectionMainModel>();
+        this.db.collection(this.tableName, ref => {
+          let query: CollectionReference | Query = ref;
+          query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+          if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
+            query = query.where('customerCode', '==', customerPrimaryKey);
+          }
+          if (startDate !== null) {
+            query = query.startAt(startDate.getTime());
+          }
+          if (endDate !== null) {
+            query = query.endAt(endDate.getTime());
+          }
+          if (status !== null && status !== '-1') {
+            query = query.where('status', '==', status);
+          }
+          return query;
+        }).get().toPromise().then(snapshot => {
+          snapshot.forEach(async doc => {
+            const data = doc.data() as CollectionModel;
+            data.primaryKey = doc.id;
+            const returnData = this.convertMainModel(data);
 
-          const returnData = new CollectionMainModel();
-          returnData.data = this.checkFields(data);
-          returnData.actionType = 'added';
-          returnData.customer = this.customerMap.get(returnData.data.customerCode);
-          returnData.approverName = this.employeeMap.get(returnData.data.approveByPrimaryKey);
-          returnData.statusTr = getStatus().get(returnData.data.status);
-          returnData.typeTr = getPaymentTypes().get(returnData.data.type);
+            const cus = await this.cusService.getItem(data.customerCode);
+            returnData.customer = cus.data;
 
-          list.push(returnData);
+            list.push(returnData);
+          });
+          resolve(list);
         });
-        resolve(list);
-      });
 
-    } catch (error) {
-      console.error(error);
-      reject({message: 'Error: ' + error});
-    }
-  })
+      } catch (error) {
+        console.error(error);
+        reject({ message: 'Error: ' + error });
+      }
+    })
 }

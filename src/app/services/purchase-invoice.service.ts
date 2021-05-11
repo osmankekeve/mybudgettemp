@@ -82,7 +82,6 @@ export class PurchaseInvoiceService {
         if (record.data.status === 'waitingForApprove') {
           await this.logService.addTransactionLog(record, 'insert', 'purchaseInvoice');
           await this.sService.increasePurchaseInvoiceNumber();
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
         } else if (record.data.status === 'approved') {
           for (const item of record.termList) {
             const trans = this.atService.clearSubModel();
@@ -219,7 +218,6 @@ export class PurchaseInvoiceService {
             }
           }
           await this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         } else {
           // await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
         }
@@ -258,7 +256,6 @@ export class PurchaseInvoiceService {
         }
         if (record.data.status === 'waitingForApprove') {
           await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Güncelleme');
         } else if (record.data.status === 'approved') {
           for (const item of record.termList) {
             const trans = this.atService.clearSubModel();
@@ -320,7 +317,6 @@ export class PurchaseInvoiceService {
             }
           }
           this.logService.addTransactionLog(record, 'approved', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Onay');
         } else if (record.data.status === 'rejected') {
           await this.logService.addTransactionLog(record, 'rejected', 'purchaseInvoice');
         } else if (record.data.status === 'canceled') {
@@ -400,7 +396,6 @@ export class PurchaseInvoiceService {
             }
           }
           this.logService.addTransactionLog(record, 'canceled', 'purchaseInvoice');
-          this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt İptal Edildi');
         } else {
           // await this.logService.addTransactionLog(record, 'update', 'purchaseInvoice');
         }

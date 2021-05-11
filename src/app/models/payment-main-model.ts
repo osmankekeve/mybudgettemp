@@ -11,4 +11,5 @@ export class PaymentMainModel {
   statusTr?: string;
   typeTr?: string;
   platformTr?: string;
+  documentDate: string | number | Date;
 }

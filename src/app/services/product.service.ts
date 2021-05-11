@@ -34,7 +34,6 @@ export class ProductService {
       .then(async () => {
         await this.sService.increaseProductNumber();
         await this.logService.addTransactionLog(record, 'insert', 'product');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
   }
 
@@ -52,7 +51,6 @@ export class ProductService {
       .update(Object.assign({}, record.data))
       .then(async () => {
         await this.logService.addTransactionLog(record, 'update', 'product');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 2, 'Kayıt Güncelleme');
       });
   }
 
@@ -61,7 +59,6 @@ export class ProductService {
       .then(async value => {
         await this.sService.increaseProductNumber();
         await this.logService.addTransactionLog(record, 'insert', 'product');
-        this.actService.addAction(this.tableName, record.data.primaryKey, 1, 'Kayıt Oluşturma');
       });
   }
 
