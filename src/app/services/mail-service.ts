@@ -1,7 +1,7 @@
 
 import * as nodemailer from 'nodemailer';
 import {Injectable} from '@angular/core';
-import {CONFIG} from 'src/mail.config';
+import {CONFIG} from 'src/main.config';
 import {MailModel} from '../models/mail-model';
 
 @Injectable()

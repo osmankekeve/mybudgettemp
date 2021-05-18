@@ -1,4 +1,3 @@
-import { ExcelConfig } from 'src/excel.config';
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AccountTransactionService} from '../services/account-transaction.service';
@@ -16,6 +15,7 @@ import { CustomerRelationMainModel } from '../models/customer-relation-main-mode
 import { Subscription } from 'rxjs';
 import * as Chart from 'chart.js';
 import { AccountTransactionMainModel } from '../models/account-transaction-main-model';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-dashboard-customer',
@@ -54,48 +54,48 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: ExcelConfig.Chart_Colors.red,
-            backgroundColor: ExcelConfig.Chart_Colors.red,
-            pointBackgroundColor: ExcelConfig.Chart_Colors.red,
-            pointBorderColor: ExcelConfig.Chart_Colors.red,
-            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.red,
-            pointHoverBorderColor: ExcelConfig.Chart_Colors.red
+            borderColor: CONFIG.Chart_Colors.red,
+            backgroundColor: CONFIG.Chart_Colors.red,
+            pointBackgroundColor: CONFIG.Chart_Colors.red,
+            pointBorderColor: CONFIG.Chart_Colors.red,
+            pointHoverBackgroundColor: CONFIG.Chart_Colors.red,
+            pointHoverBorderColor: CONFIG.Chart_Colors.red
           },
           {
           label: 'Tahsilat',
           data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           borderWidth: 1,
           fill: false,
-          borderColor: ExcelConfig.Chart_Colors.yellow,
-          backgroundColor: ExcelConfig.Chart_Colors.yellow,
-          pointBackgroundColor: ExcelConfig.Chart_Colors.yellow,
-          pointBorderColor: ExcelConfig.Chart_Colors.yellow,
-          pointHoverBackgroundColor: ExcelConfig.Chart_Colors.yellow,
-          pointHoverBorderColor: ExcelConfig.Chart_Colors.yellow
+          borderColor: CONFIG.Chart_Colors.yellow,
+          backgroundColor: CONFIG.Chart_Colors.yellow,
+          pointBackgroundColor: CONFIG.Chart_Colors.yellow,
+          pointBorderColor: CONFIG.Chart_Colors.yellow,
+          pointHoverBackgroundColor: CONFIG.Chart_Colors.yellow,
+          pointHoverBorderColor: CONFIG.Chart_Colors.yellow
           },
           {
             label: 'Alım Faturası',
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: ExcelConfig.Chart_Colors.blue,
-            backgroundColor: ExcelConfig.Chart_Colors.blue,
-            pointBackgroundColor: ExcelConfig.Chart_Colors.blue,
-            pointBorderColor: ExcelConfig.Chart_Colors.blue,
-            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.blue,
-            pointHoverBorderColor: ExcelConfig.Chart_Colors.blue
+            borderColor: CONFIG.Chart_Colors.blue,
+            backgroundColor: CONFIG.Chart_Colors.blue,
+            pointBackgroundColor: CONFIG.Chart_Colors.blue,
+            pointBorderColor: CONFIG.Chart_Colors.blue,
+            pointHoverBackgroundColor: CONFIG.Chart_Colors.blue,
+            pointHoverBorderColor: CONFIG.Chart_Colors.blue
           },
           {
             label: 'Ödeme',
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: ExcelConfig.Chart_Colors.purple,
-            backgroundColor: ExcelConfig.Chart_Colors.purple,
-            pointBackgroundColor: ExcelConfig.Chart_Colors.purple,
-            pointBorderColor: ExcelConfig.Chart_Colors.purple,
-            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.purple,
-            pointHoverBorderColor: ExcelConfig.Chart_Colors.purple
+            borderColor: CONFIG.Chart_Colors.purple,
+            backgroundColor: CONFIG.Chart_Colors.purple,
+            pointBackgroundColor: CONFIG.Chart_Colors.purple,
+            pointBorderColor: CONFIG.Chart_Colors.purple,
+            pointHoverBackgroundColor: CONFIG.Chart_Colors.purple,
+            pointHoverBorderColor: CONFIG.Chart_Colors.purple
           }
       ]
       },

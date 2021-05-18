@@ -5,12 +5,12 @@ import {AuthenticationService} from '../services/authentication.service';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FileUploadService} from '../services/file-upload.service';
 import {ToastService} from '../services/toast.service';
-import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {CompanyModel} from '../models/company-model';
 import {CompanyService} from '../services/company.service';
 import { RefrasherService } from '../services/refrasher.service';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-company',
@@ -112,7 +112,7 @@ export class CompanyComponent implements OnInit, OnDestroy {
         this.onTransaction = false;
       } else {
         const file = this.selectedFiles.item(0);
-        const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
+        const path = CONFIG.pathOfProfileFiles + Date.now() + file.name;
         const ref = await this.storage.ref(path);
         this.storage.upload(path, file).then(async () => {
           this.downloadURL = await ref.getDownloadURL().toPromise();

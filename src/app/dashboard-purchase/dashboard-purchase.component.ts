@@ -1,4 +1,3 @@
-import { ExcelConfig } from 'src/excel.config';
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Router} from '@angular/router';
@@ -10,6 +9,7 @@ import { AccountTransactionService } from '../services/account-transaction.servi
 import { PurchaseOrderService } from '../services/purchase-order.service';
 import { Subscription } from 'rxjs';
 import { PurchaseOrderMainModel } from '../models/purchase-order-main-model';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-dashboard-purchase',
@@ -97,8 +97,8 @@ export class DashboardPurchaseComponent implements OnInit, OnDestroy {
             {
             label: 'Mevcut Ay',
             data: [0, 0],
-            backgroundColor: [ExcelConfig.Chart_Colors_Soft.red, ExcelConfig.Chart_Colors_Soft.yellow],
-            borderColor: [ExcelConfig.Chart_Colors.red, ExcelConfig.Chart_Colors.yellow],
+            backgroundColor: [CONFIG.Chart_Colors_Soft.red, CONFIG.Chart_Colors_Soft.yellow],
+            borderColor: [CONFIG.Chart_Colors.red, CONFIG.Chart_Colors.yellow],
             borderWidth: 1,
           }
         ]
@@ -143,24 +143,24 @@ export class DashboardPurchaseComponent implements OnInit, OnDestroy {
           data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           borderWidth: 1,
           fill: false,
-          borderColor: ExcelConfig.Chart_Colors.red,
-          backgroundColor: ExcelConfig.Chart_Colors.red,
-          pointBackgroundColor: ExcelConfig.Chart_Colors.red,
-          pointBorderColor: ExcelConfig.Chart_Colors.red,
-          pointHoverBackgroundColor: ExcelConfig.Chart_Colors.red,
-          pointHoverBorderColor: ExcelConfig.Chart_Colors.red
+          borderColor: CONFIG.Chart_Colors.red,
+          backgroundColor: CONFIG.Chart_Colors.red,
+          pointBackgroundColor: CONFIG.Chart_Colors.red,
+          pointBorderColor: CONFIG.Chart_Colors.red,
+          pointHoverBackgroundColor: CONFIG.Chart_Colors.red,
+          pointHoverBorderColor: CONFIG.Chart_Colors.red
         },
         {
         label: 'Ödeme',
         data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         borderWidth: 1,
         fill: false,
-        borderColor: ExcelConfig.Chart_Colors.yellow,
-        backgroundColor: ExcelConfig.Chart_Colors.yellow,
-        pointBackgroundColor: ExcelConfig.Chart_Colors.yellow,
-        pointBorderColor: ExcelConfig.Chart_Colors.yellow,
-        pointHoverBackgroundColor: ExcelConfig.Chart_Colors.yellow,
-        pointHoverBorderColor: ExcelConfig.Chart_Colors.yellow
+        borderColor: CONFIG.Chart_Colors.yellow,
+        backgroundColor: CONFIG.Chart_Colors.yellow,
+        pointBackgroundColor: CONFIG.Chart_Colors.yellow,
+        pointBorderColor: CONFIG.Chart_Colors.yellow,
+        pointHoverBackgroundColor: CONFIG.Chart_Colors.yellow,
+        pointHoverBorderColor: CONFIG.Chart_Colors.yellow
       }
       ]
       },

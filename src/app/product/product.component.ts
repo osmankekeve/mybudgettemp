@@ -29,12 +29,12 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ExcelImportComponent} from '../partials/excel-import/excel-import.component';
 import {InfoModuleComponent} from '../partials/info-module/info-module.component';
 import {ToastService} from '../services/toast.service';
-import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage, AngularFireUploadTask} from '@angular/fire/storage';
 import {Observable, Subscription} from 'rxjs';
 import { PurchaseInvoiceDetailModel } from '../models/purchase-invoice-detail-model';
 import * as Chart from 'chart.js';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-product',
@@ -443,7 +443,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.onTransaction = false;
       } else {
         const file = this.selectedFiles.item(0);
-        const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
+        const path = CONFIG.pathOfProfileFiles + Date.now() + file.name;
         const ref = await this.storage.ref(path);
         this.storage.upload(path, file).then(async () => {
           this.downloadURL = await ref.getDownloadURL().toPromise();

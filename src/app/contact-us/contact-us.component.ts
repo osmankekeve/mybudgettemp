@@ -7,7 +7,7 @@ import {ContactUsMainModel} from '../models/contact-us-main-model';
 import {ContactUsService} from '../services/contact-us.service';
 import {getDateForInput, getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
-import {CONFIG} from 'src/mail.config';
+import {CONFIG} from 'src/main.config';
 import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ExcelService } from '../services/excel-service';

@@ -4,12 +4,12 @@ import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import {ProfileService} from '../services/profile.service';
 import {ProfileMainModel} from '../models/profile-main-model';
-import {FileUploadConfig} from '../../file-upload.config';
 import {AngularFireStorage} from '@angular/fire/storage';
 import {Observable} from 'rxjs';
 import {FileUploadService} from '../services/file-upload.service';
 import {ToastService} from '../services/toast.service';
 import { getString } from '../core/correct-library';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-profile',
@@ -121,7 +121,7 @@ export class ProfileComponent implements OnInit {
         await this.finishSubProcess('Lütfen dosya seçiniz.', null);
       } else {
         const file = this.selectedFiles.item(0);
-        const path = FileUploadConfig.pathOfProfileFiles + Date.now() + file.name;
+        const path = CONFIG.pathOfProfileFiles + Date.now() + file.name;
         const ref = await this.storage.ref(path);
         this.storage.upload(path, file).then(async () => {
           this.downloadURL = await ref.getDownloadURL().toPromise();

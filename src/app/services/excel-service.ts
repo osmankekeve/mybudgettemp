@@ -2,13 +2,13 @@ import {Injectable} from '@angular/core';
 import * as XLSX from 'xlsx';
 import * as FileSaver from 'file-saver';
 import {getDateForExcel, getBoolStr, getTransactionTypes, getRelationTypes, currencyFormat} from '../core/correct-library';
-import {ExcelConfig} from 'src/excel.config';
 import {CollectionMainModel} from '../models/collection-main-model';
 import {AccountVoucherMainModel} from '../models/account-voucher-main-model';
 import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
 import {PaymentMainModel} from '../models/payment-main-model';
 import {PurchaseInvoiceMainModel} from '../models/purchase-invoice-main-model';
 import {CustomerAccountMainModel} from '../models/customer-main-account-model';
+import { CONFIG } from 'src/main.config';
 
 @Injectable()
 export class ExcelService {
@@ -28,8 +28,8 @@ export class ExcelService {
 
   public saveAsExcelFile(buffer: any, fileName: string): void {
     // this.setStyles(fileName);
-    const data: Blob = new Blob([buffer], {type: ExcelConfig.EXCEL_EXTENSION});
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + ExcelConfig.EXCEL_EXTENSION);
+    const data: Blob = new Blob([buffer], {type: CONFIG.EXCEL_EXTENSION});
+    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + CONFIG.EXCEL_EXTENSION);
   }
 
   public exportToExcel(list: any[], record: string): void {
@@ -570,7 +570,7 @@ export class ExcelService {
       i = 0;
       while (i < numOfHeaders) {// Set header styles
         const header1 = XLSX.utils.encode_cell({c: C, r: i});
-        this.worksheet[header1].s = ExcelConfig.headerStyle;
+        this.worksheet[header1].s = CONFIG.headerStyle;
         i++;
       }
     }
@@ -579,7 +579,7 @@ export class ExcelService {
       for (let C = range.s.c; C <= range.e.c; ++C) {
         const all = XLSX.utils.encode_cell({c: C, r: R});
         if (this.worksheet[all]) {
-          this.worksheet[all].s = ExcelConfig.generalStyle;
+          this.worksheet[all].s = CONFIG.generalStyle;
         }
       }
     }
@@ -588,27 +588,27 @@ export class ExcelService {
   protected setDateFmt(cell: string) {
     if (this.worksheet[cell] && this.worksheet[cell].v !== '' && this.worksheet[cell].v !== 'N/A') {
       this.worksheet[cell].t = 'd';
-      this.worksheet[cell].z = ExcelConfig.dateFmt;
-      this.worksheet[cell].s = ExcelConfig.dateStyle;
+      this.worksheet[cell].z = CONFIG.dateFmt;
+      this.worksheet[cell].s = CONFIG.dateStyle;
     }
   }
 
   protected setTimeStampFmt(cell: string) {
-    this.worksheet[cell].s = ExcelConfig.dateStyle;
+    this.worksheet[cell].s = CONFIG.dateStyle;
   }
 
   protected setTextFmt(cell: string) {
     if (this.worksheet[cell]) {
       this.worksheet[cell].t = 's';
-      this.worksheet[cell].s = ExcelConfig.textStyle;
+      this.worksheet[cell].s = CONFIG.textStyle;
     }
   }
 
   protected setCurrencyFmt(cell: string) {
     if (this.worksheet[cell]) {
       this.worksheet[cell].t = 'n';
-      this.worksheet[cell].z = ExcelConfig.currencyFmt;
-      this.worksheet[cell].s = ExcelConfig.currencyStyle;
+      this.worksheet[cell].z = CONFIG.currencyFmt;
+      this.worksheet[cell].s = CONFIG.currencyStyle;
     }
   }
 }

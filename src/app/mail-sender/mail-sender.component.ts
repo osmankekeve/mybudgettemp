@@ -5,7 +5,7 @@ import {AuthenticationService} from '../services/authentication.service';
 import emailjs, {EmailJSResponseStatus} from 'emailjs-com';
 import {getFirstDayOfMonthForInput, getTodayForInput, isNullOrEmpty} from '../core/correct-library';
 import {Router} from '@angular/router';
-import {CONFIG} from 'src/mail.config';
+import {CONFIG} from 'src/main.config';
 import {MailService} from '../services/mail.service';
 import {MailMainModel} from '../models/mail-main-model';
 import {CustomerModel} from '../models/customer-model';

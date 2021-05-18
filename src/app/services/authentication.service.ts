@@ -16,13 +16,13 @@ export class AuthenticationService {
     this.angularFireAuth.authState.subscribe(userResponse => {
       if (userResponse) {
         sessionStorage.setItem('user', JSON.stringify(userResponse));
-        /*this.db.collection('tblCompany').doc(userResponse.uid).get().toPromise().then(doc => {
+        this.db.collection('tblCompany').doc(userResponse.uid).get().toPromise().then(doc => {
           if (doc.exists) {
             const data = doc.data() as CompanyModel;
             //data.primaryKey = doc.id;
             sessionStorage.setItem('company', JSON.stringify(data));
           }
-        });*/
+        });
       } else {
         sessionStorage.setItem('user', null);
         sessionStorage.setItem('company', null);

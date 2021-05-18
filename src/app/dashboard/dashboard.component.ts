@@ -17,7 +17,7 @@ import {RouterModel} from '../models/router-model';
 import {GlobalService} from '../services/global.service';
 import { CustomerRelationMainModel } from '../models/customer-relation-main-model';
 import { Subscription } from 'rxjs';
-import { ExcelConfig } from 'src/excel.config';
+import { CONFIG } from 'src/main.config';
 
 @Component({
   selector: 'app-dashboard',
@@ -57,20 +57,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
             label: '# of Votes',
             data: [0, 0, 0, 0, 0, 0],
             backgroundColor: [
-              ExcelConfig.Chart_Colors_Soft.red,
-              ExcelConfig.Chart_Colors_Soft.blue,
-              ExcelConfig.Chart_Colors_Soft.yellow,
-              ExcelConfig.Chart_Colors_Soft.green,
-              ExcelConfig.Chart_Colors_Soft.purple,
-              ExcelConfig.Chart_Colors_Soft.grey
+              CONFIG.Chart_Colors_Soft.red,
+              CONFIG.Chart_Colors_Soft.blue,
+              CONFIG.Chart_Colors_Soft.yellow,
+              CONFIG.Chart_Colors_Soft.green,
+              CONFIG.Chart_Colors_Soft.purple,
+              CONFIG.Chart_Colors_Soft.grey
             ],
             borderColor: [
-              ExcelConfig.Chart_Colors.red,
-              ExcelConfig.Chart_Colors.blue,
-              ExcelConfig.Chart_Colors.yellow,
-              ExcelConfig.Chart_Colors.green,
-              ExcelConfig.Chart_Colors.purple,
-              ExcelConfig.Chart_Colors.grey
+              CONFIG.Chart_Colors.red,
+              CONFIG.Chart_Colors.blue,
+              CONFIG.Chart_Colors.yellow,
+              CONFIG.Chart_Colors.green,
+              CONFIG.Chart_Colors.purple,
+              CONFIG.Chart_Colors.grey
             ],
             borderWidth: 1
           }]
@@ -300,7 +300,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (this.todoList === undefined) {
         this.todoList = [];
       }
-    }, 5000);
+    }, 1000);
   }
 
   showAction(item: any): void {
