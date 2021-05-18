@@ -20,6 +20,7 @@ export class LogService {
   tableName = 'tblLogs';
 
   constructor(protected authService: AuthenticationService, protected db: AngularFirestore, protected proService: ProfileService) {
+    this.listCollection = this.db.collection(this.tableName);
 
   }
 
@@ -224,15 +225,16 @@ export class LogService {
   }
 
   setLogs(recordType: string, dataRecord: any, isNew: boolean): void {
-    if (isNew && dataRecord.status === 'waitingForApprove') {
+    const status =  dataRecord.data ? dataRecord.data.status : dataRecord.status;
+    if (isNew && status === 'waitingForApprove') {
       this.addTransactionLog(dataRecord, 'insert', recordType);
-    } else if (!isNew && dataRecord.status === 'waitingForApprove') {
+    } else if (!isNew && status === 'waitingForApprove') {
       this.addTransactionLog(dataRecord, 'update', recordType);
-    } else if (dataRecord.status === 'approved') {
+    } else if (status === 'approved') {
       this.addTransactionLog(dataRecord, 'approved', recordType);
-    } else if (dataRecord.status === 'rejected') {
+    } else if (status === 'rejected') {
       this.addTransactionLog(dataRecord, 'rejected', recordType);
-    } else if (dataRecord.status === 'canceled') {
+    } else if (status === 'canceled') {
       this.addTransactionLog(dataRecord, 'canceled', recordType);
     } else {
       this.addTransactionLog(dataRecord, 'update', recordType);

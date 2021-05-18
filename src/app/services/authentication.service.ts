@@ -5,6 +5,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { ProfileModel } from '../models/profile-model';
 import { ProfileMainModel } from '../models/profile-main-model';
 import {getEducation, getGenders, getUserTypes} from '../core/correct-library';
+import { CompanyModel } from '../models/company-model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,13 @@ export class AuthenticationService {
     this.angularFireAuth.authState.subscribe(userResponse => {
       if (userResponse) {
         sessionStorage.setItem('user', JSON.stringify(userResponse));
+        /*this.db.collection('tblCompany').doc(userResponse.uid).get().toPromise().then(doc => {
+          if (doc.exists) {
+            const data = doc.data() as CompanyModel;
+            //data.primaryKey = doc.id;
+            sessionStorage.setItem('company', JSON.stringify(data));
+          }
+        });*/
       } else {
         sessionStorage.setItem('user', null);
         sessionStorage.setItem('company', null);

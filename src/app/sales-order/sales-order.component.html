@@ -1,4 +1,4 @@
-<div class="work-area" *ngIf="selectedRecord==undefined">
+<div *ngIf="selectedRecord==undefined">
   <div class="card">
     <div class="card-header bg-gray-gradient">
       <div class="d-flex align-items-center">
@@ -29,7 +29,7 @@
         </div>
       </div>
     </div>
-    <div *ngIf="mainList != undefined; else elseBlock2">
+    <div class="work-area-11" *ngIf="mainList != undefined; else elseBlock2">
       <div class="main-list" *ngIf="mainList.length > 0; else elseBlock">
         <div class="main-list-item" *ngFor="let item of mainList | filterDataCustomerCustomer: searchText; index as i;">
           <div class="icon cursor-pointer" title="Kayıt Göster" (click)="showSelectedRecord(item)">

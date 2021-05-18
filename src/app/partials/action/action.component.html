@@ -1,31 +1,40 @@
-﻿
-<div class="list-group" *ngIf="mainList != undefined; else elseBlock">
-  <div class="list-group-item bg-danger text-light main-list-item"
-    *ngIf="mainList.length > 0; else elseBlock2">
-    <div class="row">
-      <div class="col-sm-6">Açıklama</div>
-      <div class="col-sm-4">Personel</div>
-      <div class="col-sm-2"><span class="float-right">İşlem Tarihi</span></div>
-    </div>
-  </div>
-  <div class="work-area-7">
-    <div class="list-group-item list-group-item-action main-list-item" *ngFor="let item of mainList">
-      <div class="row">
-        <div class="col-sm-6">{{item.data.log}}</div>
-        <div class="col-sm-3">{{item.employeeName}}</div>
-        <div class="col-sm-3">
-          <span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd HH:mm:ss'}}</span>
+﻿<div class="work-area-11" *ngIf="mainList != undefined; else elseBlock2">
+  <div *ngIf="mainList.length > 0; else elseBlock">
+    <div class="main-list">
+      <div class="main-list-item" *ngFor="let item of mainList; index as i;">
+        <div class="icon">
+          <i class="fas fa-file-alt fa-2x text-danger"></i>
+        </div>
+        <div class="content">
+          <div class="row-1">
+            <div class="w-100">
+              <span class="font-weight-600" title="Log">{{item.data.log}}</span>
+            </div>
+          </div>          
+          <div class="row-2">
+            <div class="w-66">
+              <span class="badge badge-danger" title="Personel">{{item.employeeName}}</span>
+            </div>
+            <div class="w-33">
+              <span class="float-right mr-1">İşlem Tarihi {{item.data.insertDate | date: 'yyyy-MM-dd'}}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <ng-template #elseBlock2>
-    <div class="card bg-red text-white">
+  <ng-template #elseBlock>
+    <div class="card bg-red text-white m-3">
       <div class="card-body">Görüntülenecek veri bulunamadı.</div>
     </div>
   </ng-template>
 </div>
-<ng-template #elseBlock>
-  <div class="loader"></div>
+<ng-template #elseBlock2>
+  <div class="card">
+    <div class="card-body">
+      <div class="loader"></div>
+    </div>
+  </div>
 </ng-template>
+
 

@@ -1,63 +1,64 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { NavBarComponent } from './nav-bar/nav-bar.component';
-import { SideNavBarComponent } from './side-nav-bar/side-nav-bar.component';
-import { CustomerComponent } from './customer/customer.component';
-import { PurchaseInvoiceComponent } from './purchase-invoice/purchase-invoice.component';
-import { SalesInvoiceComponent } from './sales-invoice/sales-invoice.component';
-import { CashDeskComponent } from './cash-desk/cash-desk.component';
-import { CollectionComponent } from './collection/collection.component';
-import { PaymentComponent } from './payment/payment.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { LoginComponent } from './login/login.component';
-import { AlertComponent } from './partials/alert/alert.component';
-import { AccountVoucherComponent } from './account-voucher/account-voucher.component';
-import { CashdeskVoucherComponent } from './cashdesk-voucher/cashdesk-voucher.component';
-import { ReportsComponent } from './reports/reports.component';
-import { TestModuleComponent } from './test/test-module.component';
-import { NotificationComponent } from './notification/notification.component';
-import { NoteComponent } from './note/note.component';
-import { CRMComponent } from './crm/crm.component';
-import { LocationComponent } from './location/location.component';
-import { ProfileComponent } from './profile/profile.component';
-import { SettingComponent } from './setting/setting.component';
-import { UserComponent } from './user/user.component';
-import { ReminderComponent } from './reminder/reminder.component';
-import { FileUploadComponent } from './file-upload/file-upload.component';
-import { VisitComponent } from './visit/visit.component';
-import { CustomerTargetComponent } from './customer-target/customer-target.component';
-import { AccountTransactionComponent } from './account-transaction/account-transaction.component';
-import { ContactUsComponent } from './contact-us/contact-us.component';
-import { MailSenderComponent } from './mail-sender/mail-sender.component';
-import { ToDoListComponent } from './to-do-list/to-do-list.component';
-import {CustomerAccountComponent} from './customer-account/customer-account.component';
-import {UploaderComponent} from './uploader/uploader.component';
-import {GlobalUploadComponent} from './partials/global-upload/global-upload.component';
-import {DropzoneComponent} from './dropzone/dropzone.component';
-import {AccountMatchComponent} from './account-match/account-match.component';
-import {BuySaleComponent} from './buy-sell/buy-sale.component';
-import {BuySellCurrencyComponent} from './buy-sell-currency/buy-sell-currency.component';
-import {ProductComponent} from './product/product.component';
-import {ProductUnitComponent} from './product-unit/product-unit.component';
-import {PriceListComponent} from './price-list/price-list.component';
-import {DiscountListComponent} from './discount-list/discount-list.component';
-import {DefinitionComponent} from './definition/definition.component';
-import {SalesOrderComponent} from './sales-order/sales-order.component';
-import {SalesOfferComponent} from './sales-offer/sales-offer.component';
-import {PurchaseOfferComponent} from './purchase-offer/purchase-offer.component';
-import {PurchaseOrderComponent} from './purchase-order/purchase-order.component';
-import {CompanyComponent} from './company/company.component';
-import { CampaignComponent } from './campaign/campaign.component';
-import { MessagingComponent } from './messaging/messaging.component';
-import { DashboardCustomerComponent } from './dashboard-customer/dashboard-customer.component';
-import { DashboardSalesComponent } from './dashboard-sales/dashboard-sales.component';
-import { DashboardPurchaseComponent } from './dashboard-purchase/dashboard-purchase.component';
-import { DashboardAccountComponent } from './dashboard-account/dashboard-account.component';
-import { DashboardProductComponent } from './dashboard-product/dashboard-product.component';
-import { DashboardDefinitionComponent } from './dashboard-definition/dashboard-definition.component';
-import { StockComponent } from './stock/stock.component';
-import { StockVoucherComponent } from './stock-voucher/stock-voucher.component';
+import { NgModule } from "@angular/core";
+import { Routes, RouterModule } from "@angular/router";
+import { AccountMatchComponent } from "./account-match/account-match.component";
+import { AccountTransactionComponent } from "./account-transaction/account-transaction.component";
+import { AccountVoucherComponent } from "./account-voucher/account-voucher.component";
+import { BuySellCurrencyComponent } from "./buy-sell-currency/buy-sell-currency.component";
+import { BuySaleComponent } from "./buy-sell/buy-sale.component";
+import { CampaignComponent } from "./campaign/campaign.component";
+import { CashDeskComponent } from "./cash-desk/cash-desk.component";
+import { CashdeskVoucherComponent } from "./cashdesk-voucher/cashdesk-voucher.component";
+import { CollectionComponent } from "./collection/collection.component";
+import { CompanyComponent } from "./company/company.component";
+import { ContactUsComponent } from "./contact-us/contact-us.component";
+import { CRMComponent } from "./crm/crm.component";
+import { CustomerAccountComponent } from "./customer-account/customer-account.component";
+import { CustomerTargetComponent } from "./customer-target/customer-target.component";
+import { CustomerComponent } from "./customer/customer.component";
+import { DashboardAccountComponent } from "./dashboard-account/dashboard-account.component";
+import { DashboardCustomerComponent } from "./dashboard-customer/dashboard-customer.component";
+import { DashboardDefinitionComponent } from "./dashboard-definition/dashboard-definition.component";
+import { DashboardProductComponent } from "./dashboard-product/dashboard-product.component";
+import { DashboardPurchaseComponent } from "./dashboard-purchase/dashboard-purchase.component";
+import { DashboardSalesComponent } from "./dashboard-sales/dashboard-sales.component";
+import { DashboardComponent } from "./dashboard/dashboard.component";
+import { DefinitionComponent } from "./definition/definition.component";
+import { DiscountListComponent } from "./discount-list/discount-list.component";
+import { DropzoneComponent } from "./dropzone/dropzone.component";
+import { FileUploadComponent } from "./file-upload/file-upload.component";
+import { LocationComponent } from "./location/location.component";
+import { LoginComponent } from "./login/login.component";
+import { MailSenderComponent } from "./mail-sender/mail-sender.component";
+import { MessagingComponent } from "./messaging/messaging.component";
+import { NavBarComponent } from "./nav-bar/nav-bar.component";
+import { NoteComponent } from "./note/note.component";
+import { NotificationComponent } from "./notification/notification.component";
+import { PageNotFoundComponent } from "./page-not-found/page-not-found.component";
+import { AlertComponent } from "./partials/alert/alert.component";
+import { GlobalUploadComponent } from "./partials/global-upload/global-upload.component";
+import { PaymentComponent } from "./payment/payment.component";
+import { PriceListComponent } from "./price-list/price-list.component";
+import { ProductUnitComponent } from "./product-unit/product-unit.component";
+import { ProductComponent } from "./product/product.component";
+import { ProfileComponent } from "./profile/profile.component";
+import { PurchaseInvoiceComponent } from "./purchase-invoice/purchase-invoice.component";
+import { PurchaseOfferComponent } from "./purchase-offer/purchase-offer.component";
+import { PurchaseOrderComponent } from "./purchase-order/purchase-order.component";
+import { ReminderComponent } from "./reminder/reminder.component";
+import { ReportsComponent } from "./reports/reports.component";
+import { SalesInvoiceComponent } from "./sales-invoice/sales-invoice.component";
+import { SalesOfferComponent } from "./sales-offer/sales-offer.component";
+import { SalesOrderComponent } from "./sales-order/sales-order.component";
+import { SettingComponent } from "./setting/setting.component";
+import { SideNavBarComponent } from "./side-nav-bar/side-nav-bar.component";
+import { StockVoucherComponent } from "./stock-voucher/stock-voucher.component";
+import { StockComponent } from "./stock/stock.component";
+import { TestModuleComponent } from "./test/test-module.component";
+import { ToDoListComponent } from "./to-do-list/to-do-list.component";
+import { UploaderComponent } from "./uploader/uploader.component";
+import { UserComponent } from "./user/user.component";
+import { VisitComponent } from "./visit/visit.component";
+
 
 
 const routes: Routes = [
@@ -67,7 +68,6 @@ const routes: Routes = [
   {path: 'purchaseInvoice', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'purchaseInvoice/:id', component: PurchaseInvoiceComponent, pathMatch: 'full'},
   {path: 'sales-invoice', component: SalesInvoiceComponent, pathMatch: 'full'},
-  {path: 'sales-invoice/:id', component: SalesInvoiceComponent, pathMatch: 'full'},
   {path: 'cash-desk', component: CashDeskComponent, pathMatch: 'full'},
   {path: 'collection', component: CollectionComponent, pathMatch: 'full'},
   {path: 'collection/:id', component: CollectionComponent, pathMatch: 'full'},

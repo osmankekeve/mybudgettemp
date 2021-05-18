@@ -52,6 +52,7 @@ import { DefinitionService } from '../services/definition.service';
 import { DefinitionModel } from '../models/definition-model';
 import { TermService } from '../services/term.service';
 import { DefinitionMainModel } from '../models/definition-main-model';
+import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 
 @Component({
   selector: 'app-purchase-invoice',
@@ -71,7 +72,6 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   storageList: Array<DefinitionModel>;
   isRecordHasTransaction = false;
   isRecordHasReturnTransaction = false;
-  isMainFilterOpened = false;
   recordDate: any;
   searchText: '';
   encryptSecretKey: string = getEncryptionKey();
@@ -80,13 +80,14 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   itemIndex = -1;
 
   date = new Date();
-  filterBeginDate: any;
-  filterFinishDate: any;
-  filterCustomerCode: any;
-  filterStatus: any;
   totalValues = {
     totalPrice: 0,
     totalPriceWithTax: 0,
+  };
+  filter = {
+    filterBeginDate: getFirstDayOfMonthForInput(),
+    filterFinishDate: getTodayForInput(),
+    filterStatus: '-1',
   };
   mainControls = {
     orderInfoText: 'Sipariş Seçilmedi',
@@ -212,10 +213,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       totalPrice: 0,
       totalPriceWithTax: 0,
     };
-    const beginDate = new Date(this.filterBeginDate.year, this.filterBeginDate.month - 1, this.filterBeginDate.day, 0, 0, 0);
-    const finishDate = new Date(this.filterFinishDate.year, this.filterFinishDate.month - 1, this.filterFinishDate.day + 1, 0, 0, 0);
+    const beginDate = new Date(this.filter.filterBeginDate.year, this.filter.filterBeginDate.month - 1, this.filter.filterBeginDate.day, 0, 0, 0);
+    const finishDate = new Date(this.filter.filterFinishDate.year, this.filter.filterFinishDate.month - 1, this.filter.filterFinishDate.day + 1, 0, 0, 0);
 
-    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, this.filterCustomerCode, this.filterStatus)
+    this.mainList$ = this.service.getMainItemsBetweenDatesWithCustomer(beginDate, finishDate, null, this.filter.filterStatus)
       .subscribe(list => {
         if (this.mainList === undefined) {
           this.mainList = [];
@@ -291,7 +292,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     const chart2DataValues = [0, 0, 0, 0];
     const creatingList = Array<any>();
     const creatingData = new Map();
-    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(todayStart, endDate, this.filterStatus)])
+    Promise.all([this.service.getMainItemsBetweenDatesAsPromise(todayStart, endDate, this.filter.filterStatus)])
       .then((values: any) => {
         if (values[0] !== null) {
           this.transactionList = values[0] as Array<PurchaseInvoiceMainModel>;
@@ -656,24 +657,21 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnMainFilter_Click(): Promise<void> {
-    if (isNullOrEmpty(this.filterBeginDate)) {
-      await this.infoService.error('Lütfen başlangıç tarihi filtesinden tarih seçiniz.');
-    } else if (isNullOrEmpty(this.filterFinishDate)) {
-      await this.infoService.error('Lütfen bitiş tarihi filtesinden tarih seçiniz.');
-    } else {
-      this.generateCharts();
-      this.populateList();
+  async btnShowMainFiler_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.filter.filterBeginDate = result.filterBeginDate;
+          this.filter.filterFinishDate = result.filterFinishDate;
+          this.filter.filterStatus = result.filterStatus;
+          this.ngOnDestroy();
+          this.populateList();
+        }
+      }, () => {});
+    } catch (error) {
+      await this.infoService.error(error);
     }
-  }
-
-  btnShowMainFiler_Click(): void {
-    if (this.isMainFilterOpened === true) {
-      this.isMainFilterOpened = false;
-    } else {
-      this.isMainFilterOpened = true;
-    }
-    this.clearMainFiler();
   }
 
   async btnNew_Click(): Promise<void> {
@@ -995,12 +993,10 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
   }
 
   clearMainFiler(): void {
-    this.filterBeginDate = getFirstDayOfMonthForInput();
-    this.filterFinishDate = getTodayForInput();
-    this.filterCustomerCode = '-1';
-    this.filterStatus = '-1';
+    this.filter.filterBeginDate = getFirstDayOfMonthForInput();
+    this.filter.filterFinishDate = getTodayForInput();
+    this.filter.filterStatus = '-1';
   }
-
 
   showDetailRecord(record: any, index: any): void {
     if (this.selectedRecord.data.status === 'waitingForApprove') {

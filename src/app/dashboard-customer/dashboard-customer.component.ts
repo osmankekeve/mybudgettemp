@@ -1,10 +1,10 @@
+import { ExcelConfig } from 'src/excel.config';
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AccountTransactionService} from '../services/account-transaction.service';
 import {CustomerRelationService} from '../services/crm.service';
-import {CustomerRelationModel} from '../models/customer-relation-model';
 import {Router} from '@angular/router';
-import {getFloat, getTodayStart, getTodayEnd, getEncryptionKey, getDateForInput} from '../core/correct-library';
+import {getTodayStart, getTodayEnd, getEncryptionKey, getDateForInput} from '../core/correct-library';
 import {VisitMainModel} from '../models/visit-main-model';
 import {VisitService} from '../services/visit.service';
 import * as CryptoJS from 'crypto-js';
@@ -16,7 +16,6 @@ import { CustomerRelationMainModel } from '../models/customer-relation-main-mode
 import { Subscription } from 'rxjs';
 import * as Chart from 'chart.js';
 import { AccountTransactionMainModel } from '../models/account-transaction-main-model';
-import { Utility } from 'src/utilitys.config';
 
 @Component({
   selector: 'app-dashboard-customer',
@@ -55,48 +54,48 @@ export class DashboardCustomerComponent implements OnInit, OnDestroy {
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: Utility.Chart_Colors.red,
-            backgroundColor: Utility.Chart_Colors.red,
-            pointBackgroundColor: Utility.Chart_Colors.red,
-            pointBorderColor: Utility.Chart_Colors.red,
-            pointHoverBackgroundColor: Utility.Chart_Colors.red,
-            pointHoverBorderColor: Utility.Chart_Colors.red
+            borderColor: ExcelConfig.Chart_Colors.red,
+            backgroundColor: ExcelConfig.Chart_Colors.red,
+            pointBackgroundColor: ExcelConfig.Chart_Colors.red,
+            pointBorderColor: ExcelConfig.Chart_Colors.red,
+            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.red,
+            pointHoverBorderColor: ExcelConfig.Chart_Colors.red
           },
           {
           label: 'Tahsilat',
           data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
           borderWidth: 1,
           fill: false,
-          borderColor: Utility.Chart_Colors.yellow,
-          backgroundColor: Utility.Chart_Colors.yellow,
-          pointBackgroundColor: Utility.Chart_Colors.yellow,
-          pointBorderColor: Utility.Chart_Colors.yellow,
-          pointHoverBackgroundColor: Utility.Chart_Colors.yellow,
-          pointHoverBorderColor: Utility.Chart_Colors.yellow
+          borderColor: ExcelConfig.Chart_Colors.yellow,
+          backgroundColor: ExcelConfig.Chart_Colors.yellow,
+          pointBackgroundColor: ExcelConfig.Chart_Colors.yellow,
+          pointBorderColor: ExcelConfig.Chart_Colors.yellow,
+          pointHoverBackgroundColor: ExcelConfig.Chart_Colors.yellow,
+          pointHoverBorderColor: ExcelConfig.Chart_Colors.yellow
           },
           {
             label: 'Alım Faturası',
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: Utility.Chart_Colors.blue,
-            backgroundColor: Utility.Chart_Colors.blue,
-            pointBackgroundColor: Utility.Chart_Colors.blue,
-            pointBorderColor: Utility.Chart_Colors.blue,
-            pointHoverBackgroundColor: Utility.Chart_Colors.blue,
-            pointHoverBorderColor: Utility.Chart_Colors.blue
+            borderColor: ExcelConfig.Chart_Colors.blue,
+            backgroundColor: ExcelConfig.Chart_Colors.blue,
+            pointBackgroundColor: ExcelConfig.Chart_Colors.blue,
+            pointBorderColor: ExcelConfig.Chart_Colors.blue,
+            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.blue,
+            pointHoverBorderColor: ExcelConfig.Chart_Colors.blue
           },
           {
             label: 'Ödeme',
             data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             borderWidth: 1,
             fill: false,
-            borderColor: Utility.Chart_Colors.purple,
-            backgroundColor: Utility.Chart_Colors.purple,
-            pointBackgroundColor: Utility.Chart_Colors.purple,
-            pointBorderColor: Utility.Chart_Colors.purple,
-            pointHoverBackgroundColor: Utility.Chart_Colors.purple,
-            pointHoverBorderColor: Utility.Chart_Colors.purple
+            borderColor: ExcelConfig.Chart_Colors.purple,
+            backgroundColor: ExcelConfig.Chart_Colors.purple,
+            pointBackgroundColor: ExcelConfig.Chart_Colors.purple,
+            pointBorderColor: ExcelConfig.Chart_Colors.purple,
+            pointHoverBackgroundColor: ExcelConfig.Chart_Colors.purple,
+            pointHoverBorderColor: ExcelConfig.Chart_Colors.purple
           }
       ]
       },

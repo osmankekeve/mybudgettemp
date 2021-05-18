@@ -146,6 +146,19 @@ export class MainFilterComponent implements OnInit {
         ];
         break;
       }
+      case 'purchaseInvoice': {
+        this.pnlBeginDate = true;
+        this.pnlFinishDate = true;
+        this.pnlStatus = true;
+        this.listStatus = [
+          { key: '-1', value: 'Hepsi'},
+          { key: 'waitingForApprove', value: 'Onay Bekliyor'},
+          { key: 'approved', value: 'Onaylandı'},
+          { key: 'rejected', value: 'Geri Çevrildi'},
+          { key: 'canceled', value: 'İptal Edildi'},
+        ];
+        break;
+      }
       case 'payment': {
         this.pnlBeginDate = true;
         this.pnlFinishDate = true;

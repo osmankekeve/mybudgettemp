@@ -8,7 +8,6 @@ import { CustomerRelationModel } from './models/customer-relation-model';
 import { getBool, getFloat, getString, getTodayEnd, getTodayStart, getTomorrowEnd } from './core/correct-library';
 import { ReminderService } from './services/reminder.service';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
 import { AccountTransactionService } from './services/account-transaction.service';
 import { SettingService } from './services/setting.service';
 import { PurchaseInvoiceMainModel } from './models/purchase-invoice-main-model';
@@ -71,7 +70,7 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthenticationService, private infoService: InformationService, private router: Router,
     private logService: LogService, private remService: ReminderService, private crmService: CustomerRelationService,
-    private cookieService: CookieService, public atService: AccountTransactionService, private setService: SettingService,
+    public atService: AccountTransactionService, private setService: SettingService,
     private piService: PurchaseInvoiceService, private siService: SalesInvoiceService, private colService: CollectionService,
     private payService: PaymentService, public globService: GlobalService, protected angularFireAuth: AngularFireAuth,
     protected soService: SalesOrderService, protected poService: PurchaseOrderService, protected service: CompanyService, protected refService: RefrasherService
@@ -91,16 +90,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    /*if (this.cookieService.check('cookieCMA')) {
-      const cookieCMA: string = getString(this.cookieService.get('cookieCMA'));
-      this.emailInput = cookieCMA;
-      this.isCMAChecked = true;
-    }
-    if (this.cookieService.check('cookieEMA')) {
-      const cookieEMA: string = getString(this.cookieService.get('cookieEMA'));
-      this.employeeEmail = cookieEMA;
-      this.isEMAChecked = true;
-    }*/
     if (localStorage.getItem('cookieCMA') !== null) {
       this.emailInput = getString(localStorage.getItem('cookieCMA'));
       this.isCMAChecked = true;
@@ -118,17 +107,11 @@ export class AppComponent implements OnInit {
     if (!this.userDetails) {
       this.employeeDetail = undefined;
     } else {
-      this.service.getItem(this.userDetails.uid).then(async value => {
-        this.companyDetail = value.data as CompanyModel;
-        this.refService.sendCompanyUpdate(this.companyDetail);
-        sessionStorage.setItem('company', JSON.stringify(this.companyDetail));
-      });
       this.isEmployeeLoggedIn();
       this.populateReminderList();
       this.populateActivityList();
     }
   }
-
 
   // Check localStorage is having employee Data
   isEmployeeLoggedIn() {
@@ -457,7 +440,6 @@ export class AppComponent implements OnInit {
             this.waitingWorkList.push(workData);
           }
           if ((item.actionType === 'removed') || (item.actionType === 'modified' && item.data.status !== 'waitingForApprove')) {
-            //this.waitingWorksCount--;
             this.waitingWorkList.splice(this.waitingWorkList.indexOf(workData), 1);
           }
         });
@@ -544,7 +526,6 @@ export class AppComponent implements OnInit {
         await this.authService.employeeLogin(this.employeeEmail, this.employeePassword)
           .then(result => {
             this.isEmployeeLoggedIn();
-            this.cookieService.set('loginTime', Date.now().toString());
             if (this.isEMAChecked) {
               localStorage.setItem('cookieEMA', this.employeeEmail);
             } else {
