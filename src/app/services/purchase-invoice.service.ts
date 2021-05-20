@@ -17,7 +17,6 @@ import {AccountTransactionService} from './account-transaction.service';
 import {ActionService} from './action.service';
 import {CustomerAccountService} from './customer-account.service';
 import {PurchaseInvoiceDetailService} from './purchase-invoice-detail.service';
-import {SalesOrderMainModel} from '../models/sales-order-main-model';
 import {PurchaseOrderService} from './purchase-order.service';
 import {PurchaseOrderDetailService} from './purchase-order-detail.service';
 import { StockTransactionService } from './stock-transaction.service';
@@ -570,7 +569,7 @@ export class PurchaseInvoiceService {
 
   getMainItems(): Observable<PurchaseInvoiceMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => ref.orderBy('insertDate', ).where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as PurchaseInvoiceModel;

@@ -78,7 +78,7 @@ export class AccountMatchComponent implements OnInit {
 
   populateList(): void {
     this.mainList = undefined;
-    this.service.getMainItems().toPromise().then(list => {
+    this.service.getMainItems().subscribe(list => {
       if (this.mainList === undefined) {
         this.mainList = [];
       }

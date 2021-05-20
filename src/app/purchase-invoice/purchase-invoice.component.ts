@@ -256,7 +256,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
       if (this.mainList === undefined) {
         this.mainList = [];
       }
-    }, 3000);
+    }, 1000);
   }
 
   generateCharts(): void {
