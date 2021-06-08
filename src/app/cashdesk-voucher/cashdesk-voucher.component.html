@@ -215,8 +215,8 @@
           <label class="col-form-label float-left" for="description">Açıklama</label>
         </div>
         <div class="col-sm-9">
-          <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                 [(ngModel)]="selectedRecord.data.description">
+          <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
+            cols="40" rows="3" [(ngModel)]="selectedRecord.data.description"></textarea>
         </div>
       </div>
     </form>

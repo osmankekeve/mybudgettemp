@@ -179,7 +179,8 @@ export class SalesOrderService {
     }
     if (model.campaignQuantity === undefined) {
       model.campaignQuantity = cleanModel.campaignQuantity;
-    }
+    }    
+    if (model.storagePrimaryKey === undefined) { model.storagePrimaryKey = cleanModel.storagePrimaryKey; }
     return model;
   }
 

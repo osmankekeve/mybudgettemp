@@ -362,8 +362,8 @@
                   <label class="col-form-label float-left" for="description">Açıklama</label>
                 </div>
                 <div class="col-sm-8">
-                  <input class="form-control form-control-sm w-100" id="description" name="description" type="text"
-                    [(ngModel)]="selectedRecord.data.description">
+                  <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                    cols="40" rows="3" [(ngModel)]="selectedRecord.data.description"></textarea>
                 </div>
                 <div class="col-sm-4" *ngIf="selectedRecord.data.status != 'waitingForApprove'">
                   <label class="col-form-label float-left">Onaylayan Kişi</label>
@@ -682,8 +682,6 @@
                       <i class="fas fa-percent text-secondary mr-1"
                         *ngIf="item.data.discount1 !=item.data.defaultDiscount1 || item.data.discount2 !=item.data.defaultDiscount2"
                         title="Farklı İskonto"></i>
-                      <i class="fas fa-bullhorn text-secondary mr-1" *ngIf="item.data.campaignPrimaryKey !='-1'"
-                        title="Kampanya"></i>
                     </div>
                     <div class="col-sm-3">
                       <label class="col-form-label font-weight-600 float-left text-dark-blue p-0">KDV</label>

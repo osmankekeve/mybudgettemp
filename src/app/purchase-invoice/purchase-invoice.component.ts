@@ -128,6 +128,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
           this.selectedRecord.customer = paramItem.customer;
           this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
           this.selectedRecord.data.type = paramItem.data.type;
+          this.selectedRecord.data.description = paramItem.data.description;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.data.customerCode);
           await this.generateOrderToInvoice(list);
         } else {
