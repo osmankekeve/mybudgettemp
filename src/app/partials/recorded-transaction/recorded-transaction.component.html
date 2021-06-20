@@ -1,0 +1,54 @@
+﻿<div class="modal-header">
+  <h5 class="modal-title"><span class="font-weight-600">Kayıtlı İşlem Seçiniz</span></h5>
+  <button type="button" class="close" (click)="activeModal.dismiss('Cross click')">&times;</button>
+</div>
+<!-- Modal body -->
+<div class="modal-body">
+  <div class="row mb-2">
+    <div class="col-sm-12 head-filter">
+      <div class="input-group input-group-round">
+        <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fa fa-filter"></i>
+                        </span>
+        </div>
+        <input type="search" class="form-control filter-list-input" placeholder="Kayıtlı İşlem Ara.." [(ngModel)]="searchText">
+      </div>
+    </div>
+  </div>
+  <div class="work-area-2" *ngIf="mainList != undefined; else elseBlock2">
+    <div class="list-group" *ngIf="mainList.length > 0; else elseBlock">
+      <div class="list-group-item bg-danger text-light main-list-item">
+        <div class="row">
+          <div class="col-sm-9">Kayıt</div>
+          <div class="col-sm-3"><span class="float-right">Tarih</span></div>
+        </div>
+      </div>
+      <div class="list-group-item list-group-item-action main-list-item cursor-pointer"
+           [ngClass]="{'bg-yellow': item.data.primaryKey === record?.data?.primaryKey}"
+           (click)="markSelected(item)"
+           *ngFor="let item of mainList | filterProduct: searchText; index as i;">
+        <div class="row">
+          <div class="col-sm-9">
+            <i class="far fa-arrow-alt-circle-right mr-2 text-red"></i>
+            <span class="font-weight-600">{{item.data.title}}</span>
+          </div>
+          <div class="col-sm-3"><span class="float-right">{{item.data.insertDate | date: 'yyyy-MM-dd'}}</span></div>
+        </div>
+      </div>
+    </div>
+    <ng-template #elseBlock>
+      <div class="card bg-red text-white">
+        <div class="card-body">Görüntülenecek veri bulunamadı.</div>
+      </div>
+    </ng-template>
+  </div>
+  <ng-template #elseBlock2>
+    <div class="loader"></div>
+  </ng-template>
+</div>
+<!-- Modal footer -->
+<div class="modal-footer">
+  <button type="submit" class="btn btn-sm btn-danger" (click)="btnSelect_Click()">Seç</button>
+</div>
+

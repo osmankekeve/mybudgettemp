@@ -1,3 +1,4 @@
+import { ShortCutRecordService } from '../services/short-cut.service';
 import { getNumber } from './../core/correct-library';
 import { TermService } from './../services/term.service';
 import { DefinitionMainModel } from './../models/definition-main-model';
@@ -52,6 +53,8 @@ import { ProductService } from '../services/product.service';
 import { PDFModuleComponent } from '../partials/pdf-module/pdf-module.component';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { Subscription } from 'rxjs';
+import { RecordedTransactionComponent } from '../partials/recorded-transaction/recorded-transaction.component';
+import { ShortCutRecordMainModel } from '../models/short-cut-main-model';
 
 @Component({
   selector: 'app-sales-offer',
@@ -79,6 +82,16 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     totalPrice: 0,
     totalPriceWithTax: 0,
   };
+  mainControls = {
+    tableName: '',
+    primaryKey: '',
+    shortCut: {
+      header:'Hızlı Kayıt Seçimi..',
+      title:'',
+      primaryKey: '-1', 
+      isOpened: false
+    },
+  };
 
   priceLists: Array<PriceListModel>;
   discountLists: Array<DiscountListModel>;
@@ -96,7 +109,8 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
               protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
               protected puService: ProductUnitService, protected ppService: ProductPriceService, protected pService: ProductService,
               protected pdService: ProductDiscountService, protected setService: SettingService, protected cdService: CampaignDetailService,
-              protected pumService: ProductUnitMappingService, protected campService: CampaignService, protected termService: TermService) {
+              protected pumService: ProductUnitMappingService, protected campService: CampaignService, protected termService: TermService,
+              protected shortCutService: ShortCutRecordService) {
   }
 
   ngOnInit() {
@@ -125,6 +139,11 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       await this.infoService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
+  }
+
+  generateMainControls() {
+    this.mainControls.tableName = this.service.tableName;
+    this.mainControls.primaryKey = this.selectedRecord.data.primaryKey;
   }
 
   populateList(): void {
@@ -352,6 +371,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     this.service.getItem(record.data.primaryKey).then(async value => {
       this.selectedRecord = value.returnData as SalesOrderMainModel;
       this.recordDate = getDateForInput(this.selectedRecord.data.recordDate);
+      this.generateMainControls();
       this.calculateTerm();
       this.populateDeliveryAddressList();
       this.populatePriceList();
@@ -416,6 +436,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       if (receiptNoData !== null) {
         this.selectedRecord.data.receiptNo = receiptNoData;
       }
+      this.generateMainControls();
       this.populatePriceList();
       this.populateDiscountList();
       this.populateStorageList();
@@ -541,11 +562,88 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnRecordedTransaction_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(RecordedTransactionComponent, { size: 'md' });
+      modalRef.componentInstance.module = "sales-order";
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.onTransaction = true;
+          this.mainControls.shortCut.header = result.data.title;
+          this.mainControls.shortCut.primaryKey = result.data.parentRecordPrimaryKey;
+
+          this.onTransaction = true;
+          this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
+            this.selectedRecord = value.returnData as SalesOrderMainModel;
+            this.generateMainControls();
+            this.populateDeliveryAddressList();
+            this.calculateTerm();
+      
+            await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
+              .then((list) => {
+                this.selectedRecord.orderDetailList = [];
+                this.selectedRecord.orderDetailList = list;
+                this.selectedRecord.orderDetailList.forEach(x => {
+                  x.data.primaryKey = null;
+                  x.data.orderPrimaryKey = '-1';
+                });
+              });
+              this.recordDate = getTodayForInput();
+              this.selectedRecord.data.primaryKey = null;
+              this.selectedRecord.data.insertDate = Date.now();
+              this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+              const receiptNoData = await this.sService.getOrderCode();
+              if (receiptNoData !== null) {
+                this.selectedRecord.data.receiptNo = receiptNoData;
+              }
+              this.finishSubProcess(null, 'Sipariş işleme hazır.');
+          }).catch((error) => {
+            this.finishProcess(error, null);
+          });
+        }
+      }, () => { });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'sales-order');
     } else {
       await this.infoService.error('Aktarılacak kayıt bulunamadı.');
+    }
+  }
+
+  async btnShowShortCut_Click(): Promise<void> {
+    try {
+      if (this.mainControls.shortCut.isOpened) {
+        this.mainControls.shortCut.isOpened = false;
+      }
+      else {
+        this.mainControls.shortCut.isOpened = true;
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSaveShortCut_Click(): Promise<void> {
+    try {
+      if (this.mainControls.shortCut.title === '') {
+        this.toastService.error('Lütfen başlık giriniz.');
+      }
+      else {
+        const data = this.shortCutService.clearSubModel();
+        data.title = this.mainControls.shortCut.title;
+        data.parentRecordPrimaryKey = this.selectedRecord.data.primaryKey;
+        data.parentRecordType = 'sales-order';
+        this.shortCutService.addItem(data);
+        this.toastService.success('Kayıt Hızlı İşlemlere başarıyla eklendi.');
+        this.clearShortCutRecord();
+      }
+    } catch (error) {
+      await this.infoService.error(error);
     }
   }
 
@@ -697,6 +795,14 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
   clearSelectedRecord(): void {
     this.selectedRecord = this.service.clearMainModel();
     this.recordDate = getTodayForInput();
+    this.clearShortCutRecord();
+  }
+
+  clearShortCutRecord(): void {
+    this.mainControls.shortCut.header = 'Hızlı Kayıt Seçimi..';
+    this.mainControls.shortCut.title = '';
+    this.mainControls.shortCut.isOpened = false;
+    this.mainControls.primaryKey = "-1";
   }
 
   finishProcess(error: any, info: any): void {

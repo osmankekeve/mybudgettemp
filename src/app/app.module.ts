@@ -58,6 +58,7 @@ import { ToastService } from "./services/toast.service";
 import { SideNavBarComponent } from "./side-nav-bar/side-nav-bar.component";
 import { UploadTaskComponent } from "./upload-task/upload-task.component";
 import { UploaderComponent } from "./uploader/uploader.component";
+import { RecordedTransactionComponent } from './partials/recorded-transaction/recorded-transaction.component';
 
 
 @NgModule({
@@ -79,6 +80,7 @@ import { UploaderComponent } from "./uploader/uploader.component";
     AreYouSureComponent,
     MainFilterComponent,
     ActionComponent,
+    RecordedTransactionComponent,
 
     CustomerDataFilterPipe,
     CustomerFilterPipe,
@@ -124,6 +126,6 @@ import { UploaderComponent } from "./uploader/uploader.component";
   ],
   bootstrap: [AppComponent],
   entryComponents: [ProductSelectComponent, CustomerSelectComponent, ExcelImportComponent, InfoModuleComponent, OrderSelectComponent,
-    PDFModuleComponent, AreYouSureComponent, MainFilterComponent, ActionComponent]
+    PDFModuleComponent, AreYouSureComponent, MainFilterComponent, ActionComponent, RecordedTransactionComponent]
 })
 export class AppModule { }

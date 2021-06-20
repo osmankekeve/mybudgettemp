@@ -106,20 +106,59 @@
               <button type="button" class="btn btn-light input-dropdown dropdown-toggle" data-toggle="dropdown">
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()"><i
-                    class="fa fa-jsfiddle text-secondary"></i> Json Göster</a>
-                <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()"><i
-                    class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
-                <a class="dropdown-item cursor-pointer" *ngIf="selectedRecord.orderDetailList?.length > 0"
-                  (click)="btnShowPDFModule_Click()"><i class="far fa-file-pdf text-secondary"></i> PDF Oluştur</a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowJsonData_Click()">
+                  <i class="fa fa-jsfiddle text-secondary mr-1"></i> Json Göster</a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowInfoModule_Click()">
+                  <i class="fa fa-info-circle text-secondary"></i> Bilgiler</a>
+                <a class="dropdown-item cursor-pointer" *ngIf="selectedRecord.data.primaryKey"
+                  (click)="btnShowPDFModule_Click()"><i class="far fa-file-pdf text-secondary mr-1"></i> PDF Oluştur</a>
+                <a class="dropdown-item cursor-pointer" (click)="btnShowShortCut_Click()" *ngIf="selectedRecord.data.primaryKey">
+                  <i class="fas fa-shipping-fast text-secondary mr-1"></i>Hızlı İşlem Oluştur</a>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="card recorded-transaction-panel mt-1" *ngIf="mainControls.shortCut.isOpened">
+          <div class="card-body p-2">
+            <div class="d-flex align-items-center mb-1">
+              <div class="flex-grow-1">
+                <i class="fas fa-shipping-fast text-secondary mr-1"></i>
+                <span class="fs-14">Hızlı İşlemler</span>
+              </div>
+              <a class="cursor-pointer" (click)="btnShowShortCut_Click()" title="Kapat">
+                <i class="fa fa-close text-secondary"></i>
+              </a>
+            </div>
+            <div class="input-group mb-1">
+              <input class="form-control form-control-xs" type="text" placeholder="Başlık giriniz.."
+                [(ngModel)]="mainControls.shortCut.title">
+              <div class="input-group-append">
+                <button class="btn btn-xs btn-outline-secondary" type="button" title="Hızlı İşlemlere Ekle"
+                  (click)="btnSaveShortCut_Click()">
+                  <i class="far fa-save"></i></button>
+              </div>
+            </div>
+            <small>Hızlı Kayıt olarak ekleyerek, işlmelerinizi hızlandırabilirsiniz.</small>
           </div>
         </div>
       </div>
       <div class="card-body work-area-12">
         <form (ngSubmit)="btnSave_Click()" class="was-validated" #f="ngForm">
           <div class="row form-inline">
+            <div class="col-sm-4" *ngIf="!selectedRecord.data.primaryKey">
+              <label class="col-form-label float-left">Hızlı İşlem</label>
+            </div>
+            <div class="col-sm-8" *ngIf="!selectedRecord.data.primaryKey">
+              <div class="input-group">
+                <input class="form-control form-control-sm" name="transactionTitle" id="transactionTitle"
+                  [(ngModel)]="mainControls.shortCut.header" disabled>
+                <div class="input-group-append">
+                  <button class="btn btn-sm btn-outline-secondary" type="button"
+                    (click)="btnRecordedTransaction_Click()">
+                    <i class="far fa-arrow-alt-circle-right"></i></button>
+                </div>
+              </div>
+            </div>
             <div class="col-sm-4">
               <label class="col-form-label float-left">Müşteri Adı</label>
             </div>
@@ -253,15 +292,6 @@
             <div class="col-sm-8">
               <label class="col-form-label float-left">{{selectedRecord.statusTr}}</label>
             </div>
-            <div class="col-sm-4">
-              <label class="col-form-label float-left" for="description">Açıklama</label>
-            </div>
-            <div class="col-sm-8">
-              <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
-              cols="40" rows="3"
-                [disabled]="selectedRecord.data.status != 'waitingForApprove'"
-                 [(ngModel)]="selectedRecord.data.description"></textarea>
-            </div>
             <div class="col-sm-12">
               <div class="row" ng-if="packetCampaignList.length > 0">
                 <div class="col-sm-4">
@@ -293,6 +323,14 @@
                   </div>
                 </div>
               </div>
+            </div>
+            <div class="col-sm-4">
+              <label class="col-form-label float-left" for="description">Açıklama</label>
+            </div>
+            <div class="col-sm-8">
+              <textarea class="form-control form-control-sm w-100" id="description" name="description" type="text"
+                cols="40" rows="3" [disabled]="selectedRecord.data.status != 'waitingForApprove'"
+                [(ngModel)]="selectedRecord.data.description"></textarea>
             </div>
           </div>
         </form>
@@ -326,7 +364,7 @@
           </div>
         </div>
         <div class="btn-action float-left"
-          *ngIf="selectedRecord.data.status === 'waitingForApprove' && selectedRecord.data.primaryKey !== undefined">
+          *ngIf="selectedRecord.data.status === 'waitingForApprove' && selectedRecord.data.primaryKey !== null">
           <div class="input-group">
             <div class="input-group-prepend">
               <span class="input-group-text danger-icon-side">
@@ -599,9 +637,7 @@
             </div>
             <div class="col-sm-8">
               <input class="form-control form-control-sm w-100" id="quantity" name="quantity" type="number" min="0"
-                required 
-                (focus)="focus_quantity()" 
-                [(ngModel)]="selectedDetail.data.quantity">
+                required (focus)="focus_quantity()" [(ngModel)]="selectedDetail.data.quantity">
               <div class="invalid-feedback invalid-input-info">Lütfen miktar giriniz.</div>
             </div>
             <div class="col-sm-4">

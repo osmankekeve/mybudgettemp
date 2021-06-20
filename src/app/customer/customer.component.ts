@@ -832,7 +832,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       }
       if (this.openedPanel === 'delivery-address') {
         this.deliveryAddressList = undefined;
-        this.daService.getMainItemsByCustomerPrimaryKey(this.selectedCustomer.data.primaryKey).toPromise().then(list => {
+        this.daService.getMainItemsByCustomerPrimaryKey(this.selectedCustomer.data.primaryKey).subscribe(list => {
           if (this.deliveryAddressList === undefined) {
             this.deliveryAddressList = [];
           }
@@ -965,11 +965,11 @@ export class CustomerComponent implements OnInit, OnDestroy {
     // error kontrol hatası
     if (error === null) {
       if (info !== null) {
-        this.infoService.success(info);
+        this.toastService.success(info);
       }
       this.generateCharts();
     } else {
-      await this.infoService.error(error.message !== undefined ? error.message : error);
+      await this.toastService.error(error.message !== undefined ? error.message : error);
     }
     this.onTransaction = false;
   }
