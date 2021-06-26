@@ -46,4 +46,16 @@ export class RecordedTransactionComponent implements OnInit {
       await this.infoService.error(error);
     }
   }
+
+  async btnRemove_Click() {
+    try {
+      this.service.removeItem(this.record.data).then(()=> {
+        this.infoService.success("Kayıt başarıyla kaldırıldı.");
+        this.record = null;
+        this.ngOnInit();
+      });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
 }

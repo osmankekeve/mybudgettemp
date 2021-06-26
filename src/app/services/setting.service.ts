@@ -308,6 +308,32 @@ export class SettingService {
     });
   }
 
+  async getPurchaseOrderCode(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const orderPrefix = this.getItem('purchaseOrderPrefix');
+      const orderNumber = this.getItem('purchaseOrderNumber');
+      const orderSuffix = this.getItem('purchaseOrderSuffix');
+      const orderLength = this.getItem('purchaseOrderLength');
+      Promise.all([orderPrefix, orderNumber, orderSuffix, orderLength])
+        .then((values: any) => {
+          if (values[0] != null && values[1] != null && values[2] != null && values[3] != null) {
+            const prefix = values[0].data as SettingModel;
+            const numb = values[1].data as SettingModel;
+            const suffix = values[2].data as SettingModel;
+            const length = values[3].data as SettingModel;
+            if (numb.value !== '') {
+              const returnData = prefix.value + padLeft(numb.value, getNumber(length.value)) + suffix.value;
+              resolve(returnData);
+            } else {
+              resolve(null);
+            }
+          } else {
+            resolve(null);
+          }
+        });
+    });
+  }
+
   async increasePurchaseInvoiceNumber() {
     const purchaseInvoiceNumber = this.getItem('purchaseInvoiceNumber');
     Promise.all([ purchaseInvoiceNumber])
@@ -460,6 +486,24 @@ export class SettingService {
           if (numb.value !== '') {
             return this.setItem({
               key: 'orderNumber',
+              value: getString(getNumber(numb.value) + 1),
+              valueBool: false,
+              valueNumber: 0
+            });
+          }
+        }
+      });
+  }
+
+  async increasePurchaseOrderNumber() {
+    const orderNumber = this.getItem('purchaseOrderNumber');
+    Promise.all([ orderNumber])
+      .then((values: any) => {
+        if (values[0] != null) {
+          const numb = values[0].data as SettingModel;
+          if (numb.value !== '') {
+            return this.setItem({
+              key: 'purchaseOrderNumber',
               value: getString(getNumber(numb.value) + 1),
               valueBool: false,
               valueNumber: 0

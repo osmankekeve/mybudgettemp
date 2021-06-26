@@ -148,7 +148,7 @@ export class SalesOrderDetailService {
     Promise<Array<SalesOrderDetailMainModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<SalesOrderDetailMainModel>();
-      this.db.collection(this.tableName, ref => {
+      return await this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
           .where('orderPrimaryKey', '==', orderPrimaryKey);

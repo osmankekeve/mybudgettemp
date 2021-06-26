@@ -206,6 +206,39 @@
                       </div>
                     </div>
                   </div>
+                  <div class="col-sm-12">
+                    <div class="card mt-1">
+                      <div class="card-header">
+                        Alım Sipariş Otomatik Kodu
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-sm-3">Ön Eki</div>
+                          <div class="col-sm-3">Sıra</div>
+                          <div class="col-sm-3">Son Eki</div>
+                          <div class="col-sm-3">Uzunluk</div>
+                        </div>
+                        <div class="row">
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseOrder.prefix">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseOrder.number">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseOrder.suffix">
+                          </div>
+                          <div class="col-sm-3">
+                            <input class="form-control form-control-sm w-100" type="text" [(ngModel)]="purchaseOrder.length">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-footer">
+                        <button type="button" class="btn btn-sm btn-success"
+                                (click)="btnSavePurchaseOrderAutoCode_Click()">Kaydet</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -180,7 +180,7 @@ export class PurchaseOrderDetailService {
     Promise<Array<PurchaseOrderDetailModel>> => new Promise(async (resolve, reject): Promise<void> => {
     try {
       const list = Array<PurchaseOrderDetailModel>();
-      this.db.collection(this.tableName, ref => {
+      return await this.db.collection(this.tableName, ref => {
         let query: CollectionReference | Query = ref;
         query = query
           .where('orderPrimaryKey', '==', orderPrimaryKey);
@@ -188,7 +188,7 @@ export class PurchaseOrderDetailService {
       })
         .get().toPromise().then(snapshot => {
         snapshot.forEach(async doc => {
-          const data = doc.data() as SalesOrderDetailModel;
+          const data = doc.data() as PurchaseOrderDetailModel;
           list.push(data);
         });
         resolve(list);

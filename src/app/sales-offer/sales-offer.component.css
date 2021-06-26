@@ -1,7 +1,1 @@
 
-.recorded-transaction-panel {
-    display: flex;
-    position: absolute;
-    right: 20px;
-    z-index: 999;
-}

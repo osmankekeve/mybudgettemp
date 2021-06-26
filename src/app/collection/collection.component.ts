@@ -1,13 +1,13 @@
-import {Component, OnInit, OnDestroy} from '@angular/core';
-import {AngularFirestore} from '@angular/fire/firestore';
-import {Observable} from 'rxjs/internal/Observable';
-import {CollectionService} from '../services/collection.service';
-import {CustomerModel} from '../models/customer-model';
-import {CustomerService} from '../services/customer.service';
-import {AccountTransactionService} from '../services/account-transaction.service';
-import {AuthenticationService} from '../services/authentication.service';
-import {CashDeskService} from '../services/cash-desk.service';
-import {InformationService} from '../services/information.service';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable } from 'rxjs/internal/Observable';
+import { CollectionService } from '../services/collection.service';
+import { CustomerModel } from '../models/customer-model';
+import { CustomerService } from '../services/customer.service';
+import { AccountTransactionService } from '../services/account-transaction.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { CashDeskService } from '../services/cash-desk.service';
+import { InformationService } from '../services/information.service';
 import {
   getFirstDayOfMonthForInput,
   getTodayForInput,
@@ -18,30 +18,32 @@ import {
   getFloat,
   currencyFormat, moneyFormat
 } from '../core/correct-library';
-import {ExcelService} from '../services/excel-service';
+import { ExcelService } from '../services/excel-service';
 import * as CryptoJS from 'crypto-js';
-import {Router, ActivatedRoute} from '@angular/router';
-import {SettingService} from '../services/setting.service';
-import {CollectionMainModel} from '../models/collection-main-model';
-import {CashDeskMainModel} from '../models/cash-desk-main-model';
-import {Chart} from 'chart.js';
-import {SettingModel} from '../models/setting-model';
-import {CustomerAccountModel} from '../models/customer-account-model';
-import {CustomerAccountService} from '../services/customer-account.service';
-import {GlobalService} from '../services/global.service';
-import {ActionService} from '../services/action.service';
-import {ActionMainModel} from '../models/action-main-model';
-import {FileMainModel} from '../models/file-main-model';
-import {FileUploadService} from '../services/file-upload.service';
-import {GlobalUploadService} from '../services/global-upload.service';
-import {SalesInvoiceMainModel} from '../models/sales-invoice-main-model';
-import {ToastService} from '../services/toast.service';
-import {CustomerSelectComponent} from '../partials/customer-select/customer-select.component';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { Router, ActivatedRoute } from '@angular/router';
+import { SettingService } from '../services/setting.service';
+import { CollectionMainModel } from '../models/collection-main-model';
+import { CashDeskMainModel } from '../models/cash-desk-main-model';
+import { Chart } from 'chart.js';
+import { SettingModel } from '../models/setting-model';
+import { CustomerAccountModel } from '../models/customer-account-model';
+import { CustomerAccountService } from '../services/customer-account.service';
+import { GlobalService } from '../services/global.service';
+import { ActionService } from '../services/action.service';
+import { ActionMainModel } from '../models/action-main-model';
+import { FileMainModel } from '../models/file-main-model';
+import { FileUploadService } from '../services/file-upload.service';
+import { GlobalUploadService } from '../services/global-upload.service';
+import { SalesInvoiceMainModel } from '../models/sales-invoice-main-model';
+import { ToastService } from '../services/toast.service';
+import { CustomerSelectComponent } from '../partials/customer-select/customer-select.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MainFilterComponent } from '../partials/main-filter/main-filter.component';
 import { Subscription } from 'rxjs';
 import { InfoModuleComponent } from '../partials/info-module/info-module.component';
 import { CashDeskModel } from '../models/cash-desk-model';
+import { ShortCutRecordService } from '../services/short-cut.service';
+import { RecordedTransactionComponent } from '../partials/recorded-transaction/recorded-transaction.component';
 
 @Component({
   selector: 'app-collection',
@@ -75,7 +77,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
     isAutoReceiptNoAvaliable: false,
     tableName: '',
     primaryKey: '',
-    oldRecordSearchtext: ''
+    oldRecordSearchtext: '',
+    shortCut: {
+      header: 'Hızlı Kayıt Seçimi..',
+      title: '',
+      primaryKey: '-1',
+      isOpened: false
+    },
   };
   recordDate: any;
   termDate: any;
@@ -86,11 +94,12 @@ export class CollectionComponent implements OnInit, OnDestroy {
   chart2Visibility = null;
 
   constructor(protected authService: AuthenticationService, protected route: Router, protected router: ActivatedRoute,
-              protected service: CollectionService, protected cdService: CashDeskService, protected atService: AccountTransactionService,
-              protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
-              protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
-              protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
-              protected gfuService: GlobalUploadService, protected toastService: ToastService, protected modalService: NgbModal) {
+    protected service: CollectionService, protected cdService: CashDeskService, protected atService: AccountTransactionService,
+    protected infoService: InformationService, protected excelService: ExcelService, protected cService: CustomerService,
+    protected db: AngularFirestore, protected sService: SettingService, protected accService: CustomerAccountService,
+    protected globService: GlobalService, protected actService: ActionService, protected fuService: FileUploadService,
+    protected gfuService: GlobalUploadService, protected toastService: ToastService, protected modalService: NgbModal,
+    protected shortCutService: ShortCutRecordService) {
   }
 
   async ngOnInit() {
@@ -212,8 +221,8 @@ export class CollectionComponent implements OnInit, OnDestroy {
           this.chart1Visibility = data1.valueBool;
           this.chart2Visibility = data2.valueBool;
         }).finally(() => {
-        this.populateCharts();
-      });
+          this.populateCharts();
+        });
     } else {
       this.populateCharts();
     }
@@ -260,7 +269,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           chart1DataNames = [];
           chart1DataValues = [];
           creatingData.forEach((value, key) => {
-            creatingList.push({itemKey: key, itemValue: value});
+            creatingList.push({ itemKey: key, itemValue: value });
           });
           creatingList.sort((a, b) => {
             return b.itemValue - a.itemValue;
@@ -277,96 +286,96 @@ export class CollectionComponent implements OnInit, OnDestroy {
           });
         }
       }).finally(() => {
-      if (this.chart1Visibility) {
-        this.chart1 = new Chart('chart1', {
-          type: 'bar', // bar, pie, doughnut
-          data: {
-            labels: chart1DataNames,
-            datasets: [{
-              label: '# of Votes',
-              data: chart1DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)',
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)',
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            title: {
-              text: 'En Çok Tahsilat Yapılan Cari Hareketler',
-              display: true
-            },
-            scales: {
-              yAxes: [{
-                ticks: {
-                  beginAtZero: true,
-                  callback: (value, index, values) => {
-                    if (Number(value) >= 1000) {
-                      return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                    } else {
-                      return '₺' + Number(value).toFixed(2);
-                    }
-                  }
-                }
+        if (this.chart1Visibility) {
+          this.chart1 = new Chart('chart1', {
+            type: 'bar', // bar, pie, doughnut
+            data: {
+              labels: chart1DataNames,
+              datasets: [{
+                label: '# of Votes',
+                data: chart1DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)',
+                  'rgba(153, 102, 255, 0.2)',
+                  'rgba(255, 159, 64, 0.2)',
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                  'rgba(153, 102, 255, 1)',
+                  'rgba(255, 159, 64, 1)',
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                ],
+                borderWidth: 1
               }]
             },
-            tooltips: {
-              callbacks: {
-                label(tooltipItem, data) {
-                  return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
-                    return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
-                  });
+            options: {
+              title: {
+                text: 'En Çok Tahsilat Yapılan Cari Hareketler',
+                display: true
+              },
+              scales: {
+                yAxes: [{
+                  ticks: {
+                    beginAtZero: true,
+                    callback: (value, index, values) => {
+                      if (Number(value) >= 1000) {
+                        return '₺' + Number(value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                      } else {
+                        return '₺' + Number(value).toFixed(2);
+                      }
+                    }
+                  }
+                }]
+              },
+              tooltips: {
+                callbacks: {
+                  label(tooltipItem, data) {
+                    return '₺' + Number(tooltipItem.yLabel).toFixed(2).replace(/./g, (c, i, a) => {
+                      return i > 0 && c !== '.' && (a.length - i) % 3 === 0 ? ',' + c : c;
+                    });
+                  }
                 }
               }
             }
-          }
-        });
-      }
-      if (this.chart2Visibility) {
-        this.chart2 = new Chart('chart2', {
-          type: 'doughnut', // bar, pie, doughnut
-          data: {
-            labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
-            datasets: [{
-              label: '# of Votes',
-              data: chart2DataValues,
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-              ],
-              borderColor: [
-                'rgba(255,99,132,1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-              ],
-              borderWidth: 1
-            }]
-          }
-        });
-      }
-    });
+          });
+        }
+        if (this.chart2Visibility) {
+          this.chart2 = new Chart('chart2', {
+            type: 'doughnut', // bar, pie, doughnut
+            data: {
+              labels: ['1. Çeyrek', '2. Çeyrek', '3. Çeyrek', '4. Çeyrek'],
+              datasets: [{
+                label: '# of Votes',
+                data: chart2DataValues,
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.2)',
+                  'rgba(54, 162, 235, 0.2)',
+                  'rgba(255, 206, 86, 0.2)',
+                  'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                  'rgba(255,99,132,1)',
+                  'rgba(54, 162, 235, 1)',
+                  'rgba(255, 206, 86, 1)',
+                  'rgba(75, 192, 192, 1)',
+                ],
+                borderWidth: 1
+              }]
+            }
+          });
+        }
+      });
   }
 
   populateFiles(): void {
@@ -444,7 +453,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   async btnShowMainFiler_Click(): Promise<void> {
     try {
-      const modalRef = this.modalService.open(MainFilterComponent, {size: 'md'});
+      const modalRef = this.modalService.open(MainFilterComponent, { size: 'md' });
       modalRef.result.then((result: any) => {
         if (result) {
           this.filter.filterBeginDate = result.filterBeginDate;
@@ -454,7 +463,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           this.populateList();
           this.generateCharts();
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -618,7 +627,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
       const list = Array<string>();
       list.push('customer');
       list.push('customer-supplier');
-      const modalRef = this.modalService.open(CustomerSelectComponent, {size: 'lg'});
+      const modalRef = this.modalService.open(CustomerSelectComponent, { size: 'lg' });
       modalRef.componentInstance.customer = this.selectedRecord.customer;
       modalRef.componentInstance.customerTypes = list;
       modalRef.result.then((result: any) => {
@@ -627,7 +636,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           this.selectedRecord.data.customerCode = this.selectedRecord.customer.data.primaryKey;
           this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
         }
-      }, () => {});
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -671,7 +680,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   async btnShowInfoModule_Click(): Promise<void> {
     try {
-      this.modalService.open(InfoModuleComponent, {size: 'lg'});
+      this.modalService.open(InfoModuleComponent, { size: 'lg' });
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -745,6 +754,73 @@ export class CollectionComponent implements OnInit, OnDestroy {
     }
   }
 
+  async btnShowShortCut_Click(): Promise<void> {
+    try {
+      if (this.mainControls.shortCut.isOpened) {
+        this.mainControls.shortCut.isOpened = false;
+      }
+      else {
+        this.mainControls.shortCut.isOpened = true;
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnSaveShortCut_Click(): Promise<void> {
+    try {
+      if (this.mainControls.shortCut.title === '') {
+        this.toastService.error('Lütfen başlık giriniz.');
+      }
+      else {
+        const data = this.shortCutService.clearSubModel();
+        data.title = this.mainControls.shortCut.title;
+        data.parentRecordPrimaryKey = this.selectedRecord.data.primaryKey;
+        data.parentRecordType = 'collection';
+        this.shortCutService.addItem(data);
+        this.toastService.success('Kayıt Hızlı İşlemlere başarıyla eklendi.');
+        this.clearShortCutRecord();
+      }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRecordedTransaction_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(RecordedTransactionComponent, { size: 'md' });
+      modalRef.componentInstance.module = "collection";
+      modalRef.result.then((result: any) => {
+        if (result) {
+          this.onTransaction = true;
+          this.mainControls.shortCut.header = result.data.title;
+          this.mainControls.shortCut.primaryKey = result.data.parentRecordPrimaryKey;
+
+          this.onTransaction = true;
+          this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
+            this.selectedRecord = value.returnData as CollectionMainModel;
+            this.generateMainControls();
+
+            this.accountList$ = this.accService.getAllItems(this.selectedRecord.customer.data.primaryKey);
+            this.recordDate = getTodayForInput();
+            this.selectedRecord.data.primaryKey = null;
+            this.selectedRecord.data.insertDate = Date.now();
+            this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+            const receiptNoData = await this.sService.getCollectionCode();
+            if (receiptNoData !== null) {
+              this.selectedRecord.data.receiptNo = receiptNoData;
+            }
+            this.finishSubProcess(null, 'Sipariş işleme hazır.');
+          }).catch((error) => {
+            this.finishProcess(error, null);
+          });
+        }
+      }, () => { });
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
   async finishProcess(error: any, info: any): Promise<void> {
     // error.message sistem hatası
     // error kontrol hatası
@@ -761,12 +837,33 @@ export class CollectionComponent implements OnInit, OnDestroy {
     this.onTransaction = false;
   }
 
+  async finishSubProcess(error: any, info: any): Promise<void> {
+    // error.message sistem hatası
+    // error kontrol hatası
+    if (error === null) {
+      if (info !== null) {
+        this.toastService.success(info, true);
+      }
+    } else {
+      await this.infoService.error(error.message !== undefined ? error.message : error);
+    }
+    this.onTransaction = false;
+  }
+
   clearSelectedRecord(): void {
     this.recordDate = getTodayForInput();
     this.termDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
     this.oldMainList = [];
     this.generateMainControls();
+    this.clearShortCutRecord();
+  }
+
+  clearShortCutRecord(): void {
+    this.mainControls.shortCut.header = 'Hızlı Kayıt Seçimi..';
+    this.mainControls.shortCut.title = '';
+    this.mainControls.shortCut.isOpened = false;
+    this.mainControls.primaryKey = "-1";
   }
 
   format_amount($event): void {

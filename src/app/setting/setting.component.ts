@@ -101,6 +101,12 @@ export class SettingComponent implements OnInit {
     suffix: '',
     length: ''
   };
+  purchaseOrder = {
+    prefix: '',
+    number: '',
+    suffix: '',
+    length: ''
+  };
   openedPanel = 'general';
   isTransactionOn = false;
 
@@ -116,7 +122,7 @@ export class SettingComponent implements OnInit {
     await this.populateDiscountList();
     await this.populatePurchasePriceList();
     await this.populatePurchaseDiscountList();
-    this.service.getAllItems().toPromise().then(list => {
+    this.service.getAllItems().subscribe(list => {
       list.forEach((item: any) => {
         if (item.key === 'purchaseInvoicePrefix') {
           this.purchaseInvoice.prefix = item.value;
@@ -383,6 +389,17 @@ export class SettingComponent implements OnInit {
       await this.service.setItem({ key: 'orderNumber', value: this.order.number, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'orderSuffix', value: this.order.suffix, valueBool: false, valueNumber: 0 }),
       await this.service.setItem({ key: 'orderLength', value: this.order.length, valueBool: false, valueNumber: 0 })
+    ]).then(() => {
+      this.toastService.success('Sipariş ayarları kaydedildi.', true);
+    });
+  }
+
+  async btnSavePurchaseOrderAutoCode_Click(): Promise<void> {
+    Promise.all([
+      await this.service.setItem({ key: 'purchaseOrderPrefix', value: this.purchaseOrder.prefix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseOrderNumber', value: this.purchaseOrder.number, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseOrderSuffix', value: this.purchaseOrder.suffix, valueBool: false, valueNumber: 0 }),
+      await this.service.setItem({ key: 'purchaseOrderLength', value: this.purchaseOrder.length, valueBool: false, valueNumber: 0 })
     ]).then(() => {
       this.toastService.success('Sipariş ayarları kaydedildi.', true);
     });

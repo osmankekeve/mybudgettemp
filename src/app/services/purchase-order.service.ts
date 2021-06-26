@@ -133,6 +133,7 @@ export class PurchaseOrderService {
   async setItem(record: PurchaseOrderMainModel, primaryKey: string) {
     return await this.listCollection.doc(primaryKey).set(Object.assign({}, record.data))
       .then(async () => {
+        await this.sService.increasePurchaseOrderNumber();
         if (record.data.status === 'approved' || record.data.status === 'waitingForApprove') {
           await this.sodService.getItemsWithOrderPrimaryKey(record.data.primaryKey)
             .then((list) => {

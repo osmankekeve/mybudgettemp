@@ -3,7 +3,7 @@ import { getNumber } from './../core/correct-library';
 import { TermService } from './../services/term.service';
 import { DefinitionMainModel } from './../models/definition-main-model';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, CollectionReference, Query } from '@angular/fire/firestore';
 import { InformationService } from '../services/information.service';
 import { AuthenticationService } from '../services/authentication.service';
 import { ExcelService } from '../services/excel-service';
@@ -55,6 +55,7 @@ import { MainFilterComponent } from '../partials/main-filter/main-filter.compone
 import { Subscription } from 'rxjs';
 import { RecordedTransactionComponent } from '../partials/recorded-transaction/recorded-transaction.component';
 import { ShortCutRecordMainModel } from '../models/short-cut-main-model';
+import { SalesOrderDetailModel } from '../models/sales-order-detail-model';
 
 @Component({
   selector: 'app-sales-offer',
@@ -86,9 +87,9 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     tableName: '',
     primaryKey: '',
     shortCut: {
-      header:'Hızlı Kayıt Seçimi..',
-      title:'',
-      primaryKey: '-1', 
+      header: 'Hızlı Kayıt Seçimi..',
+      title: '',
+      primaryKey: '-1',
       isOpened: false
     },
   };
@@ -103,14 +104,14 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
   packetCampaignList: Array<CampaignModel>;
 
   constructor(protected authService: AuthenticationService, protected service: SalesOrderService, protected toastService: ToastService,
-              protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
-              protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
-              protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
-              protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
-              protected puService: ProductUnitService, protected ppService: ProductPriceService, protected pService: ProductService,
-              protected pdService: ProductDiscountService, protected setService: SettingService, protected cdService: CampaignDetailService,
-              protected pumService: ProductUnitMappingService, protected campService: CampaignService, protected termService: TermService,
-              protected shortCutService: ShortCutRecordService) {
+    protected infoService: InformationService, protected excelService: ExcelService, protected db: AngularFirestore,
+    protected route: Router, protected modalService: NgbModal, protected plService: PriceListService,
+    protected dService: DiscountListService, protected defService: DefinitionService, protected sService: SettingService,
+    protected daService: DeliveryAddressService, protected sodService: SalesOrderDetailService,
+    protected puService: ProductUnitService, protected ppService: ProductPriceService, protected pService: ProductService,
+    protected pdService: ProductDiscountService, protected setService: SettingService, protected cdService: CampaignDetailService,
+    protected pumService: ProductUnitMappingService, protected campService: CampaignService, protected termService: TermService,
+    protected shortCutService: ShortCutRecordService) {
   }
 
   ngOnInit() {
@@ -562,51 +563,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnRecordedTransaction_Click(): Promise<void> {
-    try {
-      const modalRef = this.modalService.open(RecordedTransactionComponent, { size: 'md' });
-      modalRef.componentInstance.module = "sales-order";
-      modalRef.result.then((result: any) => {
-        if (result) {
-          this.onTransaction = true;
-          this.mainControls.shortCut.header = result.data.title;
-          this.mainControls.shortCut.primaryKey = result.data.parentRecordPrimaryKey;
-
-          this.onTransaction = true;
-          this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
-            this.selectedRecord = value.returnData as SalesOrderMainModel;
-            this.generateMainControls();
-            this.populateDeliveryAddressList();
-            this.calculateTerm();
-      
-            await this.sodService.getMainItemsWithOrderPrimaryKey(this.selectedRecord.data.primaryKey)
-              .then((list) => {
-                this.selectedRecord.orderDetailList = [];
-                this.selectedRecord.orderDetailList = list;
-                this.selectedRecord.orderDetailList.forEach(x => {
-                  x.data.primaryKey = null;
-                  x.data.orderPrimaryKey = '-1';
-                });
-              });
-              this.recordDate = getTodayForInput();
-              this.selectedRecord.data.primaryKey = null;
-              this.selectedRecord.data.insertDate = Date.now();
-              this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
-              const receiptNoData = await this.sService.getOrderCode();
-              if (receiptNoData !== null) {
-                this.selectedRecord.data.receiptNo = receiptNoData;
-              }
-              this.finishSubProcess(null, 'Sipariş işleme hazır.');
-          }).catch((error) => {
-            this.finishProcess(error, null);
-          });
-        }
-      }, () => { });
-    } catch (error) {
-      await this.infoService.error(error);
-    }
-  }
-
   async btnExportToExcel_Click(): Promise<void> {
     if (this.mainList.length > 0) {
       this.excelService.exportToExcel(this.mainList, 'sales-order');
@@ -642,6 +598,69 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
         this.toastService.success('Kayıt Hızlı İşlemlere başarıyla eklendi.');
         this.clearShortCutRecord();
       }
+    } catch (error) {
+      await this.infoService.error(error);
+    }
+  }
+
+  async btnRecordedTransaction_Click(): Promise<void> {
+    try {
+      const modalRef = this.modalService.open(RecordedTransactionComponent, { size: 'md' });
+      modalRef.componentInstance.module = "sales-order";
+      modalRef.result.then(async (result: any) => {
+        if (result) {
+          this.onTransaction = true;
+          this.mainControls.shortCut.header = result.data.title;
+          this.mainControls.shortCut.primaryKey = result.data.parentRecordPrimaryKey;
+
+          this.onTransaction = true;
+          await this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
+            this.selectedRecord = value.returnData as SalesOrderMainModel;
+            this.generateMainControls();
+            this.populateDeliveryAddressList();
+            this.calculateTerm();
+
+            const receiptNoData = await this.sService.getOrderCode();
+            if (receiptNoData !== null) {
+              this.selectedRecord.data.receiptNo = receiptNoData;
+            }
+            this.db.collection(this.sodService.tableName, ref => {
+              let query: CollectionReference | Query = ref;
+              query = query.where('orderPrimaryKey', '==', this.selectedRecord.data.primaryKey);
+              return query;
+            }).get().toPromise().then(snapshot => {
+              this.selectedRecord.orderDetailList = [];
+              snapshot.forEach(async doc => {
+                const data = doc.data() as SalesOrderDetailModel;
+
+                const returnData = new SalesOrderDetailMainModel();
+                returnData.data = this.sodService.checkFields(data);
+
+                const p = await this.pService.getItem(data.productPrimaryKey);
+                returnData.product = p.returnData;
+
+                const pu = await this.puService.getItem(data.unitPrimaryKey);
+                returnData.unit = pu.returnData.data;
+
+                setOrderDetailCalculation(returnData);
+
+                data.primaryKey = this.db.createId();
+                data.orderPrimaryKey = '-1';
+                this.selectedRecord.orderDetailList.push(returnData);
+              });
+            }).catch((error) => {
+              this.finishProcess(error, null);
+            });
+            this.recordDate = getTodayForInput();
+            this.selectedRecord.data.primaryKey = null;
+            this.selectedRecord.data.insertDate = Date.now();
+            this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.finishSubProcess(null, 'Sipariş işleme hazır.');
+          }).catch((error) => {
+            this.finishProcess(error, null);
+          });
+        }
+      }, () => { });
     } catch (error) {
       await this.infoService.error(error);
     }

@@ -1132,3 +1132,10 @@ progress::-webkit-progress-value {
 .head-filter .dropdown .dropdown-menu .dropdown-item {
   font-size: 13px !important;
 }
+
+.recorded-transaction-panel {
+  display: flex !important;
+  position: absolute !important;
+  right: 20px;
+  z-index: 999;
+}
