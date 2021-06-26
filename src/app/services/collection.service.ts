@@ -307,7 +307,7 @@ export class CollectionService {
 
   getMainItems(): Observable<CollectionMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => ref.orderBy('insertDate', 'desc').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as CollectionModel;
@@ -327,12 +327,12 @@ export class CollectionService {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
-        if (startDate !== null) {
-          query = query.startAt(startDate.getTime());
-        }
+        query = query.orderBy('insertDate','desc').where('userPrimaryKey', '==', this.authService.getUid());
         if (endDate !== null) {
-          query = query.endAt(endDate.getTime());
+          query = query.startAt(endDate.getTime());
+        }
+        if (startDate !== null) {
+          query = query.endAt(startDate.getTime());
         }
         if (status !== null && status !== '-1') {
           query = query.where('status', '==', status);
@@ -360,15 +360,15 @@ export class CollectionService {
     this.listCollection = this.db.collection(this.tableName,
       ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+        query = query.orderBy('insertDate', 'desc').where('userPrimaryKey', '==', this.authService.getUid());
         if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
           query = query.where('customerCode', '==', customerPrimaryKey);
         }
-        if (startDate !== null) {
-          query = query.startAt(startDate.getTime());
-        }
         if (endDate !== null) {
-          query = query.endAt(endDate.getTime());
+          query = query.startAt(endDate.getTime());
+        }
+        if (startDate !== null) {
+          query = query.endAt(startDate.getTime());
         }
         if (status !== null && status !== '-1') {
           query = query.where('status', '==', status);
@@ -396,15 +396,15 @@ export class CollectionService {
         const list = Array<CollectionMainModel>();
         this.db.collection(this.tableName, ref => {
           let query: CollectionReference | Query = ref;
-          query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+          query = query.orderBy('insertDate', 'desc').where('userPrimaryKey', '==', this.authService.getUid());
           if (customerPrimaryKey !== null && customerPrimaryKey !== '-1') {
             query = query.where('customerCode', '==', customerPrimaryKey);
           }
-          if (startDate !== null) {
-            query = query.startAt(startDate.getTime());
-          }
           if (endDate !== null) {
-            query = query.endAt(endDate.getTime());
+            query = query.startAt(endDate.getTime());
+          }
+          if (startDate !== null) {
+            query = query.endAt(startDate.getTime());
           }
           if (status !== null && status !== '-1') {
             query = query.where('status', '==', status);

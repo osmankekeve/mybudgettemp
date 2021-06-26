@@ -618,7 +618,6 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord = value.returnData as SalesOrderMainModel;
             this.generateMainControls();
             this.populateDeliveryAddressList();
-            this.calculateTerm();
 
             const receiptNoData = await this.sService.getOrderCode();
             if (receiptNoData !== null) {
@@ -655,6 +654,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = null;
             this.selectedRecord.data.insertDate = Date.now();
             this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.calculateTerm();
             this.finishSubProcess(null, 'Sipariş işleme hazır.');
           }).catch((error) => {
             this.finishProcess(error, null);

@@ -620,7 +620,6 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
           this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
             this.selectedRecord = value.returnData as PurchaseOrderMainModel;
             this.generateMainControls();
-            this.calculateTerm();
             const receiptNoData = await this.sService.getPurchaseOrderCode();
             if (receiptNoData !== null) {
               this.selectedRecord.data.receiptNo = receiptNoData;
@@ -658,6 +657,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord.data.primaryKey = null;
             this.selectedRecord.data.insertDate = Date.now();
             this.selectedRecord.data.recordDate = getInputDataForInsert(this.recordDate);
+            this.calculateTerm();
             this.finishSubProcess(null, 'Sipariş işleme hazır.');
           }).catch((error) => {
             this.finishProcess(error, null);

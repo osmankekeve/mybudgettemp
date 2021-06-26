@@ -311,7 +311,7 @@ export class SalesOrderService {
 
   getMainItems(): Observable<SalesOrderMainModel[]> {
     this.listCollection = this.db.collection(this.tableName,
-      ref => ref.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid()));
+      ref => ref.orderBy('insertDate', 'desc').where('userPrimaryKey', '==', this.authService.getUid()));
     this.mainList$ = this.listCollection.stateChanges().pipe(map(changes => {
       return changes.map(change => {
         const data = change.payload.doc.data() as SalesOrderModel;
@@ -334,12 +334,12 @@ export class SalesOrderService {
   getMainItemsBetweenDates(startDate: Date, endDate: Date, status: Array<string>): Observable<SalesOrderMainModel[]> {
     this.listCollection = this.db.collection(this.tableName, ref => {
       let query: CollectionReference | Query = ref;
-      query = query.orderBy('insertDate').where('userPrimaryKey', '==', this.authService.getUid());
+      query = query.orderBy('insertDate', 'desc').where('userPrimaryKey', '==', this.authService.getUid());
       if (startDate !== null) {
-        query = query.startAt(startDate.getTime());
+        query = query.endAt(startDate.getTime());
       }
       if (endDate !== null) {
-        query = query.endAt(endDate.getTime());
+        query = query.startAt(endDate.getTime());
       }
       if (status !== null) {
         query = query.where('status', 'in', status);
