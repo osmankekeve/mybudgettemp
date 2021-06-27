@@ -485,13 +485,18 @@ export class CollectionComponent implements OnInit, OnDestroy {
     }
   }
 
-  async btnNew_Click(): Promise<void> {
-    this.clearSelectedRecord();
+  async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
     const receiptNoData = await this.sService.getCollectionCode();
     if (receiptNoData !== null) {
       this.selectedRecord.data.receiptNo = receiptNoData;
       this.mainControls.isAutoReceiptNoAvaliable = true;
     }
+  }
+
+  async btnNew_Click(): Promise<void> {
+    this.clearSelectedRecord();
+    this.getReceiptNo();
   }
 
   async btnSave_Click(): Promise<void> {

@@ -289,6 +289,18 @@ export class SettingComponent implements OnInit {
         if (item.key === 'orderLength') {
           this.order.length = item.value;
         }
+        if (item.key === 'purchaseOrderPrefix') {
+          this.purchaseOrder.prefix = item.value;
+        }
+        if (item.key === 'purchaseOrderNumber') {
+          this.purchaseOrder.number = item.value;
+        }
+        if (item.key === 'purchaseOrderSuffix') {
+          this.purchaseOrder.suffix = item.value;
+        }
+        if (item.key === 'purchaseOrderLength') {
+          this.purchaseOrder.length = item.value;
+        }
       });
       this.isTransactionOn = false;
     });

@@ -80,6 +80,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
     totalPriceWithTax: 0,
   };
   mainControls = {
+    isAutoReceiptNoAvaliable: false,
     tableName: '',
     primaryKey: '',
     shortCut: {
@@ -357,6 +358,15 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
     });
   }
 
+  async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
+    const receiptNoData = await this.sService.getPurchaseOrderCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
+    }
+  }
+
   async calculateTerm(): Promise<void> {
     const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
     if (record) {
@@ -398,10 +408,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
     try {
       this.clearSelectedRecord();
       this.selectedRecord.orderDetailList = [];
-      const receiptNoData = await this.sService.getPurchaseOrderCode();
-      if (receiptNoData !== null) {
-        this.selectedRecord.data.receiptNo = receiptNoData;
-      }
+      this.getReceiptNo();
       this.populatePriceList();
       this.populateDiscountList();
       this.populateTermList();
@@ -620,10 +627,7 @@ export class PurchaseOfferComponent implements OnInit, OnDestroy {
           this.service.getItem(this.mainControls.shortCut.primaryKey).then(async value => {
             this.selectedRecord = value.returnData as PurchaseOrderMainModel;
             this.generateMainControls();
-            const receiptNoData = await this.sService.getPurchaseOrderCode();
-            if (receiptNoData !== null) {
-              this.selectedRecord.data.receiptNo = receiptNoData;
-            }
+            this.getReceiptNo();
 
             this.db.collection(this.sodService.tableName, ref => {
               let query: CollectionReference | Query = ref;

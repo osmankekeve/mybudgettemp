@@ -677,7 +677,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
 
   async btnNew_Click(): Promise<void> {
     try {
-      await this.clearSelectedRecord();
+      this.clearSelectedRecord();
     } catch (error) {
       await this.infoService.error(error);
     }
@@ -981,7 +981,7 @@ export class PurchaseInvoiceComponent implements OnInit, OnDestroy {
     this.recordDate = getTodayForInput();
     this.selectedRecord = this.service.clearMainModel();
     this.setOrderCountInfo();
-    await this.getReceiptNo();
+    this.getReceiptNo();
   }
 
   async getReceiptNo(): Promise<void> {

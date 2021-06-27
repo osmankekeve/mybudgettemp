@@ -439,6 +439,15 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.generateMainControls();
   }
 
+  async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
+    const receiptNoData = await this.sService.getPaymentCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
+    }
+  }
+
   async btnShowMainFiler_Click(): Promise<void> {
     try {
       const modalRef = this.modalService.open(MainFilterComponent, { size: 'md' });
@@ -482,11 +491,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
   async btnNew_Click(): Promise<void> {
     this.clearSelectedRecord();
-    const receiptNoData = await this.sService.getPaymentCode();
-    if (receiptNoData !== null) {
-      this.selectedRecord.data.receiptNo = receiptNoData;
-      this.mainControls.isAutoReceiptNoAvaliable = true;
-    }
+    this.getReceiptNo();
   }
 
   async btnSave_Click(): Promise<void> {

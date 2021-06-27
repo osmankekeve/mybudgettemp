@@ -84,6 +84,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     totalPriceWithTax: 0,
   };
   mainControls = {
+    isAutoReceiptNoAvaliable: false,
     tableName: '',
     primaryKey: '',
     shortCut: {
@@ -391,6 +392,15 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
     });
   }
 
+  async getReceiptNo(): Promise<void> {
+    this.mainControls.isAutoReceiptNoAvaliable = false;
+    const receiptNoData = await this.sService.getOrderCode();
+    if (receiptNoData !== null) {
+      this.selectedRecord.data.receiptNo = receiptNoData;
+      this.mainControls.isAutoReceiptNoAvaliable = true;
+    }
+  }
+
   async calculateTerm(): Promise<void> {
     const record = await this.defService.getItem(this.selectedRecord.data.termPrimaryKey);
     if (record) {
@@ -433,10 +443,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
       this.clearSelectedRecord();
       this.selectedRecord.orderDetailList = [];
       this.packetCampaignList = [];
-      const receiptNoData = await this.sService.getOrderCode();
-      if (receiptNoData !== null) {
-        this.selectedRecord.data.receiptNo = receiptNoData;
-      }
+      this.getReceiptNo();
       this.generateMainControls();
       this.populatePriceList();
       this.populateDiscountList();
@@ -618,11 +625,7 @@ export class SalesOfferComponent implements OnInit, OnDestroy {
             this.selectedRecord = value.returnData as SalesOrderMainModel;
             this.generateMainControls();
             this.populateDeliveryAddressList();
-
-            const receiptNoData = await this.sService.getOrderCode();
-            if (receiptNoData !== null) {
-              this.selectedRecord.data.receiptNo = receiptNoData;
-            }
+            this.getReceiptNo();
             this.db.collection(this.sodService.tableName, ref => {
               let query: CollectionReference | Query = ref;
               query = query.where('orderPrimaryKey', '==', this.selectedRecord.data.primaryKey);
