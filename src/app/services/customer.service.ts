@@ -597,7 +597,7 @@ export class CustomerService {
       const list = Array<any>();
       this.db.collection('tblPurchaseInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
+        query = query.limitToLast(10).orderBy('insertDate', 'desc').where('customerCode', '==', customerPrimaryKey);
         return query;
       })
         .get().toPromise().then(snapshot => {
@@ -621,7 +621,7 @@ export class CustomerService {
       const list = Array<any>();
       this.db.collection('tblSalesInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.limitToLast(10).orderBy('insertDate').where('customerCode', '==', customerPrimaryKey);
+        query = query.limitToLast(10).orderBy('insertDate', 'desc').where('customerCode', '==', customerPrimaryKey);
         return query;
       })
         .get().toPromise().then(snapshot => {

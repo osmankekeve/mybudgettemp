@@ -244,7 +244,7 @@ export class ProfileService {
     try {
       this.db.collection('tblSalesInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
@@ -288,7 +288,7 @@ export class ProfileService {
     try {
       this.db.collection('tblPurchaseInvoice', ref => {
         let query: CollectionReference | Query = ref;
-        query = query.orderBy('insertDate').limit(1)
+        query = query.limit(1)
           .where('userPrimaryKey', '==', this.authService.getUid())
           .where('employeePrimaryKey', '==', primaryKey);
         return query;
