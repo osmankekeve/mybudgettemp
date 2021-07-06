@@ -117,7 +117,7 @@ import { RecordedTransactionComponent } from './partials/recorded-transaction/re
     AngularFireModule.initializeApp(environment.firebase), AngularFireAuthModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
+      apiKey: ''
     })
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy },
