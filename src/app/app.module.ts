@@ -115,7 +115,7 @@ import { StockVoucherFilterPipe } from './filters/stock-voucher-filter.pipe';
     // LoadingBarRouterModule, LoadingBarHttpClientModule, LoadingBarModule,
     AngularFirestoreModule.enablePersistence(), AngularFireStorageModule, AngularFontAwesomeModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyCrmHBthGzNdcTXs74tFHy_dyXN6t-9uqM'
+      apiKey: ''
     })
   ],
   providers: [{provide: LocationStrategy, useClass: HashLocationStrategy},
